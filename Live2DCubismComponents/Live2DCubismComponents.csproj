@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C62055BC-0779-47B8-BFB2-227D6C12ACD0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Live2D.Cubism</RootNamespace>
+    <AssemblyName>CoreWrapper</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Debug\CoreWrapper.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\CoreWrapper.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEditor">
+      <HintPath>..\UnityDlls\UnityEditor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\UnityDlls\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Live2D\Cubism\CoreWrapper\ArrayExtensionMethods.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\ByteExtensionMethods.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\ComponentExtensionMethods.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismDll.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismDrawable.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismDynamicDrawableData.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismLogging.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismMemory.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismMoc.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismModel.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismParameter.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismPart.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismTaskableModel.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\CubismTaskQueue.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\GameObjectExtensionMethods.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\ICubismTask.cs" />
+    <Compile Include="Live2D\Cubism\CoreWrapper\Vector2ExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Framework\ComponentExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismEyeBlinkController.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismEyeBlinkParameter.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismParameterBlendMode.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismParameterExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismParametersInspector.cs" />
+    <None Include="Live2D\Cubism\Framework\CubismPartsInspector.cs" />
+    <None Include="Live2D\Cubism\Framework\HarmonicMotion\CubismHarmonicMotionController.cs" />
+    <None Include="Live2D\Cubism\Framework\HarmonicMotion\CubismHarmonicMotionDirection.cs" />
+    <None Include="Live2D\Cubism\Framework\HarmonicMotion\CubismHarmonicMotionParameter.cs" />
+    <None Include="Live2D\Cubism\Framework\Json\CubismBuiltinPickers.cs" />
+    <None Include="Live2D\Cubism\Framework\Json\CubismModel3Json.cs" />
+    <None Include="Live2D\Cubism\Framework\Json\CubismMotion3Json.cs" />
+    <None Include="Live2D\Cubism\Framework\Json\CubismPhysics3Json.cs" />
+    <None Include="Live2D\Cubism\Framework\LookAt\CubismLookAxis.cs" />
+    <None Include="Live2D\Cubism\Framework\LookAt\CubismLookController.cs" />
+    <None Include="Live2D\Cubism\Framework\LookAt\CubismLookParameter.cs" />
+    <None Include="Live2D\Cubism\Framework\LookAt\CubismLookTargetBehaviour.cs" />
+    <None Include="Live2D\Cubism\Framework\LookAt\ICubismLookTarget.cs" />
+    <None Include="Live2D\Cubism\Framework\MouthMovement\CubismAudioMouthInput.cs" />
+    <None Include="Live2D\Cubism\Framework\MouthMovement\CubismAudioSamplingQuality.cs" />
+    <None Include="Live2D\Cubism\Framework\MouthMovement\CubismAutoMouthInput.cs" />
+    <None Include="Live2D\Cubism\Framework\MouthMovement\CubismMouthController.cs" />
+    <None Include="Live2D\Cubism\Framework\MouthMovement\CubismMouthParameter.cs" />
+    <None Include="Live2D\Cubism\Framework\ObjectExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsController.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsControlLink.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsLink.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsLinkInfo.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsParameterSetting.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsParameterSettingContainer.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsPoint.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsRig.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsRigidBody.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsSphereLink.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\CubismPhysicsSpringSphereLink.cs" />
+    <None Include="Live2D\Cubism\Framework\Physics\QuaternionExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Framework\Raycasting\CubismRaycastable.cs" />
+    <None Include="Live2D\Cubism\Framework\Raycasting\CubismRaycastablePrecision.cs" />
+    <None Include="Live2D\Cubism\Framework\Raycasting\CubismRaycaster.cs" />
+    <None Include="Live2D\Cubism\Framework\Raycasting\CubismRaycastHit.cs" />
+    <None Include="Live2D\Cubism\Framework\Tasking\CubismTaskDispatchHandler.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismBuiltinMaterials.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismBuiltinShaders.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismRenderController.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismRenderer.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismShaderVariables.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismSortingMode.cs" />
+    <None Include="Live2D\Cubism\Rendering\CubismSortingModeExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Rendering\ICubismDrawOrderHandler.cs" />
+    <None Include="Live2D\Cubism\Rendering\ICubismOpacityHandler.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskController.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskProperties.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskRenderer.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskTexture.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskTextureUpdater.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskTile.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskTilePool.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismMaskTransform.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\CubismRendererExtensionMethods.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\ICubismMaskSource.cs" />
+    <None Include="Live2D\Cubism\Rendering\Masking\IntExtensionMethods.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,640 @@
+﻿/*
+ * Copyright(c) Live2D Inc. All rights reserved.
+ * 
+ * Use of this source code is governed by the Live2D Open Software license
+ * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+
+using System;
+using Live2D.Cubism.Core;
+using Live2D.Cubism.Rendering.Masking;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+
+namespace Live2D.Cubism.Rendering
+{
+    /// <summary>
+    /// Wrapper for drawing <see cref="CubismDrawable"/>s.
+    /// </summary>
+    [ExecuteInEditMode]
+    public sealed class CubismRenderer : MonoBehaviour
+    {
+        /// <summary>
+        /// <see cref="LocalSortingOrder"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _localSortingOrder;
+
+        /// <summary>
+        /// Local sorting order.
+        /// </summary>
+        public int LocalSortingOrder
+        {
+            get
+            {
+                return _localSortingOrder;
+            }
+            set
+            {
+                // Return early if same value given.
+                if (value == _localSortingOrder)
+                {
+                    return;
+                }
+
+
+                // Store value.
+                _localSortingOrder = value;
+
+
+                // Apply it.
+                ApplySorting();
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="Color"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private Color _color = Color.white;
+
+        /// <summary>
+        /// Color.
+        /// </summary>
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                // Return early if same value given.
+                if (value == _color)
+                {
+                    return;
+                }
+
+
+                // Store value.
+                _color = value;
+
+                // Apply color.
+                ApplyVertexColors();
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="UnityEngine.Material"/>.
+        /// </summary>
+        public Material Material
+        {
+            get
+            {
+                #if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    return MeshRenderer.sharedMaterial;
+                }
+                #endif
+
+
+                return MeshRenderer.material;
+            }
+            set
+            {
+                #if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    MeshRenderer.sharedMaterial = value;
+
+
+                    return;
+                }
+                #endif
+
+
+                MeshRenderer.material = value;
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="MainTexture"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private Texture2D _mainTexture;
+
+        /// <summary>
+        /// <see cref="MeshRenderer"/>'s main texture.
+        /// </summary>
+        public Texture2D MainTexture
+        {
+            get { return _mainTexture; }
+            set
+            {
+                // Return early if same value given and main texture is valid.
+                if (value == _mainTexture && _mainTexture != null)
+                {
+                    return;
+                }
+
+
+                // Store value.
+                _mainTexture = (value != null)
+                    ? value
+                    : Texture2D.whiteTexture;
+
+
+                // Apply it.
+                ApplyMainTexture();
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="UnityEngine.Mesh"/>.
+        /// </summary>
+        public Mesh Mesh
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    return MeshFilter.sharedMesh;
+                }
+#endif
+
+
+                return MeshFilter.mesh;
+            }
+            private set
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    MeshFilter.sharedMesh = value;
+
+
+                    return;
+                }
+#endif
+
+
+                MeshFilter.mesh = value;
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// <see cref="MeshFilter"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private MeshFilter _meshFilter;
+
+        /// <summary>
+        /// <see cref="UnityEngine.MeshFilter"/>.
+        /// </summary>
+        public MeshFilter MeshFilter
+        {
+            get
+            {
+                if (_meshFilter == null)
+                {
+                    _meshFilter = GetComponent<MeshFilter>();
+
+
+                    // Lazily add component.
+                    if (_meshFilter == null)
+                    {
+                        _meshFilter = gameObject.AddComponent<MeshFilter>();
+                        _meshFilter.hideFlags = HideFlags.HideInInspector;
+                    }
+                }
+
+
+                return _meshFilter;
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="MeshRenderer"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private MeshRenderer _meshRenderer;
+
+        /// <summary>
+        /// <see cref="UnityEngine.MeshRenderer"/>.
+        /// </summary>
+        public MeshRenderer MeshRenderer
+        {
+            get
+            {
+                if (_meshRenderer == null)
+                {
+                    _meshRenderer = GetComponent<MeshRenderer>();
+
+
+                    // Lazily add component.
+                    if (_meshRenderer == null)
+                    {
+                        _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                        _meshRenderer.hideFlags = HideFlags.HideInInspector;
+                        _meshRenderer.receiveShadows = false;
+                        _meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                        _meshRenderer.lightProbeUsage = LightProbeUsage.BlendProbes;
+                    }
+                }
+
+
+                return _meshRenderer;
+            }
+        }
+
+        #region Interface For CubismRenderController
+
+        /// <summary>
+        /// <see cref="SortingMode"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector] private CubismSortingMode _sortingMode;
+
+        /// <summary>
+        /// Sorting mode.
+        /// </summary>
+        private CubismSortingMode SortingMode
+        {
+            get { return _sortingMode; }
+            set { _sortingMode = value; }
+        }
+
+
+        /// <summary>
+        /// <see cref="SortingOrder"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _sortingOrder;
+
+        /// <summary>
+        /// Sorting mode.
+        /// </summary>
+        private int SortingOrder
+        {
+            get { return _sortingOrder; }
+            set { _sortingOrder = value; }
+        }
+
+
+        /// <summary>
+        /// <see cref="RenderOrder"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _renderOrder;
+
+        /// <summary>
+        /// Sorting mode.
+        /// </summary>
+        private int RenderOrder
+        {
+            get { return _renderOrder; }
+            set { _renderOrder = value; }
+        }
+
+
+        /// <summary>
+        /// <see cref="DepthOffset"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector] private float _depthOffset = 0.00001f;
+
+        /// <summary>
+        /// Offset to apply in case of depth sorting.
+        /// </summary>
+        private float DepthOffset
+        {
+            get { return _depthOffset; }
+            set { _depthOffset = value; }
+        }
+
+
+        /// <summary>
+        /// <see cref="Opacity"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private float _opacity;
+
+        /// <summary>
+        /// Opacity.
+        /// </summary>
+        private float Opacity
+        {
+            get { return _opacity; }
+            set { _opacity = value; }
+        }
+
+
+        /// <summary>
+        /// Updates sorting layer.
+        /// </summary>
+        /// <param name="newSortingLayer">New sorting layer.</param>
+        internal void OnControllerSortingLayerDidChange(int newSortingLayer)
+        {
+            MeshRenderer.sortingLayerID = newSortingLayer;
+        }
+
+        /// <summary>
+        /// Updates sorting mode.
+        /// </summary>
+        /// <param name="newSortingMode">New sorting mode.</param>
+        internal void OnControllerSortingModeDidChange(CubismSortingMode newSortingMode)
+        {
+            SortingMode = newSortingMode;
+
+
+            ApplySorting();
+        }
+
+        /// <summary>
+        /// Updates sorting order.
+        /// </summary>
+        /// <param name="newSortingOrder">New sorting order.</param>
+        internal void OnControllerSortingOrderDidChange(int newSortingOrder)
+        {
+            SortingOrder = newSortingOrder;
+
+
+            ApplySorting();
+        }
+
+        /// <summary>
+        /// Updates depth offset.
+        /// </summary>
+        /// <param name="newDepthOffset"></param>
+        internal void OnControllerDepthOffsetDidChange(float newDepthOffset)
+        {
+            DepthOffset = newDepthOffset;
+
+
+            ApplySorting();
+        }
+
+
+        /// <summary>
+        /// Sets the opacity.
+        /// </summary>
+        /// <param name="newOpacity">New opacity.</param>
+        internal void OnDrawableOpacityDidChange(float newOpacity)
+        {
+            Opacity = newOpacity;
+
+
+            ApplyVertexColors();
+        }
+
+        /// <summary>
+        /// Updates render order.
+        /// </summary>
+        /// <param name="newRenderOrder">New render order.</param>
+        internal void OnDrawableRenderOrderDidChange(int newRenderOrder)
+        {
+            RenderOrder = newRenderOrder;
+
+
+            ApplySorting();
+        }
+
+        /// <summary>
+        /// Sets the <see cref="UnityEngine.Mesh.vertices"/>.
+        /// </summary>
+        /// <param name="newVertexPositions">Vertex positions to set.</param>
+        internal void OnDrawableVertexPositionsDidChange(Vector3[] newVertexPositions)
+        {
+            var mesh = Mesh;
+
+
+            // Apply positions and update bounds.
+            mesh.vertices = newVertexPositions;
+
+            mesh.RecalculateBounds();
+        }
+
+        /// <summary>
+        /// Sets visiblity.
+        /// </summary>
+        /// <param name="newVisibility">New visibility.</param>
+        internal void OnDrawableVisiblityDidChange(bool newVisibility)
+        {
+            MeshRenderer.enabled = newVisibility;
+        }
+
+
+        /// <summary>
+        /// Sets mask properties.
+        /// </summary>
+        /// <param name="newMaskProperties">Value to set.</param>
+        internal void OnMaskPropertiesDidChange(CubismMaskProperties newMaskProperties)
+        {
+            MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
+
+
+            // Write properties.
+            SharedPropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, newMaskProperties.Texture);
+            SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTile, newMaskProperties.Tile);
+            SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTransform, newMaskProperties.Transform);
+
+            MeshRenderer.SetPropertyBlock(SharedPropertyBlock);
+        }
+
+
+        /// <summary>
+        /// Sets model opacity.
+        /// </summary>
+        /// <param name="newModelOpacity">Opacity to set.</param>
+        internal void OnModelOpacityDidChange(float newModelOpacity)
+        {
+            MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
+
+
+            // Write property.
+            SharedPropertyBlock.SetFloat(CubismShaderVariables.ModelOpacity, newModelOpacity);
+
+            MeshRenderer.SetPropertyBlock(SharedPropertyBlock);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// <see cref="SharedPropertyBlock"/> backing field.
+        /// </summary>
+        private static MaterialPropertyBlock _sharedPropertyBlock;
+
+        /// <summary>
+        /// <see cref="MaterialPropertyBlock"/> that can be shared on the main script thread.
+        /// </summary>
+        private static MaterialPropertyBlock SharedPropertyBlock
+        {
+            get
+            {
+                // Lazily initialize.
+                if (_sharedPropertyBlock == null)
+                {
+                    _sharedPropertyBlock = new MaterialPropertyBlock();
+                }
+
+
+                return _sharedPropertyBlock;
+            }
+        }
+
+
+        /// <summary>
+        /// Applies main texture for rendering.
+        /// </summary>
+        private void ApplyMainTexture()
+        {
+            MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
+
+
+            // Write property.
+            SharedPropertyBlock.SetTexture(CubismShaderVariables.MainTexture, MainTexture);
+
+            MeshRenderer.SetPropertyBlock(SharedPropertyBlock);
+        }
+
+        /// <summary>
+        /// Applies sorting.
+        /// </summary>
+        private void ApplySorting()
+        {
+            // Sort by order.
+            if (SortingMode.SortByOrder())
+            {
+                MeshRenderer.sortingOrder = SortingOrder + ((SortingMode == CubismSortingMode.BackToFrontOrder)
+                    ? (RenderOrder + LocalSortingOrder)
+                    : -(RenderOrder + LocalSortingOrder));
+
+
+                transform.localPosition = Vector3.zero;
+
+
+                return;
+            }
+
+
+            // Sort by depth.
+            var offset = (SortingMode == CubismSortingMode.BackToFrontZ)
+                    ? -DepthOffset
+                    : DepthOffset;
+
+
+            MeshRenderer.sortingOrder = SortingOrder + LocalSortingOrder;
+
+            transform.localPosition = new Vector3(0f, 0f, RenderOrder * offset);
+        }
+
+        /// <summary>
+        /// Uploads mesh vertex colors.
+        /// </summary>
+        public void ApplyVertexColors()
+        {
+            var colors = Mesh.colors;
+
+
+            for (var i = 0; i < colors.Length; ++i)
+            {
+                colors[i] = Color;
+                colors[i].a *= Opacity;
+            }
+
+
+            // Upload colors.
+            Mesh.colors = colors;
+        }
+
+
+        /// <summary>
+        /// Initializes the mesh if necessary.
+        /// </summary>
+        private void TryInitializeMesh()
+        {
+            // Only create mesh if necessary.
+            // HACK 'Mesh.vertex > 0' makes sure mesh is recreated in case of runtime instantiation.
+            if (Mesh != null && Mesh.vertexCount > 0)
+            {
+                return;
+            }
+
+
+            // Create mesh for attached drawable.
+            var drawable = GetComponent<CubismDrawable>();
+
+
+            var mesh = new Mesh
+            {
+                name = drawable.name,
+                vertices = drawable.VertexPositions,
+                uv = drawable.VertexUvs,
+                triangles = drawable.Indices
+            };
+
+
+            var colors = new Color[mesh.vertexCount];
+
+
+            for (var i = 0; i < colors.Length; ++i)
+            {
+                colors[i] = Color.white;
+            }
+
+
+            mesh.colors = colors;
+            
+
+            mesh.MarkDynamic();
+            mesh.RecalculateBounds();
+
+
+            // Store mesh.
+            Mesh = mesh;
+        }
+
+        /// <summary>
+        /// Initializes the main texture if possible.
+        /// </summary>
+        private void TryInitializeMainTexture()
+        {
+            if (MainTexture == null)
+            {
+                MainTexture = null;
+            }
+
+
+            ApplyMainTexture();
+        }
+
+        #region Unity Event Handling
+
+        /// <summary>
+        /// Initializes components.
+        /// </summary>
+        private void Start()
+        {
+            TryInitializeMesh();
+            TryInitializeMainTexture();
+            ApplySorting();
+        }
+
+        /// <summary>
+        /// Initializes components on creation.
+        /// </summary>
+        private void Reset()
+        {
+            Start();
+        }
+
+        #endregion
+    }
+}
