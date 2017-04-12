@@ -2,6 +2,10 @@
 # so we taking a brute force approach here...
 *.*
 
+Library/
+ProjectSettings/
+Temp/
+
 !README.md
 
 !Assets/Live2D/Cubism/Components/**/*.cs
