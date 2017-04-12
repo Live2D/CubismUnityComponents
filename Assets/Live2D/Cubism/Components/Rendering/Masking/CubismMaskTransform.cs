@@ -19,6 +19,18 @@ namespace Live2D.Cubism.Rendering.Masking
         #region Conversion
 
         /// <summary>
+        /// HACK Prevents dynamic batching of <see cref="CubismRenderer"/>s that are masked.
+        /// </summary>
+        /// <remarks>
+        /// As Unity transforms vertex positions into world space on dynamic batching, and masking relies on vertex positions to be in local space,
+        /// masking isn't compatible with dynamic batching.
+        /// 
+        /// Unity exposes a shader tag for disabling dynamic batching ("DynamicBatching"), but this would make it necessary for creating separate shaders...
+        /// </remarks>
+        private static int UniqueId { get; set; }
+
+
+        /// <summary>
         /// Converts a <see cref="CubismMaskTile"/> to a <see cref="Vector4"/>.
         /// </summary>
         /// <param name="value">Value to convert.</param>
@@ -29,7 +41,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 x = value.Offset.x,
                 y = value.Offset.y,
                 z = value.Scale,
-                w = 1f
+                w = (++UniqueId)
             };
         }
 
