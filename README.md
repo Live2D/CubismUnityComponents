@@ -37,6 +37,12 @@ Unity Editor extensions are located in ``./Assets/Live2D/Cubism/Components/Edito
 
 Resources like shaders and other assets are located in ``./Assets/Live2D/Cubism/Components/Resources``.
 
+## Branches
+
+If you're looking for the latest features and/or fixes, all development takes place in the ``develop`` branch.
+
+The ``master`` branch is brought in sync with the ``develop`` branch once every official SDK release.
+
 ## Usage
 
 Simply copy all files under ``./Assets`` into the folder the Live2D Cubism SDK is located in your Unity project.
