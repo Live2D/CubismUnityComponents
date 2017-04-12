@@ -6,122 +6,89 @@
  */
 
 
+using Live2D.Cubism.Core;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 namespace Live2D.Cubism.Rendering.Masking
 {
     /// <summary>
-    /// Renders out Cubism masks.
+    /// Renders out a single Cubism mask.
     /// </summary>
-    public sealed class CubismMaskRenderer
+    /// <remarks>
+    /// Note that - depending on the model - multiple <see cref="CubismMaskRenderer"/> might be assigned to a single <see cref="CubismDrawable"/>.
+    /// </remarks>
+    internal sealed class CubismMaskRenderer
     {
         /// <summary>
-        /// Shared buffer for <see cref="CubismMaskProperties"/>s.
+        /// Mask properties.
         /// </summary>
-        private static CubismMaskProperties SharedMaskProperties { get; set; }
-        
-        /// <summary>
-        /// Material for drawing masks.
-        /// </summary>
-        private static Material SharedMaskMaterial { get; set; }
+        private MaterialPropertyBlock MaskProperties { get; set; }
 
 
         /// <summary>
-        /// Shader property for mask textures. 
+        /// Main renderer.
         /// </summary>
-        private static int MainTexturePropertyId { get; set; }
-
-        /// <summary>
-        /// Shader property for <see cref="CubismMaskTile"/>s. 
-        /// </summary>
-        private static int CubismMaskTilePropertyId { get; set; }
-
-        /// <summary>
-        /// Shader property for <see cref="CubismMaskTransform"/>s. 
-        /// </summary>
-        private static int CubismMaskTransformPropertyId { get; set; }
+        private CubismRenderer MainRenderer { get; set; }
 
 
         /// <summary>
-        /// Masks.
+        /// Bounds of <see cref="CubismRenderer.Mesh"/>.
         /// </summary>
-        private CubismRenderer[] Masks { get; set; }
-
-        /// <summary>
-        /// Masked drawables .
-        /// </summary>
-        private CubismRenderer[] Masked { get; set; }
-
-
-        /// <summary>
-        /// Texture to draw onto.
-        /// </summary>
-        private CubismMaskTexture MaskTexture { get; set; }
-
-        /// <summary>
-        /// MaskTile to draw on.
-        /// </summary>
-        private CubismMaskTile MaskTile { get; set; }
-
-        /// <summary>
-        /// Transform info for drawing masks.
-        /// </summary>
-        private CubismMaskTransform MaskTransform { get; set; }
+        internal Bounds MeshBounds
+        {
+            get { return MainRenderer.Mesh.bounds; }
+        }
 
         #region Ctors
 
         /// <summary>
-        /// Initializes instance.
+        /// Initializes fields.
         /// </summary>
-        /// <param name="masks">Masks.</param>
-        /// <param name="masked">Masked drawables. </param>
-        public CubismMaskRenderer(CubismRenderer[] masks, CubismRenderer[] masked)
+        public CubismMaskRenderer()
         {
-            // Initialize fields.
-            Masks = masks;
-            Masked = masked;
-
-
-            // Initialize statics. (On each construction)...
-            SharedMaskProperties = new CubismMaskProperties();
-
-            SharedMaskMaterial = CubismBuiltinMaterials.Mask;
-
-            MainTexturePropertyId = Shader.PropertyToID("_MainTex");
-            CubismMaskTilePropertyId = Shader.PropertyToID("cubism_MaskTile");
-            CubismMaskTransformPropertyId = Shader.PropertyToID("cubism_MaskTransform");
+            MaskProperties = new MaterialPropertyBlock();
         }
 
         #endregion
 
+        #region Interface For CubismMaskMaskedJunction
+
         /// <summary>
-        /// Set <see cref="CubismMaskTexture"/>. 
+        /// Sets the <see cref="CubismRenderer"/> to reference. 
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public CubismMaskRenderer SetMaskTexture(CubismMaskTexture value)
+        /// <param name="value">Value to set.</param>
+        /// <returns>Instance.</returns>
+        internal CubismMaskRenderer SetMainRenderer(CubismRenderer value)
         {
-            MaskTexture = value;
-
-
-            ResetMaskTransform();
+            MainRenderer = value;
 
 
             return this;
         }
 
         /// <summary>
-        /// Set <see cref="CubismMaskTile"/>. 
+        /// Sets <see cref="CubismMaskTile"/>. 
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public CubismMaskRenderer SetMaskTile(CubismMaskTile value)
+        /// <param name="value">Value to set.</param>
+        /// <returns>Instance.</returns>
+        internal CubismMaskRenderer SetMaskTile(CubismMaskTile value)
         {
-            MaskTile = value;
+            MaskProperties.SetVector(CubismShaderVariables.MaskTile, value);
 
 
-            ResetMaskTransform();
+            return this;
+        }
+
+        /// <summary>
+        /// Sets <see cref="CubismMaskTransform"/>. 
+        /// </summary>
+        /// <param name="value">Value to set.</param>
+        /// <returns>Instance.</returns>
+        internal CubismMaskRenderer SetMaskTransform(CubismMaskTransform value)
+        {
+            MaskProperties.SetVector(CubismShaderVariables.MaskTransform, value);
 
 
             return this;
@@ -129,91 +96,23 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
         /// <summary>
-        /// Draw masks on <see cref="CubismMaskTexture"/>. 
+        /// Enqueues
         /// </summary>
-        public void DrawMasksNow()
+        /// <param name="buffer">Buffer to enqueue in.</param>
+        internal void AddToCommandBuffer(CommandBuffer buffer)
         {
-            // Recompute mask transform (updating masked renderers as necessary).
-            RecalculateMaskTransform();
+            // Lazily fetch drawable texture and mesh.
+            var mainTexture = MainRenderer.MainTexture;
+            var mesh = MainRenderer.Mesh;
 
 
-            // Initialize material.
-            var material = SharedMaskMaterial;
-            var activeTexture = Masks[0].MainTexture;
+            MaskProperties.SetTexture(CubismShaderVariables.MainTexture, mainTexture);
 
 
-            material.SetTexture(MainTexturePropertyId, activeTexture);
-            material.SetVector(CubismMaskTilePropertyId, MaskTile);
-            material.SetVector(CubismMaskTransformPropertyId, MaskTransform);
-
-
-            // Activate material.
-            material.SetPass(0);
-
-
-            // Draw masks.
-            for (var i = 0; i < Masks.Length; i++)
-            {
-                // Switch textue if necessary.
-                if (Masks[i].MainTexture != activeTexture)
-                {
-                    activeTexture = Masks[i].MainTexture;
-
-
-                    material.SetTexture(MainTexturePropertyId, activeTexture);
-                }
-
-                // Draw mesh.
-                Graphics.DrawMeshNow(Masks[i].Mesh, Matrix4x4.identity);
-            }
+            // Add command.
+            buffer.DrawMesh(mesh, Matrix4x4.identity, CubismBuiltinMaterials.Mask, 0, 0, MaskProperties);
         }
 
-
-        /// <summary>
-        /// Resets <see cref="MaskTransform"/>.
-        /// </summary>
-        private void ResetMaskTransform()
-        {
-            MaskTransform = new CubismMaskTransform
-            {
-                Offset = Vector2.zero,
-                Scale = 0f
-            };
-        }
-
-        /// <summary>
-        /// Updates <see cref="MaskTransform"/> and <see cref="Masked"/>s.
-        /// </summary>
-        private void RecalculateMaskTransform()
-        {
-            // Compute bounds and scale.
-            var bounds = Masks.GetBounds();
-            var scale = (bounds.size.x > bounds.size.y)
-                ? bounds.size.x
-                : bounds.size.y;
-
-
-            // Compute mask transform.
-            MaskTransform = new CubismMaskTransform
-            {
-                Offset = bounds.center,
-                Scale = 1f / scale
-            };
-
-
-            // Apply mask properties to masked.
-            var maskProperties = SharedMaskProperties;
-
-
-            maskProperties.Texture = MaskTexture;
-            maskProperties.Tile = MaskTile;
-            maskProperties.Transform = MaskTransform;
-
-
-            for (var i = 0; i < Masked.Length; ++i)
-            {
-                Masked[i].OnMaskPropertiesDidChange(maskProperties);
-            }
-        }
+        #endregion
     }
 }

@@ -9,9 +9,9 @@
 namespace Live2D.Cubism.Rendering.Masking
 {
     /// <summary>
-    /// Common interface for mask sources.
+    /// Common interface for mask draw sources.
     /// </summary>
-    public interface ICubismMaskSource
+    public interface ICubismMaskTextureCommandSource : ICubismMaskCommandSource
     {
         /// <summary>
         /// Queries the number of tiles needed by the source.
@@ -25,11 +25,5 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         /// <param name="value">Tiles to assign.</param>
         void SetTiles(CubismMaskTile[] value);
-
-
-        /// <summary>
-        /// Called when source should instantly draw.
-        /// </summary>
-        void DrawNow();
     }
 }

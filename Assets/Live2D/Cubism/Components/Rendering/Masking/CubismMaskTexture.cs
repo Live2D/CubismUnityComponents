@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 namespace Live2D.Cubism.Rendering.Masking
@@ -16,7 +17,7 @@ namespace Live2D.Cubism.Rendering.Masking
     /// Texture for rendering masks.
     /// </summary>
     [CreateAssetMenu(menuName = "Live2D Cubism/Mask Texture")]
-    public class CubismMaskTexture : ScriptableObject
+    public sealed class CubismMaskTexture : ScriptableObject, ICubismMaskCommandSource
     {
         #region Conversion
 
@@ -172,7 +173,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Add source of masks for drawing.
         /// </summary>
-        public void AddSource(ICubismMaskSource source)
+        public void AddSource(ICubismMaskTextureCommandSource source)
         {
             // Make sure isstance is valid.
             TryRevive();
@@ -205,12 +206,16 @@ namespace Live2D.Cubism.Rendering.Masking
 
             // Apply tiles to source.
             source.SetTiles(item.Tiles);
+
+
+            // Enforce command buffer refresh.
+            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         /// <summary>
         /// Remove source of masks
         /// </summary>
-        public void RemoveSource(ICubismMaskSource source)
+        public void RemoveSource(ICubismMaskTextureCommandSource source)
         {
             // Return early if empty.
             if (!ContainsSources)
@@ -229,9 +234,13 @@ namespace Live2D.Cubism.Rendering.Masking
             }
 
 
-            // ReturnTiles tiles and deregister source.
+            // Return tiles and deregister source.
             TilePool.ReturnTiles(Sources[itemIndex].Tiles);
             Sources.RemoveAt(itemIndex);
+
+
+            // Enforce command buffer refresh.
+            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         #endregion
@@ -250,26 +259,26 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void ReinitializeSources()
         {
-            // Return early if nothing to refresh.
-            if (!ContainsSources)
+            // Reallocate tiles if sources exist.
+            if (ContainsSources)
             {
-                return;
+                for (var i = 0; i < Sources.Count; ++i)
+                {
+                    var source = Sources[i];
+
+
+                    source.Tiles = TilePool.AcquireTiles(source.Source.GetNecessaryTileCount());
+
+                    source.Source.SetTiles(source.Tiles);
+
+
+                    Sources[i] = source;
+                }
             }
 
 
-            // Reallocate tiles.
-            for (var i = 0; i < Sources.Count; ++i)
-            {
-                var source = Sources[i];
-
-
-                source.Tiles = TilePool.AcquireTiles(source.Source.GetNecessaryTileCount());
-
-                source.Source.SetTiles(source.Tiles);
-
-
-                Sources[i] = source;
-            }
+            // Enforce command buffer refresh.
+            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         private void RefreshRenderTexture()
@@ -286,41 +295,6 @@ namespace Live2D.Cubism.Rendering.Masking
             ReinitializeSources();
         }
 
-        /// <summary>
-        /// Updates the mask.
-        /// </summary>
-        private void OnDrawNow()
-        {
-            // Return early if nothing to draw.
-            if (!ContainsSources)
-            {
-                return;
-            }
-
-
-            // Activate render texture and clear it.
-            var deactivatedRenderTexture = RenderTexture.active;
-
-
-            RenderTexture.DiscardContents(true, true);
-            Graphics.SetRenderTarget(RenderTexture);
-
-
-            // Clear the render texture if used for the first time this frame.
-            GL.Clear(false, true, Color.clear);
-
-
-            // Let sources draw.
-            for (var i = 0; i < Sources.Count; ++i)
-            {
-                Sources[i].Source.DrawNow();
-            }
-
-
-            // Revert render texture.
-            Graphics.SetRenderTarget(deactivatedRenderTexture);
-        }
-
         #region Unity Event Handling
 
         /// <summary>
@@ -329,18 +303,45 @@ namespace Live2D.Cubism.Rendering.Masking
         // ReSharper disable once UnusedMember.Local
         private void OnEnable()
         {
-            // Register for updates.
-            CubismMaskTextureUpdater.OnDrawNow += OnDrawNow;
+            CubismMaskCommandBuffer.AddSource(this);
         }
 
         /// <summary>
         /// Finalizes instance.
         /// </summary>
         // ReSharper disable once UnusedMember.Local
-        private void OnDisable()
+        private void OnDestroy()
         {
-            // Stop getting updates.
-            CubismMaskTextureUpdater.OnDrawNow -= OnDrawNow;
+            CubismMaskCommandBuffer.RemoveSource(this);
+        }
+
+        #endregion
+
+        #region ICubismMaskCommandSource
+
+        /// <summary>
+        /// Called to enqueue source.
+        /// </summary>
+        /// <param name="buffer">Buffer to enqueue in.</param>
+        void ICubismMaskCommandSource.AddToCommandBuffer(CommandBuffer buffer)
+        {
+            // Return early if empty.
+            if (!ContainsSources)
+            {
+                return;
+            }
+
+
+            // Enqueue render target.
+            buffer.SetRenderTarget(RenderTexture);
+            buffer.ClearRenderTarget(false, true, Color.clear);
+
+
+            // Enqueue sources.
+            for (var i = 0; i < Sources.Count; ++i)
+            {
+                Sources[i].Source.AddToCommandBuffer(buffer);
+            }
         }
 
         #endregion
@@ -355,7 +356,7 @@ namespace Live2D.Cubism.Rendering.Masking
             /// <summary>
             /// SourcesItem instance.
             /// </summary>
-            public ICubismMaskSource Source;
+            public ICubismMaskTextureCommandSource Source;
 
             /// <summary>
             /// Tiles assigned to the instance.

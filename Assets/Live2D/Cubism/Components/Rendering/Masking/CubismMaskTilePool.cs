@@ -14,7 +14,7 @@ namespace Live2D.Cubism.Rendering.Masking
     /// <summary>
     /// Virtual pool allocator for <see cref="CubismMaskTile"/>s.
     /// </summary>
-    internal class CubismMaskTilePool
+    internal sealed class CubismMaskTilePool
     {
         /// <summary>
         /// Level of subdivisions.

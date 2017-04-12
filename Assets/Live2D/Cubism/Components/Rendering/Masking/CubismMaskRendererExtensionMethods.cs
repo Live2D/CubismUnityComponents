@@ -6,31 +6,30 @@
  */
 
 
-using Live2D.Cubism.Rendering;
 using UnityEngine;
 
 
 namespace Live2D.Cubism.Rendering.Masking
 {
     /// <summary>
-    /// Extensions for <see cref="CubismRenderer"/>.
+    /// Extensions for <see cref="CubismMaskRenderer"/>.
     /// </summary>
-    internal static class CubismRendererExtensionMethods
+    internal static class CubismMaskRendererExtensionMethods
     {
         /// <summary>
-        /// Combines bounds of multiple <see cref="CubismRenderer"/>s.
+        /// Combines bounds of multiple <see cref="CubismMaskRenderer"/>s.
         /// </summary>
-        /// <param name="self">Drawables.</param>
+        /// <param name="self">Renderers.</param>
         /// <returns>Combined bounds.</returns>
-        public static Bounds GetBounds(this CubismRenderer[] self)
+        public static Bounds GetBounds(this CubismMaskRenderer[] self)
         {
-            var min = self[0].Mesh.bounds.min;
-            var max = self[0].Mesh.bounds.max;
+            var min = self[0].MeshBounds.min;
+            var max = self[0].MeshBounds.max;
 
 
             for (var i = 1; i < self.Length; ++i)
             {
-                var boundsI = self[i].Mesh.bounds;
+                var boundsI = self[i].MeshBounds;
 
 
                 if (boundsI.min.x < min.x)
@@ -54,7 +53,7 @@ namespace Live2D.Cubism.Rendering.Masking
                     max.y = boundsI.max.y;
                 }
             }
-            
+
 
             return new Bounds
             {

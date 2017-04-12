@@ -24,6 +24,9 @@ Shader "Live2D Cubism/Unlit"
 
 		// Mask settings.
 		[Toggle(CUBISM_MASK)] _Mask("Mask?", Int) = 0
+		[PerRendererData] cubism_MaskTexture("cubism_Internal", 2D) = "white" {}
+		[PerRendererData] cubism_MaskTile("cubism_Internal", Vector) = (0, 0, 0, 0)
+		[PerRendererData] cubism_MaskTransform("cubism_Internal", Vector) = (0, 0, 0, 0)
 	}
 	SubShader
 	{

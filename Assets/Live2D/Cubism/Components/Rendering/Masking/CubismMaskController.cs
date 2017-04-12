@@ -9,6 +9,7 @@
 using System.Collections.Generic;
 using Live2D.Cubism.Core;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 namespace Live2D.Cubism.Rendering.Masking
@@ -17,7 +18,7 @@ namespace Live2D.Cubism.Rendering.Masking
     /// Controls rendering of Cubism masks.
     /// </summary>
     [ExecuteInEditMode]
-    public sealed class CubismMaskController : MonoBehaviour, ICubismMaskSource
+    public sealed class CubismMaskController : MonoBehaviour, ICubismMaskTextureCommandSource
     {
         /// <summary>
         /// <see cref="MaskTexture"/> backing field.
@@ -62,7 +63,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// <see cref="CubismMaskRenderer"/>s.
         /// </summary>
-        private CubismMaskRenderer[] MaskRenderers { get; set; }
+        private CubismMaskMaskedJunction[] Junctions { get; set; }
 
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private bool IsRevived
         {
-            get { return MaskRenderers != null; }
+            get { return Junctions != null; }
         }
 
 
@@ -89,7 +90,7 @@ namespace Live2D.Cubism.Rendering.Masking
         }
 
         /// <summary>
-        /// Initializes <see cref="MaskRenderers"/>.
+        /// Initializes <see cref="Junctions"/>.
         /// </summary>
         private void ForceRevive()
         {
@@ -114,18 +115,46 @@ namespace Live2D.Cubism.Rendering.Masking
             }
 
 
-            // Create renderers for pairs.
-            MaskRenderers = new CubismMaskRenderer[pairs.Entries.Count];
+            // Initialize junctions.
+            Junctions = new CubismMaskMaskedJunction[pairs.Entries.Count];
 
 
-            for (var i = 0; i < MaskRenderers.Length; ++i)
+            for (var i = 0; i < Junctions.Length; ++i)
             {
-                MaskRenderers[i] = new CubismMaskRenderer(pairs.Entries[i].Masks, pairs.Entries[i].Maskeds.ToArray())
+                // Create mask renderers for junction.
+                var masks = new CubismMaskRenderer[pairs.Entries[i].Masks.Length];
+
+
+                for (var j = 0; j < masks.Length; ++j)
+                {
+                    masks[j] = new CubismMaskRenderer()
+                        .SetMainRenderer(pairs.Entries[i].Masks[j]);
+                }
+
+
+                // Create junction.
+                Junctions[i] = new CubismMaskMaskedJunction()
+                    .SetMasks(masks)
+                    .SetMaskeds(pairs.Entries[i].Maskeds.ToArray())
                     .SetMaskTexture(MaskTexture);
             }
         }
 
         #region Unity Event Handling
+
+        private void Update()
+        {
+            if (!IsRevived)
+            {
+                return;
+            }
+
+
+            for (var i = 0; i < Junctions.Length; ++i)
+            {
+                Junctions[i].Update();
+            }
+        }
 
         /// <summary>
         /// Initializes instance.
@@ -158,50 +187,43 @@ namespace Live2D.Cubism.Rendering.Masking
 
         #endregion
 
-        #region ICubismMaskSource
+        #region ICubismMaskDrawSource
 
         /// <summary>
         /// Queries the number of tiles needed by the source.
         /// </summary>
         /// <returns>The necessary number of tiles needed.</returns>
-        int ICubismMaskSource.GetNecessaryTileCount()
+        int ICubismMaskTextureCommandSource.GetNecessaryTileCount()
         {
             TryRevive();
 
 
-            return MaskRenderers.Length;
+            return Junctions.Length;
         }
+
 
         /// <summary>
         /// Assigns the tiles.
         /// </summary>
         /// <param name="value">Tiles to assign.</param>
-        void ICubismMaskSource.SetTiles(CubismMaskTile[] value)
+        void ICubismMaskTextureCommandSource.SetTiles(CubismMaskTile[] value)
         {
-            for (var i = 0; i < MaskRenderers.Length; ++i)
+            for (var i = 0; i < Junctions.Length; ++i)
             {
-                MaskRenderers[i].SetMaskTile(value[i]);
+                Junctions[i].SetMaskTile(value[i]);
             }
         }
+
 
         /// <summary>
         /// Called when source should instantly draw.
         /// </summary>
-        void ICubismMaskSource.DrawNow()
+        void ICubismMaskCommandSource.AddToCommandBuffer(CommandBuffer buffer)
         {
-            // Draw only if enabled.
-            if (!isActiveAndEnabled)
+            for (var i = 0; i < Junctions.Length; ++i)
             {
-                return;
+                Junctions[i].AddToCommandBuffer(buffer);
             }
-            
-            // Dispatch event.
-            for (var i = 0; i < MaskRenderers.Length; ++i)
-            {
-                MaskRenderers[i].DrawMasksNow();
-                
-            }
-            
         }
 
         #endregion
@@ -275,7 +297,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 }
 
 
-                // Create a new pair.
+                // Create new pair.
                 var renderers = new CubismRenderer[masks.Length];
 
 
@@ -288,7 +310,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 Entries.Add(new MasksMaskedsPair
                 {
                     Masks = renderers,
-                    Maskeds = new List<CubismRenderer>() {masked.GetComponent<CubismRenderer>() }
+                    Maskeds = new List<CubismRenderer>() { masked.GetComponent<CubismRenderer>() }
                 });
             }
         }
