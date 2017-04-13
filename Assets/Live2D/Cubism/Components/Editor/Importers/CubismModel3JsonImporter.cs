@@ -173,6 +173,13 @@ namespace Live2D.Cubism.Editor.Importers
                 CubismImporter.SendModelImportEvent(this, model);
 
 
+                foreach (var texture in Model3Json.Textures)
+                {
+                    CubismImporter.SendModelTextureImportEvent(this, model, texture);
+                }
+
+
+                // Create prefab and trigger saving of changes.
                 ModelPrefab = PrefabUtility.CreatePrefab(AssetPath.Replace(".model3.json", ".prefab"), model.gameObject);
 
 
@@ -194,8 +201,14 @@ namespace Live2D.Cubism.Editor.Importers
                 SyncPhysics(model, destination);
                 
 
-                // Trigger event.
+                // Trigger events.
                 CubismImporter.SendModelImportEvent(this, destination);
+
+
+                foreach (var texture in Model3Json.Textures)
+                {
+                    CubismImporter.SendModelTextureImportEvent(this, destination, texture);
+                }
 
 
                 // Replace prefab and clean up.
