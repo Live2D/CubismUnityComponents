@@ -13,6 +13,7 @@ Temp/
 
 !Assets/Live2D/Cubism/Components/Resources/**/*.asset
 !Assets/Live2D/Cubism/Components/Resources/**/*.mat
+!Assets/Live2D/Cubism/Components/Resources/**/*.cginc
 !Assets/Live2D/Cubism/Components/Resources/**/*.shader
 
 !ChangeLogs/**/*.md
