@@ -1,0 +1,3 @@
+# Physics
+
+This example demonstrates Cubism physics in Unity. Physics are automatically set up for Cubism models that use it.
