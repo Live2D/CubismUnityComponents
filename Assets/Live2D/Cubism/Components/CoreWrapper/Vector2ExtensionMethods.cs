@@ -19,27 +19,21 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Converts a 2D vector to vertex position.
         /// </summary>
-        /// <remarks>
-        /// Cubism coordinates are upside-down.
-        /// </remarks>
         /// <param name="self">2D vector to convert.</param>
         /// <returns>Vertex position.</returns>
         public static Vector3 ToVertexPosition(this Vector2 self)
         {
-            return new Vector3(self.x, -self.y);
+            return new Vector3(self.x, self.y);
         }
 
         /// <summary>
         /// Converts a 2D vector to vector uv.
         /// </summary>
-        /// <remarks>
-        /// Cubism coordinates are upside-down.
-        /// </remarks>
         /// <param name="self">2D vector to convert.</param>
         /// <returns>Vertex uv.</returns>
         public static Vector2 ToVertexUv(this Vector2 self)
         {
-            return new Vector2(self.x, 1f - self.y);
+            return self;
         }
     }
 }
