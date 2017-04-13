@@ -89,22 +89,7 @@ namespace Live2D.Cubism.Rendering
         /// <returns>The material.</returns>
         private static Material LoadUnlitMaterial(string name)
         {
-            var material = Resources.Load<Material>(ResourcesDirectory + "/" + name);
-
-
-            // Make sure shader is attached.
-            if (material.shader == null || material.shader.name == "Hidden/InternalErrorShader")
-            {
-                material.shader = CubismBuiltinShaders.Unlit;
-
-
-#if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(material);
-#endif
-            }
-
-
-            return material;
+            return Resources.Load<Material>(ResourcesDirectory + "/" + name);
         }
 
         /// <summary>
@@ -113,22 +98,7 @@ namespace Live2D.Cubism.Rendering
         /// <returns>The material.</returns>
         private static Material LoadMaskMaterial()
         {
-            var material = Resources.Load<Material>(ResourcesDirectory + "/Mask");
-
-
-            // Make sure shader is attached.
-            if (material.shader == null || material.shader.name == "Hidden/InternalErrorShader")
-            {
-                material.shader = CubismBuiltinShaders.Mask;
-
-
-#if UNITY_EDITOR
-                UnityEditor.EditorUtility.SetDirty(material);
-#endif
-            }
-
-
-            return material;
+            return Resources.Load<Material>(ResourcesDirectory + "/Mask");
         }
 
         #endregion
