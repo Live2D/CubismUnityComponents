@@ -6,6 +6,7 @@
  */
 
 
+using Live2D.Cubism.Framework;
 using System;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace Live2D.Cubism.Core
     /// <summary>
     /// Runtime Cubism model.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, CubismDontMoveOnReimport]
     public sealed class CubismModel : MonoBehaviour
     {
         #region Delegates

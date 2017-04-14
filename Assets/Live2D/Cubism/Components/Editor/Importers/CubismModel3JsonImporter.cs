@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework.Json;
-using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Rendering;
 using UnityEditor;
 using UnityEngine;
@@ -190,30 +189,27 @@ namespace Live2D.Cubism.Editor.Importers
             // Update model prefab.
             else
             {
-                // Sync proxies.
-                // INV  Is syncing only proxies good enough?
-                var destination = Object.Instantiate(ModelPrefab).FindCubismModel();
+                // Copy all user data over from previous model.
+                var source = Object.Instantiate(ModelPrefab).FindCubismModel();
 
 
-                SyncParameters(model, destination);
-                SyncParts(model, destination);
-                SyncDrawablesAndRenderers(model, destination);
-                SyncPhysics(model, destination);
+                CopyUserData(source, model);
+                Object.DestroyImmediate(source.gameObject, true);
                 
 
                 // Trigger events.
-                CubismImporter.SendModelImportEvent(this, destination);
+                CubismImporter.SendModelImportEvent(this, model);
 
 
                 foreach (var texture in Model3Json.Textures)
                 {
-                    CubismImporter.SendModelTextureImportEvent(this, destination, texture);
+                    CubismImporter.SendModelTextureImportEvent(this, model, texture);
                 }
 
 
-                // Replace prefab and clean up.
-                PrefabUtility.ReplacePrefab(destination.gameObject, ModelPrefab);
-                Object.DestroyImmediate(destination.gameObject, true);
+                // Replace prefab.
+                EditorUtility.CopySerialized(model.gameObject, ModelPrefab);
+                EditorUtility.SetDirty(ModelPrefab);
 
 
                 // Log event.
@@ -238,174 +234,101 @@ namespace Live2D.Cubism.Editor.Importers
 
 #endregion
 
-#region Set
-
-        /// <summary>
-        /// Set.
-        /// </summary>
-        /// <typeparam name="T">Type of elements.</typeparam>
-        private struct Set<T> where T : Component
+        private static void CopyUserData(CubismModel source, CubismModel destination)
         {
-#region Factory Methods
+            // Give parameters, parts, and drawables special treatment.
+            CopyUserData(source.Parameters, destination.Parameters);
+            CopyUserData(source.Parts, destination.Parts);
+            CopyUserData(source.Drawables, destination.Drawables);
 
-            /// <summary>
-            /// Creates a set from to arrays.
-            /// </summary>
-            /// <param name="a">First items.</param>
-            /// <param name="b">Second items.</param>
-            /// <returns>Set.</returns>
-            public static Set<T> From(T[] a, T[] b)
+
+            // Copy children.
+            foreach (var child in source.transform
+                .GetComponentsInChildren<Transform>()
+                .Where(t => t != source.transform)
+                .Select(t => t.gameObject))
             {
-                return new Set<T>
+                // Skip parameters, parts, and drawables.
+                if (child.name == "Parameters")
                 {
-                    ANotB = a.Where(i => b.All(j => j.name != i.name)).ToArray(),
-                    BNotA = b.Where(i => a.All(j => j.name != i.name)).ToArray(),
-                    AAndB = a
-                        .Where(i => b.Any(j => j.name == i.name))
-                        .Select(i => new KeyValuePair<T, T>(i, b.First(j => j.name == i.name)))
-                        .ToArray()
-                };
+                    continue;
+                }
+
+                if (child.name == "Parts")
+                {
+                    continue;
+                }
+
+                if (child.name == "Drawables")
+                {
+                    continue;
+                }
+
+
+                Object.Instantiate(child, destination.transform);
             }
 
-#endregion
 
-            /// <summary>
-            /// Relative complement of B in A.
-            /// </summary>
-            private T[] ANotB { get; set; }
-
-            /// <summary>
-            /// Relative complement of A in B.
-            /// </summary>
-            private T[] BNotA { get; set; }
-
-            /// <summary>
-            /// Intersection of A and B.
-            /// </summary>
-            public KeyValuePair<T, T>[] AAndB { get; private set; }
-
-
-            /// <summary>
-            /// Makes B match A.
-            /// </summary>
-            public void Sync()
+            // Copy components.
+            foreach (var sourceComponent in source.GetComponents(typeof(Component)))
             {
-                // 'Steal' new elements.
-                if (BNotA.Length > 0)
+                // Skip non-movable components.
+                if (!sourceComponent.MoveOnCubismReimport())
                 {
-                    var bRoot = BNotA[0].transform.parent.gameObject;
+                    continue;
+                }
 
 
-                    foreach (var element in ANotB)
+                // Copy component.
+                var destinationComponent = destination.GetOrAddComponent(sourceComponent.GetType());
+
+
+                EditorUtility.CopySerialized(sourceComponent, destinationComponent);
+            }
+        }
+
+
+        private static void CopyUserData<T>(T[] source, T[] destination) where T : MonoBehaviour
+        {
+            foreach (var destinationT in destination)
+            {
+                var sourceT = source.FirstOrDefault(p => p.name == destinationT.name);
+
+
+                // Skip removed parameters.
+                if (sourceT == null)
+                {
+                    continue;
+                }
+
+
+                // Copy any children.
+                foreach (var child in sourceT.transform
+                    .GetComponentsInChildren<Transform>()
+                    .Where(t => t != sourceT.transform)
+                    .Select(t => t.gameObject))
+                {
+                    Object.Instantiate(child, destinationT.transform);
+                }
+
+
+                // Copy components.
+                foreach (var sourceComponent in sourceT.GetComponents(typeof(Component)))
+                {
+                    // Skip non-movable components.
+                    if (!sourceComponent.MoveOnCubismReimport())
                     {
-                        element.transform.SetParent(bRoot.transform);
+                        continue;
                     }
-                }
 
 
-                // Remove 'lost' elements.
-                foreach (var element in BNotA)
-                {
-                    Object.DestroyImmediate(element.gameObject);
-                }
+                    // Copy component.
+                    var destinationComponent = destinationT.GetOrAddComponent(sourceComponent.GetType());
 
 
-                // Update existing elements.
-                foreach (var pair in AAndB)
-                {
-                    EditorUtility.CopySerialized(pair.Key, pair.Value);
+                    EditorUtility.CopySerialized(sourceComponent, destinationComponent);
                 }
             }
         }
-
-
-        /// <summary>
-        /// Syncs model parameters.
-        /// </summary>
-        /// <param name="source">Source.</param>
-        /// <param name="destination">Destination.</param>
-        private static void SyncParameters(CubismModel source, CubismModel destination)
-        {
-            Set<CubismParameter>
-                .From(source.Parameters, destination.Parameters)
-                .Sync();
-        }
-
-        /// <summary>
-        /// Syncs model parts.
-        /// </summary>
-        /// <param name="source">Source.</param>
-        /// <param name="destination"></param>
-        private static void SyncParts(CubismModel source, CubismModel destination)
-        {
-            Set<CubismPart>
-                .From(source.Parts, destination.Parts)
-                .Sync();
-        }
-
-        /// <summary>
-        /// Syncs model drawables (including renderers).
-        /// </summary>
-        /// <param name="source">Source.</param>
-        /// <param name="destination">Destination.</param>
-        private static void SyncDrawablesAndRenderers(CubismModel source, CubismModel destination)
-        {
-            var set = Set<CubismDrawable>.From(source.Drawables, destination.Drawables);
-
-
-            set.Sync();
-
-
-            foreach (var pair in set.AAndB)
-            {
-                var sourceRenderer = pair.Key.GetComponent<CubismRenderer>();
-                var destinationRenderer = pair.Value.GetComponent<CubismRenderer>();
-
-
-                EditorUtility.CopySerialized(sourceRenderer, destinationRenderer);
-                EditorUtility.CopySerialized(sourceRenderer.GetComponent<MeshFilter>(), destinationRenderer.GetComponent<MeshFilter>());
-                EditorUtility.CopySerialized(sourceRenderer.GetComponent<MeshRenderer>(), destinationRenderer.GetComponent<MeshRenderer>());
-            }
-        }
-
-
-        /// <summary>
-        /// Syncs physics.
-        /// </summary>
-        /// <param name="source">Source.</param>
-        /// <param name="destination">Destination.</param>
-        private static void SyncPhysics(CubismModel source, CubismModel destination)
-        {
-            // Clean up destination if required.
-            var rig = destination.transform.Find("PhysicsRig");
-
-
-            if (rig != null)
-            {
-                Object.DestroyImmediate(destination.GetComponent<CubismPhysicsController>(), true);
-                Object.DestroyImmediate(rig.gameObject, true);
-            }
-
-
-            // Steal source physics if possible.
-            rig = source.transform.Find("PhysicsRig");
-
-
-            if (rig != null)
-            {
-                rig.SetParent(destination.transform);
-
-
-                // Copy controller state.
-                var sourceController = source.GetComponent<CubismPhysicsController>();
-                var destinationController = destination.gameObject.AddComponent<CubismPhysicsController>();
-
-
-                EditorUtility.CopySerialized(sourceController, destinationController);
-                EditorUtility.SetDirty(destinationController);
-            }
-        }
-
-#endregion
     }
 }

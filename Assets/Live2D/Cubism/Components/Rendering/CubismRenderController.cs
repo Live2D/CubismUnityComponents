@@ -7,8 +7,8 @@
 
 
 using Live2D.Cubism.Core;
-using System;
 using Live2D.Cubism.Framework;
+using System;
 using UnityEngine;
 
 using Object = UnityEngine.Object;
@@ -19,7 +19,7 @@ namespace Live2D.Cubism.Rendering
     /// <summary>
     /// Controls rendering of a <see cref="CubismModel"/>.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, CubismDontMoveOnReimport]
     public sealed class CubismRenderController : MonoBehaviour
     {
         /// <summary>

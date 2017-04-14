@@ -6,6 +6,7 @@
  */
 
 
+using Live2D.Cubism.Framework;
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace Live2D.Cubism.Core
     /// <summary>
     /// Single <see cref="CubismModel"/> drawable.
     /// </summary>
+    [CubismDontMoveOnReimport]
     public sealed class CubismDrawable : MonoBehaviour
     {
         #region Factory Methods

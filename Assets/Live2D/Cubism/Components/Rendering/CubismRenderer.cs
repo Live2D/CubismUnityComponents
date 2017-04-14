@@ -8,6 +8,7 @@
 
 using System;
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Framework;
 using Live2D.Cubism.Rendering.Masking;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -18,7 +19,7 @@ namespace Live2D.Cubism.Rendering
     /// <summary>
     /// Wrapper for drawing <see cref="CubismDrawable"/>s.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, CubismDontMoveOnReimport]
     public sealed class CubismRenderer : MonoBehaviour
     {
         /// <summary>

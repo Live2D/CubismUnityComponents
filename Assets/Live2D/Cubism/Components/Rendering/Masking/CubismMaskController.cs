@@ -6,8 +6,9 @@
  */
 
 
-using System.Collections.Generic;
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -17,7 +18,7 @@ namespace Live2D.Cubism.Rendering.Masking
     /// <summary>
     /// Controls rendering of Cubism masks.
     /// </summary>
-    [ExecuteInEditMode]
+    [ExecuteInEditMode, CubismDontMoveOnReimport]
     public sealed class CubismMaskController : MonoBehaviour, ICubismMaskTextureCommandSource
     {
         /// <summary>
