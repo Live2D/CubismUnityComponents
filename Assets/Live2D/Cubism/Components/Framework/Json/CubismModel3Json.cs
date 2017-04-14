@@ -10,7 +10,6 @@ using Live2D.Cubism.Core;
 using System;
 using System.IO;
 using Live2D.Cubism.Framework.MouthMovement;
-using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
@@ -294,19 +293,6 @@ namespace Live2D.Cubism.Framework.Json
 
 
                 break;
-            }
-
-            
-            // Initialize physics if available.
-            if (!string.IsNullOrEmpty(FileReferences.Physics))
-            {
-                var physicsJson = CubismPhysics3Json.LoadFrom(LoadReferencedAsset<TextAsset>(FileReferences.Physics));
-
-                var physicsRig = physicsJson.ToRig();
-                physicsRig.transform.parent = model.transform;
-
-
-                model.gameObject.AddComponent<CubismPhysicsController>().PhysicsRig = physicsRig.GetComponent<CubismPhysicsRig>();
             }
 
 
