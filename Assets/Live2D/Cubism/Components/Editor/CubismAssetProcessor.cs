@@ -242,7 +242,7 @@ namespace Live2D.Cubism.Editor
 
                 material = new Material (CubismBuiltinShaders.Unlit)
                 {
-                    name = "UnlitAdditve"
+                    name = "UnlitAdditive"
                 };
 
                 EnableAdditiveBlending(material);
@@ -271,7 +271,7 @@ namespace Live2D.Cubism.Editor
 
                 material = new Material (CubismBuiltinShaders.Unlit)
                 {
-                    name = "UnlitAdditveMasked"
+                    name = "UnlitAdditiveMasked"
                 };
 
                 EnableAdditiveBlending(material);
