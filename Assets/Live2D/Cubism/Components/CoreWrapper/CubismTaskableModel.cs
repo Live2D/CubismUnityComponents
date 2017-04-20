@@ -140,7 +140,7 @@ namespace Live2D.Cubism.Core
             var memory = CubismMemory.AllocateUnmanaged((int)size, csmAlignofModel);
             
 
-            UnmanagedModel = csmInstantiateModelInPlace(unmanagedMoc, memory, size);
+            UnmanagedModel = csmInitializeModelInPlace(unmanagedMoc, memory, size);
 
 
             Lock = new object();
@@ -399,7 +399,7 @@ namespace Live2D.Cubism.Core
         private static extern uint csmGetSizeofModel(IntPtr moc);
 
         [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmInstantiateModelInPlace(IntPtr moc, IntPtr address, uint size);
+        private static extern IntPtr csmInitializeModelInPlace(IntPtr moc, IntPtr address, uint size);
 
 
         [DllImport(CubismDll.Name)]

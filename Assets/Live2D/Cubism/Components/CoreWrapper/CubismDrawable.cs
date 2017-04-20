@@ -291,7 +291,7 @@ namespace Live2D.Cubism.Core
 
 
                 // Pull data.
-                return flags[UnmanagedIndex].HasFlag(csmBlendMultiply);
+                return flags[UnmanagedIndex].HasFlag(csmBlendMultiplicative);
             }
         }
 
@@ -325,7 +325,7 @@ namespace Live2D.Cubism.Core
         private const byte csmBlendAdditive = 1 << 0;
 
         // ReSharper disable once InconsistentNaming
-        private const byte csmBlendMultiply = 1 << 1;
+		private const byte csmBlendMultiplicative = 1 << 1;
 
         // ReSharper disable once InconsistentNaming
         private const byte csmIsDoubleSided = 1 << 2;
