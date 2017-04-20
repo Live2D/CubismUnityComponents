@@ -23,7 +23,7 @@ Shader "Live2D Cubism/Unlit"
 
 
 		// Mask settings.
-		[Toggle(CUBISM_MASK)] _Mask("Mask?", Int) = 0
+		[Toggle(CUBISM_MASK_ON)] cubism_MaskOn("Mask?", Int) = 0
 		[PerRendererData] cubism_MaskTexture("cubism_Internal", 2D) = "white" {}
 		[PerRendererData] cubism_MaskTile("cubism_Internal", Vector) = (0, 0, 0, 0)
 		[PerRendererData] cubism_MaskTransform("cubism_Internal", Vector) = (0, 0, 0, 0)
@@ -49,7 +49,7 @@ Shader "Live2D Cubism/Unlit"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile _ CUBISM_MASK
+			#pragma multi_compile CUBISM_MASK_ON CUBISM_MASK_OFF
 			
 
 			#include "UnityCG.cginc"

@@ -206,10 +206,6 @@ namespace Live2D.Cubism.Rendering.Masking
 
             // Apply tiles to source.
             source.SetTiles(item.Tiles);
-
-
-            // Enforce command buffer refresh.
-            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         /// <summary>
@@ -237,10 +233,6 @@ namespace Live2D.Cubism.Rendering.Masking
             // Return tiles and deregister source.
             TilePool.ReturnTiles(Sources[itemIndex].Tiles);
             Sources.RemoveAt(itemIndex);
-
-
-            // Enforce command buffer refresh.
-            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         #endregion
@@ -275,10 +267,6 @@ namespace Live2D.Cubism.Rendering.Masking
                     Sources[i] = source;
                 }
             }
-
-
-            // Enforce command buffer refresh.
-            CubismMaskCommandBuffer.ForceRefresh();
         }
 
         private void RefreshRenderTexture()

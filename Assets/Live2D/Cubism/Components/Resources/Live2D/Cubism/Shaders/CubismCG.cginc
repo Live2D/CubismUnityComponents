@@ -79,7 +79,7 @@ inline float4 CubismSampleMaskTexture(sampler2D tex, float4 channel, float4 coor
 }
 
 
-#if defined (CUBISM_MASK)
+#if defined (CUBISM_MASK_ON)
 #define CUBISM_MASK_SHADER_VARIABLES \
   sampler2D cubism_MaskTexture;        \
   float4 cubism_MaskTile;              \

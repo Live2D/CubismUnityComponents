@@ -34,7 +34,7 @@ Shader "Live2D Cubism/Mask"
 			#pragma vertex   vert
 			#pragma fragment frag
 
-			#define CUBISM_MASK
+			#define CUBISM_MASK_ON
 
 
 			#include "UnityCG.cginc"

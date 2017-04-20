@@ -56,7 +56,7 @@ namespace Live2D.Cubism.Rendering.Masking
 
                 // Try switch mask textures.
                 OnDestroy();
-                OnEnable();
+                Start();
             }
         }
 
@@ -143,6 +143,25 @@ namespace Live2D.Cubism.Rendering.Masking
 
         #region Unity Event Handling
 
+		/// <summary>
+		/// Initializes instance.
+		/// </summary>
+		private void Start()
+		{
+			// Fail silently.
+			if (MaskTexture == null)
+			{
+				return;
+			}
+
+
+			MaskTexture.AddSource(this);
+		}
+
+
+		/// <summary>
+		/// Called by Unity. Updates <see cref="Junktions"/>.
+		/// </summary>
         private void Update()
         {
             if (!IsRevived)
@@ -156,21 +175,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 Junctions[i].Update();
             }
         }
-
-        /// <summary>
-        /// Initializes instance.
-        /// </summary>
-        private void OnEnable()
-        {
-            // Fail silently.
-            if (MaskTexture == null)
-            {
-                return;
-            }
-
-
-            MaskTexture.AddSource(this);
-        }
+ 
 
         /// <summary>
         /// Finalizes instance.

@@ -44,14 +44,6 @@ namespace Live2D.Cubism.Rendering.Masking
         }
 
         /// <summary>
-        /// True if <see cref="Buffer"/> is empty.
-        /// </summary>
-        private static bool IsBufferEmpty
-        {
-            get { return Buffer == null || Buffer.sizeInBytes == 0; }
-        }
-
-        /// <summary>
         /// True if <see cref="Sources"/> are empty.
         /// </summary>
         private static bool ContainsSources
@@ -102,6 +94,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="source">Source to add.</param>
         internal static void AddSource(ICubismMaskCommandSource source)
         {
+			// Make sure singleton is initialized.
             Initialize();
 
 
@@ -114,7 +107,6 @@ namespace Live2D.Cubism.Rendering.Masking
 
             // Add source and force refresh.
             Sources.Add(source);
-            ForceRefresh();
         }
 
         /// <summary>
@@ -123,32 +115,22 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="source">Source to remove.</param>
         internal static void RemoveSource(ICubismMaskCommandSource source)
         {
+			// Make sure singleton is initialized.
             Initialize();
 
 
             // Remove source and force refresh.
             Sources.RemoveAll(s => s == source);
-            ForceRefresh();
         }
 
 
         /// <summary>
         /// Forces the command buffer to be refreshed.
         /// </summary>
-        internal static void ForceRefresh()
+        private static void RefreshCommandBuffer()
         {
-            Initialize();
-
-
             // Clear buffer.
             Buffer.Clear();
-
-
-            // Return early if nothing to fill buffer with.
-            if (!ContainsSources)
-            {
-                return;
-            }
 
 
             // Enqueue sources.
@@ -165,20 +147,21 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void Update()
         {
-            // Return if buffer is empty or self isn't the singleton.
-            if (IsBufferEmpty)
-            {
-                return;
-            }
-
-
+            // Return if sources are empty empty or self isn't the singleton.
             if (this != Singleton)
             {
                 return;
             }
 
 
-            // Execute buffer.
+			if (!ContainsSources)
+			{
+				return;
+			}
+
+
+            // Refresh and execute buffer.
+			RefreshCommandBuffer();
             Graphics.ExecuteCommandBuffer(Buffer);
         }
 
