@@ -9,6 +9,7 @@
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using Live2D.Cubism.Editor.Importers;
 using UnityEditor;
@@ -93,12 +94,24 @@ namespace Live2D.Cubism.Editor
                 // Allow unsafe code.
                 for (var propertyGroup = project.FirstNode as XElement; propertyGroup != null; propertyGroup = propertyGroup.NextNode as XElement)
                 {
-                    if (!propertyGroup.ToString().Contains("PropertyGroup"))
+                    // Skip non-relevant groups.
+                    if (!propertyGroup.ToString().Contains("PropertyGroup") || !propertyGroup.ToString().Contains("$(Configuration)|$(Platform)"))
                     {
                         continue;
                     }
 
 
+                    // Add unsafe-block element if necessary.
+                    if (!propertyGroup.ToString().Contains("AllowUnsafeBlocks"))
+                    {
+                        var nameSpace = propertyGroup.GetDefaultNamespace();
+
+
+                        propertyGroup.Add(new XElement(nameSpace + "AllowUnsafeBlocks", "true"));
+                    }
+
+
+                    // Make sure unsafe-block element is always set to true.
                     for (var allowUnsafeBlocks = propertyGroup.FirstNode as XElement; allowUnsafeBlocks != null; allowUnsafeBlocks = allowUnsafeBlocks.NextNode as XElement)
                     {
                         if (!allowUnsafeBlocks.ToString().Contains("AllowUnsafeBlocks"))
@@ -163,7 +176,24 @@ namespace Live2D.Cubism.Editor
         /// <param name="material">Material to set up.</param>
         private static void EnableMasking(Material material)
         {
-            material.SetInt("_Mask", 1);
+            // Set toggle.
+            material.SetInt("cubism_MaskOn", 1);
+
+
+            // Enable keyword.
+            var shaderKeywords = material.shaderKeywords.ToList();
+
+
+            shaderKeywords.RemoveAll(k => k == "CUBISM_MASK_OFF");
+
+
+			if (!shaderKeywords.Contains("CUBISM_MASK_ON"))
+			{
+				shaderKeywords.Add("CUBISM_MASK_ON");
+			}
+
+
+			material.shaderKeywords = shaderKeywords.ToArray();
         }
 
 
@@ -257,6 +287,10 @@ namespace Live2D.Cubism.Editor
                 EnableMultiplicativeBlending(material);
                 EnableMasking(material);
                 AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
+
+
+				EditorUtility.SetDirty(CubismBuiltinShaders.Unlit);
+				AssetDatabase.SaveAssets();
 			}
 
 
