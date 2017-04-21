@@ -16,7 +16,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Name of the native Dll to pass to <see cref="System.Runtime.InteropServices.DllImportAttribute"/>.
         /// </summary>
-#if UNITY_IOS || UNITY_SWITCH
+#if (UNITY_IOS || UNITY_SWITCH) && !UNITY_EDITOR
         public const string Name = "__Internal";
 #else
         public const string Name = "Live2DCubismCore";
