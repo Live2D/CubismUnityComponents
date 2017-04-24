@@ -63,7 +63,7 @@ inline float4 CubismToMaskClipPos(float4 vertex, float4 tile, float4 transform)
 	result *= 2;
 	result.xy = float2(result.x, (result.y * _ProjectionParams.x));
 	result.zw = 1;
-	result.xy -= float2(1, -1);
+	result.xy -= float2(1, _ProjectionParams.x);
 
 
 	return result;
