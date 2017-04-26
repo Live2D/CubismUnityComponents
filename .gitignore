@@ -8,6 +8,8 @@ Temp/
 
 !README.md
 
+!Assets/*.rsp
+
 !Assets/Live2D/Cubism/Components/**/*.cs
 !Assets/Live2D/Cubism/Components/**/*.md
 
