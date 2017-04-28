@@ -55,7 +55,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
             // Cache destinations.
             var tags = model
                 .Parameters
-                .GetComponentsMany<CubismMouthController>();
+                .GetComponentsMany<CubismMouthParameter>();
 
 
             Destinations = new CubismParameter[tags.Length];
