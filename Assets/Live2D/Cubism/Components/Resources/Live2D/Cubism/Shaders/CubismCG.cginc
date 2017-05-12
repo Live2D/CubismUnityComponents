@@ -70,7 +70,7 @@ inline float4 CubismToMaskClipPos(float4 vertex, float4 tile, float4 transform)
 }
 
 
-inline float4 CubismSampleMaskTexture(sampler2D tex, float4 channel, float4 coordinates)
+inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float4 coordinates)
 {
 	float4 texel = tex2D(tex, coordinates.xy) * channel;
 
