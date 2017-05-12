@@ -80,7 +80,7 @@ Shader "Live2D Cubism/Mask"
 			sampler2D _MainTex;
 
 
-			fixed4 frag(v2f IN) : COLOR
+			fixed4 frag(v2f IN) : SV_Target
 			{
 				return CUBISM_MASK_CHANNEL * tex2D(_MainTex, IN.texcoord).a;
 
