@@ -15,10 +15,7 @@
 
 inline float4 CubismGetMaskChannel(float4 tile)
 {
-	return fixed4(1, 0, 0, 0) * step(0, tile.x) * (1 - step(1, tile.x))
-		+ fixed4(0, 1, 0, 0) * step(1, tile.x) * (1 - step(2, tile.x))
-		+ fixed4(0, 0, 1, 0) * step(2, tile.x) * (1 - step(3, tile.x))
-		+ fixed4(0, 0, 0, 1) * step(3, tile.x);
+	return tile.xxxx == float4(0, 1, 2, 3);
 }
 
 inline float4 CubismGetClippedMaskChannel(float4 coordinates, float4 tile)
