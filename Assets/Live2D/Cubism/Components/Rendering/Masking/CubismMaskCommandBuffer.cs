@@ -20,11 +20,6 @@ namespace Live2D.Cubism.Rendering.Masking
     public sealed class CubismMaskCommandBuffer : MonoBehaviour
     {
         /// <summary>
-        /// Singleton instance.
-        /// </summary>
-        private static CubismMaskCommandBuffer Singleton { get; set; }
-
-        /// <summary>
         /// Draw command sources.
         /// </summary>
         private static List<ICubismMaskCommandSource> Sources { get; set; }
@@ -34,14 +29,6 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private static CommandBuffer Buffer { get; set; }
 
-
-        /// <summary>
-        /// True if singleton is initialized.
-        /// </summary>
-        private static bool IsInitialized
-        {
-            get { return Singleton != null; }
-        }
 
         /// <summary>
         /// True if <see cref="Sources"/> are empty.
@@ -57,34 +44,45 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private static void Initialize()
         {
-            // Return early if already initialized.
-            if (IsInitialized)
-            {
-                return;
-            }
-
-
-            // Create singleton.
-            var proxy = new GameObject("cubism_MaskCommandBuffer")
-            {
-                hideFlags = HideFlags.HideAndDontSave
-            };
-
-
-            if (!Application.isEditor || Application.isPlaying)
-            {
-                DontDestroyOnLoad(proxy);
-            }
-
-
-            Singleton = proxy.AddComponent<CubismMaskCommandBuffer>();
-
-
             // Initialize containers.
-            Sources = new List<ICubismMaskCommandSource>();
-            Buffer = new CommandBuffer {
-                name = "cubism_MaskCommandBuffer"
-            };
+            if (Sources == null)
+            {
+                Sources = new List<ICubismMaskCommandSource>();
+            }
+
+
+            if (Buffer == null)
+            {
+                Buffer = new CommandBuffer
+                {
+                    name = "cubism_MaskCommandBuffer"
+                };
+            }
+
+
+            // Spawn update proxy.
+            const string proxyName = "cubism_MaskCommandBuffer";
+
+
+            var proxy = GameObject.Find(proxyName);
+
+
+            if (proxy == null)
+            {
+                proxy = new GameObject(proxyName)
+                {
+                     hideFlags = HideFlags.HideAndDontSave
+                };
+
+
+                if (!Application.isEditor || Application.isPlaying)
+                {
+                    DontDestroyOnLoad(proxy);
+                }
+
+
+                proxy.AddComponent<CubismMaskCommandBuffer>();
+            }
         }
 
 
@@ -147,13 +145,6 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void Update()
         {
-            // Return if sources are empty empty or self isn't the singleton.
-            if (this != Singleton)
-            {
-                return;
-            }
-
-
 			if (!ContainsSources)
 			{
 				return;

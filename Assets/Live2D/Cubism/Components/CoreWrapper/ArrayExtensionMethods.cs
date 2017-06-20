@@ -208,12 +208,13 @@ namespace Live2D.Cubism.Core
 
 
                 // Copy vertex positions.
-                var dataVertexPositions = data.VertexPositions;
-
-
-                for (var v = 0; v < dataVertexPositions.Length; ++v)
+                fixed (Vector3* dataVertexPositions = data.VertexPositions)
                 {
-                    dataVertexPositions[v] = vertexPositions[i][v].ToVertexPosition();
+                    for (var v = 0; v < data.VertexPositions.Length; ++v)
+                    {
+                        dataVertexPositions[v].x = vertexPositions[i][v].x;
+                        dataVertexPositions[v].y = vertexPositions[i][v].y;
+                    }
                 }
             }
 

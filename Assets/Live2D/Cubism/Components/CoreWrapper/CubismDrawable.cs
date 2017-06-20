@@ -195,7 +195,7 @@ namespace Live2D.Cubism.Core
 
                 for (var i = 0; i < buffer.Length; ++i)
                 {
-                    buffer[i] = uvs[UnmanagedIndex][i].ToVertexUv();
+                    buffer[i] = uvs[UnmanagedIndex][i];
                 }
 
 

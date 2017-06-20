@@ -19,7 +19,7 @@ namespace Live2D.Cubism.Rendering
     /// <summary>
     /// Wrapper for drawing <see cref="CubismDrawable"/>s.
     /// </summary>
-    [ExecuteInEditMode, CubismDontMoveOnReimport]
+    [ExecuteInEditMode, CubismDontMoveOnReimport, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class CubismRenderer : MonoBehaviour
     {
         /// <summary>
@@ -155,40 +155,27 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Meshes.
+        /// </summary>
+        /// <remarks>
+        /// Double buffering dynamic meshes increases performance on mobile,
+        /// so we double-buffer them here.
+        /// </remarks>
+
+        private Mesh[] Meshes { get; set; }
+
+        /// <summary>
+        /// Index of mesh in front buffer.
+        /// </summary>
+        private int FrontMesh { get; set; }
+
+        /// <summary>
         /// <see cref="UnityEngine.Mesh"/>.
         /// </summary>
         public Mesh Mesh
         {
-            get
-            {
-#if UNITY_EDITOR
-                if (!Application.isPlaying)
-                {
-                    return MeshFilter.sharedMesh;
-                }
-#endif
-
-
-                return MeshFilter.mesh;
-            }
-            private set
-            {
-#if UNITY_EDITOR
-                if (!Application.isPlaying)
-                {
-                    MeshFilter.sharedMesh = value;
-
-
-                    return;
-                }
-#endif
-
-
-                MeshFilter.mesh = value;
-            }
+            get { return Meshes[FrontMesh]; }
         }
-
-
 
 
         /// <summary>
@@ -204,20 +191,6 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_meshFilter == null)
-                {
-                    _meshFilter = GetComponent<MeshFilter>();
-
-
-                    // Lazily add component.
-                    if (_meshFilter == null)
-                    {
-                        _meshFilter = gameObject.AddComponent<MeshFilter>();
-                        _meshFilter.hideFlags = HideFlags.HideInInspector;
-                    }
-                }
-
-
                 return _meshFilter;
             }
         }
@@ -236,26 +209,11 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_meshRenderer == null)
-                {
-                    _meshRenderer = GetComponent<MeshRenderer>();
-
-
-                    // Lazily add component.
-                    if (_meshRenderer == null)
-                    {
-                        _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-                        _meshRenderer.hideFlags = HideFlags.HideInInspector;
-                        _meshRenderer.receiveShadows = false;
-                        _meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
-                        _meshRenderer.lightProbeUsage = LightProbeUsage.BlendProbes;
-                    }
-                }
-
-
                 return _meshRenderer;
             }
         }
+
+
 
         #region Interface For CubismRenderController
 
@@ -335,6 +293,12 @@ namespace Live2D.Cubism.Rendering
             get { return _opacity; }
             set { _opacity = value; }
         }
+
+
+        /// <summary>
+        /// Buffer for vertex colors.
+        /// </summary>
+        private Color[] VertexColors { get; set; }
 
 
         /// <summary>
@@ -419,6 +383,7 @@ namespace Live2D.Cubism.Rendering
             // Apply positions and update bounds.
             mesh.vertices = newVertexPositions;
 
+
             mesh.RecalculateBounds();
         }
 
@@ -456,7 +421,7 @@ namespace Live2D.Cubism.Rendering
         /// <param name="newModelOpacity">Opacity to set.</param>
         internal void OnModelOpacityDidChange(float newModelOpacity)
         {
-            MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
+            _meshRenderer.GetPropertyBlock(SharedPropertyBlock);
 
 
             // Write property.
@@ -465,7 +430,7 @@ namespace Live2D.Cubism.Rendering
             MeshRenderer.SetPropertyBlock(SharedPropertyBlock);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// <see cref="SharedPropertyBlock"/> backing field.
@@ -541,7 +506,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         public void ApplyVertexColors()
         {
-            var colors = Mesh.colors;
+            var colors = VertexColors;
 
 
             for (var i = 0; i < colors.Length; ++i)
@@ -557,13 +522,56 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Initializes the mesh renderer.
+        /// </summary>
+        private void TryInitializeMeshRenderer()
+        {
+            if (_meshRenderer == null)
+            {
+                _meshRenderer = GetComponent<MeshRenderer>();
+
+
+                // Lazily add component.
+                if (_meshRenderer == null)
+                {
+                    _meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                    _meshRenderer.hideFlags = HideFlags.HideInInspector;
+                    _meshRenderer.receiveShadows = false;
+                    _meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                    _meshRenderer.lightProbeUsage = LightProbeUsage.BlendProbes;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Initializes the mesh filter.
+        /// </summary>
+        private void TryInitializeMeshFilter()
+        {
+            if (_meshFilter == null)
+            {
+                _meshFilter = GetComponent<MeshFilter>();
+
+
+                // Lazily add component.
+                if (_meshFilter == null)
+                {
+                    _meshFilter = gameObject.AddComponent<MeshFilter>();
+                    _meshFilter.hideFlags = HideFlags.HideInInspector;
+                }
+            }
+        }
+
+
+        /// <summary>
         /// Initializes the mesh if necessary.
         /// </summary>
         private void TryInitializeMesh()
         {
             // Only create mesh if necessary.
             // HACK 'Mesh.vertex > 0' makes sure mesh is recreated in case of runtime instantiation.
-            if (Mesh != null && Mesh.vertexCount > 0)
+            if (Meshes != null && Mesh.vertexCount > 0)
             {
                 return;
             }
@@ -573,33 +581,50 @@ namespace Live2D.Cubism.Rendering
             var drawable = GetComponent<CubismDrawable>();
 
 
-            var mesh = new Mesh
+            if (Meshes == null)
             {
-                name = drawable.name,
-                vertices = drawable.VertexPositions,
-                uv = drawable.VertexUvs,
-                triangles = drawable.Indices
-            };
-
-
-            var colors = new Color[mesh.vertexCount];
-
-
-            for (var i = 0; i < colors.Length; ++i)
-            {
-                colors[i] = Color.white;
+                Meshes = new Mesh[2];
             }
 
 
-            mesh.colors = colors;
+            for (var i = 0; i < 2; ++i)
+            {
+                var mesh = new Mesh
+                {
+                    name = drawable.name,
+                    vertices = drawable.VertexPositions,
+                    uv = drawable.VertexUvs,
+                    triangles = drawable.Indices
+                };
+
+
+                mesh.MarkDynamic();
+                mesh.RecalculateBounds();
+
+
+                // Store mesh.
+                Meshes[i] = mesh;
+            }
+        }
+
+        /// <summary>
+        /// Initializes vertex colors.
+        /// </summary>
+        private void TryInitializeVertexColor()
+        {
+            var mesh = Mesh;
+
             
-
-            mesh.MarkDynamic();
-            mesh.RecalculateBounds();
+            VertexColors = new Color[mesh.vertexCount];
 
 
-            // Store mesh.
-            Mesh = mesh;
+            for (var i = 0; i < VertexColors.Length; ++i)
+            {
+                VertexColors[i] = Color.white;
+            }
+
+
+            mesh.colors = VertexColors;
         }
 
         /// <summary>
@@ -616,7 +641,17 @@ namespace Live2D.Cubism.Rendering
             ApplyMainTexture();
         }
 
-        #region Unity Event Handling
+#region Unity Event Handling
+
+        /// <summary>
+        /// Pre-initializes component.
+        /// </summary>
+        private void Awake()
+        {
+            TryInitializeMeshRenderer();
+            TryInitializeMeshFilter();
+
+        }
 
         /// <summary>
         /// Initializes components.
@@ -624,9 +659,11 @@ namespace Live2D.Cubism.Rendering
         private void Start()
         {
             TryInitializeMesh();
+            TryInitializeVertexColor();
             TryInitializeMainTexture();
             ApplySorting();
         }
+
 
         /// <summary>
         /// Initializes components on creation.
@@ -634,6 +671,33 @@ namespace Live2D.Cubism.Rendering
         private void Reset()
         {
             Start();
+        }
+
+
+        /// <summary>
+        /// Swaps mesh buffers.
+        /// </summary>
+        private void Update()
+        {
+            var mesh = Meshes[FrontMesh];
+
+
+            FrontMesh = FrontMesh == 0 ? 1 : 0;
+
+
+            // modification to mesh
+            
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                MeshFilter.mesh = mesh;
+
+
+                return;
+            }
+#endif
+            MeshFilter.mesh = mesh;
         }
 
         #endregion
