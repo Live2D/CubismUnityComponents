@@ -299,6 +299,33 @@ namespace Live2D.Cubism.Rendering
         /// Buffer for vertex colors.
         /// </summary>
         private Color[] VertexColors { get; set; }
+        
+        
+        /// <summary>
+        /// Swaps mesh buffers.
+        /// </summary>
+        internal void SwapMeshes()
+        {
+            var mesh = Meshes[FrontMesh];
+
+
+            FrontMesh = FrontMesh == 0 ? 1 : 0;
+
+
+            // modification to mesh
+
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                MeshFilter.mesh = mesh;
+
+
+                return;
+            }
+#endif
+            MeshFilter.mesh = mesh;
+        }
 
 
         /// <summary>
@@ -673,32 +700,6 @@ namespace Live2D.Cubism.Rendering
             Start();
         }
 
-
-        /// <summary>
-        /// Swaps mesh buffers.
-        /// </summary>
-        private void Update()
-        {
-            var mesh = Meshes[FrontMesh];
-
-
-            FrontMesh = FrontMesh == 0 ? 1 : 0;
-
-
-            // modification to mesh
-            
-
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                MeshFilter.mesh = mesh;
-
-
-                return;
-            }
-#endif
-            MeshFilter.mesh = mesh;
-        }
 
         #endregion
     }

@@ -507,6 +507,10 @@ namespace Live2D.Cubism.Rendering
             // Handle render data changes.
             for (var i = 0; i < data.Length; ++i)
             {
+                // Controls whether mesh buffers are to be swapped.
+                var swapMeshes = false;
+
+
                 // Skip completely non-dirty data.
                 if (!data[i].IsAnyDirty)
                 {
@@ -532,6 +536,9 @@ namespace Live2D.Cubism.Rendering
                 if (data[i].IsOpacityDirty)
                 {
                     renderers[i].OnDrawableOpacityDidChange(data[i].Opacity);
+
+
+                    swapMeshes = true;
                 }
 
 
@@ -539,6 +546,17 @@ namespace Live2D.Cubism.Rendering
                 if (data[i].AreVertexPositionsDirty)
                 {
                     renderers[i].OnDrawableVertexPositionsDidChange(data[i].VertexPositions);
+
+
+                    swapMeshes = true;
+                }
+
+
+                // Swap buffers if necessary.
+                // [INV] Swapping only half of the meshes might improve performance even. Would that be visually feasible?
+                if (swapMeshes)
+                {
+                    renderers[i].SwapMeshes();
                 }
             }
 
