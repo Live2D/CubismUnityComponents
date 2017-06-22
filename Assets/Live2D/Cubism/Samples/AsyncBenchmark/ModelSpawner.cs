@@ -9,12 +9,13 @@
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
 using System.Collections.Generic;
+using Live2D.Cubism.Framework.Tasking;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = System.Random;
 
 
-namespace Live2D.Cubism.Samples.MultithreadBenchmark
+namespace Live2D.Cubism.Samples.AsyncBenchmark
 {
     /// <summary>
     /// Spawns models for benchmarking.

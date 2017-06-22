@@ -6,62 +6,19 @@
  */
 
 
-using Live2D.Cubism.Core;
 using System.Collections.Generic;
 using System.Threading;
+using Live2D.Cubism.Core;
 using UnityEngine;
 
 
 namespace Live2D.Cubism.Framework.Tasking
 {
     /// <summary>
-    /// Spawns async workers for <see cref="ICubismTask"/>s.
+    /// Built-in task handler, works async.
     /// </summary>
-    public class CubismTaskDispatchHandler : MonoBehaviour
+    public static class CubismBuiltinAsyncTaskHandler
     {
-        /// <summary>
-        /// Number of workers to spawn.
-        /// </summary>
-        /// <remarks>
-        /// The number of workers actually spawned is the number requested by the first instance instantiated.
-        /// </remarks>
-        public int WorkerCount = 1;
-
-
-        /// <summary>
-        /// The number of active workers.
-        /// </summary>
-        public int ActiveWorkerCount
-        {
-            get
-            {
-                return (AreWorkersInitialized)
-                    ? Workers.Length
-                    : 0;
-            }
-        }
-        
-        #region Unity Event Handling
-
-        /// <summary>
-        /// Requires workers.
-        /// </summary>
-        private void Start()
-        {
-            TryInitializeWorkers(WorkerCount);
-        }
-
-        /// <summary>
-        /// Unrequires workers.
-        /// </summary>
-
-        private void OnDestroy()
-        {
-            DeinitializeWorkers();
-        }
-
-        #endregion
-
         #region Workers
 
         /// <summary>
@@ -72,7 +29,7 @@ namespace Live2D.Cubism.Framework.Tasking
         /// <summary>
         /// Background worker threads.
         /// </summary>
-        private static Thread[] Workers { get; set; }
+        private static Thread Worker { get; set; }
 
         /// <summary>
         /// Lock for syncing access to <see cref="Tasks"/> and <see cref="CallItADay"/>.
@@ -84,16 +41,11 @@ namespace Live2D.Cubism.Framework.Tasking
         /// </summary>
         private static ManualResetEvent Signal { get; set; }
 
-        /// <summary>
-        /// Reference count used for freeing workers.
-        /// </summary>
-        private static int ReferenceCount { get; set; }
-
 
         /// <summary>
         /// <see cref="CallItADay"/> backing field. ALWAYS ACCESS THROUGH PROPERTY!
         /// </summary>
-        private static bool _callItADay = false;
+        private static bool _callItADay;
 
         /// <summary>
         /// True if workers should exit.
@@ -115,26 +67,17 @@ namespace Live2D.Cubism.Framework.Tasking
                 }
             }
         }
+        
 
         /// <summary>
-        /// True if workers are initialized.
+        /// Initializes async task handling.
         /// </summary>
-        private static bool AreWorkersInitialized
+        public static void Activate()
         {
-            get { return ReferenceCount > 0; }
-        }
-
-
-        /// <summary>
-        /// Initializes workers.
-        /// </summary>
-        /// <param name="workerCount">Number of workers to initialize.</param>
-        private static void TryInitializeWorkers(int workerCount)
-        {
-            // Return early if already initialized.
-            if (AreWorkersInitialized)
+            // Check if it is already set.
+            if (CubismTaskQueue.OnTask != null && CubismTaskQueue.OnTask != EnqueueTask)
             {
-                ++ReferenceCount;
+                Debug.LogWarning("\"CubismTaskQueue.OnTask\" already set.");
 
 
                 return;
@@ -143,10 +86,9 @@ namespace Live2D.Cubism.Framework.Tasking
 
             // Initialize fields.
             Tasks = new Queue<ICubismTask>();
-            Workers = new Thread[workerCount];
+            Worker = new Thread(Work);
             Lock = new object();
             Signal = new ManualResetEvent(false);
-            ReferenceCount = 1;
             CallItADay = false;
 
 
@@ -154,57 +96,44 @@ namespace Live2D.Cubism.Framework.Tasking
             CubismTaskQueue.OnTask = EnqueueTask;
 
 
-            // Start workers.
-            for (var i = 0; i < Workers.Length; ++i)
-            {
-                Workers[i] = new Thread(Work);
-
-
-                Workers[i].Start();
-            }
+            // Start worker.
+            Worker.Start();
         }
 
-        private static void DeinitializeWorkers()
+
+        /// <summary>
+        /// Cleanup workers.
+        /// </summary>
+        public static void Deactivate()
         {
-            // Return early if not initialized.
-            if (Tasks == null)
+            // Return early if self isn' handler.
+            if (CubismTaskQueue.OnTask != EnqueueTask)
             {
                 return;
             }
-
-
-            // Return early if still referenced.
-            --ReferenceCount;
-
-
-            if (ReferenceCount > 0)
-            {
-                return;
-            }
-
+            
 
             // Unbecome handler.
             CubismTaskQueue.OnTask = null;
 
 
-            // Stop workers.
+            // Stop worker.
             CallItADay = true;
 
 
-            for (var i = 0; i < Workers.Length; ++i)
+            if (Worker != null)
             {
                 Signal.Set();
-                Workers[i].Join();
+                Worker.Join();
             }
 
 
             // Reset fields
             Tasks = null;
-            Workers = null;
+            Worker = null;
             Lock = null;
             Signal = null;
-            ReferenceCount = 0;
-        } 
+        }
 
 
         /// <summary>
@@ -249,7 +178,7 @@ namespace Live2D.Cubism.Framework.Tasking
                 // Execute task if available.
                 if (task != null)
                 {
-                  task.Execute();
+                    task.Execute();
                 }
 
 
