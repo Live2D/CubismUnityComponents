@@ -247,6 +247,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public void ForceUpdateNow()
         {
+            WasJustEnabled = true;
             LastTick = -1;
 
 
