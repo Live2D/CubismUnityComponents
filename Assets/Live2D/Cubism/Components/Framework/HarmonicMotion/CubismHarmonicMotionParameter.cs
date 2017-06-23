@@ -62,7 +62,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// </summary>
         private bool IsInitialized
         {
-            get { return Mathf.Abs(ValueRange) < Mathf.Epsilon; }
+            get { return Mathf.Abs(ValueRange) >= Mathf.Epsilon; }
         }
 
 
