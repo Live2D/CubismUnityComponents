@@ -306,13 +306,10 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         internal void SwapMeshes()
         {
-            var mesh = Meshes[FrontMesh];
-
-
             FrontMesh = FrontMesh == 0 ? 1 : 0;
 
 
-            // modification to mesh
+            var mesh = Meshes[FrontMesh];
 
 
 #if UNITY_EDITOR

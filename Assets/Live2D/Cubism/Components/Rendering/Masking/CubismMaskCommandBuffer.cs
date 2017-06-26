@@ -143,7 +143,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Executes <see cref="Buffer"/>.
         /// </summary>
-        private void Update()
+        private void LateUpdate()
         {
 			if (!ContainsSources)
 			{
