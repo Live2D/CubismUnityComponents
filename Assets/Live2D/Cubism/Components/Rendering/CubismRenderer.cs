@@ -665,7 +665,7 @@ namespace Live2D.Cubism.Rendering
             ApplyMainTexture();
         }
 
-#region Unity Event Handling
+        #region Unity Event Handling
 
         /// <summary>
         /// Pre-initializes component.
@@ -674,7 +674,6 @@ namespace Live2D.Cubism.Rendering
         {
             TryInitializeMeshRenderer();
             TryInitializeMeshFilter();
-
         }
 
         /// <summary>
@@ -685,6 +684,8 @@ namespace Live2D.Cubism.Rendering
             TryInitializeMesh();
             TryInitializeVertexColor();
             TryInitializeMainTexture();
+
+
             ApplySorting();
         }
 
@@ -694,9 +695,19 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void Reset()
         {
+            Awake();
             Start();
         }
 
+
+        /// <summary>
+        /// Prevents false null-exceptions in Editor mode.
+        /// </summary>
+        private void OnEnable()
+        {
+            Awake();
+            Start();
+        }
 
         #endregion
     }
