@@ -158,16 +158,20 @@ namespace Live2D.Cubism.Rendering
         /// Meshes.
         /// </summary>
         /// <remarks>
-        /// Double buffering dynamic meshes increases performance on mobile,
-        /// so we double-buffer them here.
+        /// Double buffering dynamic meshes increases performance on mobile, so we double-buffer them here.
         /// </remarks>
 
         private Mesh[] Meshes { get; set; }
 
         /// <summary>
-        /// Index of mesh in front buffer.
+        /// Index of front buffer mesh.
         /// </summary>
         private int FrontMesh { get; set; }
+
+        /// <summary>
+        /// Index of back buffer mesh..
+        /// </summary>
+        private int BackMesh { get; set; }
 
         /// <summary>
         /// <see cref="UnityEngine.Mesh"/>.
@@ -267,7 +271,8 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// <see cref="DepthOffset"/> backing field.
         /// </summary>
-        [SerializeField, HideInInspector] private float _depthOffset = 0.00001f;
+        [SerializeField, HideInInspector]
+        private float _depthOffset = 0.00001f;
 
         /// <summary>
         /// Offset to apply in case of depth sorting.
@@ -299,19 +304,59 @@ namespace Live2D.Cubism.Rendering
         /// Buffer for vertex colors.
         /// </summary>
         private Color[] VertexColors { get; set; }
+
+
+        /// <summary>
+        /// Allows tracking of what vertex data was updated last swap.
+        /// </summary>
+        private SwapInfo LastSwap { get; set; }
+
+        /// <summary>
+        /// Allows tracking of what vertex data will be swapped.
+        /// </summary>
+        private SwapInfo ThisSwap { get; set; }
         
         
         /// <summary>
         /// Swaps mesh buffers.
         /// </summary>
-        internal void SwapMeshes()
+        /// <remarks>
+        /// Make sure to manually call this method in case you changed the <see cref="Color"/>.
+        /// </remarks>
+        public void SwapMeshes()
         {
-            FrontMesh = FrontMesh == 0 ? 1 : 0;
+            // Perform internal swap.
+            BackMesh = FrontMesh;
+            FrontMesh = (FrontMesh == 0) ? 1 : 0;
 
 
             var mesh = Meshes[FrontMesh];
 
 
+            // Force sync of vertex colors in case vertex colors changed last swap but not this.
+            if (LastSwap.NewVertexColors && !ThisSwap.NewVertexColors)
+            {
+                mesh.colors = VertexColors;
+            }
+
+
+            // Force sync of vertex positions in the rare case that vertex positions changed last swap but not this.
+            if (LastSwap.NewVertexPositions && !ThisSwap.NewVertexPositions)
+            {
+                // This case is very rare on real data so we copy vertices over.
+                // INV Is this case not rare enough to sacrifize performance over memory usage?
+                mesh.vertices = Meshes[BackMesh].vertices;
+            }
+
+
+            // Update swap info.
+            LastSwap = ThisSwap;
+
+
+            ThisSwap.Reset();
+            
+
+            // Apply swap.
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
@@ -321,6 +366,8 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 #endif
+
+
             MeshFilter.mesh = mesh;
         }
 
@@ -409,6 +456,10 @@ namespace Live2D.Cubism.Rendering
 
 
             mesh.RecalculateBounds();
+
+
+            // Set swap flag.
+            ThisSwap.SetNewVertexPositions();
         }
 
         /// <summary>
@@ -542,6 +593,10 @@ namespace Live2D.Cubism.Rendering
 
             // Upload colors.
             Mesh.colors = colors;
+
+
+            // Set swap flag.
+            ThisSwap.SetNewVertexColors();
         }
 
 
@@ -707,6 +762,53 @@ namespace Live2D.Cubism.Rendering
         {
             Awake();
             Start();
+        }
+
+        #endregion
+
+        #region Swap Info
+
+        /// <summary>
+        /// Allows tracking of <see cref="Mesh"/> data changed on a swap.
+        /// </summary>
+        private struct SwapInfo
+        {
+            /// <summary>
+            /// Vertex positions were changed.
+            /// </summary>
+            public bool NewVertexPositions { get; private set; }
+
+            /// <summary>
+            /// Vertex colors were changed.
+            /// </summary>
+            public bool NewVertexColors { get; set; }
+
+
+            /// <summary>
+            /// Sets <see cref="NewVertexPositions"/>.
+            /// </summary>
+            public void SetNewVertexPositions()
+            {
+                NewVertexPositions = true;
+            }
+
+            /// <summary>
+            /// Sets <see cref="NewVertexColors"/>.
+            /// </summary>
+            public void SetNewVertexColors()
+            {
+                NewVertexColors = true;
+            }
+
+
+            /// <summary>
+            /// Resets flags.
+            /// </summary>
+            public void Reset()
+            {
+                NewVertexPositions = false;
+                NewVertexColors = false;
+            }
         }
 
         #endregion
