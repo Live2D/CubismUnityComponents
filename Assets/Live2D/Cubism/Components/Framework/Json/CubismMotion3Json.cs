@@ -120,6 +120,13 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
         public AnimationClip ToAnimationClip()
         {
+            // Check béziers restriction flag.
+            if (!Meta.AreBeziersRestricted)
+            {
+                Debug.LogWarning("Béziers are not restricted and curves might be off. Please export motions from Cubism in restricted mode for perfect match.");
+            }
+
+
             // Create animation clip.
             var animationClip = new AnimationClip
             {
@@ -425,6 +432,12 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public int TotalPointCount;
+
+            /// <summary>
+            /// True if beziers are restricted.
+            /// </summary>
+            [SerializeField]
+            public bool AreBeziersRestricted;
         };
 
         /// <summary>
