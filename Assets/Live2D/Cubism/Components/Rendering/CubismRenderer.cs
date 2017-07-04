@@ -771,8 +771,10 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void OnEnable()
         {
+        #if UNITY_EDITOR
             Awake();
             Start();
+        #endif
         }
 
         #endregion
