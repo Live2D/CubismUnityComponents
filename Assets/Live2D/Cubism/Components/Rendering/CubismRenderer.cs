@@ -336,9 +336,14 @@ namespace Live2D.Cubism.Rendering
             // Force sync of vertex colors in case vertex colors changed last swap but not this.
             if (LastSwap.NewVertexColors && !ThisSwap.NewVertexColors)
             {
-                mesh.colors = VertexColors;
-            }
+                Meshes[BackMesh].colors = VertexColors;
 
+            }
+            else if (!LastSwap.NewVertexColors && ThisSwap.NewVertexColors)
+            {
+                // Require syncing colors in this case.
+                Meshes[FrontMesh].colors = VertexColors;
+            }
 
             // Force sync of vertex positions in the rare case that vertex positions changed last swap but not this.
             if (LastSwap.NewVertexPositions && !ThisSwap.NewVertexPositions)
@@ -347,13 +352,18 @@ namespace Live2D.Cubism.Rendering
                 // INV Is this case not rare enough to sacrifize performance over memory usage?
                 mesh.vertices = Meshes[BackMesh].vertices;
             }
+            else if (!LastSwap.NewVertexPositions && ThisSwap.NewVertexPositions)
+            {
+                // Require syncing vertex positions in this case.
+                mesh.vertices = Meshes[FrontMesh].vertices;
+            }
 
 
             // Update swap info.
             LastSwap = ThisSwap;
 
 
-            ThisSwap.Reset();
+            ResetSwapInfoFlags();
             
 
             // Apply swap.
@@ -459,7 +469,7 @@ namespace Live2D.Cubism.Rendering
 
 
             // Set swap flag.
-            ThisSwap.SetNewVertexPositions();
+            SetNewVertexPositions();
         }
 
         /// <summary>
@@ -593,10 +603,10 @@ namespace Live2D.Cubism.Rendering
 
             // Upload colors.
             Mesh.colors = colors;
-
+            
 
             // Set swap flag.
-            ThisSwap.SetNewVertexColors();
+            SetNewVertexColors();
         }
 
 
@@ -703,7 +713,8 @@ namespace Live2D.Cubism.Rendering
             }
 
 
-            mesh.colors = VertexColors;
+            Meshes[0].colors = VertexColors;
+            Meshes[1].colors = VertexColors;
         }
 
         /// <summary>
@@ -767,6 +778,40 @@ namespace Live2D.Cubism.Rendering
         #endregion
 
         #region Swap Info
+        
+        /// <summary>
+        /// Sets <see cref="NewVertexPositions"/>.
+        /// </summary>
+        private void SetNewVertexPositions()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.NewVertexPositions = true;
+            ThisSwap = swapInfo;
+        }
+
+
+        /// <summary>
+        /// Sets <see cref="NewVertexColors"/>.
+        /// </summary>
+        private void SetNewVertexColors()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.NewVertexColors = true;
+            ThisSwap = swapInfo;
+        }
+
+
+        /// <summary>
+        /// Resets flags.
+        /// </summary>
+        private void ResetSwapInfoFlags()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.NewVertexColors = false;
+            swapInfo.NewVertexPositions = false;
+            ThisSwap = swapInfo;
+        }
+        
 
         /// <summary>
         /// Allows tracking of <see cref="Mesh"/> data changed on a swap.
@@ -776,39 +821,12 @@ namespace Live2D.Cubism.Rendering
             /// <summary>
             /// Vertex positions were changed.
             /// </summary>
-            public bool NewVertexPositions { get; private set; }
+            public bool NewVertexPositions { get; set; }
 
             /// <summary>
             /// Vertex colors were changed.
             /// </summary>
             public bool NewVertexColors { get; set; }
-
-
-            /// <summary>
-            /// Sets <see cref="NewVertexPositions"/>.
-            /// </summary>
-            public void SetNewVertexPositions()
-            {
-                NewVertexPositions = true;
-            }
-
-            /// <summary>
-            /// Sets <see cref="NewVertexColors"/>.
-            /// </summary>
-            public void SetNewVertexColors()
-            {
-                NewVertexColors = true;
-            }
-
-
-            /// <summary>
-            /// Resets flags.
-            /// </summary>
-            public void Reset()
-            {
-                NewVertexPositions = false;
-                NewVertexColors = false;
-            }
         }
 
         #endregion
