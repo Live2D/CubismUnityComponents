@@ -730,23 +730,16 @@ namespace Live2D.Cubism.Rendering
 
             ApplyMainTexture();
         }
-
-        #region Unity Event Handling
-
+        
+        
         /// <summary>
-        /// Pre-initializes component.
+        /// Initializes components if possible.
         /// </summary>
-        private void Awake()
+        public void TryInitialize()
         {
             TryInitializeMeshRenderer();
             TryInitializeMeshFilter();
-        }
 
-        /// <summary>
-        /// Initializes components.
-        /// </summary>
-        private void Start()
-        {
             TryInitializeMesh();
             TryInitializeVertexColor();
             TryInitializeMainTexture();
@@ -754,30 +747,6 @@ namespace Live2D.Cubism.Rendering
 
             ApplySorting();
         }
-
-
-        /// <summary>
-        /// Initializes components on creation.
-        /// </summary>
-        private void Reset()
-        {
-            Awake();
-            Start();
-        }
-
-
-        /// <summary>
-        /// Prevents false null-exceptions in Editor mode.
-        /// </summary>
-        private void OnEnable()
-        {
-        #if UNITY_EDITOR
-            Awake();
-            Start();
-        #endif
-        }
-
-        #endregion
 
         #region Swap Info
         

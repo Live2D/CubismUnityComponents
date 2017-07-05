@@ -358,32 +358,46 @@ namespace Live2D.Cubism.Rendering
 
                 return _renderers;
             }
+            private set { _renderers = value; }
         }
 
 
         /// <summary>
         /// Makes sure all <see cref="CubismDrawable"/>s have <see cref="CubismRenderer"/>s attached to them.
         /// </summary>
-        private void TryAddRenderers()
+        private void TryInitializeRenderers()
         {
-            var drawables = this
+            // Try get renderers.
+            var renderers = Renderers;
+
+
+            // Create renderers if necesssary.
+            if (renderers == null || renderers.Length == 0)
+            {
+                // Create renders and apply it to backing field...
+                var drawables = this
                 .FindCubismModel()
                 .Drawables;
 
 
-            // Return early if already initialized.
-            if (drawables[0].GetComponent<CubismRenderer>() != null)
-            {
-                return;
+                renderers = drawables.AddComponentEach<CubismRenderer>();
+                
+                // Store renderers.
+                Renderers = renderers;
+                
             }
 
 
-            // Create renders and apply it to backing field...
-            _renderers = drawables.AddComponentEach<CubismRenderer>();
+            // Make sure renderers are initialized.
+            for (var i = 0; i < renderers.Length; ++i)
+            {
+                renderers[i].TryInitialize();
+            }
 
 
             // Initialize sorting layer.
-            _sortingLayerId = _renderers[0]
+            // We set the backing field here directly because we pull the sorting layer directly from the renderer.
+            _sortingLayerId = renderers[0]
                 .MeshRenderer
                 .sortingLayerID;
         }
@@ -465,7 +479,7 @@ namespace Live2D.Cubism.Rendering
 
 
             // Make sure renderers are available.
-            TryAddRenderers();
+            TryInitializeRenderers();
 
 
             // Register listener.
