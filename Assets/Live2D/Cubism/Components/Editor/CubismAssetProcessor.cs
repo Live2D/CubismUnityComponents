@@ -152,7 +152,7 @@ namespace Live2D.Cubism.Editor
         /// <param name="material">Material to set up.</param>
         private static void EnableAdditiveBlending(Material material)
         {
-            material.SetInt("_SrcColor", (int)BlendMode.SrcAlpha);
+            material.SetInt("_SrcColor", (int)BlendMode.One);
             material.SetInt("_DstColor", (int)BlendMode.One);
             material.SetInt("_SrcAlpha", (int)BlendMode.Zero);
             material.SetInt("_DstAlpha", (int)BlendMode.One);
