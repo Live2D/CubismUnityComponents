@@ -19,6 +19,11 @@ namespace Live2D.Cubism.Rendering.Masking
         #region Conversion
 
         /// <summary>
+        /// <see cref="UniqueId"/> backing field.
+        /// </summary>
+        private static int _uniqueId;
+
+        /// <summary>
         /// HACK Prevents dynamic batching of <see cref="CubismRenderer"/>s that are masked.
         /// </summary>
         /// <remarks>
@@ -27,7 +32,20 @@ namespace Live2D.Cubism.Rendering.Masking
         /// 
         /// Unity exposes a shader tag for disabling dynamic batching ("DynamicBatching"), but this would make it necessary for creating separate shaders...
         /// </remarks>
-        private static int UniqueId { get; set; }
+        private static int UniqueId
+        {
+            get
+            {
+                // We just have to make sure consecutive drawables with the same mask aren't batched; having more than 1024 cases in a row seems pretty rare, so...
+                if (_uniqueId > 1024)
+                {
+                    _uniqueId = 0;
+                }
+
+                
+                return (++_uniqueId);
+            }
+        }
 
 
         /// <summary>
@@ -41,7 +59,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 x = value.Offset.x,
                 y = value.Offset.y,
                 z = value.Scale,
-                w = (++UniqueId)
+                w = UniqueId
             };
         }
 
