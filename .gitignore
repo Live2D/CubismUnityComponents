@@ -10,11 +10,11 @@ Temp/
 
 !Assets/*.rsp
 
-!Assets/Live2D/Cubism/Components/**/*.cs
-!Assets/Live2D/Cubism/Components/**/*.md
+!Assets/Live2D/Cubism/**/*.cs
+!Assets/Live2D/Cubism/**/*.md
 
-!Assets/Live2D/Cubism/Components/Resources/**/*.cginc
-!Assets/Live2D/Cubism/Components/Resources/**/*.shader
+!Assets/Live2D/Cubism/Rendering/Resources/**/*.cginc
+!Assets/Live2D/Cubism/Rendering/Resources/**/*.shader
 
 !Assets/Live2D/Cubism/Samples/**/*.cs
 !Assets/Live2D/Cubism/Samples/**/*.txt

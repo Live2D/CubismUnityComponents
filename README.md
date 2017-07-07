@@ -1,3 +1,5 @@
+# The directory structure has been changed in preparation of the next release (R3) and isn't compatible with the current release (R2).
+
 # Cubism SDK For Unity Components
 
 Welcome to the open components of the Cubism SDK For Unity.
