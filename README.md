@@ -1,5 +1,3 @@
-# The directory structure has been changed in preparation of the next release (R3) and isn't compatible with the current release (R2).
-
 # Cubism SDK For Unity Components
 
 Welcome to the open components of the Cubism SDK For Unity.
@@ -17,27 +15,27 @@ and this grouping is reflected in both folder structure and namespaces.
 #### Core Wrapper
 
 Components and classes in this group are a shim layer for wrapping the unmanaged Cubism core library to C# and Unity and
-are located in ``./Assets/Live2D/Cubism/Components/CoreWrapper``.
+are located in ``./Assets/Live2D/Cubism/Core``.
 
 #### Framework
 
 Components and classes in this group provide additional functionality like lip-syncing,
 as well as integration of 'foreign' Cubism files with Unity.
 Turning Cubism files into Prefabs and AnimationClips is done here.
-All framework code is located in ``./Assets/Live2D/Cubism/Components/Framework``.
+All framework code is located in ``./Assets/Live2D/Cubism/Framework``.
 
 #### Rendering
 
 Components and classes in this group provide the functionality for rendering Cubism models using Unity functionality and
-are located in are located in ``./Assets/Live2D/Cubism/Components/Rendering``.
+are located in are located in ``./Assets/Live2D/Cubism/Rendering``.
 
 ### Editor Extensions
 
-Unity Editor extensions are located in ``./Assets/Live2D/Cubism/Components/Editor``.
+Unity Editor extensions are located in ``./Assets/Live2D/Cubism/Editor``.
 
 ### Resources
 
-Resources like shaders and other assets are located in ``./Assets/Live2D/Cubism/Components/Resources``.
+Resources like shaders and other assets are located in ``./Assets/Live2D/Cubism/Rendering/Resources``.
 
 ## Branches
 
