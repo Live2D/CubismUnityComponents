@@ -1,117 +1,22 @@
-# Unity libraries and files.
-UnityEngine.*
-UnityEditor.*
-*.meta
+# We only have a few file extensions we're interested in (and we know the folder structure),
+# so we taking a brute force approach here...
+Library/
+ProjectSettings/
+Temp/
+*.*
 
 
-# Managed and unmanaged library files (Cubism Core, Components, etc.).
-*.a
-*.so
-*.dll
-*.prx
-*.bundle
+!README.md
 
+!Assets/*.rsp
 
-# Below settings have been taken from:
-# https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+!Assets/Live2D/Cubism/**/*.cs
+!Assets/Live2D/Cubism/**/*.md
 
-# User-specific files.
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+!Assets/Live2D/Cubism/Rendering/Resources/**/*.cginc
+!Assets/Live2D/Cubism/Rendering/Resources/**/*.shader
 
+!Assets/Live2D/Cubism/Samples/**/*.cs
+!Assets/Live2D/Cubism/Samples/**/*.txt
 
-# User-specific files (MonoDevelop/Xamarin Studio).
-*.userprefs
-
-# Build results.
-*/[Dd]ebug/
-*/[Dd]ebugPublic/
-*/[Rr]elease/
-*/[Rr]eleases/
-*/x64/
-*/x86/
-*/bld/
-*/[Bb]in/
-*/[Oo]bj/
-*/[Ll]og/
-
-
-# Visual Studio 2015 cache/options directory.
-.vs/
-
-
-# MSTest test Results.
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-
-
-# NUNIT.
-*.VisualState.xml
-TestResult.xml
-
-
-# .NET Core.
-project.lock.json
-project.fragment.lock.json
-artifacts/
-**/Properties/launchSettings.json
-
-*_i.c
-*_p.c
-*_i.h
-*.ilk
-*.meta
-*.obj
-*.pch
-*.pdb
-*.pgc
-*.pgd
-*.rsp
-*.sbr
-*.tlb
-*.tli
-*.tlh
-*.tmp
-*.tmp_proj
-*.log
-*.vspscc
-*.vssscc
-.builds
-*.pidb
-*.svclog
-*.scc
-
-
-# Visual Studio profiler.
-*.psess
-*.vsp
-*.vspx
-*.sap
-
-
-# ReSharper is a .NET coding add-in.
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
-
-
-# NuGet Packages.
-*.nupkg
-# The packages folder can be ignored because of Package Restore,
-**/packages/*
-# except build/, which is used as an MSBuild target.
-!**/packages/build/
-# Uncomment if necessary however generally it will be regenerated when needed.
-#!**/packages/repositories.config
-# NuGet v3's project.json files produces more ignorable files.
-*.nuget.props
-*.nuget.targets
-
-
-# Visual Studio cache files.
-# files ending in .cache can be ignored,
-*.[Cc]ache
-# but keep track of directories ending in .cache.
-!*.[Cc]ache/
+!ChangeLogs/**/*.md

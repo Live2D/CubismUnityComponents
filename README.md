@@ -5,62 +5,52 @@ Welcome to the open components of the Cubism SDK For Unity.
 Go [here](http://www.live2d.com/products/cubism3) if you're looking for the official Live2D hoempage,
 and [here](https://live2d.github.io) if you're looking for the download page of the SDK package.
 
-This repository is basically made up of 3 parts:
+## Structure
 
-1. The runtime components found located in ``./Live2DCubismComponents``.
-1. Unity Editor extensions for the runtime components located in ``./Live2DCubismComponents_EditorExtensions``.
-1. Unity resources used by the runtime components located in ``./Live2DCubismComponents_Resources``.
+### Components
 
-The runtime components are grouped by their role,
+The components are grouped by their role,
 and this grouping is reflected in both folder structure and namespaces.
 
-## Components
+#### Core Wrapper
 
-### Core Wrapper
+Components and classes in this group are a shim layer for wrapping the unmanaged Cubism core library to C# and Unity and
+are located in ``./Assets/Live2D/Cubism/Core``.
 
-Components and classes in this group are a shim layer for wrapping the unmanaged Cubism core library to C# and Unity.
-
-### Framework
+#### Framework
 
 Components and classes in this group provide additional functionality like lip-syncing,
 as well as integration of 'foreign' Cubism files with Unity.
 Turning Cubism files into Prefabs and AnimationClips is done here.
+All framework code is located in ``./Assets/Live2D/Cubism/Framework``.
 
-### Rendering
+#### Rendering
 
-Components and classes in this group provide the functionality for rendering Cubism models using Unity functionality.
+Components and classes in this group provide the functionality for rendering Cubism models using Unity functionality and
+are located in are located in ``./Assets/Live2D/Cubism/Rendering``.
 
-## Building
+### Editor Extensions
 
-Building can be easily done on Windows using the included build scripts.
-Run ``./BuildRelease.bat`` for release builds; ``./BuildDebug.bat`` for debug builds.
+Unity Editor extensions are located in ``./Assets/Live2D/Cubism/Editor``.
 
-When build scripts are run from the repository root directory,
-you'll find the build results output in the ``./Build`` directory.
-From there you can simply take them into Unity.
+### Resources
 
-### Pre-requisites
+Resources like shaders and other assets are located in ``./Assets/Live2D/Cubism/Rendering/Resources``.
 
-#### MSBuild
+## Branches
 
-The build scripts rely on MSBuild, so make sure to run them from a
-[developer command prompt](https://msdn.microsoft.com/en-us/library/ms229859(v=vs.110).aspx).
+If you're looking for the latest features and/or fixes, all development takes place in the ``develop`` branch.
 
-#### Unity Libraries
+The ``master`` branch is brought in sync with the ``develop`` branch once every official SDK release.
 
-The projects rely on the ``UnityEngine.dll`` and ``UnityEditor.dll``, and
-expect them to be located in ``./UnityDlls``.
-Check [this post](https://forum.unity3d.com/threads/where-is-unityengine-dll-and-unityeditor-dll.103433/)
-if you're unsure on where to find them.
+## Usage
 
-### Why don't you compile all code?
+Simply copy all files under ``./Assets`` into the folder the Live2D Cubism SDK is located in your Unity project.
 
-We'd love to compile all code, but Unity's builtin JSON parser
-[doesn't allow deserialization of classes inside of dlls](https://issuetracker.unity3d.com/issues/json-jsonutility-dot-tojson-does-not-return-data-of-class-inside-dll-in-json-format),
-which framework features rely on.
+### Unsafe Blocks
 
-Therefore, currently only the unsafe Core wrapper is getting compiled.
-
+The Core wrapper requires unsafe code blocks to be allowed and the C# project Unity creates is patched accordingly.
+If unsafe code isn't an option for you, currently the best way is to compile the components and drop that dll into your Unity project.
 
 ## Contributing
 
