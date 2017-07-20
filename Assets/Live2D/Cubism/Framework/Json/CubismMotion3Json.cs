@@ -118,6 +118,9 @@ namespace Live2D.Cubism.Framework.Json
         /// Instantiates an <see cref="AnimationClip"/>.
         /// </summary>
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
+        /// <remarks>
+        /// Note this method generates <see cref="AnimationClip.legacy"/> clips when called at runtime.
+        /// </remarks>
         public AnimationClip ToAnimationClip()
         {
             // Check béziers restriction flag.
@@ -130,7 +133,15 @@ namespace Live2D.Cubism.Framework.Json
             // Create animation clip.
             var animationClip = new AnimationClip
             {
+#if UNITY_EDITOR
                 frameRate = Meta.Fps
+#else
+                frameRate = Meta.Fps,
+                legacy = true,
+                wrapMode = (Meta.Loop)
+                  ? WrapMode.Loop
+                  : WrapMode.Default
+#endif
             };
 
             
@@ -223,7 +234,7 @@ namespace Live2D.Cubism.Framework.Json
             return animationClip;
         }
 
-        #region Segment Parsing
+#region Segment Parsing
 
         /// <summary>
         /// Offset to use for setting of keyframes.
@@ -387,9 +398,9 @@ namespace Live2D.Cubism.Framework.Json
             position += 3;
         }
 
-        #endregion
+#endregion
 
-        #region Json Object Types
+#region Json Object Types
 
         /// <summary>
         /// Motion meta info.
@@ -465,6 +476,6 @@ namespace Live2D.Cubism.Framework.Json
             public float[] Segments;
         };
 
-        #endregion
+#endregion
     }
 }
