@@ -36,6 +36,14 @@ namespace Live2D.Cubism.Editor.Importers
         /// </summary>
         public delegate void TextureImportHandler(CubismModel3JsonImporter importer, CubismModel model, Texture2D texture);
 
+
+        /// <summary>
+        /// Callback on Cubism motions import as<see cref="AnimationClip"/>. 
+        /// </summary>
+        /// <param name="importer">Importer.</param>
+        /// <param name="animationClip">Generated animation.</param>
+        public delegate void MotionImportHandler(CubismMotion3JsonImporter importer, AnimationClip animationClip);
+
         #endregion
 
         #region Events
@@ -63,6 +71,12 @@ namespace Live2D.Cubism.Editor.Importers
         /// Texture picker to use when importing models.
         /// </summary>
         public static CubismModel3Json.TexturePicker OnPickTexture = CubismBuiltinPickers.TexturePicker;
+
+
+        /// <summary>
+        /// Allows getting called back whenever a Cubism motions is imported (and before it is saved). 
+        /// </summary>
+        public static event MotionImportHandler OnDidImportMotion;
 
         #endregion
 
@@ -158,6 +172,22 @@ namespace Live2D.Cubism.Editor.Importers
 
 
             OnDidImportTexture(importer, model, texture);
+        }
+
+        /// <summary>
+        /// Safely triggers <see cref="OnDidImportMotion"/>.
+        /// </summary>
+        /// <param name="importer">Importer.</param>
+        /// <param name="animationClip">Generated animation.</param>
+        internal static void SendMotionImportEvent(CubismMotion3JsonImporter importer, AnimationClip animationClip)
+        {
+            if (OnDidImportMotion == null)
+            {
+                return;
+            }
+
+
+            OnDidImportMotion(importer, animationClip);
         }
 
 

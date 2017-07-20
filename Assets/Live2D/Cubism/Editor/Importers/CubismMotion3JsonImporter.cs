@@ -76,7 +76,7 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#region Unity Event Handling
+        #region Unity Event Handling
 
         /// <summary>
         /// Registers importer.
@@ -88,9 +88,9 @@ namespace Live2D.Cubism.Editor.Importers
             CubismImporter.RegisterImporter<CubismMotion3JsonImporter>(".motion3.json");
         }
 
-#endregion
+        #endregion
 
-#region CubismImporterBase
+        #region CubismImporterBase
 
         /// <summary>
         /// Imports the corresponding asset.
@@ -128,6 +128,10 @@ namespace Live2D.Cubism.Editor.Importers
             }
 
 
+            // Trigger event.
+            CubismImporter.SendMotionImportEvent(this, animationClip);
+
+
             // Apply changes.
             if (isImporterDirty)
             {
@@ -140,6 +144,6 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#endregion
+        #endregion
     }
 }

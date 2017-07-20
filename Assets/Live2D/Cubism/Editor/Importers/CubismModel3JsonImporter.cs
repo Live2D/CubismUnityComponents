@@ -116,7 +116,7 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#region Unity Event Handling
+        #region Unity Event Handling
 
         /// <summary>
         /// Registers importer.
@@ -128,9 +128,9 @@ namespace Live2D.Cubism.Editor.Importers
             CubismImporter.RegisterImporter<CubismModel3JsonImporter>(".model3.json");
         }
 
-#endregion
+        #endregion
 
-#region CubismImporterBase
+        #region CubismImporterBase
 
         /// <summary>
         /// Imports the corresponding asset.
@@ -232,7 +232,7 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#endregion
+        #endregion
 
         private static void CopyUserData(CubismModel source, CubismModel destination)
         {
