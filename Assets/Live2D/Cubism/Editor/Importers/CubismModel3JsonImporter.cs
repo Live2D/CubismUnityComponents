@@ -209,6 +209,7 @@ namespace Live2D.Cubism.Editor.Importers
 
                 // Replace prefab.
                 EditorUtility.CopySerialized(model.gameObject, ModelPrefab);
+                CopyUserData(model, ModelPrefab.FindCubismModel(), true);
                 EditorUtility.SetDirty(ModelPrefab);
 
 
@@ -234,7 +235,7 @@ namespace Live2D.Cubism.Editor.Importers
 
         #endregion
 
-        private static void CopyUserData(CubismModel source, CubismModel destination)
+        private static void CopyUserData(CubismModel source, CubismModel destination, bool copyComponentsOnly = false)
         {
             // Give parameters, parts, and drawables special treatment.
             CopyUserData(source.Parameters, destination.Parameters);
@@ -242,30 +243,33 @@ namespace Live2D.Cubism.Editor.Importers
             CopyUserData(source.Drawables, destination.Drawables);
 
 
-            // Copy children.
-            foreach (var child in source.transform
-                .GetComponentsInChildren<Transform>()
-                .Where(t => t != source.transform)
-                .Select(t => t.gameObject))
+            // Copy children if copy all.
+            if (!copyComponentsOnly)
             {
-                // Skip parameters, parts, and drawables.
-                if (child.name == "Parameters")
+                foreach (var child in source.transform
+                    .GetComponentsInChildren<Transform>()
+                    .Where(t => t != source.transform)
+                    .Select(t => t.gameObject))
                 {
-                    continue;
+                    // Skip parameters, parts, and drawables.
+                    if (child.name == "Parameters")
+                    {
+                        continue;
+                    }
+
+                    if (child.name == "Parts")
+                    {
+                        continue;
+                    }
+
+                    if (child.name == "Drawables")
+                    {
+                        continue;
+                    }
+
+
+                    Object.Instantiate(child, destination.transform);
                 }
-
-                if (child.name == "Parts")
-                {
-                    continue;
-                }
-
-                if (child.name == "Drawables")
-                {
-                    continue;
-                }
-
-
-                Object.Instantiate(child, destination.transform);
             }
 
 

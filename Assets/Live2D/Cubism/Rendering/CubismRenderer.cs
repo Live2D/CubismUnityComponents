@@ -19,7 +19,7 @@ namespace Live2D.Cubism.Rendering
     /// <summary>
     /// Wrapper for drawing <see cref="CubismDrawable"/>s.
     /// </summary>
-    [ExecuteInEditMode, CubismDontMoveOnReimport, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+    [ExecuteInEditMode, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class CubismRenderer : MonoBehaviour
     {
         /// <summary>
