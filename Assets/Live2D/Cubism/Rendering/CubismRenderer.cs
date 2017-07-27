@@ -709,7 +709,7 @@ namespace Live2D.Cubism.Rendering
 
             for (var i = 0; i < VertexColors.Length; ++i)
             {
-                VertexColors[i] = Color.white;
+                VertexColors[i] = Color;
             }
 
 
