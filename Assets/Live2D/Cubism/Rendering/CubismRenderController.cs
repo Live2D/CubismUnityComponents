@@ -536,6 +536,8 @@ namespace Live2D.Cubism.Rendering
                 if (data[i].IsVisibilityDirty)
                 {
                     renderers[i].OnDrawableVisiblityDidChange(data[i].IsVisible);
+
+                    swapMeshes = true;
                 }
 
 

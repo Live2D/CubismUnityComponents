@@ -358,6 +358,14 @@ namespace Live2D.Cubism.Rendering
                 mesh.vertices = Meshes[FrontMesh].vertices;
             }
 
+            // As an optimization we don't update vertex positions of drawables that aren't visible.
+            // Therefore, we have to force an update of vertex positions on the first frame a drawable becomes visible.
+            // Otherwise, we end up with the vertex positions of the frame the drawable was last visible at.
+            if (ThisSwap.DidBecomeVisible)
+            {
+                mesh.vertices = Meshes[BackMesh].vertices;
+            }
+
 
             // Update swap info.
             LastSwap = ThisSwap;
@@ -479,6 +487,13 @@ namespace Live2D.Cubism.Rendering
         internal void OnDrawableVisiblityDidChange(bool newVisibility)
         {
             MeshRenderer.enabled = newVisibility;
+
+
+            // Set swap flag if visible.
+            if (newVisibility)
+            {
+                BecomeVisible();
+            }
         }
 
 
@@ -773,6 +788,17 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Sets <see cref="DidBecomeVisible"/> on visible.
+        /// </summary>
+        private void BecomeVisible()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.DidBecomeVisible = true;
+            ThisSwap = swapInfo;
+        }
+
+
+        /// <summary>
         /// Resets flags.
         /// </summary>
         private void ResetSwapInfoFlags()
@@ -780,6 +806,7 @@ namespace Live2D.Cubism.Rendering
             var swapInfo = ThisSwap;
             swapInfo.NewVertexColors = false;
             swapInfo.NewVertexPositions = false;
+            swapInfo.DidBecomeVisible = false;
             ThisSwap = swapInfo;
         }
         
@@ -798,6 +825,11 @@ namespace Live2D.Cubism.Rendering
             /// Vertex colors were changed.
             /// </summary>
             public bool NewVertexColors { get; set; }
+            
+            /// <summary>
+            /// Visibility were changed to visible.
+            /// </summary>
+            public bool DidBecomeVisible { get; set; }
         }
 
         #endregion
