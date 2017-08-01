@@ -108,6 +108,15 @@ namespace Live2D.Cubism.Framework.Json
                 Parsers[segments[i]](segments, keyframes, ref i);
             }
 
+#if !UNITY_EDITOR
+            // Set tangent mode on run-time.
+            for (var i = 0; i < keyframes.Count; ++i)
+            {
+                var keyframe = keyframes[i];
+                keyframe.tangentMode = 10;
+                keyframes[i] = keyframe;
+            }
+#endif
 
             // Return result.
             return keyframes.ToArray();
@@ -159,12 +168,14 @@ namespace Live2D.Cubism.Framework.Json
 
                 // Curves may be off because of specification difference of CubismEditor and Unity on importing.
                 // Therefore, let Unity recalculate curves automatically to convenient for Unity after registering keyframes.
+#if UNITY_EDITOR
                 for (var j = 0; j < animationCurve.keys.Length; ++j)
                 {
                     // Set by experience rule.
                     AnimationUtility.SetKeyLeftTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
                     AnimationUtility.SetKeyRightTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
                 }
+#endif
 
 
                 // Create model binding.
