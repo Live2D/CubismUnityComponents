@@ -155,6 +155,16 @@ namespace Live2D.Cubism.Framework.Json
                 var type = default(Type);
                 var propertyName = string.Empty;
                 var animationCurve = new AnimationCurve(ConvertCurveSegmentsToKeyframes(curve.Segments));
+                
+
+                // Curves may be off because of specification difference of CubismEditor and Unity on importing.
+                // Therefore, let Unity recalculate curves automatically to convenient for Unity after registering keyframes.
+                for (var j = 0; j < animationCurve.keys.Length; ++j)
+                {
+                    // Set by experience rule.
+                    AnimationUtility.SetKeyLeftTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
+                    AnimationUtility.SetKeyRightTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
+                }
 
 
                 // Create model binding.
@@ -313,8 +323,15 @@ namespace Live2D.Cubism.Framework.Json
         private static void ParseBezierSegment(float[] segments, List<Keyframe> result, ref int position)
         {
             // Compute tangents.
-            var outTangent = segments[position + 2] - result[result.Count - 1].value;
-            var inTangent = segments[position + 6] - segments[position + 4];
+            var p1Position = new Vector2(segments[position + 3], segments[position + 4]);
+            var p2Position = new Vector2(segments[position + 5], segments[position + 6]);
+            var p3Position = new Vector2(segments[position + 8], segments[position + 9]);
+
+            var inVector = p1Position - p2Position;
+            var outVector = p2Position - p3Position;
+
+            var inTangent = inVector.y / inVector.x;
+            var outTangent = outVector.y / outVector.x;
 
             
             // Create keyframes.
@@ -328,8 +345,8 @@ namespace Live2D.Cubism.Framework.Json
             
 
             keyframe = new Keyframe(
-                segments[position + 5],
-                segments[position + 6],
+                p2Position.x,
+                p2Position.y,
                 inTangent,
                 0);
 
