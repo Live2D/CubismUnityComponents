@@ -61,16 +61,18 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         [SerializeField]
         public int Version;
-        
+
         /// <summary>
         /// Motion meta info.
         /// </summary>
-        [SerializeField] public SerializableMeta Meta;
+        [SerializeField]
+        public SerializableMeta Meta;
 
         /// <summary>
         /// Curves.
         /// </summary>
-        [SerializeField] public SerializableCurve[] Curves;
+        [SerializeField]
+        public SerializableCurve[] Curves;
 
         #endregion
 
@@ -108,15 +110,6 @@ namespace Live2D.Cubism.Framework.Json
                 Parsers[segments[i]](segments, keyframes, ref i);
             }
 
-#if !UNITY_EDITOR
-            // Set tangent mode on run-time.
-            for (var i = 0; i < keyframes.Count; ++i)
-            {
-                var keyframe = keyframes[i];
-                keyframe.tangentMode = 10;
-                keyframes[i] = keyframe;
-            }
-#endif
 
             // Return result.
             return keyframes.ToArray();
@@ -153,7 +146,7 @@ namespace Live2D.Cubism.Framework.Json
 #endif
             };
 
-            
+
             // Convert curves.
             for (var i = 0; i < Curves.Length; ++i)
             {
@@ -164,18 +157,6 @@ namespace Live2D.Cubism.Framework.Json
                 var type = default(Type);
                 var propertyName = string.Empty;
                 var animationCurve = new AnimationCurve(ConvertCurveSegmentsToKeyframes(curve.Segments));
-                
-
-                // Curves may be off because of specification difference of CubismEditor and Unity on importing.
-                // Therefore, let Unity recalculate curves automatically to convenient for Unity after registering keyframes.
-#if UNITY_EDITOR
-                for (var j = 0; j < animationCurve.keys.Length; ++j)
-                {
-                    // Set by experience rule.
-                    AnimationUtility.SetKeyLeftTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
-                    AnimationUtility.SetKeyRightTangentMode(animationCurve, j, AnimationUtility.TangentMode.ClampedAuto);
-                }
-#endif
 
 
                 // Create model binding.
@@ -255,7 +236,7 @@ namespace Live2D.Cubism.Framework.Json
             return animationClip;
         }
 
-#region Segment Parsing
+        #region Segment Parsing
 
         /// <summary>
         /// Offset to use for setting of keyframes.
@@ -305,7 +286,7 @@ namespace Live2D.Cubism.Framework.Json
             // Create keyframes.
             var keyframe = new Keyframe(
                 result[result.Count - 1].time,
-                result[result.Count - 1].value, 
+                result[result.Count - 1].value,
                 result[result.Count - 1].inTangent,
                 outTangent);
 
@@ -314,7 +295,7 @@ namespace Live2D.Cubism.Framework.Json
 
             keyframe = new Keyframe(
                 segments[position + 1],
-                segments[position + 2], 
+                segments[position + 2],
                 inTangent,
                 0);
 
@@ -334,17 +315,13 @@ namespace Live2D.Cubism.Framework.Json
         private static void ParseBezierSegment(float[] segments, List<Keyframe> result, ref int position)
         {
             // Compute tangents.
-            var p1Position = new Vector2(segments[position + 3], segments[position + 4]);
-            var p2Position = new Vector2(segments[position + 5], segments[position + 6]);
-            var p3Position = new Vector2(segments[position + 8], segments[position + 9]);
+            var tangentLength = Mathf.Abs(result[result.Count - 1].time - segments[position + 5]) * 0.333333f;
 
-            var inVector = p1Position - p2Position;
-            var outVector = p2Position - p3Position;
 
-            var inTangent = inVector.y / inVector.x;
-            var outTangent = outVector.y / outVector.x;
+            var outTangent = (segments[position + 2] - result[result.Count - 1].value) / tangentLength;
+            var inTangent = (segments[position + 6] - segments[position + 4]) / tangentLength;
 
-            
+
             // Create keyframes.
             var keyframe = new Keyframe(
                 result[result.Count - 1].time,
@@ -353,16 +330,16 @@ namespace Live2D.Cubism.Framework.Json
                 outTangent);
 
             result[result.Count - 1] = keyframe;
-            
+
 
             keyframe = new Keyframe(
-                p2Position.x,
-                p2Position.y,
+                segments[position + 5],
+                segments[position + 6],
                 inTangent,
                 0);
 
             result.Add(keyframe);
-           
+
 
             // Update position.
             position += 7;
@@ -398,7 +375,7 @@ namespace Live2D.Cubism.Framework.Json
         {
             // Compute tangents.
             var keyframe = result[result.Count - 1];
-            
+
             var tangent = (float)Math.Atan2(
                 (segments[position + 2] - keyframe.value),
                 (segments[position + 1] - keyframe.time));
@@ -426,9 +403,9 @@ namespace Live2D.Cubism.Framework.Json
             position += 3;
         }
 
-#endregion
+        #endregion
 
-#region Json Object Types
+        #region Json Object Types
 
         /// <summary>
         /// Motion meta info.
@@ -504,6 +481,6 @@ namespace Live2D.Cubism.Framework.Json
             public float[] Segments;
         };
 
-#endregion
+        #endregion
     }
 }
