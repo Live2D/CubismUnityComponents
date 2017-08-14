@@ -10,6 +10,7 @@ using Live2D.Cubism.Core;
 using System;
 using System.IO;
 using Live2D.Cubism.Framework.MouthMovement;
+using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
@@ -145,6 +146,17 @@ namespace Live2D.Cubism.Framework.Json
             get
             {
                 return LoadReferencedAsset<byte[]>(FileReferences.Moc);
+            }
+        }
+
+        /// <summary>
+        /// The contents of physics3.json asset.
+        /// </summary>
+        public string Physics3Json
+        {
+            get
+            {
+                return LoadReferencedAsset<string>(FileReferences.Physics);
             }
         }
 
@@ -303,6 +315,25 @@ namespace Live2D.Cubism.Framework.Json
 
 
                 break;
+            }
+
+
+            // Initialize physics if JSON exists.
+            var physics3JsonAsString = Physics3Json;
+
+            
+            if (!string.IsNullOrEmpty(physics3JsonAsString))
+            {
+                var physics3Json = CubismPhysics3Json.LoadFrom(physics3JsonAsString);
+                var physicsController = model.gameObject.GetComponent<CubismPhysicsController>();
+
+                if (physicsController == null)
+                {
+                    physicsController = model.gameObject.AddComponent<CubismPhysicsController>();
+                    
+                }
+
+                physicsController.Initialize(physics3Json.ToRig());
             }
 
 
