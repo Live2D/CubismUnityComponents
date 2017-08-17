@@ -72,10 +72,10 @@ namespace Live2D.Cubism.Framework.Json
                 dataArray[i] = new CubismPhysicsInput
                 {
                     SourceId            = source[i].Source.Id,
-                    AngleScale        = 0.0f,
+                    AngleScale          = 0.0f,
                     ScaleOfTranslation  = Vector2.zero,
                     Weight              = source[i].Weight,
-                    SourceComponent        = (CubismPhysicsSourceComponent) Enum.Parse(
+                    SourceComponent     = (CubismPhysicsSourceComponent) Enum.Parse(
                         typeof(CubismPhysicsSourceComponent), source[i].Type
                         ),
                     IsInverted          = source[i].Reflect
@@ -97,10 +97,10 @@ namespace Live2D.Cubism.Framework.Json
                 {
                     DestinationId        = source[i].Destination.Id,
                     ParticleIndex        = source[i].VertexIndex,
-                    TranslationScale   = Vector2.zero,
-                    AngleScale         = source[i].Scale,
+                    TranslationScale     = Vector2.zero,
+                    AngleScale           = source[i].Scale,
                     Weight               = source[i].Weight,
-                    SourceComponent         = (CubismPhysicsSourceComponent) Enum.Parse(
+                    SourceComponent      = (CubismPhysicsSourceComponent) Enum.Parse(
                         typeof(CubismPhysicsSourceComponent), source[i].Type
                         ),
                     IsInverted           = source[i].Reflect,
@@ -131,7 +131,7 @@ namespace Live2D.Cubism.Framework.Json
                     Delay             = source[i].Delay,
                     Acceleration      = source[i].Acceleration,
                     Radius            = source[i].Radius,
-                    Position     = Vector2.zero,
+                    Position          = Vector2.zero,
                     LastPosition      = Vector2.zero,
                     LastGravity       = Vector2.down,
                     Force             = Vector2.zero,
