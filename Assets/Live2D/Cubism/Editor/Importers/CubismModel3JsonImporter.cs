@@ -238,9 +238,9 @@ namespace Live2D.Cubism.Editor.Importers
         private static void CopyUserData(CubismModel source, CubismModel destination, bool copyComponentsOnly = false)
         {
             // Give parameters, parts, and drawables special treatment.
-            CopyUserData(source.Parameters, destination.Parameters);
-            CopyUserData(source.Parts, destination.Parts);
-            CopyUserData(source.Drawables, destination.Drawables);
+            CopyUserData(source.Parameters, destination.Parameters, copyComponentsOnly);
+            CopyUserData(source.Parts, destination.Parts, copyComponentsOnly);
+            CopyUserData(source.Drawables, destination.Drawables, copyComponentsOnly);
 
 
             // Copy children if copy all.
@@ -277,7 +277,7 @@ namespace Live2D.Cubism.Editor.Importers
             foreach (var sourceComponent in source.GetComponents(typeof(Component)))
             {
                 // Skip non-movable components.
-                if (!sourceComponent.MoveOnCubismReimport())
+                if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                 {
                     continue;
                 }
@@ -292,7 +292,7 @@ namespace Live2D.Cubism.Editor.Importers
         }
 
 
-        private static void CopyUserData<T>(T[] source, T[] destination) where T : MonoBehaviour
+        private static void CopyUserData<T>(T[] source, T[] destination, bool copyComponentsOnly) where T : MonoBehaviour
         {
             foreach (var destinationT in destination)
             {
@@ -320,7 +320,7 @@ namespace Live2D.Cubism.Editor.Importers
                 foreach (var sourceComponent in sourceT.GetComponents(typeof(Component)))
                 {
                     // Skip non-movable components.
-                    if (!sourceComponent.MoveOnCubismReimport())
+                    if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                     {
                         continue;
                     }

@@ -39,12 +39,12 @@ namespace Live2D.Cubism.Editor.Importers
         /// </summary>
         /// <param name="self>Component to check against.</param>
         /// <returns>True if component should be moved; false otherwise.</returns>
-        public static bool MoveOnCubismReimport(this Component self)
+        public static bool MoveOnCubismReimport(this Component self, bool componentsOnly)
         {
             return self
                 .GetType()
                 .GetCustomAttributes(false)
-                .FirstOrDefault(a => a.GetType() == typeof(CubismDontMoveOnReimportAttribute)) == null;
+                .FirstOrDefault(a => (a.GetType() == typeof(CubismDontMoveOnReimportAttribute)) || (a.GetType() == typeof(CubismMoveOnReimportCopyComponentsOnly) && !componentsOnly)) == null;
         }
     }
 }
