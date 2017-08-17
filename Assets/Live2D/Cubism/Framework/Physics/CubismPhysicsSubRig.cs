@@ -137,7 +137,9 @@ namespace Live2D.Cubism.Framework.Physics
 
                 strand[i].LastPosition = strand[i].Position;
 
-                
+                // The Cubism Editor expects 30 FPS so we scale here by 30...
+                var delay = strand[i].Delay * deltaTime * 30.0f;
+
                 var direction = strand[i].Position - strand[i - 1].Position;
                 var distance = Vector2.Distance(Vector2.zero, direction);
                 var angle = CubismPhysicsMath.DirectionToDegrees(strand[i].LastGravity, currentGravity);
@@ -155,8 +157,8 @@ namespace Live2D.Cubism.Framework.Physics
                 strand[i].Position = strand[i - 1].Position + (direction * distance);
 
 
-                var velocity = strand[i].Velocity * strand[i].Delay;
-                var force = strand[i].Force * strand[i].Delay * strand[i].Delay;
+                var velocity = strand[i].Velocity * delay;
+                var force = strand[i].Force * delay * delay;
 
 
                 strand[i].Position = strand[i].Position + velocity + force;
@@ -175,10 +177,10 @@ namespace Live2D.Cubism.Framework.Physics
                 }
 
 
-                if (strand[i].Delay != 0.0f)
+                if (delay != 0.0f)
                 {
                     strand[i].Velocity =
-                            ((strand[i].Position - strand[i].LastPosition) / strand[i].Delay) * strand[i].Mobility;
+                            ((strand[i].Position - strand[i].LastPosition) / delay) * strand[i].Mobility;
                 }
                 else
                 {
