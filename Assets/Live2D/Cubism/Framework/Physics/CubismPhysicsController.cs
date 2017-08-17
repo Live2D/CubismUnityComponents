@@ -15,6 +15,7 @@ namespace Live2D.Cubism.Framework.Physics
     /// <summary>
     /// Physics simulation controller.
     /// </summary>
+    [CubismMoveOnReimportCopyComponentsOnly]
     public class CubismPhysicsController : MonoBehaviour
     {
         /// <summary>
