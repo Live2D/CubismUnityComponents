@@ -130,7 +130,7 @@ namespace Live2D.Cubism.Framework.Physics
                 outputValue *= -1.0f;
             }
 
-            return CubismPhysicsMath.RadianToDegrees(outputValue);
+            return outputValue;
         }
 
 
