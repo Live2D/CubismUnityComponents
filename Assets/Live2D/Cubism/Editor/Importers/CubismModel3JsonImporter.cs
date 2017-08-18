@@ -116,7 +116,7 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#region Unity Event Handling
+        #region Unity Event Handling
 
         /// <summary>
         /// Registers importer.
@@ -128,9 +128,9 @@ namespace Live2D.Cubism.Editor.Importers
             CubismImporter.RegisterImporter<CubismModel3JsonImporter>(".model3.json");
         }
 
-#endregion
+        #endregion
 
-#region CubismImporterBase
+        #region CubismImporterBase
 
         /// <summary>
         /// Imports the corresponding asset.
@@ -209,6 +209,7 @@ namespace Live2D.Cubism.Editor.Importers
 
                 // Replace prefab.
                 EditorUtility.CopySerialized(model.gameObject, ModelPrefab);
+                CopyUserData(model, ModelPrefab.FindCubismModel(), true);
                 EditorUtility.SetDirty(ModelPrefab);
 
 
@@ -232,40 +233,43 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
-#endregion
+        #endregion
 
-        private static void CopyUserData(CubismModel source, CubismModel destination)
+        private static void CopyUserData(CubismModel source, CubismModel destination, bool copyComponentsOnly = false)
         {
             // Give parameters, parts, and drawables special treatment.
-            CopyUserData(source.Parameters, destination.Parameters);
-            CopyUserData(source.Parts, destination.Parts);
-            CopyUserData(source.Drawables, destination.Drawables);
+            CopyUserData(source.Parameters, destination.Parameters, copyComponentsOnly);
+            CopyUserData(source.Parts, destination.Parts, copyComponentsOnly);
+            CopyUserData(source.Drawables, destination.Drawables, copyComponentsOnly);
 
 
-            // Copy children.
-            foreach (var child in source.transform
-                .GetComponentsInChildren<Transform>()
-                .Where(t => t != source.transform)
-                .Select(t => t.gameObject))
+            // Copy children if copy all.
+            if (!copyComponentsOnly)
             {
-                // Skip parameters, parts, and drawables.
-                if (child.name == "Parameters")
+                foreach (var child in source.transform
+                    .GetComponentsInChildren<Transform>()
+                    .Where(t => t != source.transform)
+                    .Select(t => t.gameObject))
                 {
-                    continue;
+                    // Skip parameters, parts, and drawables.
+                    if (child.name == "Parameters")
+                    {
+                        continue;
+                    }
+
+                    if (child.name == "Parts")
+                    {
+                        continue;
+                    }
+
+                    if (child.name == "Drawables")
+                    {
+                        continue;
+                    }
+
+
+                    Object.Instantiate(child, destination.transform);
                 }
-
-                if (child.name == "Parts")
-                {
-                    continue;
-                }
-
-                if (child.name == "Drawables")
-                {
-                    continue;
-                }
-
-
-                Object.Instantiate(child, destination.transform);
             }
 
 
@@ -273,7 +277,7 @@ namespace Live2D.Cubism.Editor.Importers
             foreach (var sourceComponent in source.GetComponents(typeof(Component)))
             {
                 // Skip non-movable components.
-                if (!sourceComponent.MoveOnCubismReimport())
+                if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                 {
                     continue;
                 }
@@ -288,7 +292,7 @@ namespace Live2D.Cubism.Editor.Importers
         }
 
 
-        private static void CopyUserData<T>(T[] source, T[] destination) where T : MonoBehaviour
+        private static void CopyUserData<T>(T[] source, T[] destination, bool copyComponentsOnly) where T : MonoBehaviour
         {
             foreach (var destinationT in destination)
             {
@@ -316,7 +320,7 @@ namespace Live2D.Cubism.Editor.Importers
                 foreach (var sourceComponent in sourceT.GetComponents(typeof(Component)))
                 {
                     // Skip non-movable components.
-                    if (!sourceComponent.MoveOnCubismReimport())
+                    if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                     {
                         continue;
                     }

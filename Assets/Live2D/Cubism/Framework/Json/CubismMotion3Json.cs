@@ -61,16 +61,18 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         [SerializeField]
         public int Version;
-        
+
         /// <summary>
         /// Motion meta info.
         /// </summary>
-        [SerializeField] public SerializableMeta Meta;
+        [SerializeField]
+        public SerializableMeta Meta;
 
         /// <summary>
         /// Curves.
         /// </summary>
-        [SerializeField] public SerializableCurve[] Curves;
+        [SerializeField]
+        public SerializableCurve[] Curves;
 
         #endregion
 
@@ -118,6 +120,9 @@ namespace Live2D.Cubism.Framework.Json
         /// Instantiates an <see cref="AnimationClip"/>.
         /// </summary>
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
+        /// <remarks>
+        /// Note this method generates <see cref="AnimationClip.legacy"/> clips when called at runtime.
+        /// </remarks>
         public AnimationClip ToAnimationClip()
         {
             // Check béziers restriction flag.
@@ -130,10 +135,18 @@ namespace Live2D.Cubism.Framework.Json
             // Create animation clip.
             var animationClip = new AnimationClip
             {
+#if UNITY_EDITOR
                 frameRate = Meta.Fps
+#else
+                frameRate = Meta.Fps,
+                legacy = true,
+                wrapMode = (Meta.Loop)
+                  ? WrapMode.Loop
+                  : WrapMode.Default
+#endif
             };
 
-            
+
             // Convert curves.
             for (var i = 0; i < Curves.Length; ++i)
             {
@@ -273,7 +286,7 @@ namespace Live2D.Cubism.Framework.Json
             // Create keyframes.
             var keyframe = new Keyframe(
                 result[result.Count - 1].time,
-                result[result.Count - 1].value, 
+                result[result.Count - 1].value,
                 result[result.Count - 1].inTangent,
                 outTangent);
 
@@ -282,7 +295,7 @@ namespace Live2D.Cubism.Framework.Json
 
             keyframe = new Keyframe(
                 segments[position + 1],
-                segments[position + 2], 
+                segments[position + 2],
                 inTangent,
                 0);
 
@@ -302,10 +315,13 @@ namespace Live2D.Cubism.Framework.Json
         private static void ParseBezierSegment(float[] segments, List<Keyframe> result, ref int position)
         {
             // Compute tangents.
-            var outTangent = segments[position + 2] - result[result.Count - 1].value;
-            var inTangent = segments[position + 6] - segments[position + 4];
+            var tangentLength = Mathf.Abs(result[result.Count - 1].time - segments[position + 5]) * 0.333333f;
 
-            
+
+            var outTangent = (segments[position + 2] - result[result.Count - 1].value) / tangentLength;
+            var inTangent = (segments[position + 6] - segments[position + 4]) / tangentLength;
+
+
             // Create keyframes.
             var keyframe = new Keyframe(
                 result[result.Count - 1].time,
@@ -314,7 +330,7 @@ namespace Live2D.Cubism.Framework.Json
                 outTangent);
 
             result[result.Count - 1] = keyframe;
-            
+
 
             keyframe = new Keyframe(
                 segments[position + 5],
@@ -323,7 +339,7 @@ namespace Live2D.Cubism.Framework.Json
                 0);
 
             result.Add(keyframe);
-           
+
 
             // Update position.
             position += 7;
@@ -359,7 +375,7 @@ namespace Live2D.Cubism.Framework.Json
         {
             // Compute tangents.
             var keyframe = result[result.Count - 1];
-            
+
             var tangent = (float)Math.Atan2(
                 (segments[position + 2] - keyframe.value),
                 (segments[position + 1] - keyframe.time));

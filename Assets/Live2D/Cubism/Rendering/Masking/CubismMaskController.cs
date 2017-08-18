@@ -163,7 +163,7 @@ namespace Live2D.Cubism.Rendering.Masking
 		/// <summary>
 		/// Called by Unity. Updates <see cref="Junktions"/>.
 		/// </summary>
-        private void Update()
+        private void LateUpdate()
         {
             if (!IsRevived)
             {

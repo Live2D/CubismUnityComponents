@@ -82,7 +82,8 @@ namespace Live2D.Cubism.Editor.Inspectors
                 foreach (var renderer in controller.Renderers)
                 {
                     EditorUtility.SetDirty(renderer);
-                    EditorUtility.SetDirty(renderer.MeshRenderer);
+                    // HACK Get mesh renderer directly.
+                    EditorUtility.SetDirty(renderer.GetComponent<MeshRenderer>());
                 }
             }
         }

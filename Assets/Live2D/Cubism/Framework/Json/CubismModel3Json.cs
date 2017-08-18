@@ -10,6 +10,7 @@ using Live2D.Cubism.Core;
 using System;
 using System.IO;
 using Live2D.Cubism.Framework.MouthMovement;
+using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
@@ -78,7 +79,7 @@ namespace Live2D.Cubism.Framework.Json
         public static CubismModel3Json LoadAtPath(string assetPath, LoadAssetAtPathHandler loadAssetAtPath)
         {
             // Load Json asset.
-            var modelJsonAsset = loadAssetAtPath(typeof(TextAsset), assetPath) as TextAsset;
+            var modelJsonAsset = loadAssetAtPath(typeof(string), assetPath) as string;
 
             // Return early in case Json asset wasn't loaded.
             if (modelJsonAsset == null)
@@ -88,7 +89,7 @@ namespace Live2D.Cubism.Framework.Json
 
 
             // Deserialize Json.
-            var modelJson = JsonUtility.FromJson<CubismModel3Json>(modelJsonAsset.text);
+            var modelJson = JsonUtility.FromJson<CubismModel3Json>(modelJsonAsset);
 
 
             // Finalize deserialization.
@@ -149,6 +150,24 @@ namespace Live2D.Cubism.Framework.Json
         }
 
         /// <summary>
+        /// The contents of physics3.json asset.
+        /// </summary>
+        public string Physics3Json
+        {
+            get
+            {
+                return LoadReferencedAsset<string>(FileReferences.Physics);
+            }
+        }
+
+
+        /// <summary>
+        /// <see cref="Textures"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private Texture2D[] _textures;
+
+        /// <summary>
         /// The referenced texture assets.
         /// </summary>
         /// <remarks>
@@ -158,17 +177,20 @@ namespace Live2D.Cubism.Framework.Json
         {
             get
             {
-                // Load textures.
-                var textures = new Texture2D[FileReferences.Textures.Length];
-
-
-                for (var i = 0; i < textures.Length; ++i)
+                // Load textures only if necessary.
+                if (_textures == null)
                 {
-                    textures[i] = LoadReferencedAsset<Texture2D>(FileReferences.Textures[i]);
+                    _textures = new Texture2D[FileReferences.Textures.Length];
+
+
+                    for (var i = 0; i < _textures.Length; ++i)
+                    {
+                        _textures[i] = LoadReferencedAsset<Texture2D>(FileReferences.Textures[i]);
+                    }
                 }
 
 
-                return textures;
+                return _textures;
             }
         }
 
@@ -296,6 +318,25 @@ namespace Live2D.Cubism.Framework.Json
             }
 
 
+            // Initialize physics if JSON exists.
+            var physics3JsonAsString = Physics3Json;
+
+            
+            if (!string.IsNullOrEmpty(physics3JsonAsString))
+            {
+                var physics3Json = CubismPhysics3Json.LoadFrom(physics3JsonAsString);
+                var physicsController = model.gameObject.GetComponent<CubismPhysicsController>();
+
+                if (physicsController == null)
+                {
+                    physicsController = model.gameObject.AddComponent<CubismPhysicsController>();
+                    
+                }
+
+                physicsController.Initialize(physics3Json.ToRig());
+            }
+
+
             // Make sure model is 'fresh'
             model.ForceUpdateNow();
 
@@ -339,6 +380,19 @@ namespace Live2D.Cubism.Framework.Json
 
                 return (textAsset != null)
                     ? textAsset.bytes
+                    : null;
+#endif
+            }
+            else if (assetType == typeof(string))
+            {
+#if UNITY_EDITOR
+                return File.ReadAllText(assetPath);
+#else
+                var textAsset = Resources.Load(assetPath, typeof(TextAsset)) as TextAsset;
+
+
+                return (textAsset != null)
+                    ? textAsset.text
                     : null;
 #endif
             }
