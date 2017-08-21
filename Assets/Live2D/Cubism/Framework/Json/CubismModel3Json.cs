@@ -156,7 +156,7 @@ namespace Live2D.Cubism.Framework.Json
         {
             get
             {
-                return LoadReferencedAsset<string>(FileReferences.Physics);
+                return string.IsNullOrEmpty(FileReferences.Physics) ? null : LoadReferencedAsset<string>(FileReferences.Physics);
             }
         }
 
