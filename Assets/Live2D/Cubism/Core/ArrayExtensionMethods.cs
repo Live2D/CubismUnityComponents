@@ -56,7 +56,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void WriteTo(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
+        internal static void WriteTo(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
             var unmanagedParameters = unmanagedModel.Parameters;
@@ -75,7 +75,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void ReadFrom(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
+        internal static void ReadFrom(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
             var unmanagedParameters = unmanagedModel.Parameters;
@@ -128,7 +128,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void WriteTo(this CubismPart[] self, CubismUnmanagedModel unmanagedModel)
+        internal static void WriteTo(this CubismPart[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
             var unmanagedParts = unmanagedModel.Parts;

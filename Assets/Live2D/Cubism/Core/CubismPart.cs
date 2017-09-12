@@ -82,7 +82,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of Id.
         /// </summary>
-        public unsafe string Id
+        public string Id
         {
             get
             {
@@ -112,7 +112,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">TaskableModel to unmanaged unmanagedModel.</param>
         /// <param name="unmanagedIndex">Position in unmanaged arrays.</param>
-        private unsafe void Reset(CubismUnmanagedModel unmanagedModel, int unmanagedIndex)
+        private void Reset(CubismUnmanagedModel unmanagedModel, int unmanagedIndex)
         {
             Revive(unmanagedModel);
 
