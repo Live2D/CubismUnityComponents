@@ -9,6 +9,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Live2D.Cubism.Core.Unmanaged;
 
 
 namespace Live2D.Cubism.Core
@@ -35,7 +36,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Handle to unmanaged model.
         /// </summary>
-        public IntPtr UnmanagedModel { get; private set; }
+        public CubismUnmanagedModel UnmanagedModel { get; private set; }
 
         /// <summary>
         /// <see cref="CubismMoc"/> the model was instantiated from.
@@ -134,13 +135,11 @@ namespace Live2D.Cubism.Core
             Moc = moc;
 
 
-            // Allocate unmanaged memory and instantiate unmanaged model.
+            // Instantiate unmanaged model.
             var unmanagedMoc = moc.AcquireUnmanagedMoc();
-            var size = csmGetSizeofModel(unmanagedMoc);
-            var memory = CubismMemory.AllocateUnmanaged((int)size, csmAlignofModel);
             
-
-            UnmanagedModel = csmInitializeModelInPlace(unmanagedMoc, memory, size);
+            
+            UnmanagedModel = CubismUnmanagedModel.FromMoc(unmanagedMoc);
 
 
             Lock = new object();
@@ -305,7 +304,7 @@ namespace Live2D.Cubism.Core
 
 
             // Update native backend.
-            csmUpdateModel(UnmanagedModel);
+            UnmanagedModel.Update();
 
 
             // Get results.
@@ -332,11 +331,11 @@ namespace Live2D.Cubism.Core
         /// </summary>
         private void OnReleaseUnmanaged()
         {
-            CubismMemory.DeallocateUnmanaged(UnmanagedModel);
+            UnmanagedModel.Release();
             Moc.ReleaseUnmanagedMoc();
 
 
-            UnmanagedModel = IntPtr.Zero;
+            UnmanagedModel = null;
         }
 
         #region Implementation of ICubismTask
@@ -386,24 +385,6 @@ namespace Live2D.Cubism.Core
         /// Internal state.
         /// </summary>
         private TaskState State { get; set; }
-
-        #endregion
-
-        #region Extern C
-
-        // ReSharper disable once InconsistentNaming
-        private const int csmAlignofModel = 16;
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern uint csmGetSizeofModel(IntPtr moc);
-
-        [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmInitializeModelInPlace(IntPtr moc, IntPtr address, uint size);
-
-
-        [DllImport(CubismDll.Name)]
-        public static extern void csmUpdateModel(IntPtr model);
 
         #endregion
     }

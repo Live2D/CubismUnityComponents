@@ -9,6 +9,7 @@
 using Live2D.Cubism.Framework;
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -27,13 +28,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
         /// <returns>Drawables root.</returns>
-        internal static GameObject CreateDrawables(IntPtr unmanagedModel)
+        internal static GameObject CreateDrawables(CubismUnmanagedModel unmanagedModel)
         {
             var root = new GameObject("Drawables");
 
 
             // Create drawables.
-            var buffer = new CubismDrawable[csmGetDrawableCount(unmanagedModel)];
+            var unmanagedDrawables = unmanagedModel.Drawables;
+            var buffer = new CubismDrawable[unmanagedDrawables.Count];
 
 
             for (var i = 0; i < buffer.Length; ++i)
@@ -54,10 +56,11 @@ namespace Live2D.Cubism.Core
 
         #endregion
 
+        
         /// <summary>
-        /// TaskableModel to unmanaged unmanagedModel.
+        /// Unmanaged drawables from unmanaged model.
         /// </summary>
-        private IntPtr UnmanagedModel { get; set; }
+        private CubismUnmanagedDrawables UnmanagedDrawables { get; set; }
 
 
         /// <summary>
@@ -79,39 +82,31 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of Id.
         /// </summary>
-        public unsafe string Id
+        public string Id
         {
             get
             {
-                // Get address.
-                var ids = csmGetDrawableIds(UnmanagedModel);
-
-
                 // Pull data.
-                return Marshal.PtrToStringAnsi(new IntPtr(ids[UnmanagedIndex]));
+                return UnmanagedDrawables.Ids[UnmanagedIndex];
             }
         }
 
         /// <summary>
         /// Texture UnmanagedIndex. 
         /// </summary>
-        public unsafe int TextureIndex
+        public int TextureIndex
         {
             get
             {
-                // Get native address.
-                var indices = csmGetDrawableTextureIndices(UnmanagedModel);
-
-
                 // Pull data.
-                return indices[UnmanagedIndex];
+                return UnmanagedDrawables.TextureIndices[UnmanagedIndex];
             }
         }
 
         /// <summary>
         /// Copy of the masks.
         /// </summary>
-        public unsafe CubismDrawable[] Masks
+        public CubismDrawable[] Masks
         {
             get
             {
@@ -121,8 +116,8 @@ namespace Live2D.Cubism.Core
 
 
                 // Get addresses.
-                var counts = csmGetDrawableMaskCounts(UnmanagedModel);
-                var indices = csmGetDrawableMasks(UnmanagedModel);
+                var counts = UnmanagedDrawables.MaskCounts;
+                var indices = UnmanagedDrawables.Masks;
 
 
                 // Pull data.
@@ -154,13 +149,13 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of vertex positions.
         /// </summary>
-        public unsafe Vector3[] VertexPositions
+        public Vector3[] VertexPositions
         {
             get
             {
                 // Get addresses.
-                var counts = csmGetDrawableVertexCounts(UnmanagedModel);
-                var positions = (Vector2**)csmGetDrawableVertexPositions(UnmanagedModel).ToPointer();
+                var counts = UnmanagedDrawables.VertexCounts;
+                var positions = UnmanagedDrawables.VertexPositions;
 
 
                 // Pull data.
@@ -169,7 +164,10 @@ namespace Live2D.Cubism.Core
 
                 for (var i = 0; i < buffer.Length; ++i)
                 {
-                    buffer[i] = positions[UnmanagedIndex][i].ToVertexPosition();
+                    buffer[i] = new Vector3(
+                        positions[UnmanagedIndex][(i * 2) + 0],
+                        positions[UnmanagedIndex][(i * 2) + 1]
+                    );
                 }
 
 
@@ -180,13 +178,13 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of vertex texture coordinates.
         /// </summary>
-        public unsafe Vector2[] VertexUvs
+        public Vector2[] VertexUvs
         {
             get
             {
                 // Get addresses.
-                var counts = csmGetDrawableVertexCounts(UnmanagedModel);
-                var uvs = (Vector2 **)csmGetDrawableVertexUvs(UnmanagedModel).ToPointer();
+                var counts = UnmanagedDrawables.VertexCounts;
+                var uvs = UnmanagedDrawables.VertexUvs;
 
 
                 // Pull data.
@@ -195,7 +193,10 @@ namespace Live2D.Cubism.Core
 
                 for (var i = 0; i < buffer.Length; ++i)
                 {
-                    buffer[i] = uvs[UnmanagedIndex][i];
+                    buffer[i] = new Vector2(
+                        uvs[UnmanagedIndex][(i * 2) + 0],
+                        uvs[UnmanagedIndex][(i * 2) + 1]
+                    );
                 }
 
 
@@ -206,13 +207,13 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of triangle indices.
         /// </summary>
-        public unsafe int[] Indices
+        public int[] Indices
         {
             get
             {
                 // Get addresses.
-                var counts = csmGetDrawableIndexCounts(UnmanagedModel);
-                var indices = csmGetDrawableIndices(UnmanagedModel);
+                var counts = UnmanagedDrawables.IndexCounts;
+                var indices = UnmanagedDrawables.Indices;
 
 
                 // Pull data.
@@ -233,28 +234,28 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// True if double-sided.
         /// </summary>
-        public unsafe bool IsDoubleSided
+        public bool IsDoubleSided
         {
             get
             {
                 // Get address.
-                var flags = csmGetDrawableConstantFlags(UnmanagedModel);
+                var flags = UnmanagedDrawables.ConstantFlags;
 
 
                 // Pull data.
-                return flags[UnmanagedIndex].HasFlag(csmIsDoubleSided);
+                return flags[UnmanagedIndex].HasIsDoubleSidedFlag();
             }
         }
 
         /// <summary>
         /// True if masking is requested.
         /// </summary>
-        public unsafe bool IsMasked
+        public bool IsMasked
         {
             get
             {
                 // Get address.
-                var counts = csmGetDrawableMaskCounts(UnmanagedModel);
+                var counts = UnmanagedDrawables.MaskCounts;
 
 
                 // Pull data.
@@ -266,32 +267,32 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// True if additive blending is requested.
         /// </summary>
-        public unsafe bool BlendAdditive
+        public bool BlendAdditive
         {
             get
             {
                 // Get address.
-                var flags = csmGetDrawableConstantFlags(UnmanagedModel);
+                var flags = UnmanagedDrawables.ConstantFlags;
 
 
                 // Pull data.
-                return flags[UnmanagedIndex].HasFlag(csmBlendAdditive);
+                return flags[UnmanagedIndex].HasBlendAdditiveFlag();
             }
         }
 
         /// <summary>
         /// True if multiply blending is setd.
         /// </summary>
-        public unsafe bool MultiplyBlend
+        public bool MultiplyBlend
         {
             get
             {
                 // Get address.
-                var flags = csmGetDrawableConstantFlags(UnmanagedModel);
+                var flags = UnmanagedDrawables.ConstantFlags;
 
 
                 // Pull data.
-                return flags[UnmanagedIndex].HasFlag(csmBlendMultiplicative);
+                return flags[UnmanagedIndex].HasBlendMultiplicativeFlag();
             }
         }
 
@@ -300,9 +301,9 @@ namespace Live2D.Cubism.Core
         /// Revives instance.
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
-        internal void Revive(IntPtr unmanagedModel)
+        internal void Revive(CubismUnmanagedModel unmanagedModel)
         {
-            UnmanagedModel = unmanagedModel;
+            UnmanagedDrawables = unmanagedModel.Drawables;
         }
 
         /// <summary>
@@ -310,65 +311,12 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
         /// <param name="unmanagedIndex">Position in unmanaged arrays.</param>
-        private void Reset(IntPtr unmanagedModel, int unmanagedIndex)
+        private void Reset(CubismUnmanagedModel unmanagedModel, int unmanagedIndex)
         {
             Revive(unmanagedModel);
-
-
+            
             UnmanagedIndex = unmanagedIndex;
             name = Id;
         }
-
-        #region Extern C
-        
-        // ReSharper disable once InconsistentNaming
-        private const byte csmBlendAdditive = 1 << 0;
-
-        // ReSharper disable once InconsistentNaming
-		private const byte csmBlendMultiplicative = 1 << 1;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmIsDoubleSided = 1 << 2;
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern int csmGetDrawableCount(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe char** csmGetDrawableIds(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe byte* csmGetDrawableConstantFlags(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableTextureIndices(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableMaskCounts(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int** csmGetDrawableMasks(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableVertexCounts(IntPtr model);
-
-        // HACK Some platforms have problems with struct return types, so we use void* instead and cast in the wrapper methods.
-        [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmGetDrawableVertexPositions(IntPtr model);
-       
-        // HACK Some platforms have problems with struct return types, so we use void* instead and cast in the wrapper methods.
-        [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmGetDrawableVertexUvs(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableIndexCounts(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe ushort** csmGetDrawableIndices(IntPtr model);
-
-        #endregion
     }
 }

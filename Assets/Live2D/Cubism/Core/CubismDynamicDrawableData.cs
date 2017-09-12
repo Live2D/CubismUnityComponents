@@ -8,6 +8,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -25,13 +26,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Unmanaged model to create buffer for.</param>
         /// <returns>Buffer.</returns>
-        internal static unsafe CubismDynamicDrawableData[] CreateData(IntPtr unmanagedModel)
+        internal static CubismDynamicDrawableData[] CreateData(CubismUnmanagedModel unmanagedModel)
         {
-            var buffer = new CubismDynamicDrawableData[csmGetDrawableCount(unmanagedModel)];
+            var unmanagedDrawables = unmanagedModel.Drawables;
+            var buffer = new CubismDynamicDrawableData[unmanagedDrawables.Count];
 
 
             // Initialize buffers.
-            var vertexCounts = csmGetDrawableVertexCounts(unmanagedModel);
+            var vertexCounts = unmanagedDrawables.VertexCounts;
 
 
             for (var i = 0; i < buffer.Length; ++i)
@@ -80,7 +82,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsVisible
         {
-            get { return Flags.HasFlag(csmIsVisible); }
+            get { return Flags.HasIsVisibleFlag(); }
         }
 
 
@@ -89,7 +91,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsVisibilityDirty
         {
-            get { return Flags.HasFlag(csmVisibilityDidChange); }
+            get { return Flags.HasVisibilityDidChangeFlag(); }
         }
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsOpacityDirty
         {
-            get { return Flags.HasFlag(csmOpacityDidChange); }
+            get { return Flags.HasOpacityDidChangeFlag(); }
         }
 
         /// <summary>
@@ -105,7 +107,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsDrawOrderDirty
         {
-            get { return Flags.HasFlag(csmDrawOrderDidChange); }
+            get { return Flags.HasDrawOrderDidChangeFlag(); }
         }
 
         /// <summary>
@@ -113,7 +115,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsRenderOrderDirty
         {
-            get { return Flags.HasFlag(csmRenderOrderDidChange); }
+            get { return Flags.HasRenderOrderDidChangeFlag(); }
         }
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool AreVertexPositionsDirty
         {
-            get { return Flags.HasFlag(csmVertexPositionsDidChange); }
+            get { return Flags.HasVertexPositionsDidChangeFlag(); }
         }
 
         /// <summary>
@@ -131,35 +133,5 @@ namespace Live2D.Cubism.Core
         {
             get { return Flags != 0; }
         }
-
-        #region Extern C
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmIsVisible = 1 << 0;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmVisibilityDidChange = 1 << 1;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmOpacityDidChange = 1 << 2;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmDrawOrderDidChange = 1 << 3;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmRenderOrderDidChange = 1 << 4;
-
-        // ReSharper disable once InconsistentNaming
-        private const byte csmVertexPositionsDidChange = 1 << 5;
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern int csmGetDrawableCount(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableVertexCounts(IntPtr model);
-
-        #endregion
     }
 }

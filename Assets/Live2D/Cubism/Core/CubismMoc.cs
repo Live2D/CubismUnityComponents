@@ -8,6 +8,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -54,10 +55,7 @@ namespace Live2D.Cubism.Core
         }
 
 
-        /// <summary>
-        /// TaskableModel to unmanaged moc.
-        /// </summary>
-        internal IntPtr UnmanagedMoc { get; private set; }
+        private CubismUnmanagedMoc UnmanagedMoc { get; set; }
 
         private int ReferenceCount { get; set; }
 
@@ -67,7 +65,10 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public bool IsRevived
         {
-            get { return UnmanagedMoc != IntPtr.Zero; }
+            get
+            {
+                return UnmanagedMoc != null;
+            }
         }
 
 
@@ -75,7 +76,7 @@ namespace Live2D.Cubism.Core
         /// Acquires native handle.
         /// </summary>
         /// <returns>Valid handle on success; <see cref="IntPtr.Zero"/> otherwise.</returns>
-        public IntPtr AcquireUnmanagedMoc()
+        public CubismUnmanagedMoc AcquireUnmanagedMoc()
         {
             ++ReferenceCount;
 
@@ -94,13 +95,10 @@ namespace Live2D.Cubism.Core
             -- ReferenceCount;
 
 
-            // Free unmanaged memory in case the instance isn't referenced any longer.
+            // Release instance of unmanaged moc in case the instance isn't referenced any longer.
             if (ReferenceCount == 0)
             {
-                CubismMemory.DeallocateUnmanaged(UnmanagedMoc);
-
-
-                UnmanagedMoc = IntPtr.Zero;
+                UnmanagedMoc.Release();
             }
 
 
@@ -131,32 +129,8 @@ namespace Live2D.Cubism.Core
             }
 
 
-            // Allocate and initialize memory (returning if allocation failed).
-            var memory = CubismMemory.AllocateUnmanaged(Bytes.Length, csmAlignofMoc);
-
-
-            if (memory == IntPtr.Zero)
-            {
-                return;
-            }
-
-
-            CubismMemory.Write(Bytes, memory);
-
-
             // Try revive.
-            UnmanagedMoc = csmReviveMocInPlace(memory, (uint)Bytes.Length);
+            UnmanagedMoc = CubismUnmanagedMoc.FromBytes(Bytes);
         }
-
-        #region Extern C
-
-        // ReSharper disable once InconsistentNaming
-        private const int csmAlignofMoc = 64;
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmReviveMocInPlace(IntPtr address, uint size);
-
-        #endregion
     }
 }

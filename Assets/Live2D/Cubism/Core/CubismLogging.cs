@@ -9,6 +9,7 @@
 using AOT;
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -71,7 +72,7 @@ namespace Live2D.Cubism.Core
 
         #region Extern C
 
-        [DllImport(CubismDll.Name)]
+        [DllImport(CubismCoreDll.DllName)]
         private static extern void csmSetLogFunction(IntPtr logFunction);
 
         #endregion
