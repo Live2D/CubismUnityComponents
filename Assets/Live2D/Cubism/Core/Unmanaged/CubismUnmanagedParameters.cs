@@ -69,7 +69,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             var _ids = (IntPtr *)(CubismCoreDll.GetParameterIds(modelPtr));
             for (var i = 0; i < length; ++i)
             {
-                Ids[i] = Marshal.PtrToStringAnsi(_ids[1]);
+                Ids[i] = Marshal.PtrToStringAnsi(_ids[i]);
             }
 
 
