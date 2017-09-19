@@ -99,7 +99,7 @@ namespace Live2D.Cubism.Core
             get
             {
                 // Pull data.
-                return UnmanagedParameters.Values[UnmanagedIndex];
+                return UnmanagedParameters.MinimumValues[UnmanagedIndex];
             }
         }
 
