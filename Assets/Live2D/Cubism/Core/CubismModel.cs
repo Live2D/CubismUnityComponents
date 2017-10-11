@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -68,6 +68,16 @@ namespace Live2D.Cubism.Core
         }
 
         #endregion
+
+        /// <summary>
+        /// Resets a <see cref="CubismMoc"/> reference in <see cref="CubismModel"/>.
+        /// </summary>
+        /// <param name="model">Target Cubism model.</param>
+        /// <param name="moc">Cubism moc to reset.</param>
+        public static void ResetMocReference(CubismModel model, CubismMoc moc)
+        {
+            model.Moc = moc;
+        }
 
         /// <summary>
         /// <see cref="Moc"/> backing field.

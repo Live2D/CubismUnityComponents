@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -38,6 +38,18 @@ namespace Live2D.Cubism.Core
         }
 
         #endregion
+
+        /// <summary>
+        /// Resets native handle.
+        /// </summary>
+        /// <param name="moc"></param>
+        public static void ResetUnmanagedMoc(CubismMoc moc)
+        {
+            moc.UnmanagedMoc = null;
+
+
+            moc.Revive();
+        }
 
         /// <summary>
         /// <see cref="Bytes"/> backing field.
