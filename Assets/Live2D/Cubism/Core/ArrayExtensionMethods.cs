@@ -8,6 +8,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -39,7 +40,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Container.</param>
         /// <param name="model">TaskableModel to unmanaged model.</param>
-        internal static void Revive(this CubismParameter[] self, IntPtr model)
+        internal static void Revive(this CubismParameter[] self, CubismUnmanagedModel model)
         {
             Array.Sort(self, (a, b) => a.UnmanagedIndex - b.UnmanagedIndex);
 
@@ -55,10 +56,11 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void WriteTo(this CubismParameter[] self, IntPtr unmanagedModel)
+        internal static void WriteTo(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
-            var values = csmGetParameterValues(unmanagedModel);
+            var unmanagedParameters = unmanagedModel.Parameters;
+            var values = unmanagedParameters.Values;
 
 
             // Push.
@@ -73,10 +75,11 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void ReadFrom(this CubismParameter[] self, IntPtr unmanagedModel)
+        internal static void ReadFrom(this CubismParameter[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
-            var values = csmGetParameterValues(unmanagedModel);
+            var unmanagedParameters = unmanagedModel.Parameters;
+            var values = unmanagedParameters.Values;
 
 
             // Pull.
@@ -109,7 +112,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Container.</param>
         /// <param name="model">TaskableModel to unmanaged model.</param>
-        internal static void Revive(this CubismPart[] self, IntPtr model)
+        internal static void Revive(this CubismPart[] self, CubismUnmanagedModel model)
         {
             Array.Sort(self, (a, b) => a.UnmanagedIndex - b.UnmanagedIndex);
 
@@ -125,10 +128,11 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Source buffer.</param>
         /// <param name="unmanagedModel"></param>
-        internal static unsafe void WriteTo(this CubismPart[] self, IntPtr unmanagedModel)
+        internal static void WriteTo(this CubismPart[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get address.
-            var opacities = csmGetPartOpacities(unmanagedModel);
+            var unmanagedParts = unmanagedModel.Parts;
+            var opacities = unmanagedParts.Opacities;
 
 
             // Push.
@@ -161,7 +165,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Container.</param>
         /// <param name="model">TaskableModel to unmanaged model.</param>
-        internal static void Revive(this CubismDrawable[] self, IntPtr model)
+        internal static void Revive(this CubismDrawable[] self, CubismUnmanagedModel model)
         {
             Array.Sort(self, (a, b) => a.UnmanagedIndex - b.UnmanagedIndex);
 
@@ -178,14 +182,15 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Buffer to write to.</param>
         /// <param name="unmanagedModel">Unmanaged model to read from.</param>
-        internal static unsafe void ReadFrom(this CubismDynamicDrawableData[] self, IntPtr unmanagedModel)
+        internal static unsafe void ReadFrom(this CubismDynamicDrawableData[] self, CubismUnmanagedModel unmanagedModel)
         {
             // Get addresses.
-            var flags = csmGetDrawableDynamicFlags(unmanagedModel);
-            var opacities = csmGetDrawableOpacities(unmanagedModel);
-            var drawOrders = csmGetDrawableDrawOrders(unmanagedModel);
-            var renderOrders = csmGetDrawableRenderOrders(unmanagedModel);
-            var vertexPositions = (Vector2**)csmGetDrawableVertexPositions(unmanagedModel).ToPointer();
+            var drawables = unmanagedModel.Drawables;
+            var flags = drawables.DynamicFlags;
+            var opacities = drawables.Opacities;
+            var drawOrders = drawables.DrawOrders;
+            var renderOrders = drawables.RenderOrders;
+            var vertexPositions = drawables.VertexPositions;
 
 
             // Pull data.
@@ -212,48 +217,16 @@ namespace Live2D.Cubism.Core
                 {
                     for (var v = 0; v < data.VertexPositions.Length; ++v)
                     {
-                        dataVertexPositions[v].x = vertexPositions[i][v].x;
-                        dataVertexPositions[v].y = vertexPositions[i][v].y;
+                        dataVertexPositions[v].x = vertexPositions[i][(v * 2) + 0];
+                        dataVertexPositions[v].y = vertexPositions[i][(v * 2) + 1];
                     }
                 }
             }
 
 
             // Clear dynamic flags.
-            csmResetDrawableDynamicFlags(unmanagedModel);
+            drawables.ResetDynamicFlags();
         }
-
-        #endregion
-
-        #region Extern C
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetParameterValues(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetPartOpacities(IntPtr model);
-
-
-        // HACK Some platforms have problems with struct return types, so we use void* instead and cast in the wrapper methods.
-        [DllImport(CubismDll.Name)]
-        private static extern IntPtr csmGetDrawableVertexPositions(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe byte* csmGetDrawableDynamicFlags(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetDrawableOpacities(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableDrawOrders(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe int* csmGetDrawableRenderOrders(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern void csmResetDrawableDynamicFlags(IntPtr model);
 
         #endregion
     }

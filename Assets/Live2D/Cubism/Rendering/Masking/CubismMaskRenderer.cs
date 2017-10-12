@@ -34,6 +34,12 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
         /// <summary>
+        /// Mask material.
+        /// </summary>
+        private Material MaskMaterial { get; set; }
+
+
+        /// <summary>
         /// Bounds of <see cref="CubismRenderer.Mesh"/>.
         /// </summary>
         internal Bounds MeshBounds
@@ -49,6 +55,7 @@ namespace Live2D.Cubism.Rendering.Masking
         public CubismMaskRenderer()
         {
             MaskProperties = new MaterialPropertyBlock();
+            MaskMaterial = CubismBuiltinMaterials.Mask;
         }
 
         #endregion
@@ -110,7 +117,7 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
             // Add command.
-            buffer.DrawMesh(mesh, Matrix4x4.identity, CubismBuiltinMaterials.Mask, 0, 0, MaskProperties);
+            buffer.DrawMesh(mesh, Matrix4x4.identity, MaskMaterial, 0, 0, MaskProperties);
         }
 
         #endregion

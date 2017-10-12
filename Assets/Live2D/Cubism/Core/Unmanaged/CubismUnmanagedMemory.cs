@@ -1,9 +1,11 @@
-﻿/*
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
  * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
+
+/* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
 
 
 using System;
@@ -11,12 +13,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 
-namespace Live2D.Cubism.Core
+namespace Live2D.Cubism.Core.Unmanaged
 {
     /// <summary>
-    /// Exposes unmanaged memory methods.
+    /// Unmanaged memory helper methods.
     /// </summary>
-    internal static class CubismMemory
+    internal static class CubismUnmanagedMemory
     {
         #region Allocation
 
@@ -57,7 +59,7 @@ namespace Live2D.Cubism.Core
         /// <param name="size">Number of bytes to allocate.</param>
         /// <param name="align">Allocation alignment in bytes.</param>
         /// <returns>Address of allocated memory.</returns>
-        public static IntPtr AllocateUnmanaged(int size, int align)
+        public static IntPtr Allocate(int size, int align)
         {
             // Lazily initialize container.
             if (Allocations == null)
@@ -71,8 +73,8 @@ namespace Live2D.Cubism.Core
 
 
             // Get aligned address.
-            var shift = (unalignedAddress.ToInt64() % align);
-            
+            var shift = (unalignedAddress.ToInt64() & (align - 1));
+
             var alignedAddress = (shift != 0)
                 ? new IntPtr(unalignedAddress.ToInt64() + align - shift)
                 : unalignedAddress;
@@ -94,7 +96,7 @@ namespace Live2D.Cubism.Core
         /// Frees unmanaged memory.
         /// </summary>
         /// <param name="allocation">Address of memory to deallocate.</param>
-        public static void DeallocateUnmanaged(IntPtr allocation)
+        public static void Deallocate(IntPtr allocation)
         {
             // Return early in case no allocations exist.
             if (!ContainsAllocations)

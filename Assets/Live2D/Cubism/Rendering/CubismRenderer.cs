@@ -725,6 +725,7 @@ namespace Live2D.Cubism.Rendering
             for (var i = 0; i < VertexColors.Length; ++i)
             {
                 VertexColors[i] = Color;
+                VertexColors[i].a *= Opacity;
             }
 
 

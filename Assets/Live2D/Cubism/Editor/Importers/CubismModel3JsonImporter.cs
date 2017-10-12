@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -157,13 +157,6 @@ namespace Live2D.Cubism.Editor.Importers
                 isImporterDirty = true;
             }
 
-            // Update moc asset.
-            else
-            {
-                EditorUtility.CopySerialized(moc, MocAsset);
-                EditorUtility.SetDirty(MocAsset);
-            }
-
 
             // Create model prefab.
             if (ModelPrefab == null)
@@ -207,11 +200,12 @@ namespace Live2D.Cubism.Editor.Importers
                 }
 
 
-                // Replace prefab.
-                EditorUtility.CopySerialized(model.gameObject, ModelPrefab);
-                CopyUserData(model, ModelPrefab.FindCubismModel(), true);
-                EditorUtility.SetDirty(ModelPrefab);
+                // Reset moc reference.
+                CubismModel.ResetMocReference(model, MocAsset);
 
+                // Replace prefab.
+                ModelPrefab = PrefabUtility.ReplacePrefab(model.gameObject, ModelPrefab, ReplacePrefabOptions.ConnectToPrefab);
+                
 
                 // Log event.
                 CubismImporter.LogReimport(AssetPath, AssetDatabase.GUIDToAssetPath(_modelPrefabGuid));
@@ -221,6 +215,19 @@ namespace Live2D.Cubism.Editor.Importers
             // Clean up.
             Object.DestroyImmediate(model.gameObject, true);
 
+
+            // Update moc asset.
+            if (MocAsset != null)
+            {
+                EditorUtility.CopySerialized(moc, MocAsset);
+
+
+                // Revive by force to make instance using the new Moc.
+                CubismMoc.ResetUnmanagedMoc(MocAsset);
+
+
+                EditorUtility.SetDirty(MocAsset);
+            }
 
             // Save state and assets.
             if (isImporterDirty)
@@ -241,36 +248,6 @@ namespace Live2D.Cubism.Editor.Importers
             CopyUserData(source.Parameters, destination.Parameters, copyComponentsOnly);
             CopyUserData(source.Parts, destination.Parts, copyComponentsOnly);
             CopyUserData(source.Drawables, destination.Drawables, copyComponentsOnly);
-
-
-            // Copy children if copy all.
-            if (!copyComponentsOnly)
-            {
-                foreach (var child in source.transform
-                    .GetComponentsInChildren<Transform>()
-                    .Where(t => t != source.transform)
-                    .Select(t => t.gameObject))
-                {
-                    // Skip parameters, parts, and drawables.
-                    if (child.name == "Parameters")
-                    {
-                        continue;
-                    }
-
-                    if (child.name == "Parts")
-                    {
-                        continue;
-                    }
-
-                    if (child.name == "Drawables")
-                    {
-                        continue;
-                    }
-
-
-                    Object.Instantiate(child, destination.transform);
-                }
-            }
 
 
             // Copy components.

@@ -9,6 +9,7 @@
 using Live2D.Cubism.Framework;
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -27,13 +28,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
         /// <returns>Drawables root.</returns>
-        internal static GameObject CreateParameters(IntPtr unmanagedModel)
+        internal static GameObject CreateParameters(CubismUnmanagedModel unmanagedModel)
         {
             var root = new GameObject("Parameters");
 
 
-            // Create drawables.
-            var buffer = new CubismParameter[csmGetParameterCount(unmanagedModel)];
+            // Create parameters.
+            var unmanagedParameters = unmanagedModel.Parameters;
+            var buffer = new CubismParameter[unmanagedParameters.Count];
 
 
             for (var i = 0; i < buffer.Length; ++i)
@@ -54,10 +56,11 @@ namespace Live2D.Cubism.Core
 
         #endregion
 
+
         /// <summary>
-        /// TaskableModel to unmanaged unmanagedModel.
+        /// Unmanaged parameters from unmanaged model.
         /// </summary>
-        private IntPtr UnmanagedModel { get; set; }
+        private CubismUnmanagedParameters UnmanagedParameters { get; set; }
 
 
         /// <summary>
@@ -79,64 +82,48 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of Id.
         /// </summary>
-        public unsafe string Id
+        public string Id
         {
             get
             {
-                // Get address.
-                var values = csmGetParameterIds(UnmanagedModel);
-
-
                 // Pull data.
-                return Marshal.PtrToStringAnsi(new IntPtr(values[UnmanagedIndex]));
+                return UnmanagedParameters.Ids[UnmanagedIndex];
             }
         }
 
         /// <summary>
         /// Minimum value.
         /// </summary>
-        public unsafe float MinimumValue
+        public float MinimumValue
         {
             get
             {
-                // Get address.
-                var values = csmGetParameterMinimumValues(UnmanagedModel);
-
-
                 // Pull data.
-                return values[UnmanagedIndex];
+                return UnmanagedParameters.MinimumValues[UnmanagedIndex];
             }
         }
 
         /// <summary>
         /// Maximum value.
         /// </summary>
-        public unsafe float MaximumValue
+        public float MaximumValue
         {
             get
             {
-                // Get address.
-                var values = csmGetParameterMaximumValues(UnmanagedModel);
-
-
                 // Pull data.
-                return values[UnmanagedIndex];
+                return UnmanagedParameters.MaximumValues[UnmanagedIndex];
             }
         }
 
         /// <summary>
         /// Default value.
         /// </summary>
-        public unsafe float DefaultValue
+        public float DefaultValue
         {
             get
             {
-                // Get address.
-                var values = csmGetParameterDefaultValues(UnmanagedModel);
-
-
                 // Pull data.
-                return values[UnmanagedIndex];
+                return UnmanagedParameters.DefaultValues[UnmanagedIndex];
             }
         }
 
@@ -151,9 +138,9 @@ namespace Live2D.Cubism.Core
         /// Revives the instance.
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
-        internal void Revive(IntPtr unmanagedModel)
+        internal void Revive(CubismUnmanagedModel unmanagedModel)
         {
-            UnmanagedModel = unmanagedModel;
+            UnmanagedParameters = unmanagedModel.Parameters;
         }
 
         /// <summary>
@@ -161,7 +148,7 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
         /// <param name="unmanagedIndex">Position in unmanaged arrays.</param>
-        private void Reset(IntPtr unmanagedModel, int unmanagedIndex)
+        private void Reset(CubismUnmanagedModel unmanagedModel, int unmanagedIndex)
         {
             Revive(unmanagedModel);
 
@@ -170,25 +157,5 @@ namespace Live2D.Cubism.Core
             name = Id;
             Value = DefaultValue;
         }
-
-        #region Extern C
-
-        [DllImport(CubismDll.Name)]
-        private static extern int csmGetParameterCount(IntPtr model);
-
-        
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe char** csmGetParameterIds(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetParameterMinimumValues(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetParameterMaximumValues(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetParameterDefaultValues(IntPtr model);
-
-        #endregion
     }
 }

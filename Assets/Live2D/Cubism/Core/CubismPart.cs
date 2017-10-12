@@ -9,6 +9,7 @@
 using Live2D.Cubism.Framework;
 using System;
 using System.Runtime.InteropServices;
+using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
 
@@ -27,13 +28,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">Handle to unmanaged model.</param>
         /// <returns>Parts root.</returns>
-        internal static GameObject CreateParts(IntPtr unmanagedModel)
+        internal static GameObject CreateParts(CubismUnmanagedModel unmanagedModel)
         {
             var root = new GameObject("Parts");
 
 
-            // Create drawables.
-            var buffer = new CubismPart[csmGetPartCount(unmanagedModel)];
+            // Create parts.
+            var unmanagedParts = unmanagedModel.Parts;
+            var buffer = new CubismPart[unmanagedParts.Count];
 
 
             for (var i = 0; i < buffer.Length; ++i)
@@ -53,11 +55,12 @@ namespace Live2D.Cubism.Core
         }
 
         #endregion
-
+        
+        
         /// <summary>
-        /// TaskableModel to unmanaged unmanagedModel.
+        /// Unmanaged parts from unmanaged model.
         /// </summary>
-        private IntPtr UnmanagedModel { get; set; }
+        private CubismUnmanagedParts UnmanagedParts { get; set; }
 
 
         /// <summary>
@@ -79,16 +82,12 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of Id.
         /// </summary>
-        public unsafe string Id
+        public string Id
         {
             get
             {
-                // Get address.
-                var values = csmGetPartIds(UnmanagedModel);
-
-
                 // Pull data.
-                return Marshal.PtrToStringAnsi(new IntPtr(values[UnmanagedIndex]));
+                return UnmanagedParts.Ids[UnmanagedIndex];
             }
         }
 
@@ -103,9 +102,9 @@ namespace Live2D.Cubism.Core
         /// Revives instance.
         /// </summary>
         /// <param name="unmanagedModel">TaskableModel to unmanaged unmanagedModel.</param>
-        internal void Revive(IntPtr unmanagedModel)
+        internal void Revive(CubismUnmanagedModel unmanagedModel)
         {
-            UnmanagedModel = unmanagedModel;
+            UnmanagedParts = unmanagedModel.Parts;
         }
 
         /// <summary>
@@ -113,28 +112,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="unmanagedModel">TaskableModel to unmanaged unmanagedModel.</param>
         /// <param name="unmanagedIndex">Position in unmanaged arrays.</param>
-        private unsafe void Reset(IntPtr unmanagedModel, int unmanagedIndex)
+        private void Reset(CubismUnmanagedModel unmanagedModel, int unmanagedIndex)
         {
             Revive(unmanagedModel);
 
 
             UnmanagedIndex = unmanagedIndex;
             name = Id;
-            Opacity = csmGetPartOpacities(unmanagedModel)[unmanagedIndex];
+            Opacity = UnmanagedParts.Opacities[unmanagedIndex];
         }
-
-        #region Extern C
-
-        [DllImport(CubismDll.Name)]
-        private static extern int csmGetPartCount(IntPtr model);
-
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe char** csmGetPartIds(IntPtr model);
-
-        [DllImport(CubismDll.Name)]
-        private static extern unsafe float* csmGetPartOpacities(IntPtr model);
-
-        #endregion
     }
 }
