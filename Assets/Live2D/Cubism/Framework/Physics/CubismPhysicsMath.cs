@@ -127,7 +127,7 @@ namespace Live2D.Cubism.Framework.Physics
             var result = 0.0f;
             var maximumValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
             var minimumValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
-            var defaultValue = parameter.DefaultValue;
+            var defaultValue = (parameter.MaximumValue + parameter.MinimumValue) / 2;
             var parameterValue = parameter.Value - defaultValue;
 
 
@@ -151,7 +151,7 @@ namespace Live2D.Cubism.Framework.Physics
                         }
 
 
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
+                        result = NormalizedDefault + parameterValue * Mathf.Abs(normalizedRange / parameterRange);
                     }
                     break;
                 case -1:
@@ -172,7 +172,7 @@ namespace Live2D.Cubism.Framework.Physics
                         }
 
 
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
+                        result = NormalizedDefault + parameterValue * Mathf.Abs(normalizedRange / parameterRange);
                     }
                     break;
                 case 0:
