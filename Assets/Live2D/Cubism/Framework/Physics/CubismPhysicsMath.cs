@@ -107,6 +107,30 @@ namespace Live2D.Cubism.Framework.Physics
             return ret;
         }
 
+        /// <summary>
+        /// Gets range of value.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        /// <returns></returns>
+        private static float GetRangeValue(float min, float max)
+        {
+            var maxValue = Mathf.Max(min, max);
+            var minValue = Mathf.Min(min, max);
+            return Mathf.Abs(maxValue - minValue);
+        }
+        
+        /// <summary>
+        /// Gets middle value.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        /// <returns></returns>
+        private static float GetDefaultValue(float min, float max)
+        {
+            var minValue = Mathf.Min(min, max);
+            return minValue + (GetRangeValue(min, max) / 2.0f);
+        }
 
         /// <summary>
         /// Normalize parameter value.
@@ -118,78 +142,72 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="isInverted">True if input is inverted; otherwise.</param>
         /// <returns></returns>
         public static float Normalize(CubismParameter parameter,
-                                                float NormalizedMinimum,
-                                                float NormalizedMaximum,
-                                                float NormalizedDefault,
-                                                bool isInverted = false)
+            float NormalizedMinimum,
+            float NormalizedMaximum,
+            float NormalizedDefault,
+            bool isInverted = false)
         {
-
             var result = 0.0f;
-            var maximumValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
-            var minimumValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
-            var defaultValue = parameter.DefaultValue;
-            var parameterValue = parameter.Value - defaultValue;
 
+            var maxValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
 
-            switch ((int)Mathf.Sign(parameterValue))
+            if (maxValue < parameter.Value)
             {
-                case 1:
-                    {
-                        var parameterRange = maximumValue - defaultValue;
-                        
-                        if (parameterRange == 0.0f)
-                        {
-                            return NormalizedDefault;
-                        }
-
-
-                        var normalizedRange = NormalizedMaximum - NormalizedDefault;
-
-                        if (normalizedRange == 0.0f)
-                        {
-                            return NormalizedMaximum;
-                        }
-
-
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
-                    }
-                    break;
-                case -1:
-                    {
-                        var parameterRange = defaultValue - minimumValue;
-
-                        if (parameterRange == 0.0f)
-                        {
-                            return NormalizedDefault;
-                        }
-
-
-                        var normalizedRange = NormalizedDefault - NormalizedMinimum;
-
-                        if (normalizedRange == 0.0f)
-                        {
-                            return NormalizedMinimum;
-                        }
-
-
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
-                    }
-                    break;
-                case 0:
-                    {
-                        result = NormalizedDefault;
-                    }
-                    break;
+                return result;
             }
 
+            var minValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
+            if (minValue > parameter.Value)
+            {
+                return result;
+            }
 
-            return (isInverted)
-                ? result
-                : (result * -1.0f);
+            var minNormValue = Mathf.Min(NormalizedMinimum, NormalizedMaximum);
+            var maxNormValue = Mathf.Max(NormalizedMinimum, NormalizedMaximum);
+            var middleNormValue = NormalizedDefault;
+
+            var middleValue = GetDefaultValue(minValue, maxValue);
+            var paramValue = parameter.Value - middleValue;
+
+            switch ((int)Mathf.Sign(paramValue))
+            {
+                case 1:
+                {
+                    var nLength = maxNormValue - middleNormValue;
+                    var pLength = maxValue - middleValue;
+                    if (pLength != 0.0f)
+                    {
+                        result = paramValue*(nLength/pLength);
+                        result += middleNormValue;
+                    }
+
+
+                    break;
+                }
+                case -1:
+                {
+                    var nLength = minNormValue - middleNormValue;
+                    var pLength = minValue - middleValue;
+                    if (pLength != 0.0f)
+                    {
+                        result = paramValue*(nLength/pLength);
+                        result += middleNormValue;
+                    }
+
+
+                    break;
+                }
+                case 0:
+                {
+                    result = middleNormValue;
+
+
+                    break;
+                }
+            }
+
+            return (isInverted) ? result : (result * -1.0f);
         }
-
-
-
     }
 }
 
