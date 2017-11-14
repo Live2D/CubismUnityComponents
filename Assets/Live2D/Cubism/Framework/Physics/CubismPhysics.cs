@@ -19,10 +19,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// <summary>
         /// Gravity.
         /// </summary>
-        public static Vector2 Gravity
-        {
-            get { return new Vector2(UnityEngine.Physics.gravity.x, UnityEngine.Physics.gravity.y); }
-        }
+        public static Vector2 Gravity = Vector2.down;
 
         /// <summary>
         /// Direction of wind.
@@ -47,7 +44,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// <summary>
         /// Use angle correction.
         /// </summary>
-        public static bool UseAngleCorrection = false;
+        public static bool UseAngleCorrection = true;
 
         /// <summary>
         /// Threshold of moving.

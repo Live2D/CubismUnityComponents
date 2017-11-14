@@ -46,36 +46,46 @@ namespace Live2D.Cubism.Framework.Physics
         /// <returns>Angle of radian.</returns>
         public static float DirectionToRadian(Vector2 from, Vector2 to)
         {
-            var dotProduct = Vector2.Dot(from, to);
-            var magnitude = from.magnitude * to.magnitude;
+            var q1 = Mathf.Atan2(to.y, to.x);
+            var q2 = Mathf.Atan2(from.y, from.x);
 
-
-            if (magnitude == 0.0f)
-            {
-                return 0.0f;
-            }
-
-            
-            var cosTheta = (dotProduct / magnitude);
-
-            if (Mathf.Abs(cosTheta) > 1.0)
-            {
-                return 0.0f;
-            }
-
-            
-            var theta = (float)Mathf.Acos(cosTheta);
-
-            return theta;
+            return GetAngleDiff(q1, q2);
         }
-        
+
+
         /// <summary>
-        /// Gets angle from both vector direction.
+        /// Gets difference of angle.
         /// </summary>
-        /// <param name="from">From vector.</param>
-        /// <param name="to">To vector.</param>
-        /// <returns>Angle of degrees.</returns>
-        public static float DirectionToDegrees(Vector2 from, Vector2 to)
+        /// <param name="q1"></param>
+        /// <param name="q2"></param>
+        /// <returns></returns>
+        public static float GetAngleDiff(float q1, float q2)
+        {
+            var ret = q1 - q2;
+
+
+            while (ret < -Mathf.PI)
+            {
+                ret += (Mathf.PI * 2.0f);
+            }
+
+            while (ret > Mathf.PI)
+            {
+                ret -= (Mathf.PI * 2.0f);
+            }
+
+
+            return ret;
+        }
+
+
+        /// <summary>
+    /// Gets angle from both vector direction.
+    /// </summary>
+    /// <param name="from">From vector.</param>
+    /// <param name="to">To vector.</param>
+    /// <returns>Angle of degrees.</returns>
+    public static float DirectionToDegrees(Vector2 from, Vector2 to)
         {
             var radian = DirectionToRadian(from, to);
             var degree = (float)RadianToDegrees(radian);
@@ -107,6 +117,7 @@ namespace Live2D.Cubism.Framework.Physics
             return ret;
         }
 
+
         /// <summary>
         /// Gets range of value.
         /// </summary>
@@ -119,7 +130,7 @@ namespace Live2D.Cubism.Framework.Physics
             var minValue = Mathf.Min(min, max);
             return Mathf.Abs(maxValue - minValue);
         }
-        
+
         /// <summary>
         /// Gets middle value.
         /// </summary>
@@ -136,15 +147,15 @@ namespace Live2D.Cubism.Framework.Physics
         /// Normalize parameter value.
         /// </summary>
         /// <param name="parameter">Target parameter.</param>
-        /// <param name="NormalizedMinimum">Value of normalized minimum.</param>
-        /// <param name="NormalizedMaximum">Value of normalized maximum.</param>
-        /// <param name="NormalizedDefault">Value of normalized default.</param>
+        /// <param name="normalizedMinimum">Value of normalized minimum.</param>
+        /// <param name="normalizedMaximum">Value of normalized maximum.</param>
+        /// <param name="normalizedDefault">Value of normalized default.</param>
         /// <param name="isInverted">True if input is inverted; otherwise.</param>
         /// <returns></returns>
         public static float Normalize(CubismParameter parameter,
-            float NormalizedMinimum,
-            float NormalizedMaximum,
-            float NormalizedDefault,
+            float normalizedMinimum,
+            float normalizedMaximum,
+            float normalizedDefault,
             bool isInverted = false)
         {
             var result = 0.0f;
@@ -162,9 +173,9 @@ namespace Live2D.Cubism.Framework.Physics
                 return result;
             }
 
-            var minNormValue = Mathf.Min(NormalizedMinimum, NormalizedMaximum);
-            var maxNormValue = Mathf.Max(NormalizedMinimum, NormalizedMaximum);
-            var middleNormValue = NormalizedDefault;
+            var minNormValue = Mathf.Min(normalizedMinimum, normalizedMaximum);
+            var maxNormValue = Mathf.Max(normalizedMinimum, normalizedMaximum);
+            var middleNormValue = normalizedDefault;
 
             var middleValue = GetDefaultValue(minValue, maxValue);
             var paramValue = parameter.Value - middleValue;
@@ -172,38 +183,38 @@ namespace Live2D.Cubism.Framework.Physics
             switch ((int)Mathf.Sign(paramValue))
             {
                 case 1:
-                {
-                    var nLength = maxNormValue - middleNormValue;
-                    var pLength = maxValue - middleValue;
-                    if (pLength != 0.0f)
                     {
-                        result = paramValue*(nLength/pLength);
-                        result += middleNormValue;
+                        var nLength = maxNormValue - middleNormValue;
+                        var pLength = maxValue - middleValue;
+                        if (pLength != 0.0f)
+                        {
+                            result = paramValue * (nLength / pLength);
+                            result += middleNormValue;
+                        }
+
+
+                        break;
                     }
-
-
-                    break;
-                }
                 case -1:
-                {
-                    var nLength = minNormValue - middleNormValue;
-                    var pLength = minValue - middleValue;
-                    if (pLength != 0.0f)
                     {
-                        result = paramValue*(nLength/pLength);
-                        result += middleNormValue;
+                        var nLength = minNormValue - middleNormValue;
+                        var pLength = minValue - middleValue;
+                        if (pLength != 0.0f)
+                        {
+                            result = paramValue * (nLength / pLength);
+                            result += middleNormValue;
+                        }
+
+
+                        break;
                     }
-
-
-                    break;
-                }
                 case 0:
-                {
-                    result = middleNormValue;
+                    {
+                        result = middleNormValue;
 
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             return (isInverted) ? result : (result * -1.0f);
