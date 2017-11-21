@@ -11,6 +11,7 @@ using System;
 using System.IO;
 using Live2D.Cubism.Framework.MouthMovement;
 using Live2D.Cubism.Framework.Physics;
+using Live2D.Cubism.Framework.UserData;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
@@ -160,6 +161,13 @@ namespace Live2D.Cubism.Framework.Json
             }
         }
 
+        public string UserData3Json
+        {
+            get
+            {
+                return string.IsNullOrEmpty(FileReferences.UserData) ? null : LoadReferencedAsset<string>(FileReferences.UserData);
+            }
+        }
 
         /// <summary>
         /// <see cref="Textures"/> backing field.
@@ -337,6 +345,37 @@ namespace Live2D.Cubism.Framework.Json
             }
 
 
+            var userData3JsonAsString = UserData3Json;
+
+
+            if (!string.IsNullOrEmpty(userData3JsonAsString))
+            {
+                var userData3Json = CubismUserData3Json.LoadFrom(userData3JsonAsString);
+
+
+                var drawableBodies = userData3Json.ToBodyArray(CubismUserDataTargetType.ArtMesh);
+
+                for (var i = 0; i < drawables.Length; ++i)
+                {
+                    var index = GetBodyIndexById(drawableBodies, drawables[i].Id);
+
+                    if (index >= 0)
+                    {
+                        var tag = drawables[i].gameObject.GetComponent<CubismUserDataTag>();
+
+
+                        if (tag == null)
+                        {
+                            tag = drawables[i].gameObject.AddComponent<CubismUserDataTag>();
+                        }
+
+
+                        tag.Initialize(drawableBodies[index]);
+                    }
+                }
+            }
+
+
             // Make sure model is 'fresh'
             model.ForceUpdateNow();
 
@@ -442,6 +481,27 @@ namespace Live2D.Cubism.Framework.Json
             return false;
         }
 
+
+        /// <summary>
+        /// Get body index from body array by Id.
+        /// </summary>
+        /// <param name="bodies">Target body array.</param>
+        /// <param name="id">Id for find.</param>
+        /// <returns>Array index if Id found; -1 otherwise.</returns>
+        private int GetBodyIndexById(CubismUserDataBody[] bodies, string id)
+        {
+            for (var i = 0; i < bodies.Length; ++i)
+            {
+                if (bodies[i].Id == id)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+
         #endregion
 
         #region Json Helpers
@@ -469,6 +529,12 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public string Physics;
+
+            /// <summary>
+            /// Relative path to the user data asset.
+            /// </summary>
+            [SerializeField]
+            public string UserData;
         }
 
         /// <summary>
