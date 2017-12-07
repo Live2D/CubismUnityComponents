@@ -141,20 +141,14 @@ namespace Live2D.Cubism.Framework.Physics
                 var delay = strand[i].Delay * deltaTime * 30.0f;
 
                 var direction = strand[i].Position - strand[i - 1].Position;
-                var distance = Vector2.Distance(Vector2.zero, direction);
-                var angle = CubismPhysicsMath.DirectionToDegrees(strand[i].LastGravity, currentGravity);
-                var radian = CubismPhysicsMath.DegreesToRadian(angle);
+                var radian = CubismPhysicsMath.DirectionToRadian(strand[i].LastGravity, currentGravity) / CubismPhysics.AirResistance;
 
-
-                radian /= CubismPhysics.AirResistance;
-
-
+                
                 direction.x = ((Mathf.Cos(radian) * direction.x) - (direction.y * Mathf.Sin(radian)));
                 direction.y = ((Mathf.Sin(radian) * direction.x) + (direction.y * Mathf.Cos(radian)));
-                direction.Normalize();
 
 
-                strand[i].Position = strand[i - 1].Position + (direction * distance);
+                strand[i].Position = strand[i - 1].Position + direction;
 
 
                 var velocity = strand[i].Velocity * delay;
@@ -181,10 +175,6 @@ namespace Live2D.Cubism.Framework.Physics
                 {
                     strand[i].Velocity =
                             ((strand[i].Position - strand[i].LastPosition) / delay) * strand[i].Mobility;
-                }
-                else
-                {
-                    strand[i].Velocity = Vector2.zero;
                 }
 
 
@@ -269,12 +259,10 @@ namespace Live2D.Cubism.Framework.Physics
             
 
             var radAngle = CubismPhysicsMath.DegreesToRadian(-totalAngle);
+            
 
-            var translationX = totalTranslation.x;
-            var translationY = totalTranslation.y;
-
-            totalTranslation.x = (translationX * Mathf.Cos(radAngle) - translationY * Mathf.Sin(radAngle));
-            totalTranslation.y = (translationX * Mathf.Sin(radAngle) + translationY * Mathf.Cos(radAngle));
+            totalTranslation.x = (totalTranslation.x * Mathf.Cos(radAngle) - totalTranslation.y * Mathf.Sin(radAngle));
+            totalTranslation.y = (totalTranslation.x * Mathf.Sin(radAngle) + totalTranslation.y * Mathf.Cos(radAngle));
             
 
             UpdateParticles(
@@ -303,8 +291,8 @@ namespace Live2D.Cubism.Framework.Physics
 
                 var parameter = Output[i].Destination;
                 
-                var translation = Particles[particleIndex - 1].Position -
-                                        Particles[particleIndex].Position;
+                var translation = Particles[particleIndex].Position -
+                                        Particles[particleIndex - 1].Position;
                 
                 var outputValue = Output[i].GetValue(
                     translation, 

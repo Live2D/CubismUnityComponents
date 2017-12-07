@@ -106,24 +106,31 @@ namespace Live2D.Cubism.Framework.Physics
             int particleIndex
         )
         {
-            var parentGravity = -CubismPhysics.Gravity;
+            var parentGravity = Vector2.zero;
 
 
-            if (CubismPhysics.UseAngleCorrection && (particleIndex - 1) != 0)
+            if (CubismPhysics.UseAngleCorrection)
             {
-                parentGravity = particles[particleIndex - 2].Position -
-                                particles[particleIndex - 1].Position;
+                if (particleIndex < 2)
+                {
+                    parentGravity = CubismPhysics.Gravity;
+                    parentGravity.y *= -1.0f;
+                }
+                else
+                {
+                    parentGravity = particles[particleIndex - 1].Position -
+                        particles[particleIndex - 2].Position;
+                }
             }
+            else
+            {
+                parentGravity = CubismPhysics.Gravity;
+                parentGravity.y *= -1.0f;
+            }
+            
 
-
-            translation.y *= -1.0f;
-
-            var outputValue = CubismPhysicsMath.DirectionToRadian(-parentGravity, -translation);
-
-            outputValue = (((-translation.x) - (-parentGravity.x)) > 0.0f)
-                ? -outputValue
-                : outputValue;
-
+            var outputValue = CubismPhysicsMath.DirectionToRadian(parentGravity, translation);
+            
 
             if (IsInverted)
             {

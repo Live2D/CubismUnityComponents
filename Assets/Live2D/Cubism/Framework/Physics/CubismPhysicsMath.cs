@@ -46,36 +46,46 @@ namespace Live2D.Cubism.Framework.Physics
         /// <returns>Angle of radian.</returns>
         public static float DirectionToRadian(Vector2 from, Vector2 to)
         {
-            var dotProduct = Vector2.Dot(from, to);
-            var magnitude = from.magnitude * to.magnitude;
+            var q1 = Mathf.Atan2(to.y, to.x);
+            var q2 = Mathf.Atan2(from.y, from.x);
 
-
-            if (magnitude == 0.0f)
-            {
-                return 0.0f;
-            }
-
-            
-            var cosTheta = (dotProduct / magnitude);
-
-            if (Mathf.Abs(cosTheta) > 1.0)
-            {
-                return 0.0f;
-            }
-
-            
-            var theta = (float)Mathf.Acos(cosTheta);
-
-            return theta;
+            return GetAngleDiff(q1, q2);
         }
-        
+
+
         /// <summary>
-        /// Gets angle from both vector direction.
+        /// Gets difference of angle.
         /// </summary>
-        /// <param name="from">From vector.</param>
-        /// <param name="to">To vector.</param>
-        /// <returns>Angle of degrees.</returns>
-        public static float DirectionToDegrees(Vector2 from, Vector2 to)
+        /// <param name="q1"></param>
+        /// <param name="q2"></param>
+        /// <returns></returns>
+        public static float GetAngleDiff(float q1, float q2)
+        {
+            var ret = q1 - q2;
+
+
+            while (ret < -Mathf.PI)
+            {
+                ret += (Mathf.PI * 2.0f);
+            }
+
+            while (ret > Mathf.PI)
+            {
+                ret -= (Mathf.PI * 2.0f);
+            }
+
+
+            return ret;
+        }
+
+
+        /// <summary>
+    /// Gets angle from both vector direction.
+    /// </summary>
+    /// <param name="from">From vector.</param>
+    /// <param name="to">To vector.</param>
+    /// <returns>Angle of degrees.</returns>
+    public static float DirectionToDegrees(Vector2 from, Vector2 to)
         {
             var radian = DirectionToRadian(from, to);
             var degree = (float)RadianToDegrees(radian);
@@ -109,87 +119,106 @@ namespace Live2D.Cubism.Framework.Physics
 
 
         /// <summary>
+        /// Gets range of value.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        /// <returns></returns>
+        private static float GetRangeValue(float min, float max)
+        {
+            var maxValue = Mathf.Max(min, max);
+            var minValue = Mathf.Min(min, max);
+            return Mathf.Abs(maxValue - minValue);
+        }
+
+        /// <summary>
+        /// Gets middle value.
+        /// </summary>
+        /// <param name="min">Minimum value.</param>
+        /// <param name="max">Maximum value.</param>
+        /// <returns></returns>
+        private static float GetDefaultValue(float min, float max)
+        {
+            var minValue = Mathf.Min(min, max);
+            return minValue + (GetRangeValue(min, max) / 2.0f);
+        }
+
+        /// <summary>
         /// Normalize parameter value.
         /// </summary>
         /// <param name="parameter">Target parameter.</param>
-        /// <param name="NormalizedMinimum">Value of normalized minimum.</param>
-        /// <param name="NormalizedMaximum">Value of normalized maximum.</param>
-        /// <param name="NormalizedDefault">Value of normalized default.</param>
+        /// <param name="normalizedMinimum">Value of normalized minimum.</param>
+        /// <param name="normalizedMaximum">Value of normalized maximum.</param>
+        /// <param name="normalizedDefault">Value of normalized default.</param>
         /// <param name="isInverted">True if input is inverted; otherwise.</param>
         /// <returns></returns>
         public static float Normalize(CubismParameter parameter,
-                                                float NormalizedMinimum,
-                                                float NormalizedMaximum,
-                                                float NormalizedDefault,
-                                                bool isInverted = false)
+            float normalizedMinimum,
+            float normalizedMaximum,
+            float normalizedDefault,
+            bool isInverted = false)
         {
-
             var result = 0.0f;
-            var maximumValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
-            var minimumValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
-            var defaultValue = parameter.DefaultValue;
-            var parameterValue = parameter.Value - defaultValue;
 
+            var maxValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
 
-            switch ((int)Mathf.Sign(parameterValue))
+            if (maxValue < parameter.Value)
+            {
+                return result;
+            }
+
+            var minValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
+            if (minValue > parameter.Value)
+            {
+                return result;
+            }
+
+            var minNormValue = Mathf.Min(normalizedMinimum, normalizedMaximum);
+            var maxNormValue = Mathf.Max(normalizedMinimum, normalizedMaximum);
+            var middleNormValue = normalizedDefault;
+
+            var middleValue = GetDefaultValue(minValue, maxValue);
+            var paramValue = parameter.Value - middleValue;
+
+            switch ((int)Mathf.Sign(paramValue))
             {
                 case 1:
                     {
-                        var parameterRange = maximumValue - defaultValue;
-                        
-                        if (parameterRange == 0.0f)
+                        var nLength = maxNormValue - middleNormValue;
+                        var pLength = maxValue - middleValue;
+                        if (pLength != 0.0f)
                         {
-                            return NormalizedDefault;
+                            result = paramValue * (nLength / pLength);
+                            result += middleNormValue;
                         }
 
 
-                        var normalizedRange = NormalizedMaximum - NormalizedDefault;
-
-                        if (normalizedRange == 0.0f)
-                        {
-                            return NormalizedMaximum;
-                        }
-
-
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
+                        break;
                     }
-                    break;
                 case -1:
                     {
-                        var parameterRange = defaultValue - minimumValue;
-
-                        if (parameterRange == 0.0f)
+                        var nLength = minNormValue - middleNormValue;
+                        var pLength = minValue - middleValue;
+                        if (pLength != 0.0f)
                         {
-                            return NormalizedDefault;
+                            result = paramValue * (nLength / pLength);
+                            result += middleNormValue;
                         }
 
 
-                        var normalizedRange = NormalizedDefault - NormalizedMinimum;
-
-                        if (normalizedRange == 0.0f)
-                        {
-                            return NormalizedMinimum;
-                        }
-
-
-                        result = parameter.Value * Mathf.Abs(normalizedRange / parameterRange);
+                        break;
                     }
-                    break;
                 case 0:
                     {
-                        result = NormalizedDefault;
+                        result = middleNormValue;
+
+
+                        break;
                     }
-                    break;
             }
 
-
-            return (isInverted)
-                ? result
-                : (result * -1.0f);
+            return (isInverted) ? result : (result * -1.0f);
         }
-
-
-
     }
 }
 

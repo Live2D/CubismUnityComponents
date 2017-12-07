@@ -111,6 +111,7 @@ namespace Live2D.Cubism.Core
             if (ReferenceCount == 0)
             {
                 UnmanagedMoc.Release();
+                UnmanagedMoc = null;
             }
 
 
