@@ -74,6 +74,12 @@ namespace Live2D.Cubism.Framework.Json
         [SerializeField]
         public SerializableCurve[] Curves;
 
+        /// <summary>
+        /// User data.
+        /// </summary>
+        [SerializeField]
+        public SerializableUserData[] UserData;
+
         #endregion
 
         #region Constructors
@@ -232,6 +238,33 @@ namespace Live2D.Cubism.Framework.Json
             AnimationUtility.SetAnimationClipSettings(animationClip, animationClipSettings);
 #endif
 
+
+#if UNITY_EDITOR
+            // Add animation events from user data.
+            if (UserData != null)
+            {
+                var animationEvents = new List<AnimationEvent>();
+
+
+                for (var i = 0; i < UserData.Length; ++i)
+                {
+                    var animationEvent = new AnimationEvent
+                    {
+                        time = UserData[i].Time,
+                        stringParameter = UserData[i].Value,
+                    };
+
+
+                    animationEvents.Add(animationEvent);
+                }
+
+
+                if (animationEvents.Count > 0)
+                {
+                    AnimationUtility.SetAnimationEvents(animationClip, animationEvents.ToArray());
+                }
+            }
+#endif
 
             return animationClip;
         }
@@ -454,6 +487,18 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public bool AreBeziersRestricted;
+
+            /// <summary>
+            /// Total number of UserData.
+            /// </summary>
+            [SerializeField]
+            public int UserDataCount;
+
+            /// <summary>
+            /// Total size of UserData in bytes.
+            /// </summary>
+            [SerializeField]
+            public int TotalUserDataSize;
         };
 
         /// <summary>
@@ -480,6 +525,25 @@ namespace Live2D.Cubism.Framework.Json
             [SerializeField]
             public float[] Segments;
         };
+
+        /// <summary>
+        /// User data.
+        /// </summary>
+        [Serializable]
+        public struct SerializableUserData
+        {
+            /// <summary>
+            /// Time in seconds.
+            /// </summary>
+            [SerializeField]
+            public float Time;
+
+            /// <summary>
+            /// Content of user data.
+            /// </summary>
+            [SerializeField]
+            public string Value;
+        }
 
         #endregion
     }
