@@ -608,11 +608,11 @@ namespace Live2D.Cubism.Rendering
         {
             var colors = VertexColors;
 
-
+            var col = Color;
+            col.a *= Opacity;
             for (var i = 0; i < colors.Length; ++i)
             {
-                colors[i] = Color;
-                colors[i].a *= Opacity;
+                colors[i] = col;
             }
 
 
@@ -700,7 +700,7 @@ namespace Live2D.Cubism.Rendering
                     uv = drawable.VertexUvs,
                     triangles = drawable.Indices
                 };
-
+                mesh.name = "Live2D";
 
                 mesh.MarkDynamic();
                 mesh.RecalculateBounds();
