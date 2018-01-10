@@ -333,37 +333,10 @@ namespace Live2D.Cubism.Rendering
             var mesh = Meshes[FrontMesh];
 
 
-            // Force sync of vertex colors in case vertex colors changed last swap but not this.
-            if (LastSwap.NewVertexColors && !ThisSwap.NewVertexColors)
-            {
-                Meshes[BackMesh].colors = VertexColors;
-
-            }
-            else if (!LastSwap.NewVertexColors && ThisSwap.NewVertexColors)
+            if (!LastSwap.NewVertexColors && ThisSwap.NewVertexColors)
             {
                 // Require syncing colors in this case.
                 Meshes[FrontMesh].colors = VertexColors;
-            }
-
-            // Force sync of vertex positions in the rare case that vertex positions changed last swap but not this.
-            if (LastSwap.NewVertexPositions && !ThisSwap.NewVertexPositions)
-            {
-                // This case is very rare on real data so we copy vertices over.
-                // INV Is this case not rare enough to sacrifize performance over memory usage?
-                mesh.vertices = Meshes[BackMesh].vertices;
-            }
-            else if (!LastSwap.NewVertexPositions && ThisSwap.NewVertexPositions)
-            {
-                // Require syncing vertex positions in this case.
-                mesh.vertices = Meshes[FrontMesh].vertices;
-            }
-
-            // As an optimization we don't update vertex positions of drawables that aren't visible.
-            // Therefore, we have to force an update of vertex positions on the first frame a drawable becomes visible.
-            // Otherwise, we end up with the vertex positions of the frame the drawable was last visible at.
-            if (ThisSwap.DidBecomeVisible)
-            {
-                mesh.vertices = Meshes[BackMesh].vertices;
             }
 
 
