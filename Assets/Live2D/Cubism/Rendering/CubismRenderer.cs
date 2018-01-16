@@ -581,11 +581,11 @@ namespace Live2D.Cubism.Rendering
         {
             var colors = VertexColors;
 
-
+            var color = Color;
+            color.a *= Opacity;
             for (var i = 0; i < colors.Length; ++i)
             {
-                colors[i] = Color;
-                colors[i].a *= Opacity;
+                colors[i] = color;
             }
 
 
