@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -224,7 +224,8 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// <see cref="SortingMode"/> backing field.
         /// </summary>
-        [SerializeField, HideInInspector] private CubismSortingMode _sortingMode;
+        [SerializeField, HideInInspector]
+        private CubismSortingMode _sortingMode;
 
         /// <summary>
         /// Sorting mode.
@@ -333,13 +334,21 @@ namespace Live2D.Cubism.Rendering
             var mesh = Meshes[FrontMesh];
 
 
-            if (!LastSwap.NewVertexColors && ThisSwap.NewVertexColors)
+            // Update colors.
+            Meshes[BackMesh].colors = VertexColors;
+
+
+            // Update visibility.
+            if (LastSwap.DidBecomeVisible)
             {
-                // Require syncing colors in this case.
-                Meshes[FrontMesh].colors = VertexColors;
+                MeshRenderer.enabled = true;
             }
-
-
+            else if (LastSwap.DidBecomeInvisible)
+            {
+                MeshRenderer.enabled = false;
+            }
+            
+            
             // Update swap info.
             LastSwap = ThisSwap;
 
@@ -459,13 +468,14 @@ namespace Live2D.Cubism.Rendering
         /// <param name="newVisibility">New visibility.</param>
         internal void OnDrawableVisiblityDidChange(bool newVisibility)
         {
-            MeshRenderer.enabled = newVisibility;
-
-
             // Set swap flag if visible.
             if (newVisibility)
             {
                 BecomeVisible();
+            }
+            else
+            {
+                BecomeInvisible();
             }
         }
 
@@ -503,7 +513,7 @@ namespace Live2D.Cubism.Rendering
             MeshRenderer.SetPropertyBlock(SharedPropertyBlock);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// <see cref="SharedPropertyBlock"/> backing field.
@@ -579,19 +589,18 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         public void ApplyVertexColors()
         {
-            var colors = VertexColors;
-
+            var vertexColors = VertexColors;
             var color = Color;
+
+
             color.a *= Opacity;
-            for (var i = 0; i < colors.Length; ++i)
+
+
+            for (var i = 0; i < vertexColors.Length; ++i)
             {
-                colors[i] = color;
+                vertexColors[i] = color;
             }
 
-
-            // Upload colors.
-            Mesh.colors = colors;
-            
 
             // Set swap flag.
             SetNewVertexColors();
@@ -690,8 +699,8 @@ namespace Live2D.Cubism.Rendering
         private void TryInitializeVertexColor()
         {
             var mesh = Mesh;
-
             
+
             VertexColors = new Color[mesh.vertexCount];
 
 
@@ -700,10 +709,6 @@ namespace Live2D.Cubism.Rendering
                 VertexColors[i] = Color;
                 VertexColors[i].a *= Opacity;
             }
-
-
-            Meshes[0].colors = VertexColors;
-            Meshes[1].colors = VertexColors;
         }
 
         /// <summary>
@@ -773,6 +778,17 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Sets <see cref="DidBecomeInvisible"/> on invisible.
+        /// </summary>
+        private void BecomeInvisible()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.DidBecomeInvisible = true;
+            ThisSwap = swapInfo;
+        }
+        
+
+        /// <summary>
         /// Resets flags.
         /// </summary>
         private void ResetSwapInfoFlags()
@@ -781,6 +797,7 @@ namespace Live2D.Cubism.Rendering
             swapInfo.NewVertexColors = false;
             swapInfo.NewVertexPositions = false;
             swapInfo.DidBecomeVisible = false;
+            swapInfo.DidBecomeInvisible = false;
             ThisSwap = swapInfo;
         }
         
@@ -804,6 +821,11 @@ namespace Live2D.Cubism.Rendering
             /// Visibility were changed to visible.
             /// </summary>
             public bool DidBecomeVisible { get; set; }
+
+            /// <summary>
+            /// Visibility were changed to invisible.
+            /// </summary>
+            public bool DidBecomeInvisible { get; set; }
         }
 
         #endregion
