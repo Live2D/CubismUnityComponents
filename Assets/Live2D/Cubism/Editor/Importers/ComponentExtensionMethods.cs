@@ -37,7 +37,7 @@ namespace Live2D.Cubism.Editor.Importers
         /// <summary>
         /// Checks whether a component should be moved on reimport.
         /// </summary>
-        /// <param name="self>Component to check against.</param>
+        /// <param name="self">Component to check against.</param>
         /// <returns>True if component should be moved; false otherwise.</returns>
         public static bool MoveOnCubismReimport(this Component self, bool componentsOnly)
         {

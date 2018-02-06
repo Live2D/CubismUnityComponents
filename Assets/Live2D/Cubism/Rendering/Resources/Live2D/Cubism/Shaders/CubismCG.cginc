@@ -18,7 +18,7 @@ inline float4 CubismGetMaskChannel(float4 tile)
 	return tile.xxxx == float4(0, 1, 2, 3);
 }
 
-inline float4 CubismGetClippedMaskChannel(float4 coordinates, float4 tile)
+inline float4 CubismGetClippedMaskChannel(float2 coordinates, float4 tile)
 {
 	float2 bound = tile.yz * tile.w;
 
@@ -34,14 +34,14 @@ inline float4 CubismGetClippedMaskChannel(float4 coordinates, float4 tile)
 }
 
 
-inline float4 CubismToMaskCoordinates(float4 vertex, float4 tile, float4 transform)
+inline float2 CubismToMaskCoordinates(float2 vertex, float4 tile, float4 transform)
 {
-	float4 result = vertex;
+	float2 result = vertex;
 
 
 	float  scale = tile.w * transform.z;
 	float2 offset = transform.xy;
-	float2 origin = (tile.yz * tile.w) + float2(tile.w / 2, tile.w / 2);
+	float2 origin = (tile.yz + float2(0.5, 0.5)) * tile.ww;
 
 
 	result.xy -= offset;
@@ -52,22 +52,21 @@ inline float4 CubismToMaskCoordinates(float4 vertex, float4 tile, float4 transfo
 	return result;
 }
 
-inline float4 CubismToMaskClipPos(float4 vertex, float4 tile, float4 transform)
+inline float4 CubismToMaskClipPos(float2 vertex, float4 tile, float4 transform)
 {
-	float4 result = CubismToMaskCoordinates(vertex, tile, transform);
+	float2 result = CubismToMaskCoordinates(vertex, tile, transform);
 
 
 	result *= 2;
 	result.xy = float2(result.x, (result.y * _ProjectionParams.x));
-	result.zw = 1;
 	result.xy -= float2(1, _ProjectionParams.x);
 
 
-	return result;
+	return float4(result.xy, 1, 1);
 }
 
 
-inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float4 coordinates)
+inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float2 coordinates)
 {
 	float4 texel = tex2D(tex, coordinates.xy) * channel;
 
@@ -87,7 +86,7 @@ inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float4 coord
 #define CUBISM_MASK_CHANNEL CubismGetMaskChannel(cubism_MaskTile)
 
 
-#define CUBISM_VERTEX_OUTPUT float4 cubism_MaskCoordinates : TEXCOORD3;
+#define CUBISM_VERTEX_OUTPUT float2 cubism_MaskCoordinates : TEXCOORD3;
 #define CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT) OUT.cubism_MaskCoordinates = CubismToMaskCoordinates(IN.vertex, cubism_MaskTile, cubism_MaskTransform);
 
 
