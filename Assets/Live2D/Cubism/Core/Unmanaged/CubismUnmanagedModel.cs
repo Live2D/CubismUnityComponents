@@ -58,6 +58,10 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         public CubismUnmanagedDrawables Drawables { get; private set; }
 
+        /// <summary>
+        /// Unmanaged canvas information(size, origin, ppu).
+        /// </summary>
+        public CubismUnmanagedCanvasInformation CanvasInformation { get; private set; }
 
         /// <summary>
         /// Native model pointer.
@@ -132,6 +136,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             Parameters = new CubismUnmanagedParameters(Ptr);
             Parts = new CubismUnmanagedParts(Ptr);
             Drawables = new CubismUnmanagedDrawables(Ptr);
+            CanvasInformation = new CubismUnmanagedCanvasInformation(Ptr);
         }
 
         #endregion

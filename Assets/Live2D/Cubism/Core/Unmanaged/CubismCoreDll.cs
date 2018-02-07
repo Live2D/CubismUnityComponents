@@ -100,6 +100,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         [DllImport(DllName, EntryPoint = "csmUpdateModel")]
         public static extern void UpdateModel(IntPtr model);
         /// <summary>
+        /// Reads info on a model canvas.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmReadCanvasInfo")]
+        public static extern void ReadCanvasInfo(IntPtr model, IntPtr outSizeInPixels, IntPtr outOriginInPixels, IntPtr outPixelsPerUnit);
+        /// <summary>
         /// Gets parameter count.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetParameterCount")]
