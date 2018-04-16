@@ -2,7 +2,7 @@
 
 Welcome to the open components of the Cubism SDK For Unity.
 
-Go [here](http://www.live2d.com/products/cubism3) if you're looking for the official Live2D hoempage,
+Go [here](http://www.live2d.com/products/cubism3) if you're looking for the official Live2D homepage,
 and [here](https://live2d.github.io) if you're looking for the download page of the SDK package.
 
 ## Structure
