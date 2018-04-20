@@ -94,7 +94,7 @@ namespace Live2D.Cubism.Framework.Json
 
 
             // Finalize deserialization.
-            modelJson.AssetPath       = assetPath;
+            modelJson.AssetPath = assetPath;
             modelJson.LoadAssetAtPath = loadAssetAtPath;
 
 
@@ -329,7 +329,7 @@ namespace Live2D.Cubism.Framework.Json
             // Initialize physics if JSON exists.
             var physics3JsonAsString = Physics3Json;
 
-            
+
             if (!string.IsNullOrEmpty(physics3JsonAsString))
             {
                 var physics3Json = CubismPhysics3Json.LoadFrom(physics3JsonAsString);
@@ -338,7 +338,7 @@ namespace Live2D.Cubism.Framework.Json
                 if (physicsController == null)
                 {
                     physicsController = model.gameObject.AddComponent<CubismPhysicsController>();
-                    
+
                 }
 
                 physicsController.Initialize(physics3Json.ToRig());
@@ -375,6 +375,10 @@ namespace Live2D.Cubism.Framework.Json
                 }
             }
 
+            if (model.gameObject.GetComponent<Animator>() == null)
+            {
+                model.gameObject.AddComponent<Animator>();
+            }
 
             // Make sure model is 'fresh'
             model.ForceUpdateNow();
