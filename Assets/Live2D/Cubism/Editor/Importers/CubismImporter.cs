@@ -233,6 +233,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
             EditorUtility.SetDirty(texture);
+            textureImporter.SaveAndReimport();
         }
 
         #endregion

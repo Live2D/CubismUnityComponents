@@ -74,7 +74,7 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             // Get aligned address.
             var shift = (unalignedAddress.ToInt64() & (align - 1));
-
+            
             var alignedAddress = (shift != 0)
                 ? new IntPtr(unalignedAddress.ToInt64() + align - shift)
                 : unalignedAddress;

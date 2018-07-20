@@ -11,6 +11,10 @@ using System.Runtime.InteropServices;
 using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace Live2D.Cubism.Core
 {
@@ -71,6 +75,10 @@ namespace Live2D.Cubism.Core
 
         private int ReferenceCount { get; set; }
 
+#if UNITY_EDITOR
+        private static int CoreNotFoundCallCount { get; set; }
+#endif
+
 
         /// <summary>
         /// True if instance is revived.
@@ -93,7 +101,22 @@ namespace Live2D.Cubism.Core
             ++ReferenceCount;
 
 
-            Revive();
+#if UNITY_EDITOR
+            try
+            {
+#endif
+                Revive();
+#if UNITY_EDITOR
+            }
+            catch (DllNotFoundException)
+            {
+                if (CoreNotFoundCallCount == 0)
+                {
+                    EditorUtility.DisplayDialog("Live2D CubismCore is not loaded", "Please reboot this Unity project if it is just after import of the SDK. If it's not, please check if platform settings of dll is correct. dll cannot be used on platform which is different from its own build settings.", "ok", "cancel");
+                }
+                ++CoreNotFoundCallCount;
+            }
+#endif
 
 
             return UnmanagedMoc;

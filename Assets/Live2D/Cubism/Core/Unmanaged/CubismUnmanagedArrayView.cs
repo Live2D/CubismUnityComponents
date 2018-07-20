@@ -77,7 +77,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         }
 
 
-         /// <summary>
+        /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
         private IntPtr Address { get; set; }
@@ -239,7 +239,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         }
 
 
-         /// <summary>
+        /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
         private IntPtr Address { get; set; }
@@ -401,7 +401,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         }
 
 
-         /// <summary>
+        /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
         private IntPtr Address { get; set; }
@@ -563,7 +563,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         }
 
 
-         /// <summary>
+        /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
         private IntPtr Address { get; set; }
