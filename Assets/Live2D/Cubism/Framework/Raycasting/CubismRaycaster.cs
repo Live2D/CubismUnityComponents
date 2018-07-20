@@ -24,6 +24,11 @@ namespace Live2D.Cubism.Framework.Raycasting
         /// </summary>
         private CubismRenderer[] Raycastables { get; set; }
 
+        /// <summary>
+        /// <see cref="CubismRaycastablePrecision"/>s with <see cref="CubismRaycastable"/>s attached.??????????????
+        /// </summary>
+        private CubismRaycastablePrecision[] RaycastablePrecisions { get; set; }
+
 
         /// <summary>
         /// Refreshes the controller. Call this method after adding and/or removing <see cref="CubismRaycastable"/>.
@@ -37,7 +42,8 @@ namespace Live2D.Cubism.Framework.Raycasting
 
             // Find raycastable drawables.
             var raycastables = new List<CubismRenderer>();
-            
+            var raycastablePrecisions = new List<CubismRaycastablePrecision>();
+
 
             for (var i = 0; i < candidates.Length; i++)
             {
@@ -49,11 +55,13 @@ namespace Live2D.Cubism.Framework.Raycasting
 
 
                 raycastables.Add(candidates[i].GetComponent<CubismRenderer>());
+                raycastablePrecisions.Add(candidates[i].GetComponent<CubismRaycastable>().Precision);
             }
 
 
             // Cache raycastables.
             Raycastables = raycastables.ToArray();
+            RaycastablePrecisions = raycastablePrecisions.ToArray();
         }
 
         #region Unity Event Handling
@@ -117,6 +125,7 @@ namespace Live2D.Cubism.Framework.Raycasting
             for (var i = 0; i < Raycastables.Length; i++)
             {
                 var raycastable = Raycastables[i];
+                var raycastablePrecision = RaycastablePrecisions[i];
 
 
                 // Skip inactive raycastables.
@@ -124,14 +133,26 @@ namespace Live2D.Cubism.Framework.Raycasting
                 {
                     continue;
                 }
-                
 
-                var bounds = raycastable.Mesh.bounds;
 
-                // Skip non hits
-                if (!bounds.Contains(inersectionInLocalSpace))
+
+                if (raycastablePrecision == CubismRaycastablePrecision.BoundingBox)
                 {
-                    continue;
+                    var bounds = raycastable.Mesh.bounds;
+
+                    // Skip non hits
+                    if (!bounds.Contains(inersectionInLocalSpace))
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    // Skip non hits
+                    if (!ContainsInTriangles(raycastable.Mesh, inersectionInLocalSpace))
+                    {
+                        continue;
+                    }
                 }
 
 
@@ -153,6 +174,42 @@ namespace Live2D.Cubism.Framework.Raycasting
 
 
             return hitCount;
+        }
+
+
+        /// <summary>
+        /// Check the point is inside polygons.
+        /// </summary>
+        /// <param name="mesh"></param>
+        /// <param name="inputPosition"></param>
+        /// <returns></returns>
+        private bool ContainsInTriangles(Mesh mesh, Vector3 inputPosition)
+        {
+            for (var i = 0; i < mesh.triangles.Length; i+=3)
+            {
+                var vertexPositionA = mesh.vertices[mesh.triangles[i]];
+                var vertexPositionB = mesh.vertices[mesh.triangles[i + 1]];
+                var vertexPositionC = mesh.vertices[mesh.triangles[i + 2]];
+                
+                double crossProduct1 =
+                    (vertexPositionB.x - vertexPositionA.x) * (inputPosition.y - vertexPositionB.y) -
+                    (vertexPositionB.y - vertexPositionA.y) * (inputPosition.x - vertexPositionB.x);
+                double crossProduct2 =
+                    (vertexPositionC.x - vertexPositionB.x) * (inputPosition.y - vertexPositionC.y) -
+                    (vertexPositionC.y - vertexPositionB.y) * (inputPosition.x - vertexPositionC.x);
+                double crossProduct3 =
+                    (vertexPositionA.x - vertexPositionC.x) * (inputPosition.y - vertexPositionA.y) -
+                    (vertexPositionA.y - vertexPositionC.y) * (inputPosition.x - vertexPositionA.x);
+
+                if ((crossProduct1 > 0 && crossProduct2 > 0 && crossProduct3 > 0) ||
+                    (crossProduct1 < 0 && crossProduct2 < 0 && crossProduct3 < 0))
+                {
+                    return true;
+                }
+            }
+
+
+            return false;
         }
     }
 }
