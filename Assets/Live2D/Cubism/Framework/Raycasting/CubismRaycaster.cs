@@ -190,14 +190,14 @@ namespace Live2D.Cubism.Framework.Raycasting
                 var vertexPositionA = mesh.vertices[mesh.triangles[i]];
                 var vertexPositionB = mesh.vertices[mesh.triangles[i + 1]];
                 var vertexPositionC = mesh.vertices[mesh.triangles[i + 2]];
-                
-                double crossProduct1 =
+
+                var crossProduct1 =
                     (vertexPositionB.x - vertexPositionA.x) * (inputPosition.y - vertexPositionB.y) -
                     (vertexPositionB.y - vertexPositionA.y) * (inputPosition.x - vertexPositionB.x);
-                double crossProduct2 =
+                var crossProduct2 =
                     (vertexPositionC.x - vertexPositionB.x) * (inputPosition.y - vertexPositionC.y) -
                     (vertexPositionC.y - vertexPositionB.y) * (inputPosition.x - vertexPositionC.x);
-                double crossProduct3 =
+                var crossProduct3 =
                     (vertexPositionA.x - vertexPositionC.x) * (inputPosition.y - vertexPositionA.y) -
                     (vertexPositionA.y - vertexPositionC.y) * (inputPosition.x - vertexPositionA.x);
 
