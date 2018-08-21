@@ -525,6 +525,14 @@ namespace Live2D.Cubism.Rendering
                 var swapMeshes = false;
 
 
+                // Update visibility if last SwapInfo flag is true.
+                renderers[i].UpdateVisibility();
+
+
+                // Update render order if last SwapInfo flags is true.
+                renderers[i].UpdateRenderOrder();
+
+
                 // Skip completely non-dirty data.
                 if (!data[i].IsAnyDirty)
                 {
@@ -545,6 +553,9 @@ namespace Live2D.Cubism.Rendering
                 if (data[i].IsRenderOrderDirty)
                 {
                     renderers[i].OnDrawableRenderOrderDidChange(data[i].RenderOrder);
+                    
+                    
+                    swapMeshes = true;
                 }
 
 
