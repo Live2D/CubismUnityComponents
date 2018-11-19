@@ -336,17 +336,6 @@ namespace Live2D.Cubism.Rendering
 
             // Update colors.
             Meshes[BackMesh].colors = VertexColors;
-
-
-            // Update visibility.
-            if (LastSwap.DidBecomeVisible)
-            {
-                MeshRenderer.enabled = true;
-            }
-            else if (LastSwap.DidBecomeInvisible)
-            {
-                MeshRenderer.enabled = false;
-            }
             
             
             // Update swap info.
@@ -371,6 +360,39 @@ namespace Live2D.Cubism.Rendering
             MeshFilter.mesh = mesh;
         }
 
+
+        /// <summary>
+        /// Updates visibility.
+        /// </summary>
+        public void UpdateVisibility()
+        {
+            if (LastSwap.DidBecomeVisible)
+            {
+                MeshRenderer.enabled = true;
+            }
+            else if (LastSwap.DidBecomeInvisible)
+            {
+                MeshRenderer.enabled = false;
+            }
+
+
+            ResetVisibilityFlags();
+        }
+        
+        
+        /// <summary>
+        /// Updates render order. 
+        /// </summary>
+        public void UpdateRenderOrder()
+        {
+            if (LastSwap.NewRenderOrder)
+            {
+                ApplySorting();
+            }
+
+            
+            ResetRenderOrderFlag();
+        }
 
         /// <summary>
         /// Updates sorting layer.
@@ -439,7 +461,7 @@ namespace Live2D.Cubism.Rendering
             RenderOrder = newRenderOrder;
 
 
-            ApplySorting();
+            SetNewRenderOrder();
         }
 
         /// <summary>
@@ -789,6 +811,17 @@ namespace Live2D.Cubism.Rendering
         
 
         /// <summary>
+        /// Sets <see cref="SetNewRenderOrder"/>.
+        /// </summary>
+        private void SetNewRenderOrder()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.NewRenderOrder = true;
+            ThisSwap = swapInfo;
+        }
+        
+        
+        /// <summary>
         /// Resets flags.
         /// </summary>
         private void ResetSwapInfoFlags()
@@ -802,6 +835,29 @@ namespace Live2D.Cubism.Rendering
         }
         
 
+        /// <summary>
+        /// Reset visibility flags.
+        /// </summary>
+        private void ResetVisibilityFlags()
+        {
+            var swapInfo = LastSwap;
+            swapInfo.DidBecomeVisible = false;
+            swapInfo.DidBecomeInvisible = false;
+            LastSwap = swapInfo;
+        }
+        
+        
+        /// <summary>
+        /// Reset render order flag.
+        /// </summary>
+        private void ResetRenderOrderFlag()
+        {
+            var swapInfo = LastSwap;
+            swapInfo.NewRenderOrder = false;
+            LastSwap = swapInfo;
+        }
+        
+        
         /// <summary>
         /// Allows tracking of <see cref="Mesh"/> data changed on a swap.
         /// </summary>
@@ -826,6 +882,11 @@ namespace Live2D.Cubism.Rendering
             /// Visibility were changed to invisible.
             /// </summary>
             public bool DidBecomeInvisible { get; set; }
+            
+            /// <summary>
+            /// Render order were changed.
+            /// </summary>
+            public bool NewRenderOrder { get; set; }
         }
 
         #endregion
