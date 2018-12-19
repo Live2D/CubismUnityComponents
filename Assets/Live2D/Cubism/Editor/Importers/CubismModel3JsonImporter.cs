@@ -182,7 +182,11 @@ namespace Live2D.Cubism.Editor.Importers
 
 
                 // Create prefab and trigger saving of changes.
+#if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
+#else
+                ModelPrefab = PrefabUtility.CreatePrefab(AssetPath.Replace(".model3.json", ".prefab"), model.gameObject);
+#endif
 
 
                 isImporterDirty = true;
@@ -214,7 +218,11 @@ namespace Live2D.Cubism.Editor.Importers
                 CubismModel.ResetMocReference(model, MocAsset);
 
                 // Replace prefab.
+#if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
+#else
+                ModelPrefab = PrefabUtility.ReplacePrefab(model.gameObject, ModelPrefab, ReplacePrefabOptions.ConnectToPrefab);
+#endif
                 
 
                 // Log event.
