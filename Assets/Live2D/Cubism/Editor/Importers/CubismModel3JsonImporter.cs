@@ -72,6 +72,16 @@ namespace Live2D.Cubism.Editor.Importers
                 }
 
 
+                if (_modelPrefab == null)
+                {
+                    _modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetPath.Replace(".model3.json", ".prefab"));
+                    if(_modelPrefab != null)
+                    {
+                        _modelPrefabGuid = AssetGuid.GetGuid(_modelPrefab);
+                    }
+                }
+
+
                 return _modelPrefab;
             }
             set
@@ -172,7 +182,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
                 // Create prefab and trigger saving of changes.
-                ModelPrefab = PrefabUtility.CreatePrefab(AssetPath.Replace(".model3.json", ".prefab"), model.gameObject);
+                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
 
 
                 isImporterDirty = true;
@@ -204,7 +214,7 @@ namespace Live2D.Cubism.Editor.Importers
                 CubismModel.ResetMocReference(model, MocAsset);
 
                 // Replace prefab.
-                ModelPrefab = PrefabUtility.ReplacePrefab(model.gameObject, ModelPrefab, ReplacePrefabOptions.ConnectToPrefab);
+                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
                 
 
                 // Log event.
@@ -232,7 +242,7 @@ namespace Live2D.Cubism.Editor.Importers
             // Save state and assets.
             if (isImporterDirty)
             {
-                Save();
+                EditorApplication.delayCall += () => Save();
             }
             else
             {
