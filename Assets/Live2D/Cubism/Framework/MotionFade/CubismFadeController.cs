@@ -81,7 +81,6 @@ namespace Live2D.Cubism.Framework.MotionFade
             if (playingMotions.Count <= 1)
             {
                 // 再生中のモーションが一つ＝切り替わらない場合は処理しない
-                // TODO BlendTreeは複数のAnimationClipが扱われるがどうするか？
                 return;
             }
 

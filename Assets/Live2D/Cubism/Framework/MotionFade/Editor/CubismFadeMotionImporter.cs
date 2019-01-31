@@ -50,7 +50,6 @@ namespace Live2D.Cubism.Framework.MotionFade
 
                 AssetDatabase.CreateAsset(
                     fadeMotion,
-                    // TODO    ".fade" ←仮
                     importer.AssetPath.Replace(".motion3.json", ".fade.asset"));
             }
             else
