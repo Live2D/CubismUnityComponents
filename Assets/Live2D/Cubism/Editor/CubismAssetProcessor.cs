@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Live2D.Cubism.Editor.Importers;
+using Live2D.Cubism.Editor.Deleters;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -67,6 +68,21 @@ namespace Live2D.Cubism.Editor
 
                 importer.Import();
             }
+
+
+            // Handle any deleted Cubism assets.
+            foreach (var assetPath in deletedAssetPaths)
+            {
+                var deleter = CubismDeleter.GetDeleterAsPath(assetPath);
+                
+                if (deleter == null)
+                {
+                    continue;
+                }
+
+                deleter.Delete();
+            }
+
         }
 
         #endregion

@@ -6,6 +6,7 @@
  */
 
 
+using Live2D.Cubism.Editor;
 using Live2D.Cubism.Framework.Json;
 using System;
 using UnityEditor;
@@ -64,6 +65,13 @@ namespace Live2D.Cubism.Editor.Importers
                 if (_animationClip == null)
                 {
                     _animationClip = AssetGuid.LoadAsset<AnimationClip>(_animationClipGuid);
+
+                    if(_animationClip == null)
+                    {
+                        var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"));
+                        _animationClip = clip;
+                        _animationClipGuid = AssetGuid.GetGuid(clip);
+                    }
                 }
 
 
@@ -73,6 +81,28 @@ namespace Live2D.Cubism.Editor.Importers
             {
                 _animationClip = value;
                 _animationClipGuid = AssetGuid.GetGuid(value);
+            }
+        }
+
+        /// <summary>
+        /// Should import as original workflow.
+        /// </summary>
+        private bool ShouldImportAsOriginalWorkflow
+        {
+            get
+            {
+                return CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow;
+            }
+        }
+
+        /// <summary>
+        /// Should clear animation clip curves.
+        /// </summary>
+        private bool ShouldClearAnimationCurves
+        {
+            get
+            {
+                return CubismUnityEditorMenu.ShouldClearAnimationCurves;
             }
         }
 
@@ -99,9 +129,14 @@ namespace Live2D.Cubism.Editor.Importers
         {
             var isImporterDirty = false;
             
+            var clip = (ShouldImportAsOriginalWorkflow)
+                    ? AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"))
+                    : null;
 
             // Convert motion.
-            var animationClip = Motion3Json.ToAnimationClip();
+            var animationClip = (clip == null)
+                                ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
+                                : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
 
 
             // Create animation clip.

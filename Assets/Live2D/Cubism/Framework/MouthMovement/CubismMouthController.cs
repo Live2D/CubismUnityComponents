@@ -15,7 +15,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
     /// <summary>
     /// Controls <see cref="CubismMouthParameter"/>s.
     /// </summary>
-    public sealed class CubismMouthController : MonoBehaviour
+    public sealed class CubismMouthController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// The blend mode.
@@ -35,6 +35,12 @@ namespace Live2D.Cubism.Framework.MouthMovement
         /// Eye blink parameters.
         /// </summary>
         private CubismParameter[] Destinations { get; set; }
+
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
+
 
 
         /// <summary>
@@ -65,6 +71,28 @@ namespace Live2D.Cubism.Framework.MouthMovement
             {
                 Destinations[i] = tags[i].GetComponent<CubismParameter>();
             }
+
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
+
+        /// <summary>
+        /// Called by cubism update controller. Updates controller.
+        /// </summary>
+        /// <remarks>
+        /// Make sure this method is called after any animations are evaluated.
+        /// </remarks>
+        public void OnLateUpdate()
+        {
+            // Fail silently.
+            if (!enabled || Destinations == null)
+            {
+                return;
+            }
+
+
+            // Apply value.
+            Destinations.BlendToValue(BlendMode, MouthOpening);
         }
 
         #region Unity Events Handling
@@ -78,24 +106,15 @@ namespace Live2D.Cubism.Framework.MouthMovement
             Refresh();
         }
 
-
         /// <summary>
-        /// Called by Unity. Updates controller.
+        /// Called by Unity. 
         /// </summary>
-        /// <remarks>
-        /// Make sure this method is called after any animations are evaluated.
-        /// </remarks>
         private void LateUpdate()
         {
-            // Fail silently.
-            if (Destinations == null)
+            if(!_hasUpdateController)
             {
-                return;
+                OnLateUpdate();
             }
-
-
-            // Apply value.
-            Destinations.BlendToValue(BlendMode, MouthOpening);
         }
 
         #endregion

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -10,7 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Editor;
+using Live2D.Cubism.Framework;
 using Live2D.Cubism.Framework.Json;
+using Live2D.Cubism.Framework.MotionFade;
+using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Rendering;
 using UnityEditor;
 using UnityEngine;
@@ -43,6 +48,16 @@ namespace Live2D.Cubism.Editor.Importers
                     _model3Json = CubismModel3Json.LoadAtPath(AssetPath);
                 }
 
+#if UNITY_2018_3_OR_NEWER
+                if (_modelPrefab == null)
+                {
+                    _modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetPath.Replace(".model3.json", ".prefab"));
+                    if(_modelPrefab != null)
+                    {
+                        _modelPrefabGuid = AssetGuid.GetGuid(_modelPrefab);
+                    }
+                }
+#endif
 
                 return _model3Json;
             }
@@ -69,16 +84,6 @@ namespace Live2D.Cubism.Editor.Importers
                 if (_modelPrefab == null)
                 {
                     _modelPrefab = AssetGuid.LoadAsset<GameObject>(_modelPrefabGuid);
-                }
-
-
-                if (_modelPrefab == null)
-                {
-                    _modelPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetPath.Replace(".model3.json", ".prefab"));
-                    if(_modelPrefab != null)
-                    {
-                        _modelPrefabGuid = AssetGuid.GetGuid(_modelPrefab);
-                    }
                 }
 
 
@@ -126,6 +131,18 @@ namespace Live2D.Cubism.Editor.Importers
             }
         }
 
+
+        /// <summary>
+        /// Should import as original workflow.
+        /// </summary>
+        private bool ShouldImportAsOriginalWorkflow
+        {
+            get
+            {
+                return CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow;
+            }
+        }
+
         #region Unity Event Handling
 
         /// <summary>
@@ -151,7 +168,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
             // Instantiate model source and model.
-            var model = Model3Json.ToModel(CubismImporter.OnPickMaterial, CubismImporter.OnPickTexture);
+            var model = Model3Json.ToModel(CubismImporter.OnPickMaterial, CubismImporter.OnPickTexture, ShouldImportAsOriginalWorkflow);
             var moc = model.Moc;
 
 
@@ -250,7 +267,7 @@ namespace Live2D.Cubism.Editor.Importers
             // Save state and assets.
             if (isImporterDirty)
             {
-                EditorApplication.delayCall += () => Save();
+                Save();
             }
             else
             {
@@ -277,6 +294,15 @@ namespace Live2D.Cubism.Editor.Importers
                     continue;
                 }
 
+                // skip copy original workflow component.
+                if(sourceComponent.GetType() == typeof(CubismUpdateController)
+                || sourceComponent.GetType() == typeof(CubismFadeController)
+                || sourceComponent.GetType() == typeof(CubismExpressionController)
+                || sourceComponent.GetType() == typeof(CubismPoseController)
+                || sourceComponent.GetType() == typeof(CubismParameterStore))
+                {
+                    continue;
+                }
 
                 // Copy component.
                 var destinationComponent = destination.GetOrAddComponent(sourceComponent.GetType());
