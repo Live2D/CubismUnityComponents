@@ -8,7 +8,7 @@
 namespace Live2D.Cubism.Framework
 {
     /// <summary>
-    /// Cubism late update interface.
+    /// Cubism update interface.
     /// </summary>
     public interface ICubismUpdatable
     {

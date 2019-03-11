@@ -9,7 +9,6 @@
 using Live2D.Cubism.Core;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using Live2D.Cubism.Framework.MouthMovement;
 using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Framework.UserData;
@@ -137,6 +136,12 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         [SerializeField]
         public SerializableGroup[] Groups;
+
+        /// <summary>
+        /// Hit areas.
+        /// </summary>
+        [SerializeField]
+        public SerializableHitArea[] HitAreas;
 
         #endregion
 
@@ -325,7 +330,6 @@ namespace Live2D.Cubism.Framework.Json
             model.gameObject.AddComponent<CubismPartsInspector>();
 #endif
 
-
             // Create renderers.
             var rendererController = model.gameObject.AddComponent<CubismRenderController>();
             var renderers = rendererController.Renderers;
@@ -421,176 +425,6 @@ namespace Live2D.Cubism.Framework.Json
                 {
                     poseController = model.gameObject.AddComponent<CubismPoseController>();
                 }
-
-                poseController.PoseData.Initialize(Pose3Json);
-
-#if UNITY_EDITOR
-                // Create pose animation clip
-                var motions = new List<SerializableMotion>();
-
-                if(FileReferences.Motions.Idle != null)
-                {
-                    motions.AddRange(FileReferences.Motions.Idle);
-                }
-
-                if(FileReferences.Motions.TapBody != null)
-                {
-                    motions.AddRange(FileReferences.Motions.TapBody);
-                }
-
-                for(var i = 0; i < motions.Count; ++i)
-                {
-                    var jsonString = string.IsNullOrEmpty(motions[i].File)
-                                        ? null
-                                        : LoadReferencedAsset<string>(motions[i].File);
-
-                    if(jsonString == null)
-                    {
-                        continue;
-                    }
-
-                    var assetsDirectoryPath = Application.dataPath.Replace("Assets", "");
-                    var assetPath = AssetPath.Replace(assetsDirectoryPath, "");
-                    var directoryPath = Path.GetDirectoryName(assetPath) + "/";
-                    var motion3Json = CubismMotion3Json.LoadFrom(jsonString);
-
-                    var animationClipPath = directoryPath + motions[i].File.Replace(".motion3.json", ".anim");
-                    var newAnimationClip = motion3Json.ToAnimationClip(shouldImportAsOriginalWorkflow, false, true, Pose3Json);
-                    var oldAnimationClip = AssetDatabase.LoadAssetAtPath<AnimationClip>(animationClipPath);
-
-                    // Create animation clip.
-                    if(oldAnimationClip == null)
-                    {
-                        AssetDatabase.CreateAsset(newAnimationClip, animationClipPath);
-                        oldAnimationClip = newAnimationClip;
-                    }
-                    // Update animation clip.
-                    else
-                    {
-                        EditorUtility.CopySerialized(newAnimationClip, oldAnimationClip);
-                        EditorUtility.SetDirty(oldAnimationClip);
-                    }
-
-                    var fadeMotionPath = directoryPath + motions[i].File.Replace(".motion3.json", ".fade.asset");
-                    var fadeMotion = AssetDatabase.LoadAssetAtPath<CubismFadeMotionData>(fadeMotionPath);
-
-                    if(fadeMotion == null)
-                    {
-                        fadeMotion = CubismFadeMotionData.CreateInstance(motion3Json, fadeMotionPath.Replace(directoryPath, ""),
-                                                                        newAnimationClip.length, shouldImportAsOriginalWorkflow, true);
-
-                        AssetDatabase.CreateAsset(fadeMotion, fadeMotionPath); 
-
-                        EditorUtility.SetDirty(fadeMotion);
-
-                        // Fade用モーションの参照をリストに追加
-                        var directoryName = Path.GetDirectoryName(fadeMotionPath).ToString();
-                        var modelDir = Path.GetDirectoryName(directoryName).ToString();
-                        var modelName = Path.GetFileName(modelDir).ToString();
-                        var fadeMotionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".fadeMotionList.asset";
-                        var fadeMotions = AssetDatabase.LoadAssetAtPath<CubismFadeMotionList>(fadeMotionListPath);
-
-                        // 参照リスト作成
-                        if(fadeMotions == null)
-                        {
-                            fadeMotions = ScriptableObject.CreateInstance<CubismFadeMotionList>();
-                            fadeMotions.MotionInstanceIds = new int[0];
-                            fadeMotions.CubismFadeMotionObjects = new CubismFadeMotionData[0];
-                            AssetDatabase.CreateAsset(fadeMotions, fadeMotionListPath);
-                        }
-
-                        var instanceId = oldAnimationClip.GetInstanceID();
-                        var motionIndex =  Array.IndexOf(fadeMotions.MotionInstanceIds, instanceId);
-                        if (motionIndex != -1)
-                        {
-                            fadeMotions.CubismFadeMotionObjects[motionIndex] = fadeMotion;
-                        }
-                        else
-                        {
-                            motionIndex = fadeMotions.MotionInstanceIds.Length;
-
-                            Array.Resize(ref fadeMotions.MotionInstanceIds, motionIndex+1);
-                            fadeMotions.MotionInstanceIds[motionIndex] = instanceId;
-
-                            Array.Resize(ref fadeMotions.CubismFadeMotionObjects, motionIndex+1);
-                            fadeMotions.CubismFadeMotionObjects[motionIndex] = fadeMotion;
-                        }
-
-                        EditorUtility.SetDirty(fadeMotions);
-                    
-                    }
-
-                    for (var curveIndex = 0; curveIndex < motion3Json.Curves.Length; ++curveIndex)
-                    {
-                        var curve = motion3Json.Curves[curveIndex];
-
-                        if (curve.Target == "PartOpacity")
-                        {
-                            if(Pose3Json.FadeInTime == 0.0f)
-                            {
-                                fadeMotion.ParameterIds[curveIndex] = curve.Id;
-                                fadeMotion.ParameterFadeInTimes[curveIndex] = Pose3Json.FadeInTime;
-                                fadeMotion.ParameterFadeOutTimes[curveIndex] = (curve.FadeOutTime < 0.0f) ? -1.0f : curve.FadeOutTime;
-                                fadeMotion.ParameterCurves[curveIndex] = new AnimationCurve(CubismMotion3Json.ConvertCurveSegmentsToKeyframes(curve.Segments));
-                            }
-                            else
-                            {
-                                var poseFadeInTIme = (Pose3Json.FadeInTime < 0.0f) ? 0.5f : Pose3Json.FadeInTime;
-                                fadeMotion.ParameterIds[curveIndex] = curve.Id;
-                                fadeMotion.ParameterFadeInTimes[curveIndex] = poseFadeInTIme;
-                                fadeMotion.ParameterFadeOutTimes[curveIndex] = (curve.FadeOutTime < 0.0f) ? -1.0f : curve.FadeOutTime;
-
-                                var segments = curve.Segments;
-                                var segmentsCount = 2;
-                                for(var index = 2; index < curve.Segments.Length; index += 3)
-                                {
-                                    // if current segment type is stepped and
-                                    // next segment type is stepped or next segment is last segment
-                                    // then convert segment type to liner.
-                                    var currentSegmentTypeIsStepped = (curve.Segments[index] == 2);
-                                    var currentSegmentIsLast = (index == (curve.Segments.Length - 3));
-                                    var nextSegmentTypeIsStepped = (currentSegmentIsLast) ? false : (curve.Segments[index + 3] == 2);
-                                    var nextSegmentIsLast = (currentSegmentIsLast) ? false : ((index + 3) == (curve.Segments.Length - 3));
-                                    if ( currentSegmentTypeIsStepped && (nextSegmentTypeIsStepped || nextSegmentIsLast) )
-                                    {
-                                        Array.Resize(ref segments, segments.Length + 3);
-                                        segments[segmentsCount + 0] = 0;
-                                        segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                        segments[segmentsCount + 2] = curve.Segments[index - 1];
-                                        segments[segmentsCount + 3] = 0;
-                                        segments[segmentsCount + 4] = curve.Segments[index + 1] + poseFadeInTIme;
-                                        segments[segmentsCount + 5] = curve.Segments[index + 2];
-                                        segmentsCount += 6;
-                                    }
-                                    else if(curve.Segments[index] == 1)
-                                    {
-                                        segments[segmentsCount + 0] = curve.Segments[index + 0];
-                                        segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                        segments[segmentsCount + 2] = curve.Segments[index + 2];
-                                        segments[segmentsCount + 3] = curve.Segments[index + 3];
-                                        segments[segmentsCount + 4] = curve.Segments[index + 4];
-                                        segments[segmentsCount + 5] = curve.Segments[index + 5];
-                                        segments[segmentsCount + 6] = curve.Segments[index + 6];
-                                        index += 4;
-                                        segmentsCount += 7;
-                                    }
-                                    else
-                                    {
-                                        segments[segmentsCount + 0] = curve.Segments[index + 0];
-                                        segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                        segments[segmentsCount + 2] = curve.Segments[index + 2];
-                                        segmentsCount += 3;
-                                    }
-                                }
-                                fadeMotion.ParameterCurves[curveIndex] = new AnimationCurve(CubismMotion3Json.ConvertCurveSegmentsToKeyframes(segments));
-                            }
-                        }
-                    }
-
-                    EditorUtility.SetDirty(fadeMotion);
-
-                }
-#endif
 
                 // Add expression controller.
                 var expressionController = model.gameObject.GetComponent<CubismExpressionController>();
@@ -945,6 +779,25 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public float FadeOutTime;
+        }
+
+        /// <summary>
+        /// Hit Area.
+        /// </summary>
+        [Serializable]
+        public struct SerializableHitArea
+        {
+            /// <summary>
+            /// Hit area name.
+            /// </summary>
+            [SerializeField]
+            public string Name;
+            
+            /// <summary>
+            /// Hit area id.
+            /// </summary>
+            [SerializeField]
+            public string Id;
         }
 
         #endregion

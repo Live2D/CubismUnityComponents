@@ -175,7 +175,7 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Called by Unity.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
             _model = this.FindCubismModel();
 

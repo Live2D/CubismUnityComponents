@@ -15,7 +15,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
     /// <summary>
     /// Controller for <see cref="CubismHarmonicMotionParameter"/>s.
     /// </summary>
-    public sealed class CubismHarmonicMotionController : MonoBehaviour
+    public sealed class CubismHarmonicMotionController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Default number of channels.
@@ -47,6 +47,11 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// </summary>
         private CubismParameter[] Destinations { get; set; }
 
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
+
 
         /// <summary>
         /// Refreshes the controller. Call this method after adding and/or removing <see cref="CubismHarmonicMotionParameter"/>.
@@ -67,6 +72,31 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
             {
                 Destinations[i] = Sources[i].GetComponent<CubismParameter>();
             }
+
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
+
+        /// <summary>
+        /// Called by cubism update controller. Updates controller.
+        /// </summary>
+        public void OnLateUpdate()
+        {
+            // Return if it is not valid or there's nothing to update.
+            if (!enabled || Sources == null)
+            {
+                return;
+            }
+
+
+            // Update sources and destinations.
+            for (var i = 0; i < Sources.Length; ++i)
+            {
+                Sources[i].Play(ChannelTimescales);
+
+
+                Destinations[i].BlendToValue(BlendMode, Sources[i].Evaluate());
+            }
         }
 
         #region Unity Events Handling
@@ -86,20 +116,9 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// </summary>
         private void LateUpdate()
         {
-            // Return early in case there's nothing to update.
-            if (Sources == null)
+            if (!_hasUpdateController)
             {
-                return;
-            }
-
-
-            // Update sources and destinations.
-            for (var i = 0; i < Sources.Length; ++i)
-            {
-                Sources[i].Play(ChannelTimescales);
-
-
-                Destinations[i].BlendToValue(BlendMode, Sources[i].Evaluate());
+                OnLateUpdate();
             }
         }
 

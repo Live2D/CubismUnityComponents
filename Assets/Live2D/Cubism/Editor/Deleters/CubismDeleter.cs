@@ -18,24 +18,6 @@ namespace Live2D.Cubism.Editor.Deleters
     /// </summary>
     public static class CubismDeleter
     {
-        #region Delegates
-
-        /// <summary>
-        /// Callback on Cubism motions delete as<see cref="AnimationClip"/>. 
-        /// </summary>
-        /// <param name="deleter">Deleter.</param>
-        /// <param name="animationClip">Generated animation.</param>
-        public delegate void AnimationClipDeleterHandler(CubismAnimationClipDeleter deleter, AnimationClip animationClip);
-
-        // /// <summary>
-        // /// Callback on <see cref="CubismModel"/> import.
-        // /// </summary>
-        // /// <param name="deleter">Deleter.</param>
-        // /// <param name="model">Imported model.</param>
-        // public delegate void FadeAssetDeleterhandler(CubismModel3JsonDeleter deleter, CubismModel model);
-
-        #endregion
-
         /// <summary>
         /// Tries to get an deleter for a Cubism asset.
         /// </summary>

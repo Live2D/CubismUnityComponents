@@ -135,6 +135,62 @@ namespace Live2D.Cubism.Framework.Json
             return keyframes.ToArray();
         }
 
+        /// <summary>
+        /// Converts stepped curves to liner curves.
+        /// </summary>
+        /// <param name="curve">Data to convert.</param>
+        /// <returns>Animation curve.</returns>
+        public static AnimationCurve ConvertSteppedCurveToLinerCurver(CubismMotion3Json.SerializableCurve curve, float poseFadeInTime)
+        {
+            poseFadeInTime = (poseFadeInTime < 0) ? 0.5f : poseFadeInTime;
+
+            var segments = curve.Segments;
+            var segmentsCount = 2;
+
+            for(var index = 2; index < curve.Segments.Length; index += 3)
+            {
+                // if current segment type is stepped and
+                // next segment type is stepped or next segment is last segment
+                // then convert segment type to liner.
+                var currentSegmentTypeIsStepped = (curve.Segments[index] == 2);
+                var currentSegmentIsLast = (index == (curve.Segments.Length - 3));
+                var nextSegmentTypeIsStepped = (currentSegmentIsLast) ? false : (curve.Segments[index + 3] == 2);
+                var nextSegmentIsLast = (currentSegmentIsLast) ? false : ((index + 3) == (curve.Segments.Length - 3));
+                if ( currentSegmentTypeIsStepped && (nextSegmentTypeIsStepped || nextSegmentIsLast) )
+                {
+                    Array.Resize(ref segments, segments.Length + 3);
+                    segments[segmentsCount + 0] = 0;
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index - 1];
+                    segments[segmentsCount + 3] = 0;
+                    segments[segmentsCount + 4] = curve.Segments[index + 1] + poseFadeInTime;
+                    segments[segmentsCount + 5] = curve.Segments[index + 2];
+                    segmentsCount += 6;
+                }
+                else if(curve.Segments[index] == 1)
+                {
+                    segments[segmentsCount + 0] = curve.Segments[index + 0];
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index + 2];
+                    segments[segmentsCount + 3] = curve.Segments[index + 3];
+                    segments[segmentsCount + 4] = curve.Segments[index + 4];
+                    segments[segmentsCount + 5] = curve.Segments[index + 5];
+                    segments[segmentsCount + 6] = curve.Segments[index + 6];
+                    index += 4;
+                    segmentsCount += 7;
+                }
+                else
+                {
+                    segments[segmentsCount + 0] = curve.Segments[index + 0];
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index + 2];
+                    segmentsCount += 3;
+                }
+            }
+
+            return new AnimationCurve(ConvertCurveSegmentsToKeyframes(segments));
+        }
+
 
         /// <summary>
         /// Instantiates an <see cref="AnimationClip"/>.
@@ -259,50 +315,7 @@ namespace Live2D.Cubism.Framework.Json
                     // original workflow.
                     if(shouldImportAsOriginalWorkflow && poseJson != null && poseJson.FadeInTime != 0.0f)
                     {
-                        var segments = curve.Segments;
-                        var segmentsCount = 2;
-                        for(var index = 2; index < curve.Segments.Length; index += 3)
-                        {
-                            // if current segment type is stepped and
-                            // next segment type is stepped or next segment is last segment
-                            // then convert segment type to liner.
-                            var currentSegmentTypeIsStepped = (curve.Segments[index] == 2);
-                            var currentSegmentIsLast = (index == (curve.Segments.Length - 3));
-                            var nextSegmentTypeIsStepped = (currentSegmentIsLast) ? false : (curve.Segments[index + 3] == 2);
-                            var nextSegmentIsLast = (currentSegmentIsLast) ? false : ((index + 3) == (curve.Segments.Length - 3));
-                            if ( currentSegmentTypeIsStepped && (nextSegmentTypeIsStepped || nextSegmentIsLast) )
-                            {
-                                Array.Resize(ref segments, segments.Length + 3);
-                                var fadeInTime = (poseJson.FadeInTime < 0.0f) ? 0.5f : poseJson.FadeInTime;
-                                segments[segmentsCount + 0] = 0;
-                                segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                segments[segmentsCount + 2] = curve.Segments[index - 1];
-                                segments[segmentsCount + 3] = 0;
-                                segments[segmentsCount + 4] = curve.Segments[index + 1] + fadeInTime;
-                                segments[segmentsCount + 5] = curve.Segments[index + 2];
-                                segmentsCount += 6;
-                            }
-                            else if(curve.Segments[index] == 1)
-                            {
-                                segments[segmentsCount + 0] = curve.Segments[index + 0];
-                                segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                segments[segmentsCount + 2] = curve.Segments[index + 2];
-                                segments[segmentsCount + 3] = curve.Segments[index + 3];
-                                segments[segmentsCount + 4] = curve.Segments[index + 4];
-                                segments[segmentsCount + 5] = curve.Segments[index + 5];
-                                segments[segmentsCount + 6] = curve.Segments[index + 6];
-                                index += 4;
-                                segmentsCount += 7;
-                            }
-                            else
-                            {
-                                segments[segmentsCount + 0] = curve.Segments[index + 0];
-                                segments[segmentsCount + 1] = curve.Segments[index + 1];
-                                segments[segmentsCount + 2] = curve.Segments[index + 2];
-                                segmentsCount += 3;
-                            }
-                        }
-                        animationCurve = new AnimationCurve(ConvertCurveSegmentsToKeyframes(segments));
+                        animationCurve = ConvertSteppedCurveToLinerCurver(curve, poseJson.FadeInTime);
                     }
                 }
 

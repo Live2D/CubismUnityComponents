@@ -6,9 +6,8 @@
  */
 
 
-using System;
-using System.Runtime.InteropServices;
 using Live2D.Cubism.Core.Unmanaged;
+using System;
 using UnityEngine;
 
 
@@ -29,9 +28,22 @@ namespace Live2D.Cubism.Core
         /// <returns>Parameter on success; <see langword="null"/> otherwise.</returns>
         public static CubismParameter FindById(this CubismParameter[] self, string id)
         {
-            return (self != null)
-                ? Array.Find(self, i => i.name == id)
-                : null;
+            if (self == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < self.Length; ++i)
+            {
+                if (self[i].name != id)
+                {
+                    continue;
+                }
+
+                return self[i];
+            }
+
+            return null;
         }
 
 
@@ -101,9 +113,22 @@ namespace Live2D.Cubism.Core
         /// <returns>Part if found; <see langword="null"/> otherwise.</returns>
         public static CubismPart FindById(this CubismPart[] self, string id)
         {
-            return (self != null)
-                ? Array.Find(self, i => i.name == id)
-                : null;
+            if (self == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < self.Length; ++i)
+            {
+                if (self[i].name != id)
+                {
+                    continue;
+                }
+
+                return self[i];
+            }
+
+            return null;
         }
 
 
@@ -154,9 +179,22 @@ namespace Live2D.Cubism.Core
         /// <returns>Part if found; <see langword="null"/> otherwise.</returns>
         public static CubismDrawable FindById(this CubismDrawable[] self, string id)
         {
-            return (self != null)
-                ? Array.Find(self, i => i.name == id)
-                : null;
+            if (self == null)
+            {
+                return null;
+            }
+
+            for (var i = 0; i < self.Length; ++i)
+            {
+                if (self[i].name != id)
+                {
+                    continue;
+                }
+
+                return self[i];
+            }
+
+            return null;
         }
 
 

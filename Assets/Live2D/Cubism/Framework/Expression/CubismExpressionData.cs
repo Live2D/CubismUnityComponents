@@ -60,13 +60,17 @@ namespace Live2D.Cubism.Framework.Expression
             /// Expression Parameter Blend Mode
             /// </summary>
             [SerializeField]
-            public string Blend;
+            public CubismParameterBlendMode Blend;
         }
 
         public static CubismExpressionData CreateInstance(CubismExp3Json json)
         {
             var expressionData = CreateInstance<CubismExpressionData>();
+            return CreateInstance(expressionData, json);
+        }
 
+        public static CubismExpressionData CreateInstance(CubismExpressionData expressionData, CubismExp3Json json)
+        {
             expressionData.Type = json.Type;
             expressionData.FadeInTime = json.FadeInTime;
             expressionData.FadeOutTime = json.FadeOutTime;
@@ -76,7 +80,23 @@ namespace Live2D.Cubism.Framework.Expression
             {
                 expressionData.Parameters[i].Id = json.Parameters[i].Id;
                 expressionData.Parameters[i].Value = json.Parameters[i].Value;
-                expressionData.Parameters[i].Blend = json.Parameters[i].Blend;
+
+                switch(json.Parameters[i].Blend)
+                {
+                    case "Add":
+                        expressionData.Parameters[i].Blend = CubismParameterBlendMode.Additive;
+                        break;
+                    case "Multiply":
+                        expressionData.Parameters[i].Blend = CubismParameterBlendMode.Multiply;
+                        break;
+                    case "Overwrite":
+                        expressionData.Parameters[i].Blend = CubismParameterBlendMode.Override;
+                        break;
+                    default:
+                        expressionData.Parameters[i].Blend = CubismParameterBlendMode.Additive;
+                        break;
+
+                }
             }
 
             return expressionData;

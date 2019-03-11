@@ -6,37 +6,31 @@
  */
 
 
-using System;
 using Live2D.Cubism.Core;
-using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Framework.Motion;
 using UnityEngine;
-
 
 
 namespace Live2D.Cubism.Framework.MotionFade
 {
     /// <summary>
-    /// 
+    /// Cubism fade controller.
     /// </summary>
+    [RequireComponent(typeof(Animator))]
     public class CubismFadeController : MonoBehaviour, ICubismUpdatable
     {
+        #region Variable
+
         /// <summary>
-        /// 
+        /// Cubism fade motion list.
         /// </summary>
         [SerializeField]
         public CubismFadeMotionList CubismFadeMotionList;
 
         /// <summary>
-        /// 
-        /// </summary>
-        private CubismFadeStateObserver[] StateObservers { get; set; }
-
-
-        /// <summary>
         /// Parameters cache.
         /// </summary>
         private CubismParameter[] DestinationParameters { get; set; }
-
 
         /// <summary>
         /// Parts cache.
@@ -44,60 +38,112 @@ namespace Live2D.Cubism.Framework.MotionFade
         private CubismPart[] DestinationParts { get; set; }
 
         /// <summary>
-        /// Model has update controller component.
+        /// Model has motion controller component.
+        /// </summary>
+        private CubismMotionController _motionController;
+
+        /// <summary>
+        /// Model has cubism update controller component.
         /// </summary>
         private bool _hasUpdateController = false;
+
+        /// <summary>
+        /// Fade state machine behavior set in the animator.
+        /// </summary>
+        private ICubismFadeState[] _fadeStates;
+
+        /// <summary>
+        /// Model has animator component.
+        /// </summary>
+        private Animator _animator;
+
+        #endregion
+
+        #region Function
 
         /// <summary>
         /// Refreshes the controller. Call this method after adding and/or removing <see cref="CubismFadeParameter"/>s.
         /// </summary>
         private void Refresh()
         {
-            var animator = GetComponent<Animator>();
+            _animator = GetComponent<Animator>();
 
             // Faill silently...
-            if(animator == null)
+            if (_animator == null)
             {
                 return;
             }
 
-            StateObservers = animator.GetBehaviours<CubismFadeStateObserver>();
             DestinationParameters = this.FindCubismModel().Parameters;
             DestinationParts = this.FindCubismModel().Parts;
+            _motionController = GetComponent<CubismMotionController>();
 
             // Get cubism update controller.
             _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+
+            _fadeStates = (ICubismFadeState[])_animator.GetBehaviours<CubismFadeStateObserver>();
+
+            if ((_fadeStates == null || _fadeStates.Length == 0) && _motionController != null)
+            {
+                _fadeStates = _motionController.GetFadeStates();
+            }
         }
 
-
         /// <summary>
-        /// 
+        /// Called by cubism update controller. Updates controller.
         /// </summary>
-        /// <param name="stateObserver"></param>
-        private void UpdateFade(CubismFadeStateObserver stateObserver)
+        /// <remarks>
+        /// Make sure this method is called after any animations are evaluated.
+        /// </remarks>
+        public void OnLateUpdate()
         {
-            var playingMotions = stateObserver.PlayingMotions;
-
-            if (playingMotions.Count <= 1)
+            // Fail silently.
+            if (!enabled || _fadeStates == null
+               || DestinationParameters == null || DestinationParts == null)
             {
-                // 再生中のモーションが一つ＝切り替わらない場合は処理しない
                 return;
             }
 
+            // Update sources and destinations.
+            for (var i = 0; i < _fadeStates.Length; ++i)
+            {
+                if (_fadeStates[i].IsDefaultState())
+                {
+                    // Skip state transitioning from Entry.
+                    continue;
+                }
 
-            // 処理中のレイヤーに設定されているWeight（最上段に配置されたレイヤーの場合は1に強制される）
-            var layerWeight = stateObserver.LayerWeight;
+                UpdateFade(_fadeStates[i]);
+            }
+        }
 
+        /// <summary>
+        /// Update motion fade.
+        /// </summary>
+        /// <param name="stateObserver">Fade state observer.</param>
+        private void UpdateFade(ICubismFadeState fadeState)
+        {
+            var playingMotions = fadeState.GetPlayingMotions();
+
+            if (playingMotions == null || playingMotions.Count <= 1)
+            {
+                // Do not process if there is only one motion, if it does not switch.
+                return;
+            }
+
+            // Weight set for the layer being processed.
+            // (In the case of the layer located at the top, it is forced to 1.)
+            var layerWeight = fadeState.GetLayerWeight();
 
             var time = Time.time;
 
             var isDoneAllFadeIn = true;
 
-            // Calcurate MotionFade.
+            // Calculate MotionFade.
             for (var i = 0; i < playingMotions.Count; i++)
             {
                 var playingMotion = playingMotions[i];
-                
+
                 var fadeMotion = playingMotion.Motion;
                 if (fadeMotion == null)
                 {
@@ -138,7 +184,7 @@ namespace Live2D.Cubism.Framework.MotionFade
 
                     if (index < 0)
                     {
-                        // モーションにそのIDのカーブが存在しない
+                        // There is not target ID curve in motion.
                         continue;
                     }
 
@@ -166,7 +212,7 @@ namespace Live2D.Cubism.Framework.MotionFade
 
                     if (index < 0)
                     {
-                        // モーションにそのIDのカーブが存在しない
+                        // There is not target ID curve in motion.
                         continue;
                     }
 
@@ -185,43 +231,41 @@ namespace Live2D.Cubism.Framework.MotionFade
                 isDoneAllFadeIn = false;
             }
 
-
-            if ((!isDoneAllFadeIn) || (!stateObserver.IsStateTransitionFinished))
+            if (!isDoneAllFadeIn || !fadeState.GetStateTransitionFinished())
             {
-                // 一つでもフェードインが終了していないモーションがあれば処理しない
+                // Do not process any motion that has never finished fade-in.
                 return;
             }
 
-
-            stateObserver.IsStateTransitionFinished = false;
+            fadeState.SetStateTransitionFinished(false);
 
             var playingMotionCount = playingMotions.Count - 1;
 
             for (var i = playingMotionCount; i >= 0; --i)
             {
                 var playingMotion = playingMotions[i];
-                
 
-                var fadeMotion = playingMotion.Motion;
-                if (fadeMotion == null)
+                if (Time.time <= playingMotion.EndTime)
                 {
                     continue;
                 }
 
-
-                var elapsedTime = time - playingMotion.StartTime;
-
-                if (elapsedTime <= fadeMotion.MotionLength)
-                {
-                    continue;
-                }
-
-                // 全てのモーションのフェードインが終了している場合、再生が終了しているモーションは削除する
-                stateObserver.PlayingMotions.RemoveAt(i);
+                // If fade-in of all motion has been completed, delete the motion that has been played back.
+                fadeState.StopAnimation(i);
             }
         }
 
-
+        /// <summary>
+        /// Evaluate fade curve.
+        /// </summary>
+        /// <param name="curve">Curves to be evaluated.</param>
+        /// <param name="time">Erapsed Time.</param>
+        /// <param name="fadeInTime">Fade in time.</param>
+        /// <param name="fadeOutTime">Fade out time.</param>
+        /// <param name="parameterFadeInTime">Fade in time parameter.</param>
+        /// <param name="parameterFadeOutTime">Fade out time parameter.</param>
+        /// <param name="motionWeight">Motion weight.</param>
+        /// <param name="currentValue">Current value with weight applied.</param>
         public float Evaluate(
             AnimationCurve curve, float time,
             float fadeInTime, float fadeOutTime,
@@ -233,16 +277,12 @@ namespace Live2D.Cubism.Framework.MotionFade
                 return currentValue;
             }
 
-
-
             // Motion fade.
             if (parameterFadeInTime < 0.0f &&
                 parameterFadeOutTime < 0.0f)
             {
                 return currentValue + (curve.Evaluate(time) - currentValue) * motionWeight;
             }
-
-
 
             // Parameter fade.
             float fadeInWeight, fadeOutWeight;
@@ -270,39 +310,10 @@ namespace Live2D.Cubism.Framework.MotionFade
 
             var parameterWeight = fadeInWeight * fadeOutWeight;
 
-
             return currentValue + (curve.Evaluate(time) - currentValue) * parameterWeight;
         }
 
-        /// <summary>
-        /// Called by cubism update controller. Updates controller.
-        /// </summary>
-        /// <remarks>
-        /// Make sure this method is called after any animations are evaluated.
-        /// </remarks>
-        public void OnLateUpdate()
-        {
-            // Fail silently.
-            if (!enabled || DestinationParameters == null || StateObservers == null)
-            {
-                return;
-            }
-
-
-            // Update sources and destinations.
-            for (var i = 0; i < StateObservers.Length; ++i)
-            {
-                if (StateObservers[i].IsDefaultState)
-                {
-                    // Entryから遷移してきたステートは処理しない
-                    continue;
-                }
-
-
-                UpdateFade(StateObservers[i]);
-            }
-        }
-
+        #endregion
 
         #region Unity Events Handling
 
@@ -320,7 +331,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if (!_hasUpdateController)
             {
                 OnLateUpdate();
             }

@@ -6,12 +6,12 @@
  */
 
 
-using Live2D.Cubism.Framework.Json;
 using Live2D.Cubism.Framework.Expression;
+using Live2D.Cubism.Framework.Json;
 using System;
 using System.IO;
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace Live2D.Cubism.Editor.Importers
 {
@@ -65,9 +65,24 @@ namespace Live2D.Cubism.Editor.Importers
         /// </summary>
         public override void Import()
         {
+            var oldExpressionData = AssetDatabase.LoadAssetAtPath<CubismExpressionData>(AssetPath.Replace(".exp3.json", ".exp3.asset"));
+
             // Create expression data.
-            var expressionData = CubismExpressionData.CreateInstance(ExpressionJson);
-            AssetDatabase.CreateAsset(expressionData, AssetPath.Replace(".exp3.json", ".exp3.asset"));
+            CubismExpressionData expressionData;
+
+            if(oldExpressionData == null)
+            {
+                expressionData = CubismExpressionData.CreateInstance(ExpressionJson);
+                AssetDatabase.CreateAsset(expressionData, AssetPath.Replace(".exp3.json", ".exp3.asset"));
+            }
+            else
+            {
+                expressionData = CubismExpressionData.CreateInstance(oldExpressionData, ExpressionJson);
+                EditorUtility.CopySerialized(expressionData, oldExpressionData);
+                expressionData = oldExpressionData;
+            }
+
+            EditorUtility.SetDirty(expressionData);
 
             // Add expression data to expression list.
             var directoryName = Path.GetDirectoryName(AssetPath).ToString();
@@ -84,17 +99,32 @@ namespace Live2D.Cubism.Editor.Importers
                 AssetDatabase.CreateAsset(expressionList, expressionListPath);
             }
 
-            var instanceId = expressionData.GetInstanceID();
-            var motionIndex = Array.IndexOf(expressionList.CubismExpressionObjects, instanceId);
-            if (motionIndex != -1)
+            // Finde index.
+            var expressionName = Path.GetFileName(AssetPath).Replace(".json", "");
+            var expressionIndex = -1;
+            for (var i = 0; i < expressionList.CubismExpressionObjects.Length; ++i)
             {
-                expressionList.CubismExpressionObjects[motionIndex] = expressionData;
+                var expression = expressionList.CubismExpressionObjects[i];
+
+                if (expression == null || expression.name != expressionName)
+                {
+                    continue;
+                }
+
+                expressionIndex = i;
+                break;
+            }
+
+            // Set expression data.
+            if (expressionIndex != -1)
+            {
+                expressionList.CubismExpressionObjects[expressionIndex] = expressionData;
             }
             else
             {
-                motionIndex = expressionList.CubismExpressionObjects.Length;
-                Array.Resize(ref expressionList.CubismExpressionObjects, motionIndex + 1);
-                expressionList.CubismExpressionObjects[motionIndex] = expressionData;
+                expressionIndex = expressionList.CubismExpressionObjects.Length;
+                Array.Resize(ref expressionList.CubismExpressionObjects, expressionIndex + 1);
+                expressionList.CubismExpressionObjects[expressionIndex] = expressionData;
             }
 
             EditorUtility.SetDirty(expressionList);

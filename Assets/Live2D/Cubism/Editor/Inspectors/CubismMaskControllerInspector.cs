@@ -9,8 +9,6 @@
 using Live2D.Cubism.Rendering.Masking;
 using UnityEditor;
 
-using Object = UnityEngine.Object;
-
 
 namespace Live2D.Cubism.Editor.Inspectors
 {

@@ -6,10 +6,8 @@
  */
 
 
-using System;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Live2D.Cubism.Core.Unmanaged;
+using System.Threading;
 
 
 namespace Live2D.Cubism.Core

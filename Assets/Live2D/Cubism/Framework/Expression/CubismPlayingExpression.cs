@@ -110,21 +110,7 @@ namespace Live2D.Cubism.Framework.Expression
             {
                 ret.Destinations[i] = model.Parameters.FindById(expressionData.Parameters[i].Id);
                 ret.Value[i] = expressionData.Parameters[i].Value;
-                switch(expressionData.Parameters[i].Blend)
-                {
-                    case "Add":
-                        ret.Blend[i] = CubismParameterBlendMode.Additive;
-                        break;
-                    case "Multiply":
-                        ret.Blend[i] = CubismParameterBlendMode.Multiply;
-                        break;
-                    case "Overwrite":
-                        ret.Blend[i] = CubismParameterBlendMode.Override;
-                        break;
-                    default:
-                        ret.Blend[i] = CubismParameterBlendMode.Additive;
-                        break;
-                }
+                ret.Blend[i] = expressionData.Parameters[i].Blend;
             }
 
             return ret;

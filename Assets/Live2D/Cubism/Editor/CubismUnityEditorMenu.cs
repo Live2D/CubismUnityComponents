@@ -7,7 +7,6 @@
 
 using Live2D.Cubism.Editor.OriginalWorkflow;
 using UnityEditor;
-using UnityEngine;
 
 
 namespace Live2D.Cubism.Editor

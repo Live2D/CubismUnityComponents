@@ -6,9 +6,9 @@
  */
 
 
-using System.Collections.Generic;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
+using System.Collections.Generic;
 using UnityEngine;
 
 

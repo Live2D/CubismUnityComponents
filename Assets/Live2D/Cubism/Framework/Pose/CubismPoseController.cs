@@ -6,8 +6,9 @@
  */
 
 
-using UnityEngine;
 using Live2D.Cubism.Core;
+using System;
+using UnityEngine;
 
 namespace Live2D.Cubism.Framework.Pose
 {
@@ -19,21 +20,24 @@ namespace Live2D.Cubism.Framework.Pose
         #region variable
 
         /// <summary>
+        /// Back opacity threshold.
+        /// </summary>
+        private const float BackOpacityThreshold = 0.15f;
+
+        /// <summary>
         /// Cubism model cache.
         /// </summary> 
         private CubismModel _model;
-
-        /// <summary>
-        /// Cubism pose data.
-        /// </summary>
-        [SerializeField, HideInInspector] 
-        public CubismPoseData PoseData;
 
         /// <summary>
         /// Model has update controller component.
         /// </summary>
         private bool _hasUpdateController = false;
 
+        /// <summary>
+        /// Pose data.
+        /// </summary>
+        private CubismPoseData[][] _poseData;
 
         #endregion
 
@@ -42,71 +46,111 @@ namespace Live2D.Cubism.Framework.Pose
         /// <summary>
         /// update hidden part opacity.
         /// </summary>
-        /// <param name="groupIndex">Part group index.</param>
-        private void DoFade(int groupIndex)
+        public void Refresh()
         {
-            const float Phi = 0.5f;
-            const float BackOpacityThreshold = 0.15f;
+            _model = this.FindCubismModel();
 
-            var partIndex = -1;
-            var newOpacity = 1.0f;
-
-            for (var i = 0; i < PoseData.Groups[groupIndex].PoseDatas.Length; ++i)
+            // Fail silently...
+            if (_model == null)
             {
-                var partData = PoseData.Groups[groupIndex].PoseDatas[i];
-                var part = _model.Parts.FindById(partData.Id);
+                return;
+            }
 
-                if(part == null)
+            var tags = _model
+                .Parts
+                .GetComponentsMany<CubismPosePart>();
+
+            for(var i = 0; i < tags.Length; ++i)
+            {
+                var groupIndex = tags[i].GroupIndex;
+                var partIndex = tags[i].PartIndex;
+
+                if(_poseData == null || _poseData.Length <= groupIndex)
+                {
+                    Array.Resize(ref _poseData, groupIndex + 1);
+                }
+
+                if(_poseData[groupIndex] == null || _poseData[groupIndex].Length <= partIndex)
+                {
+                    Array.Resize(ref _poseData[groupIndex], partIndex + 1);
+                }
+
+                _poseData[groupIndex][partIndex].PosePart = tags[i];
+                _poseData[groupIndex][partIndex].Part= tags[i].GetComponent<CubismPart>();
+                _poseData[groupIndex][partIndex].Opacity = _poseData[groupIndex][partIndex].Part.Opacity;
+
+                if(tags[i].Link == null || tags[i].Link.Length == 0)
                 {
                     continue;
                 }
 
-                if(part.Opacity > float.Epsilon)
+                _poseData[groupIndex][partIndex].LinkParts = new CubismPart[tags[i].Link.Length];
+
+                for(var j = 0; j < tags[i].Link.Length; ++j)
                 {
-                    partIndex = i;
-                    newOpacity = part.Opacity;
-                    break;
+                    var linkId = tags[i].Link[j];
+                    _poseData[groupIndex][partIndex].LinkParts[j] = _model.Parts.FindById(linkId);
                 }
             }
 
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
 
-            // Set the opacity of display parts and hidden parts
-            for (var i = 0; i < PoseData.Groups[groupIndex].PoseDatas.Length; ++i)
+        /// <summary>
+        /// update hidden part opacity.
+        /// </summary>
+        private void DoFade()
+        {
+            for(var groupIndex = 0; groupIndex < _poseData.Length; ++groupIndex)
             {
+                var appearPartsGroupIndex = -1;
+                var appearPartsGroupOpacity = 1.0f;
+
+                // Find appear parts group index and opacity.
+                for (var i = 0; i < _poseData[groupIndex].Length; ++i)
+                {
+                    var part = _poseData[groupIndex][i].Part;
+
+                    if(part.Opacity > _poseData[groupIndex][i].Opacity)
+                    {
+                        appearPartsGroupIndex = i;
+                        appearPartsGroupOpacity = part.Opacity;
+                        break;
+                    }
+                }
+
                 // Fail silently...
-                if (i == partIndex)
+                if(appearPartsGroupIndex < 0)
                 {
-                    continue;
+                    return;
                 }
 
-                var part = _model.Parts.FindById(PoseData.Groups[groupIndex].PoseDatas[i].Id);
-                var opacity = part.Opacity;
-                float a1;   // Opacity required by calculation
-
-                if (newOpacity < Phi)
+                // Delay disappearing parts groups disappear.
+                for (var i = 0; i < _poseData[groupIndex].Length; ++i)
                 {
-                    a1 = newOpacity * (Phi - 1) / Phi + 1.0f; // Line equation passing through (0, 1), (phi, phi)
-                }
-                else
-                {
-                    a1 = (1 - newOpacity) * Phi / (1.0f - Phi); // Line equation passing through (1, 0), (phi, phi)
-                }
+                    // Fail silently...
+                    if(i == appearPartsGroupIndex)
+                    {
+                        continue;
+                    }
 
-                // When restricting the visible proportion of the background
-                var backOpacity = (1.0f - a1) * (1.0f - newOpacity);
+                    var part = _poseData[groupIndex][i].Part;
+                    var delayedOpacity = part.Opacity;
+                    var backOpacity = (1.0f - delayedOpacity) * (1.0f - appearPartsGroupOpacity);
 
-                if (backOpacity > BackOpacityThreshold)
-                {
-                    a1 = 1.0f - BackOpacityThreshold / (1.0f - newOpacity);
+                    // When restricting the visible proportion of the background
+                    if (backOpacity > BackOpacityThreshold)
+                    {
+                        delayedOpacity = 1.0f - BackOpacityThreshold / (1.0f - appearPartsGroupOpacity);
+                    }
+
+                    // Overwrite the opacity if it's greater than the delayed opacity.
+                    if (part.Opacity > delayedOpacity)
+                    {
+                        part.Opacity = delayedOpacity;
+                    }
                 }
-
-                // Increase the opacity if it is greater than the opacity of the calculation.
-                if (opacity > a1)
-                {
-                    opacity = a1;
-                }
-
-                part.Opacity = opacity;
             }
         }
 
@@ -115,29 +159,42 @@ namespace Live2D.Cubism.Framework.Pose
         /// </summary>
         private void CopyPartOpacities()
         {
-            for (var groupIndex = 0; groupIndex < PoseData.Groups.Length; ++groupIndex)
+            for(var groupIndex = 0; groupIndex < _poseData.Length; ++groupIndex)
             {
-                for (var partIndex = 0; partIndex < PoseData.Groups[groupIndex].PoseDatas.Length; ++partIndex)
+                for (var partIndex = 0; partIndex < _poseData[groupIndex].Length; ++partIndex)
                 {
-                    var partData = PoseData.Groups[groupIndex].PoseDatas[partIndex];
-                    var part = _model.Parts.FindById(partData.Id);
+                    var linkParts = _poseData[groupIndex][partIndex].LinkParts;
 
-                    // Fail silently...
-                    if(part == null || partData.Link == null)
+                    if(linkParts == null)
                     {
                         continue;
                     }
 
-                    var opacity = _model.Parts.FindById(partData.Id).Opacity;
+                    var opacity = _poseData[groupIndex][partIndex].Part.Opacity;
 
-                    for (var linkIndex = 0; linkIndex < partData.Link.Length; ++linkIndex)
+                    for (var linkIndex = 0; linkIndex < linkParts.Length; ++linkIndex)
                     {
-                        var linkPart = _model.Parts.FindById(partData.Link[linkIndex]);
+                        var linkPart = linkParts[linkIndex];
+
                         if(linkPart != null)
                         {
-                           linkPart.Opacity = opacity;
+                            linkPart.Opacity = opacity;
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save parts opacity.
+        /// </summary>
+        private void SavePartOpacities()
+        {
+            for(var groupIndex = 0; groupIndex < _poseData.Length; ++groupIndex)
+            {
+                for (var partIndex = 0; partIndex < _poseData[groupIndex].Length; ++partIndex)
+                {
+                    _poseData[groupIndex][partIndex].Opacity = _poseData[groupIndex][partIndex].Part.Opacity;
                 }
             }
         }
@@ -148,17 +205,14 @@ namespace Live2D.Cubism.Framework.Pose
         public void OnLateUpdate()
         {
             // Fail silently...
-            if (!enabled || _model == null || PoseData.Groups == null)
+            if (!enabled || _model == null || _poseData == null)
             {
                return;
             }
 
-            for (var i = 0; i < PoseData.Groups.Length; i++)
-            {
-               DoFade(i);
-            }
-
+            DoFade();
             CopyPartOpacities();
+            SavePartOpacities();
         }
 
         #endregion
@@ -168,12 +222,9 @@ namespace Live2D.Cubism.Framework.Pose
         /// <summary>
         /// Called by Unity. Makes sure cache is initialized.
         /// </summary>
-        private void Start()
+        private void OnEnable()
         {
-            _model = this.FindCubismModel();
-
-            // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            Refresh();
         }
 
         /// <summary>

@@ -6,8 +6,8 @@
  */
 
 
-using System;
 using Live2D.Cubism.Core;
+using System;
 using UnityEngine;
 
 

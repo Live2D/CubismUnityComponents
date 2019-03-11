@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -6,10 +6,9 @@
  */
 
 
-using System;
 using Live2D.Cubism.Core;
-using Live2D.Cubism.Framework;
 using Live2D.Cubism.Rendering.Masking;
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
