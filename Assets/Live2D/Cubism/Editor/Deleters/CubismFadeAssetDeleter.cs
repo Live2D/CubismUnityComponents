@@ -8,8 +8,8 @@
 
 using Live2D.Cubism.Framework.MotionFade;
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 
 
@@ -49,7 +49,7 @@ namespace Live2D.Cubism.Editor.Deleters
             var fadeMotionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".fadeMotionList.asset";
             var fadeMotionList = AssetDatabase.LoadAssetAtPath<CubismFadeMotionList>(fadeMotionListPath);
 
-            if(fadeMotionList == null)
+            if (fadeMotionList == null)
             {
                 return;
             }

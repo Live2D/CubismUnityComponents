@@ -6,8 +6,6 @@
  */
 
 
-using System;
-using System.Runtime.InteropServices;
 using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 

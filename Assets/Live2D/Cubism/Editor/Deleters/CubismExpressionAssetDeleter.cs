@@ -8,8 +8,8 @@
 
 using Live2D.Cubism.Framework.Expression;
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 
 
@@ -49,7 +49,7 @@ namespace Live2D.Cubism.Editor.Deleters
             var expressionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".expressionList.asset";
             var expressionList = AssetDatabase.LoadAssetAtPath<CubismExpressionList>(expressionListPath);
 
-            if(expressionList == null)
+            if (expressionList == null)
             {
                 return;
             }

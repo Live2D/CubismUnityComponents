@@ -6,7 +6,6 @@
  */
 
 
-using Live2D.Cubism.Editor;
 using Live2D.Cubism.Framework.Json;
 using System;
 using UnityEditor;
@@ -128,7 +127,7 @@ namespace Live2D.Cubism.Editor.Importers
         public override void Import()
         {
             var isImporterDirty = false;
-            
+
             var clip = (ShouldImportAsOriginalWorkflow)
                     ? AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"))
                     : null;

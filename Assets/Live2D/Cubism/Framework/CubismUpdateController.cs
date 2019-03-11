@@ -6,19 +6,21 @@
  */
 
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Framework.Expression;
+using Live2D.Cubism.Framework.Motion;
+using Live2D.Cubism.Framework.MotionFade;
+using Live2D.Cubism.Framework.MouthMovement;
+using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Framework.HarmonicMotion;
+using Live2D.Cubism.Framework.LookAt;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
-using Live2D.Cubism.Framework.MotionFade;
-using Live2D.Cubism.Framework.Pose;
-using Live2D.Cubism.Framework.Expression;
-using Live2D.Cubism.Framework.MouthMovement;
 using System;
-using System.Collections;
 using UnityEngine;
 
 
 namespace Live2D.Cubism.Framework
-{ 
+{
     [ExecuteInEditMode]
     public class CubismUpdateController : MonoBehaviour
     {
@@ -48,13 +50,16 @@ namespace Live2D.Cubism.Framework
             // Clear delegate.
             Delegate.RemoveAll(OnLateUpdate, null);
 
-            ICubismUpdatable  renderController = null;
-            ICubismUpdatable  maskController = null;
-            ICubismUpdatable  fadeController = null;
-            ICubismUpdatable  poseController = null;
-            ICubismUpdatable  expressionController = null;
-            ICubismUpdatable  eyeBlinkController = null;
-            ICubismUpdatable  mouthController = null;
+            ICubismUpdatable renderController = null;
+            ICubismUpdatable maskController = null;
+            ICubismUpdatable motionController = null;
+            ICubismUpdatable fadeController = null;
+            ICubismUpdatable poseController = null;
+            ICubismUpdatable expressionController = null;
+            ICubismUpdatable eyeBlinkController = null;
+            ICubismUpdatable mouthController = null;
+            ICubismUpdatable harmonicMotionController = null;
+            ICubismUpdatable lookController = null;
 
             // Find cubism components.
             var components = model.GetComponents<ICubismUpdatable>();
@@ -74,6 +79,10 @@ namespace Live2D.Cubism.Framework
                     continue;
                 }
 #endif
+                else if (component.GetType() == typeof(CubismMotionController))
+                {
+                    motionController = component;
+                }
                 else if (component.GetType() == typeof(CubismFadeController))
                 {
                     fadeController = component;
@@ -94,6 +103,14 @@ namespace Live2D.Cubism.Framework
                 {
                     mouthController = component;
                 }
+                else if (component.GetType() == typeof(CubismHarmonicMotionController))
+                {
+                    harmonicMotionController = component;
+                }
+                else if(component.GetType() == typeof(CubismLookController))
+                {
+                    lookController = component;
+                }
             }
 
 #if UNITY_EDITOR
@@ -103,6 +120,12 @@ namespace Live2D.Cubism.Framework
 #endif
                 // Cache parameter save restore.
                 _parameterStore = model.GetComponent<CubismParameterStore>();
+
+                // Add motion controller update.
+                if(motionController != null)
+                {
+                    OnLateUpdate += motionController.OnLateUpdate;
+                }
 
                 // Add fade controller late update.
                 if (fadeController != null)
@@ -132,6 +155,18 @@ namespace Live2D.Cubism.Framework
                 if (mouthController != null)
                 {
                     OnLateUpdate += mouthController.OnLateUpdate;
+                }
+
+                // Add harmonic motion controller late update.
+                if (harmonicMotionController != null)
+                {
+                    OnLateUpdate += harmonicMotionController.OnLateUpdate;
+                }
+
+                // Add look controller late update.
+                if (lookController != null)
+                {
+                    OnLateUpdate += lookController.OnLateUpdate;
                 }
 #if UNITY_EDITOR
             }

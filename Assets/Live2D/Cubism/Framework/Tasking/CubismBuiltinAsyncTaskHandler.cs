@@ -6,9 +6,9 @@
  */
 
 
+using Live2D.Cubism.Core;
 using System.Collections.Generic;
 using System.Threading;
-using Live2D.Cubism.Core;
 using UnityEngine;
 
 

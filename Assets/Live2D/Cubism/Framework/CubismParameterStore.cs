@@ -7,7 +7,6 @@
 
 
 using Live2D.Cubism.Core;
-using System.Collections;
 using UnityEngine;
 
 namespace Live2D.Cubism.Framework
@@ -17,104 +16,111 @@ namespace Live2D.Cubism.Framework
     /// </summary>
     public class CubismParameterStore : MonoBehaviour
     {
-            /// <summary>
-            /// Parameters cache.
-            /// </summary>
-            private CubismParameter[] DestinationParameters { get; set; }
+        /// <summary>
+        /// Parameters cache.
+        /// </summary>
+        private CubismParameter[] DestinationParameters { get; set; }
 
-            /// <summary>
-            /// Parts cache.
-            /// </summary>
-            private CubismPart[] DestinationParts { get; set; }
+        /// <summary>
+        /// Parts cache.
+        /// </summary>
+        private CubismPart[] DestinationParts { get; set; }
 
-            /// <summary>
-            /// For storage parameters value.
-            /// </summary>
-            private float[] _parameterValues;
-            
-            /// <summary>
-            /// For storage parts opacity.
-            /// </summary>
-            private float[] _partOpacities;
+        /// <summary>
+        /// For storage parameters value.
+        /// </summary>
+        private float[] _parameterValues;
+        
+        /// <summary>
+        /// For storage parts opacity.
+        /// </summary>
+        private float[] _partOpacities;
 
-            /// <summary>
-            /// Save model parameters value and parts opacity.
-            /// </summary>
-            public void SaveParameters()
+        /// <summary>
+        /// Save model parameters value and parts opacity.
+        /// </summary>
+        public void SaveParameters()
+        {
+            // Fail silently...
+            if(!enabled)
             {
-                // Fail silently...
-                if(!enabled)
-                {
-                    return;
-                }
+                return;
+            }
 
-                // save parameters value
-                if(DestinationParameters != null && _parameterValues == null)
-                {
-                    _parameterValues = new float[DestinationParameters.Length];
-                }
+            // save parameters value
+            if(DestinationParameters != null && _parameterValues == null)
+            {
+                _parameterValues = new float[DestinationParameters.Length];
+            }
 
-                if(_parameterValues != null)
+            if(_parameterValues != null)
+            {
+                for(var i = 0; i < _parameterValues.Length; ++i)
                 {
-                    for(var i = 0; i < _parameterValues.Length; ++i)
-                    {
-                        _parameterValues[i] = DestinationParameters[i].Value;
-                    }
-                }
-
-                // save parts opcity
-                if(DestinationParts != null && _partOpacities == null)
-                {
-                    _partOpacities = new float[DestinationParts.Length];
-                }
-
-                if(_partOpacities != null)
-                {
-                    for(var i = 0; i < _partOpacities.Length; ++i)
-                    {
-                        _partOpacities[i] = DestinationParts[i].Opacity;
-                    }
+                    _parameterValues[i] = DestinationParameters[i].Value;
                 }
             }
 
-            /// <summary>
-            /// Restore model parameters value and parts opacity.
-            /// </summary>
-            public void RestoreParameters()
+            // save parts opcity
+            if(DestinationParts != null && _partOpacities == null)
             {
-                // Fail silently...
-                if(!enabled)
-                {
-                    return;
-                }
+                _partOpacities = new float[DestinationParts.Length];
+            }
 
-                // restore parameters value
-                if(_parameterValues != null)
+            if(_partOpacities != null)
+            {
+                for(var i = 0; i < _partOpacities.Length; ++i)
                 {
-                    for(var i = 0; i < _parameterValues.Length; ++i)
-                    {
-                        DestinationParameters[i].Value = _parameterValues[i];
-                    }
+                    _partOpacities[i] = DestinationParts[i].Opacity;
                 }
+            }
+        }
 
-                // restore parts opacity
-                if(_partOpacities != null)
+        /// <summary>
+        /// Restore model parameters value and parts opacity.
+        /// </summary>
+        public void RestoreParameters()
+        {
+            // Fail silently...
+            if(!enabled)
+            {
+                return;
+            }
+
+            // restore parameters value
+            if(_parameterValues != null)
+            {
+                for(var i = 0; i < _parameterValues.Length; ++i)
                 {
-                    for(var i = 0; i < _partOpacities.Length; ++i)
-                    {
-                        DestinationParts[i].Opacity = _partOpacities[i];
-                    }
+                    DestinationParameters[i].Value = _parameterValues[i];
                 }
             }
 
-            /// <summary>
-            /// Called by Unity.
-            /// </summary>
-            private void Start()
+            // restore parts opacity
+            if(_partOpacities != null)
+            {
+                for(var i = 0; i < _partOpacities.Length; ++i)
+                {
+                    DestinationParts[i].Opacity = _partOpacities[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called by Unity.
+        /// </summary>
+        private void OnEnable()
+        {
+            if(DestinationParameters == null)
             {
                 DestinationParameters = this.FindCubismModel().Parameters;
+            }
+
+            if(DestinationParts == null)
+            {
                 DestinationParts = this.FindCubismModel().Parts;
             }
+        }
 
     }
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -7,7 +7,6 @@
 
 
 using System;
-using System.Runtime.InteropServices;
 using Live2D.Cubism.Core.Unmanaged;
 using UnityEngine;
 

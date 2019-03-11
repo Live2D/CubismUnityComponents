@@ -194,7 +194,6 @@ namespace Live2D.Cubism.Core
             get { return Moc != null; }
         }
 
-
         /// <summary>
         /// Revives instance.
         /// </summary>

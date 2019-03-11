@@ -7,7 +7,6 @@
 
 
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Live2D.Cubism.Framework.Json
@@ -35,7 +34,7 @@ namespace Live2D.Cubism.Framework.Json
 
             ret.Type = (value.Get("Type") == null) ? null : value.Get("Type").toString();
 
-            ret.FadeInTime = (value.Get("FadeInTime") == null) ? -1.0f : value.Get("FadeInTime").ToFloat();
+            ret.FadeInTime = (value.Get("FadeInTime") == null) ? 0.5f : value.Get("FadeInTime").ToFloat();
 
             var groups = (value.Get("Groups") == null) ? null : value.Get("Groups").GetVector(null);
 

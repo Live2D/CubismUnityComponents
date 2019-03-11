@@ -17,7 +17,7 @@ namespace Live2D.Cubism.Framework.LookAt
     /// <summary>
     /// Controls <see cref="CubismLookParameter"/>s.
     /// </summary>
-    public sealed class CubismLookController : MonoBehaviour
+    public sealed class CubismLookController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Blend mode.
@@ -103,6 +103,11 @@ namespace Live2D.Cubism.Framework.LookAt
         // ReSharper disable once InconsistentNaming
         private Vector3 VelocityBuffer;
 
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
+
 
         /// <summary>
         /// Refreshes the controller. Call this method after adding and/or removing <see cref="CubismLookParameter"/>s.
@@ -123,34 +128,18 @@ namespace Live2D.Cubism.Framework.LookAt
             {
                 Destinations[i] = Sources[i].GetComponent<CubismParameter>();
             }
+
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
-        #region Unity Events Handling
-
         /// <summary>
-        /// Called by Unity. Makes sure cache is initialized.
+        /// Called by cubism update controller. Updates controller.
         /// </summary>
-        private void Start()
+        public void OnLateUpdate()
         {
-            // Default center if necessary.
-            if (Center == null)
-            {
-                Center = transform;
-            }
-
-
-            // Initialize cache.
-            Refresh();
-        }
-
-
-        /// <summary>
-        /// Called by Unity. Updates controller.
-        /// </summary>
-        private void LateUpdate()
-        {
-            // Return if there's nothing to update.
-            if (Destinations == null)
+            // Return if it is not valid or there's nothing to update.
+            if (!enabled || Destinations == null)
             {
                 return;
             }
@@ -190,6 +179,36 @@ namespace Live2D.Cubism.Framework.LookAt
 
             // Store position.
             LastPosition = position;
+        }
+
+        #region Unity Events Handling
+
+        /// <summary>
+        /// Called by Unity. Makes sure cache is initialized.
+        /// </summary>
+        private void Start()
+        {
+            // Default center if necessary.
+            if (Center == null)
+            {
+                Center = transform;
+            }
+
+
+            // Initialize cache.
+            Refresh();
+        }
+
+
+        /// <summary>
+        /// Called by Unity. Updates controller.
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (!_hasUpdateController)
+            {
+                OnLateUpdate();
+            }
         }
 
         #endregion
