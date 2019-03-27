@@ -15,6 +15,7 @@ using Live2D.Cubism.Framework.UserData;
 using Live2D.Cubism.Framework.Pose;
 using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.MotionFade;
+using Live2D.Cubism.Framework.Raycasting;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
@@ -348,6 +349,24 @@ namespace Live2D.Cubism.Framework.Json
             for (var i = 0; i < renderers.Length; ++i)
             {
                 renderers[i].MainTexture = pickTexture(this, drawables[i]);
+            }
+
+
+            // Initialize drawables. 
+            for (var i = 0; i < HitAreas.Length; i++)
+            {
+                for (var j = 0; j < drawables.Length; j++)
+                {
+                    if (drawables[j].Id == HitAreas[i].Id)
+                    {
+                        // Add components for hit judgement to HitArea target Drawables.
+                        var hitDrawable = drawables[j].gameObject.AddComponent<CubismHitDrawable>();
+                        hitDrawable.Name = HitAreas[i].Name;
+
+                        drawables[j].gameObject.AddComponent<CubismRaycastable>();
+                        break;
+                    }
+                }
             }
 
 

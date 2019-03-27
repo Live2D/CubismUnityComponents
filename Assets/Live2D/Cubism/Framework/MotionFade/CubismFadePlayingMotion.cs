@@ -34,7 +34,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Animation playing speed.
         /// </summary>
-        [SerializeField]
+        [SerializeField, Range(0.0f, float.MaxValue)]
         public float Speed;
 
         /// <summary>

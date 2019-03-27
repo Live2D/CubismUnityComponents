@@ -114,32 +114,33 @@ namespace Live2D.Cubism.Framework.MotionFade
 
             // Add animation event
             {
-                var sourceAnimEvents  = AnimationUtility.GetAnimationEvents(animationClip);
-                AnimationEvent instanceIdEvent= null;
-                for(var i = 0; i < sourceAnimEvents.Length; ++i)
+                var sourceAnimationEvents = AnimationUtility.GetAnimationEvents(animationClip);
+                var index = -1;
+
+                for(var i = 0; i < sourceAnimationEvents.Length; ++i)
                 {
-                    if(sourceAnimEvents[i].functionName != "InstanceId")
+                    if(sourceAnimationEvents[i].functionName != "InstanceId")
                     {
                         continue;
                     }
 
-                    instanceIdEvent= sourceAnimEvents[i];
+                    index = i;
                     break;
                 }
 
-                if(instanceIdEvent== null)
+                if(index == -1)
                 {
-                    instanceIdEvent= new AnimationEvent();
-                    Array.Resize(ref sourceAnimEvents, sourceAnimEvents.Length + 1);
-                    sourceAnimEvents[sourceAnimEvents.Length - 1] = instanceIdEvent;
+                    index = sourceAnimationEvents.Length;
+                    Array.Resize(ref sourceAnimationEvents, sourceAnimationEvents.Length + 1);
+                    sourceAnimationEvents[sourceAnimationEvents.Length - 1] = new AnimationEvent();
                 }
 
-                instanceIdEvent.time = 0;
-                instanceIdEvent.functionName = "InstanceId";
-                instanceIdEvent.intParameter = instanceId;
-                instanceIdEvent.messageOptions = SendMessageOptions.DontRequireReceiver;
+                sourceAnimationEvents[index].time = 0;
+                sourceAnimationEvents[index].functionName = "InstanceId";
+                sourceAnimationEvents[index].intParameter = instanceId;
+                sourceAnimationEvents[index].messageOptions = SendMessageOptions.DontRequireReceiver;
 
-                AnimationUtility.SetAnimationEvents(animationClip, sourceAnimEvents);
+                AnimationUtility.SetAnimationEvents(animationClip, sourceAnimationEvents);
             }
         }
 

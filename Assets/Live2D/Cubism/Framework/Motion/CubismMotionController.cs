@@ -20,13 +20,14 @@ namespace Live2D.Cubism.Framework.Motion
     /// Cubism motion controller.
     /// </summary>
     [RequireComponent(typeof(CubismFadeController))]
-    public class CubismMotionController : MonoBehaviour, ICubismUpdatable
+    public class CubismMotionController : MonoBehaviour
     {
         #region Action
 
         /// <summary>
         /// Action animation end handler.
         /// </summary>
+        [SerializeField]
         public Action<float> AnimationEndHandler;
 
         /// <summary>
@@ -79,11 +80,6 @@ namespace Live2D.Cubism.Framework.Motion
         /// </summary>
         private CubismMotionLayer[] _motionLayers;
 
-        /// <summary>
-        /// Cubism model has CubismUpdateController.
-        /// </summary>
-        private bool _hasUpdateController;
-
         #endregion Variable
 
         #region Function
@@ -95,7 +91,7 @@ namespace Live2D.Cubism.Framework.Motion
         /// <param name="layerIndex">layer index.</param>
         /// <param name="isLoop">Animation is loop.</param>
         /// <param name="speed">Animation speed.</param>
-        public void PlayAnimations(AnimationClip clip, int layerIndex = 0, bool isLoop = true, float speed = 1.0f)
+        public void PlayAnimation(AnimationClip clip, int layerIndex = 0, bool isLoop = true, float speed = 1.0f)
         {
             // Fail silently...
             if(!enabled || !_isActive || _cubismFadeMotionList == null || clip == null
@@ -104,7 +100,7 @@ namespace Live2D.Cubism.Framework.Motion
                 return;
             }
 
-            _motionLayers[layerIndex].PlayAnimations(clip, isLoop, speed);
+            _motionLayers[layerIndex].PlayAnimation(clip, isLoop, speed);
 
             // Play Playable Graph
             if(!_playableGrap.IsPlaying())
@@ -148,7 +144,7 @@ namespace Live2D.Cubism.Framework.Motion
         public void SetLayerWeight(int layerIndex, float weight)
         {
             // Fail silently...
-            if(layerIndex < 0 || layerIndex >= LayerCount)
+            if(layerIndex <= 0 || layerIndex >= LayerCount)
             {
                 return;
             }
@@ -165,7 +161,7 @@ namespace Live2D.Cubism.Framework.Motion
         public void SetLayerAdditive(int layerIndex, bool isAdditive)
         {
             // Fail silently...
-            if(layerIndex < 0 || layerIndex >= LayerCount)
+            if(layerIndex <= 0 || layerIndex >= LayerCount)
             {
                 return;
             }
@@ -174,12 +170,29 @@ namespace Live2D.Cubism.Framework.Motion
         }
 
         /// <summary>
-        /// Set state is loop.
+        /// Set animation speed.
+        /// </summary>
+        /// <param name="layerIndex">layer index.</param>
+        /// <param name="index">index of playing motion list.</param>
+        /// <param name="speed">Animation speed.</param>
+        public void SetAnimationSpeed(int layerIndex, int index, float speed)
+        {
+            // Fail silently...
+            if(layerIndex < 0 || layerIndex >= LayerCount)
+            {
+                return;
+            }
+
+            _motionLayers[layerIndex].SetStateSpeed(index, speed);
+        }
+
+        /// <summary>
+        /// Set animation is loop.
         /// </summary>
         /// <param name="layerIndex">layer index.</param>
         /// <param name="index">Index of playing motion list.</param>
         /// <param name="isLoop">State is loop.</param>
-        public void SetIsLoop(int layerIndex, int index, bool isLoop)
+        public void SetAnimationIsLoop(int layerIndex, int index, bool isLoop)
         {
             // Fail silently...
             if(layerIndex < 0 || layerIndex >= LayerCount)
@@ -195,18 +208,13 @@ namespace Live2D.Cubism.Framework.Motion
         /// </summary>
         public ICubismFadeState[] GetFadeStates()
         {
-            return _motionLayers;
-        }
-
-        /// <summary>
-        /// Called by CubismUpdateController.
-        /// </summary>
-        public void OnLateUpdate()
-        {
-            for(var i = 0; i < _motionLayers.Length; ++i)
+            if(_motionLayers == null)
             {
-                _motionLayers[i].OnLateUpdate();
+                LayerCount = (LayerCount < 1) ? 1 : LayerCount;
+                _motionLayers = new CubismMotionLayer[LayerCount];
             }
+
+            return _motionLayers;
         }
 
         #endregion Function
@@ -218,7 +226,6 @@ namespace Live2D.Cubism.Framework.Motion
         /// </summary>
         private void OnEnable()
         {
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
             _cubismFadeMotionList = GetComponent<CubismFadeController>().CubismFadeMotionList;
 
             // Fail silently...
@@ -259,7 +266,12 @@ namespace Live2D.Cubism.Framework.Motion
             _layerMixer = AnimationLayerMixerPlayable.Create(_playableGrap, LayerCount);
 
             // Create cubism motion layers.
-            _motionLayers = new CubismMotionLayer[LayerCount];
+            if(_motionLayers == null)
+            {
+                LayerCount = (LayerCount < 1) ? 1 : LayerCount;
+                _motionLayers = new CubismMotionLayer[LayerCount];
+            }
+
             for(var i = 0; i < LayerCount; ++i)
             {
                 _motionLayers[i] = CubismMotionLayer.CreateCubismMotionLayer(_playableGrap, _cubismFadeMotionList);
@@ -288,11 +300,17 @@ namespace Live2D.Cubism.Framework.Motion
         /// <summary>
         /// Called by Unity.
         /// </summary>
-        private void LateUpdate()
+        private void Update()
         {
-            if(!_hasUpdateController)
+            // Fail silently...
+            if(!_isActive)
             {
-                OnLateUpdate();
+                return;
+            }
+
+            for( var i = 0; i < _motionLayers.Length; ++i)
+            {
+                _motionLayers[i].Update();
             }
         }
 

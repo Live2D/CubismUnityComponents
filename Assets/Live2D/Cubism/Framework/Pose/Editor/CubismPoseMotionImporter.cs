@@ -109,32 +109,33 @@ namespace Live2D.Cubism.Editor.Importers
                 {
                     var instanceId = newAnimationClip.GetInstanceID();
 
-                    var sourceAnimEvents  = AnimationUtility.GetAnimationEvents(newAnimationClip);
-                    AnimationEvent instanceIdEvent= null;
-                    for(var eventIndex = 0; eventIndex < sourceAnimEvents.Length; ++eventIndex)
+                    var sourceAnimationEvents = AnimationUtility.GetAnimationEvents(newAnimationClip);
+                    var index = -1;
+
+                    for(var j = 0; j < sourceAnimationEvents.Length; ++j)
                     {
-                        if(sourceAnimEvents[eventIndex].functionName != "InstanceId")
+                        if(sourceAnimationEvents[j].functionName != "InstanceId")
                         {
                             continue;
                         }
 
-                        instanceIdEvent= sourceAnimEvents[eventIndex];
+                        index = j;
                         break;
                     }
 
-                    if(instanceIdEvent== null)
+                    if(index == -1)
                     {
-                        instanceIdEvent= new AnimationEvent();
-                        Array.Resize(ref sourceAnimEvents, sourceAnimEvents.Length + 1);
-                        sourceAnimEvents[sourceAnimEvents.Length - 1] = instanceIdEvent;
+                        index = sourceAnimationEvents.Length;
+                        Array.Resize(ref sourceAnimationEvents, sourceAnimationEvents.Length + 1);
+                        sourceAnimationEvents[sourceAnimationEvents.Length - 1] = new AnimationEvent();
                     }
 
-                    instanceIdEvent.time = 0;
-                    instanceIdEvent.functionName = "InstanceId";
-                    instanceIdEvent.intParameter = instanceId;
-                    instanceIdEvent.messageOptions = SendMessageOptions.DontRequireReceiver;
+                    sourceAnimationEvents[index].time = 0;
+                    sourceAnimationEvents[index].functionName = "InstanceId";
+                    sourceAnimationEvents[index].intParameter = instanceId;
+                    sourceAnimationEvents[index].messageOptions = SendMessageOptions.DontRequireReceiver;
 
-                    AnimationUtility.SetAnimationEvents(newAnimationClip, sourceAnimEvents);
+                    AnimationUtility.SetAnimationEvents(newAnimationClip, sourceAnimationEvents);
                 }
 
 

@@ -40,6 +40,7 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Playing expressions index.
         /// </summary>
+        [SerializeField]
         public int CurrentExpressionIndex = -1;
 
         /// <summary>

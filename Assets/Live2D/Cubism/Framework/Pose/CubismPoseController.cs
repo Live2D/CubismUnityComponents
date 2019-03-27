@@ -20,6 +20,12 @@ namespace Live2D.Cubism.Framework.Pose
         #region variable
 
         /// <summary>
+        /// Default visiable pose index.
+        /// </summary>
+        [SerializeField]
+        public int defaultPoseIndex = 0;
+
+        /// <summary>
         /// Back opacity threshold.
         /// </summary>
         private const float BackOpacityThreshold = 0.15f;
@@ -77,6 +83,13 @@ namespace Live2D.Cubism.Framework.Pose
 
                 _poseData[groupIndex][partIndex].PosePart = tags[i];
                 _poseData[groupIndex][partIndex].Part= tags[i].GetComponent<CubismPart>();
+
+                defaultPoseIndex = (defaultPoseIndex < 0) ? 0 : defaultPoseIndex;
+                if (partIndex != defaultPoseIndex)
+                {
+                    _poseData[groupIndex][partIndex].Part.Opacity = 0.0f;
+                }
+
                 _poseData[groupIndex][partIndex].Opacity = _poseData[groupIndex][partIndex].Part.Opacity;
 
                 if(tags[i].Link == null || tags[i].Link.Length == 0)
