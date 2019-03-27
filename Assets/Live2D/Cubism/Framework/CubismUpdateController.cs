@@ -52,7 +52,6 @@ namespace Live2D.Cubism.Framework
 
             ICubismUpdatable renderController = null;
             ICubismUpdatable maskController = null;
-            ICubismUpdatable motionController = null;
             ICubismUpdatable fadeController = null;
             ICubismUpdatable poseController = null;
             ICubismUpdatable expressionController = null;
@@ -79,10 +78,6 @@ namespace Live2D.Cubism.Framework
                     continue;
                 }
 #endif
-                else if (component.GetType() == typeof(CubismMotionController))
-                {
-                    motionController = component;
-                }
                 else if (component.GetType() == typeof(CubismFadeController))
                 {
                     fadeController = component;
@@ -120,12 +115,6 @@ namespace Live2D.Cubism.Framework
 #endif
                 // Cache parameter save restore.
                 _parameterStore = model.GetComponent<CubismParameterStore>();
-
-                // Add motion controller update.
-                if(motionController != null)
-                {
-                    OnLateUpdate += motionController.OnLateUpdate;
-                }
 
                 // Add fade controller late update.
                 if (fadeController != null)

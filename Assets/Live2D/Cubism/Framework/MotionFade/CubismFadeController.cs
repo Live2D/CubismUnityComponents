@@ -150,7 +150,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                     continue;
                 }
 
-                var erapsedTime = time - playingMotion.FadeInStartTime;
+                var erapsedTime = time - playingMotion.StartTime;
 
 
                 var fadeInTime = fadeMotion.FadeInTime;
@@ -164,7 +164,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                     ? 1.0f
                     : CubismFadeMath.GetEasingSine((playingMotion.EndTime - Time.time) / fadeOutTime);
                 var motionWeight = (i == 0)
-                    ? fadeOutWeight * layerWeight
+                    ? (fadeInWeight * fadeOutWeight)
                     : (fadeInWeight * fadeOutWeight * layerWeight);
 
                 // Apply to parameter values

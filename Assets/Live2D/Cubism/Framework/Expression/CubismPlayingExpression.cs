@@ -40,16 +40,19 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Expression Weight.
         /// </summary>
+        [SerializeField, Range(0.0f, 1.0f)]
         public float Weight;
-        
+
         /// <summary>
         /// Expression user time.
         /// </summary>
+        [SerializeField]
         public float ExpressionUserTime;
 
         /// <summary>
         /// Expression end time.
         /// </summary>
+        [SerializeField]
         public float ExpressionEndTime;
 
         /// <summary>

@@ -24,14 +24,14 @@ namespace Live2D.Cubism.Framework.Motion
         public AnimationClip Clip { get; private set; }
 
         /// <summary>
-        /// Cubism motion state is loop.
-        /// </summary>
-        public bool IsLoop { get; set; }
-
-        /// <summary>
         /// Animation clip mixer.
         /// </summary>
         public AnimationMixerPlayable ClipMixer { get; private set; }
+
+        /// <summary>
+        /// Animation clip playable.
+        /// </summary>
+        public AnimationClipPlayable ClipPlayable { get; private set; }
 
         #endregion
 
@@ -47,15 +47,20 @@ namespace Live2D.Cubism.Framework.Motion
             var ret = new CubismMotionState();
 
             ret.Clip = clip;
-            ret.IsLoop = isLoop;
 
             // Create animation clip mixer.
             ret.ClipMixer = AnimationMixerPlayable.Create(playableGraph, 2);
             ret.ClipMixer.SetSpeed(speed);
 
             // Connect AnimationClip Playable
-            var playableClip = AnimationClipPlayable.Create(playableGraph, ret.Clip);
-            ret.ClipMixer.ConnectInput(0, playableClip, 0);
+            ret.ClipPlayable = AnimationClipPlayable.Create(playableGraph, ret.Clip);
+
+            if(!isLoop)
+            {
+                ret.ClipPlayable.SetDuration(clip.length - 0.0001f);
+            }
+
+            ret.ClipMixer.ConnectInput(0, ret.ClipPlayable, 0);
             ret.ClipMixer.SetInputWeight(0, 1.0f);
 
             return ret;

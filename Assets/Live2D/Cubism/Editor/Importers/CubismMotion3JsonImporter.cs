@@ -163,7 +163,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
             // Trigger event.
-            CubismImporter.SendMotionImportEvent(this, animationClip);
+            CubismImporter.SendMotionImportEvent(this, AnimationClip);
 
 
             // Apply changes.
