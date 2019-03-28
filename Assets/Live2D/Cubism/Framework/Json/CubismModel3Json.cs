@@ -353,18 +353,21 @@ namespace Live2D.Cubism.Framework.Json
 
 
             // Initialize drawables. 
-            for (var i = 0; i < HitAreas.Length; i++)
+            if(HitAreas != null)
             {
-                for (var j = 0; j < drawables.Length; j++)
+                for (var i = 0; i < HitAreas.Length; i++)
                 {
-                    if (drawables[j].Id == HitAreas[i].Id)
+                    for (var j = 0; j < drawables.Length; j++)
                     {
-                        // Add components for hit judgement to HitArea target Drawables.
-                        var hitDrawable = drawables[j].gameObject.AddComponent<CubismHitDrawable>();
-                        hitDrawable.Name = HitAreas[i].Name;
+                        if (drawables[j].Id == HitAreas[i].Id)
+                        {
+                            // Add components for hit judgement to HitArea target Drawables.
+                            var hitDrawable = drawables[j].gameObject.AddComponent<CubismHitDrawable>();
+                            hitDrawable.Name = HitAreas[i].Name;
 
-                        drawables[j].gameObject.AddComponent<CubismRaycastable>();
-                        break;
+                            drawables[j].gameObject.AddComponent<CubismRaycastable>();
+                            break;
+                        }
                     }
                 }
             }
