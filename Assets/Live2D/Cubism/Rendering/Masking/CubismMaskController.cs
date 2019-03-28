@@ -19,7 +19,7 @@ namespace Live2D.Cubism.Rendering.Masking
     /// Controls rendering of Cubism masks.
     /// </summary>
     [ExecuteInEditMode, CubismDontMoveOnReimport]
-    public sealed class CubismMaskController : MonoBehaviour, ICubismMaskTextureCommandSource
+    public sealed class CubismMaskController : MonoBehaviour, ICubismMaskTextureCommandSource, ICubismUpdatable
     {
         /// <summary>
         /// <see cref="MaskTexture"/> backing field.
@@ -76,6 +76,11 @@ namespace Live2D.Cubism.Rendering.Masking
             get { return Junctions != null; }
         }
 
+
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
 
         /// <summary>
         /// Makes sure controller is initialized once.
@@ -142,30 +147,12 @@ namespace Live2D.Cubism.Rendering.Masking
             }
         }
 
-        #region Unity Event Handling
-
-		/// <summary>
-		/// Initializes instance.
-		/// </summary>
-		private void Start()
-		{
-			// Fail silently.
-			if (MaskTexture == null)
-			{
-				return;
-			}
-
-
-			MaskTexture.AddSource(this);
-		}
-
-
-		/// <summary>
-		/// Called by Unity. Updates <see cref="Junktions"/>.
-		/// </summary>
-        private void LateUpdate()
+        /// <summary>
+        /// Called by cubism update controller. Updates <see cref="Junktions"/>.
+        /// </summary>
+        public void OnLateUpdate()
         {
-            if (!IsRevived)
+            if (!enabled || !IsRevived)
             {
                 return;
             }
@@ -177,6 +164,38 @@ namespace Live2D.Cubism.Rendering.Masking
             }
         }
  
+        #region Unity Event Handling
+
+        /// <summary>
+        /// Initializes instance.
+        /// </summary>
+        private void Start()
+        {
+            // Fail silently.
+            if (MaskTexture == null)
+            {
+                return;
+            }
+
+
+            MaskTexture.AddSource(this);
+
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
+
+
+        /// <summary>
+        /// Called by Unity. 
+        /// </summary>
+        private void LateUpdate()
+        {
+            if(!_hasUpdateController)
+            {
+                OnLateUpdate();
+            }
+        }
+
 
         /// <summary>
         /// Finalizes instance.

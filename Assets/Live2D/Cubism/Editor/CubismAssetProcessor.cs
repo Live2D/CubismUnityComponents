@@ -6,12 +6,13 @@
  */
 
 
+using Live2D.Cubism.Editor.Deleters;
+using Live2D.Cubism.Editor.Importers;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Live2D.Cubism.Editor.Importers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -49,11 +50,11 @@ namespace Live2D.Cubism.Editor
             string[] movedAssetPaths,
             string[] movedFromAssetPaths)
         {
-			// Make sure builtin resources are available.
-			GenerateBuiltinResources();
+            // Make sure builtin resources are available.
+            GenerateBuiltinResources();
 
 
-			// Handle any imported Cubism assets.
+            // Handle any imported Cubism assets.
             foreach (var assetPath in importedAssetPaths)
             {
                 var importer = CubismImporter.GetImporterAtPath(assetPath);
@@ -67,6 +68,21 @@ namespace Live2D.Cubism.Editor
 
                 importer.Import();
             }
+
+
+            // Handle any deleted Cubism assets.
+            foreach (var assetPath in deletedAssetPaths)
+            {
+                var deleter = CubismDeleter.GetDeleterAsPath(assetPath);
+                
+                if (deleter == null)
+                {
+                    continue;
+                }
+
+                deleter.Delete();
+            }
+
         }
 
         #endregion
@@ -132,7 +148,7 @@ namespace Live2D.Cubism.Editor
 
         #endregion
 
-		#region Resources Generation
+        #region Resources Generation
 
         /// <summary>
         /// Sets Cubism-style normal blending for a material.
@@ -187,29 +203,29 @@ namespace Live2D.Cubism.Editor
             shaderKeywords.RemoveAll(k => k == "CUBISM_MASK_OFF");
 
 
-			if (!shaderKeywords.Contains("CUBISM_MASK_ON"))
-			{
-				shaderKeywords.Add("CUBISM_MASK_ON");
-			}
+            if (!shaderKeywords.Contains("CUBISM_MASK_ON"))
+            {
+                shaderKeywords.Add("CUBISM_MASK_ON");
+            }
 
 
-			material.shaderKeywords = shaderKeywords.ToArray();
+            material.shaderKeywords = shaderKeywords.ToArray();
         }
 
 
         /// <summary>
         /// Generates the builtin resources as necessary.
         /// </summary>
-		private static void GenerateBuiltinResources()
-		{
-			var resourcesRoot = AssetDatabase
-				.GetAssetPath(CubismBuiltinShaders.Unlit)
-				.Replace("/Shaders/Unlit.shader", "");
+        private static void GenerateBuiltinResources()
+        {
+            var resourcesRoot = AssetDatabase
+                .GetAssetPath(CubismBuiltinShaders.Unlit)
+                .Replace("/Shaders/Unlit.shader", "");
 
 
-			// Create materials.
-			if (CubismBuiltinMaterials.Mask == null)
-			{
+            // Create materials.
+            if (CubismBuiltinMaterials.Mask == null)
+            {
                 var materialsRoot = resourcesRoot + "/Materials";
 
 
@@ -289,23 +305,23 @@ namespace Live2D.Cubism.Editor
                 AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
 
 
-				EditorUtility.SetDirty(CubismBuiltinShaders.Unlit);
-				AssetDatabase.SaveAssets();
-			}
+                EditorUtility.SetDirty(CubismBuiltinShaders.Unlit);
+                AssetDatabase.SaveAssets();
+            }
 
 
-			// Create global mask texture.
-			if (CubismMaskTexture.GlobalMaskTexture == null)
-			{
+            // Create global mask texture.
+            if (CubismMaskTexture.GlobalMaskTexture == null)
+            {
                 var globalMaskTexture = ScriptableObject.CreateInstance<CubismMaskTexture>();
 
                 globalMaskTexture.name = "GlobalMaskTexture";
 
 
                 AssetDatabase.CreateAsset(globalMaskTexture, string.Format("{0}/{1}.asset", resourcesRoot, globalMaskTexture.name));
-			}
-		}
+            }
+        }
 
-		#endregion
+        #endregion
     }
 }

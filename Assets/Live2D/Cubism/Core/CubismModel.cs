@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright(c) Live2D Inc. All rights reserved.
  * 
  * Use of this source code is governed by the Live2D Open Software license
@@ -173,6 +173,10 @@ namespace Live2D.Cubism.Core
             private set { _drawables = value; }
         }
 
+        /// <summary>
+        /// Parameter store cache.
+        /// </summary>
+        CubismParameterStore _parameterStore;
 
         /// <summary>
         /// True if instance is revived.
@@ -189,7 +193,6 @@ namespace Live2D.Cubism.Core
         {
             get { return Moc != null; }
         }
-
 
         /// <summary>
         /// Revives instance.
@@ -223,6 +226,8 @@ namespace Live2D.Cubism.Core
             Parameters.Revive(TaskableModel.UnmanagedModel);
             Parts.Revive(TaskableModel.UnmanagedModel);
             Drawables.Revive(TaskableModel.UnmanagedModel);
+
+            _parameterStore = GetComponent<CubismParameterStore>();
         }
 
         /// <summary>
@@ -307,6 +312,11 @@ namespace Live2D.Cubism.Core
             // Sync parameters back.
             TaskableModel.TryReadParameters(Parameters);
 
+            // restore last frame parameters value and parts opacity.
+            if(_parameterStore != null)
+            {
+                _parameterStore.RestoreParameters();
+            }
 
             // Trigger event.
             if (OnDynamicDrawableData == null)

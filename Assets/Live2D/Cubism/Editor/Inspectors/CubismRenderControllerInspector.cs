@@ -6,8 +6,8 @@
  */
 
 
-using System;
 using Live2D.Cubism.Rendering;
+using System;
 using UnityEditor;
 using UnityEngine;
 

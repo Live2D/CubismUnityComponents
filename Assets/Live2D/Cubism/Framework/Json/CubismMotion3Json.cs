@@ -35,9 +35,23 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>Deserialized motion3.json on success; <see langword="null"/> otherwise.</returns>
         public static CubismMotion3Json LoadFrom(string motion3Json)
         {
-            return (string.IsNullOrEmpty(motion3Json))
-                ? null
-                : JsonUtility.FromJson<CubismMotion3Json>(motion3Json);
+            if (string.IsNullOrEmpty(motion3Json))
+            {
+                return null;
+            }
+
+            var cubismMotion3Json = JsonUtility.FromJson<CubismMotion3Json>(motion3Json);
+
+            cubismMotion3Json.Meta.FadeInTime = -1.0f;
+            cubismMotion3Json.Meta.FadeOutTime = -1.0f;
+            for (var i = 0; i < cubismMotion3Json.Curves.Length; ++i)
+            {
+                cubismMotion3Json.Curves[i].FadeInTime = -1.0f;
+                cubismMotion3Json.Curves[i].FadeOutTime = -1.0f;
+            }
+            JsonUtility.FromJsonOverwrite(motion3Json, cubismMotion3Json);
+
+            return cubismMotion3Json;
         }
 
         /// <summary>
@@ -98,7 +112,7 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         /// <param name="segments">Data to convert.</param>
         /// <returns>Keyframes.</returns>
-        private static Keyframe[] ConvertCurveSegmentsToKeyframes(float[] segments)
+        public static Keyframe[] ConvertCurveSegmentsToKeyframes(float[] segments)
         {
             // Return early on invalid input.
             if (segments.Length < 1)
@@ -121,15 +135,76 @@ namespace Live2D.Cubism.Framework.Json
             return keyframes.ToArray();
         }
 
+        /// <summary>
+        /// Converts stepped curves to liner curves.
+        /// </summary>
+        /// <param name="curve">Data to convert.</param>
+        /// <returns>Animation curve.</returns>
+        public static AnimationCurve ConvertSteppedCurveToLinerCurver(CubismMotion3Json.SerializableCurve curve, float poseFadeInTime)
+        {
+            poseFadeInTime = (poseFadeInTime < 0) ? 0.5f : poseFadeInTime;
+
+            var segments = curve.Segments;
+            var segmentsCount = 2;
+
+            for(var index = 2; index < curve.Segments.Length; index += 3)
+            {
+                // if current segment type is stepped and
+                // next segment type is stepped or next segment is last segment
+                // then convert segment type to liner.
+                var currentSegmentTypeIsStepped = (curve.Segments[index] == 2);
+                var currentSegmentIsLast = (index == (curve.Segments.Length - 3));
+                var nextSegmentTypeIsStepped = (currentSegmentIsLast) ? false : (curve.Segments[index + 3] == 2);
+                var nextSegmentIsLast = (currentSegmentIsLast) ? false : ((index + 3) == (curve.Segments.Length - 3));
+                if ( currentSegmentTypeIsStepped && (nextSegmentTypeIsStepped || nextSegmentIsLast) )
+                {
+                    Array.Resize(ref segments, segments.Length + 3);
+                    segments[segmentsCount + 0] = 0;
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index - 1];
+                    segments[segmentsCount + 3] = 0;
+                    segments[segmentsCount + 4] = curve.Segments[index + 1] + poseFadeInTime;
+                    segments[segmentsCount + 5] = curve.Segments[index + 2];
+                    segmentsCount += 6;
+                }
+                else if(curve.Segments[index] == 1)
+                {
+                    segments[segmentsCount + 0] = curve.Segments[index + 0];
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index + 2];
+                    segments[segmentsCount + 3] = curve.Segments[index + 3];
+                    segments[segmentsCount + 4] = curve.Segments[index + 4];
+                    segments[segmentsCount + 5] = curve.Segments[index + 5];
+                    segments[segmentsCount + 6] = curve.Segments[index + 6];
+                    index += 4;
+                    segmentsCount += 7;
+                }
+                else
+                {
+                    segments[segmentsCount + 0] = curve.Segments[index + 0];
+                    segments[segmentsCount + 1] = curve.Segments[index + 1];
+                    segments[segmentsCount + 2] = curve.Segments[index + 2];
+                    segmentsCount += 3;
+                }
+            }
+
+            return new AnimationCurve(ConvertCurveSegmentsToKeyframes(segments));
+        }
+
 
         /// <summary>
         /// Instantiates an <see cref="AnimationClip"/>.
         /// </summary>
+        /// <param name="shouldImportAsOriginalWorkflow">Should import as original workflow.</param>
+        /// <param name="shouldClearAnimationCurves">Should clear animation clip curves.</param>
+        /// <param name="isCallFormModelJson">Is function call form <see cref="CubismModel3Json"/>.</param>
+        /// <param name="poseJson">pose3.json asset.</param>
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
         /// <remarks>
         /// Note this method generates <see cref="AnimationClip.legacy"/> clips when called at runtime.
         /// </remarks>
-        public AnimationClip ToAnimationClip()
+        public AnimationClip ToAnimationClip(bool shouldImportAsOriginalWorkflow = false, bool shouldClearAnimationCurves = false,
+                                             bool isCallFormModelJson = false, CubismPose3Json poseJson = null)
         {
             // Check béziers restriction flag.
             if (!Meta.AreBeziersRestricted)
@@ -152,12 +227,40 @@ namespace Live2D.Cubism.Framework.Json
 #endif
             };
 
+            return ToAnimationClip(animationClip, shouldImportAsOriginalWorkflow, shouldClearAnimationCurves, isCallFormModelJson, poseJson);
+        }
+
+        /// <summary>
+        /// Instantiates an <see cref="AnimationClip"/>.
+        /// </summary>
+        /// <param name="animationClip">Previous animation clip.</param>
+        /// <param name="shouldImportAsOriginalWorkflow">Should import as original workflow.</param>
+        /// <param name="shouldClearAnimationCurves">Should clear animation clip curves.</param>
+        /// <param name="isCallFormModelJson">Is function call form <see cref="CubismModel3Json"/>.</param>
+        /// <param name="poseJson">pose3.json asset.</param>
+        /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
+        /// <remarks>
+        /// Note this method generates <see cref="AnimationClip.legacy"/> clips when called at runtime.
+        /// </remarks>
+        public AnimationClip ToAnimationClip(AnimationClip animationClip, bool shouldImportAsOriginalWorkflow = false, bool shouldClearAnimationCurves = false
+                                                                        , bool isCallFormModelJson = false, CubismPose3Json poseJson = null)
+        {
+            // Clear curves.
+            if (!shouldImportAsOriginalWorkflow || isCallFormModelJson || shouldClearAnimationCurves)
+            {
+                animationClip.ClearCurves();
+            }
 
             // Convert curves.
             for (var i = 0; i < Curves.Length; ++i)
             {
                 var curve = Curves[i];
 
+                // If should import as original workflow mode, skip add part opacity curve when call not from model3.json.
+                if (curve.Target == "PartOpacity" && shouldImportAsOriginalWorkflow && !isCallFormModelJson)
+                {
+                    continue;
+                }
 
                 var relativePath = string.Empty;
                 var type = default(Type);
@@ -207,6 +310,12 @@ namespace Live2D.Cubism.Framework.Json
                     relativePath = "Parts/" + curve.Id;
                     propertyName = "Opacity";
                     type = typeof(CubismPart);
+
+                    // original workflow.
+                    if(shouldImportAsOriginalWorkflow && poseJson != null && poseJson.FadeInTime != 0.0f)
+                    {
+                        animationCurve = ConvertSteppedCurveToLinerCurver(curve, poseJson.FadeInTime);
+                    }
                 }
 
 
@@ -499,6 +608,18 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public int TotalUserDataSize;
+
+            /// <summary>
+            /// [Optional] Time of the Fade-In for easing in seconds.
+            /// </summary>
+            [SerializeField]
+            public float FadeInTime;
+
+            /// <summary>
+            /// [Optional] Time of the Fade-Out for easing in seconds.
+            /// </summary>
+            [SerializeField]
+            public float FadeOutTime;
         };
 
         /// <summary>
@@ -524,6 +645,18 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public float[] Segments;
+
+            /// <summary>
+            /// [Optional] Time of the overall Fade-In for easing in seconds.
+            /// </summary>
+            [SerializeField]
+            public float FadeInTime;
+
+            /// <summary>
+            /// [Optional] Time of the overall Fade-Out for easing in seconds.
+            /// </summary>
+            [SerializeField]
+            public float FadeOutTime;
         };
 
         /// <summary>

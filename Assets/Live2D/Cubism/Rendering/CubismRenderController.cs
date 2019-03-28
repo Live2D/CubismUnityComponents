@@ -20,7 +20,7 @@ namespace Live2D.Cubism.Rendering
     /// Controls rendering of a <see cref="CubismModel"/>.
     /// </summary>
     [ExecuteInEditMode, CubismDontMoveOnReimport]
-    public sealed class CubismRenderController : MonoBehaviour
+    public sealed class CubismRenderController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Model opacity.
@@ -363,6 +363,12 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
+
+
+        /// <summary>
         /// Makes sure all <see cref="CubismDrawable"/>s have <see cref="CubismRenderer"/>s attached to them.
         /// </summary>
         private void TryInitializeRenderers()
@@ -443,13 +449,17 @@ namespace Live2D.Cubism.Rendering
             }
         }
 
-        #region Unity Event Handling
-
         /// <summary>
-        /// Called by Unity. Applies billboarding.
+        /// Called by cubism update controller. Applies billboarding.
         /// </summary>
-        private void LateUpdate()
+        public void OnLateUpdate()
         {
+            // Fail silently...
+            if(!enabled)
+            {
+                return;
+            }
+
             // Update opacity if necessary.
             UpdateOpacity();
 
@@ -465,6 +475,16 @@ namespace Live2D.Cubism.Rendering
             DrawablesRootTransform.rotation = (Quaternion.LookRotation(CameraToFace.transform.forward, Vector3.up));
         }
 
+        #region Unity Event Handling
+
+        /// <summary>
+        /// Called by Unity.
+        /// </summary>
+        private void Start()
+        {
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
 
         /// <summary>
         /// Called by Unity. Enables listening to render data updates.
@@ -505,6 +525,17 @@ namespace Live2D.Cubism.Rendering
         #endregion
 
         #region Cubism Event Handling
+
+        /// <summary>
+        /// Called by Unity. 
+        /// </summary>
+        private void LateUpdate()
+        {
+            if(!_hasUpdateController)
+            {
+                OnLateUpdate();
+            }
+        }
 
         /// <summary>
         /// Called whenever new render data is available. 

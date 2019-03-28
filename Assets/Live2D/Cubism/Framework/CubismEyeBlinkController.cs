@@ -15,7 +15,7 @@ namespace Live2D.Cubism.Framework
     /// <summary>
     /// <see cref="CubismEyeBlinkParameter"/> controller.
     /// </summary>
-    public sealed class CubismEyeBlinkController : MonoBehaviour
+    public sealed class CubismEyeBlinkController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Blend mode.
@@ -36,6 +36,11 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         private CubismParameter[] Destinations { get; set; }
 
+
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        private bool _hasUpdateController = false;
 
         /// <summary>
         /// Refreshes controller. Call this method after adding and/or removing <see cref="CubismEyeBlinkParameter"/>s.
@@ -65,9 +70,29 @@ namespace Live2D.Cubism.Framework
             {
                 Destinations[i] = tags[i].GetComponent<CubismParameter>();
             }
+
+            // Get cubism update controller.
+            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
+
+        /// <summary>
+        /// Called by cubism update controller. Updates controller.
+        /// </summary>
+        public void OnLateUpdate()
+        {
+            // Fail silently.
+            if (!enabled || Destinations == null)
+            {
+                return;
+            }
+
+
+            // Apply value.
+            Destinations.BlendToValue(BlendMode, EyeOpening);
         }
 
         #region Unity Event Handling
+
 
         /// <summary>
         /// Called by Unity. Makes sure cache is initialized.
@@ -78,21 +103,15 @@ namespace Live2D.Cubism.Framework
             Refresh();
         }
 
-
         /// <summary>
-        /// Called by Unity. Updates controller.
+        /// Called by Unity. 
         /// </summary>
         private void LateUpdate()
         {
-            // Fail silently.
-            if (Destinations == null)
+            if(!_hasUpdateController)
             {
-                return;
+                OnLateUpdate();
             }
-
-
-            // Apply value.
-            Destinations.BlendToValue(BlendMode, EyeOpening);
         }
 
         #endregion
