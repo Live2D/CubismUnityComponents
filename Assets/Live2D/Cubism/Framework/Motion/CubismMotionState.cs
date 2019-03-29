@@ -73,7 +73,11 @@ namespace Live2D.Cubism.Framework.Motion
         public void ConnectClipMixer(AnimationMixerPlayable clipMixer)
         {
             var lastInput = ClipMixer.GetInputCount() - 1;
+#if UNITY_2018_2_OR_NEWER
             ClipMixer.DisconnectInput(lastInput);
+#else
+            ClipMixer.GetGraph().Disconnect(ClipMixer, lastInput);
+#endif
             ClipMixer.ConnectInput(lastInput, clipMixer, 0);
             ClipMixer.SetInputWeight(lastInput, 1.0f);
         }

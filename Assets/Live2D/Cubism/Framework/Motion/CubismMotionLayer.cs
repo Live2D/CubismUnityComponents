@@ -129,19 +129,32 @@ namespace Live2D.Cubism.Framework.Motion
             if(index == 0 && _motionStates.Count == 1)
             {
                 _isFinished = true;
+#if UNITY_2017_3_OR_NEWER
                 _motionStates[0].ClipMixer.GetInput(0).Pause();
+#else
+                _motionStates[0].ClipMixer.GetInput(0).SetPlayState(PlayState.Paused);
+#endif
                 return;
             }
 
             // Disconnect from previou state.
             var preMixer = (index == 0) ? PlayableOutput : _motionStates[index - 1].ClipMixer;
             var lastInput = (index == 0) ? 0 : _motionStates[index - 1].ClipMixer.GetInputCount() - 1;
+
+#if UNITY_2018_2_OR_NEWER
             preMixer.DisconnectInput(lastInput);
+#else
+            preMixer.GetGraph().Disconnect(preMixer, lastInput);
+#endif
 
             // Connect next state.
             if(index + 1 < _motionStates.Count)
             {
+#if UNITY_2018_2_OR_NEWER
                 _motionStates[index].ClipMixer.DisconnectInput(_motionStates[index].ClipMixer.GetInputCount() - 1);
+#else
+                _motionStates[index].ClipMixer.GetGraph().Disconnect(_motionStates[index].ClipMixer, _motionStates[index].ClipMixer.GetInputCount() - 1);
+#endif
 
                 preMixer.ConnectInput(lastInput, _motionStates[index + 1].ClipMixer, 0);
                 preMixer.SetInputWeight(lastInput, 1.0f);
@@ -246,7 +259,11 @@ namespace Live2D.Cubism.Framework.Motion
             }
             else
             {
+#if UNITY_2018_2_OR_NEWER
                 PlayableOutput.DisconnectInput(0);
+#else
+                PlayableOutput.GetGraph().Disconnect(PlayableOutput, 0);
+#endif
                 PlayableOutput.ConnectInput(0, state.ClipMixer, 0);
                 PlayableOutput.SetInputWeight(0, 1.0f);
             }

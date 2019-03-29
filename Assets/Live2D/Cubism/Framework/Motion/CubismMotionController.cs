@@ -255,7 +255,11 @@ namespace Live2D.Cubism.Framework.Motion
             }
             
             // Create Playable Graph.
+#if UNITY_2018_1_OR_NEWER
             _playableGrap = PlayableGraph.Create("Playable Graph : " + this.FindCubismModel().name);
+#else
+            _playableGrap = PlayableGraph.Create();
+#endif
             _playableGrap.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
 
             // Create Playable Output.
