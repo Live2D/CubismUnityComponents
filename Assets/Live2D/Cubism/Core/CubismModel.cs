@@ -174,6 +174,30 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// <see cref="CanvasInformation"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private CubismCanvasInformation _canvasInformation;
+
+        /// <summary>
+        /// Canvas information of model.
+        /// </summary>
+        public CubismCanvasInformation CanvasInformation
+        {
+            get
+            {
+                if (_canvasInformation == null)
+                {
+                    Revive();
+                }
+
+
+                return _canvasInformation;
+            }
+            private set { _canvasInformation = value; }
+        }
+
+        /// <summary>
         /// Parameter store cache.
         /// </summary>
         CubismParameterStore _parameterStore;
@@ -222,10 +246,11 @@ namespace Live2D.Cubism.Core
             Parts = GetComponentsInChildren<CubismPart>();
             Drawables = GetComponentsInChildren<CubismDrawable>();
 
-
             Parameters.Revive(TaskableModel.UnmanagedModel);
             Parts.Revive(TaskableModel.UnmanagedModel);
             Drawables.Revive(TaskableModel.UnmanagedModel);
+
+            CanvasInformation = new CubismCanvasInformation(TaskableModel.UnmanagedModel);
 
             _parameterStore = GetComponent<CubismParameterStore>();
         }
@@ -255,6 +280,8 @@ namespace Live2D.Cubism.Core
             Parameters = parameters.GetComponentsInChildren<CubismParameter>();
             Parts = parts.GetComponentsInChildren<CubismPart>();
             Drawables = drawables.GetComponentsInChildren<CubismDrawable>();
+
+            CanvasInformation = new CubismCanvasInformation(TaskableModel.UnmanagedModel);
         }
 
         /// <summary>
