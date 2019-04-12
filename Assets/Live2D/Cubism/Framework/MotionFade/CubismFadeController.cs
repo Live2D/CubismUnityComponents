@@ -137,8 +137,6 @@ namespace Live2D.Cubism.Framework.MotionFade
 
             var time = Time.time;
 
-            var isDoneAllFadeIn = true;
-
             // Calculate MotionFade.
             for (var i = 0; i < playingMotions.Count; i++)
             {
@@ -222,18 +220,10 @@ namespace Live2D.Cubism.Framework.MotionFade
                             fadeMotion.ParameterFadeInTimes[index], fadeMotion.ParameterFadeOutTimes[index],
                             motionWeight, DestinationParts[j].Opacity);
                 }
-
-
-                if (erapsedTime > fadeInTime)
-                {
-                    continue;
-                }
-                isDoneAllFadeIn = false;
             }
 
-            if (!isDoneAllFadeIn || !fadeState.GetStateTransitionFinished())
+            if (!fadeState.GetStateTransitionFinished())
             {
-                // Do not process any motion that has never finished fade-in.
                 return;
             }
 
@@ -250,7 +240,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                     continue;
                 }
 
-                // If fade-in of all motion has been completed, delete the motion that has been played back.
+                // If fade-in has been completed, delete the motion that has been played back.
                 fadeState.StopAnimation(i);
             }
         }

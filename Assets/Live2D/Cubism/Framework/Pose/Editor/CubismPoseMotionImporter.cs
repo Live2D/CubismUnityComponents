@@ -47,9 +47,10 @@ namespace Live2D.Cubism.Editor.Importers
         private static void OnModelImport(CubismModel3JsonImporter sender, CubismModel model)
         {
             var shouldImportAsOriginalWorkflow = CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow;
+            var pose3Json = sender.Model3Json.Pose3Json;
 
             // Fail silently...
-            if(!shouldImportAsOriginalWorkflow)
+            if(!shouldImportAsOriginalWorkflow || pose3Json == null)
             {
                 return;
             }
@@ -57,7 +58,6 @@ namespace Live2D.Cubism.Editor.Importers
             var assetsDirectoryPath = Application.dataPath.Replace("Assets", "");
             var assetPath = sender.AssetPath.Replace(assetsDirectoryPath, "");
             var fileReferences = sender.Model3Json.FileReferences;
-            var pose3Json = sender.Model3Json.Pose3Json;
 
             // Create pose animation clip
             var motions = new List<CubismModel3Json.SerializableMotion>();
