@@ -164,13 +164,13 @@ namespace Live2D.Cubism.Framework.Physics
 
             if (maxValue < parameter.Value)
             {
-                return result;
+                parameter.Value = maxValue;
             }
 
             var minValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
             if (minValue > parameter.Value)
             {
-                return result;
+                parameter.Value = minValue;
             }
 
             var minNormValue = Mathf.Min(normalizedMinimum, normalizedMaximum);
