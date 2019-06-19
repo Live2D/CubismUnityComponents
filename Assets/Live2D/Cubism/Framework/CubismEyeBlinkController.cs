@@ -74,6 +74,11 @@ namespace Live2D.Cubism.Framework
             // Get cubism update controller.
             _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
+        
+        /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder => 400;
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

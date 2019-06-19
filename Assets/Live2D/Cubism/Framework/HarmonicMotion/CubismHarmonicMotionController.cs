@@ -78,6 +78,11 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         }
 
         /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder => 600;
+        
+        /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
         public bool NeedsUpdateOnEditing => false;

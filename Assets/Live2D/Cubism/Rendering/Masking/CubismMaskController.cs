@@ -146,6 +146,11 @@ namespace Live2D.Cubism.Rendering.Masking
                     .SetMaskTexture(MaskTexture);
             }
         }
+        
+        /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder => 900;
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

@@ -16,6 +16,7 @@ using Live2D.Cubism.Framework.LookAt;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -52,7 +53,10 @@ namespace Live2D.Cubism.Framework
 
             // Set delegate.
             var components = model.GetComponents<ICubismUpdatable>();
-            foreach(var component in components)
+            var sortedComponents = new List<ICubismUpdatable>(components);
+            sortedComponents.Sort(CompareByExecutionOrder);
+            
+            foreach(var component in sortedComponents)
             {
 #if UNITY_EDITOR                
                 if (!Application.isPlaying && !component.NeedsUpdateOnEditing)
@@ -74,6 +78,10 @@ namespace Live2D.Cubism.Framework
 #endif
         }
 
+        private static int CompareByExecutionOrder(ICubismUpdatable a, ICubismUpdatable b)
+        {
+            return a.ExecutionOrder - b.ExecutionOrder;
+        }
 
         #region Unity Event Handling
 
