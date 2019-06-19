@@ -148,6 +148,11 @@ namespace Live2D.Cubism.Rendering.Masking
         }
 
         /// <summary>
+        /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
+        /// </summary>
+        public bool NeedsUpdateOnEditing => true;
+        
+        /// <summary>
         /// Called by cubism update controller. Updates <see cref="Junktions"/>.
         /// </summary>
         public void OnLateUpdate()

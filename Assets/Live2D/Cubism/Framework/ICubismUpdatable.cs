@@ -12,6 +12,7 @@ namespace Live2D.Cubism.Framework
     /// </summary>
     public interface ICubismUpdatable
     {
+        bool NeedsUpdateOnEditing { get; }
         void OnLateUpdate();
     }
 }
