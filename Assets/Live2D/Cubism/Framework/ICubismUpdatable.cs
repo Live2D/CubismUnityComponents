@@ -12,6 +12,8 @@ namespace Live2D.Cubism.Framework
     /// </summary>
     public interface ICubismUpdatable
     {
+        int ExecutionOrder { get; }
+        bool NeedsUpdateOnEditing { get; }
         void OnLateUpdate();
     }
 }

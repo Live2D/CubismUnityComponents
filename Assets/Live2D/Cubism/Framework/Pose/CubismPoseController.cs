@@ -211,7 +211,17 @@ namespace Live2D.Cubism.Framework.Pose
                 }
             }
         }
+        
+        /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismPoseController;
 
+        /// <summary>
+        /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
+        /// </summary>
+        public bool NeedsUpdateOnEditing => false;
+        
         /// <summary>
         /// Called by cubism update manager. Updates controller.
         /// </summary>

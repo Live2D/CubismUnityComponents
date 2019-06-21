@@ -134,6 +134,16 @@ namespace Live2D.Cubism.Framework.LookAt
         }
 
         /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismLookController;
+        
+        /// <summary>
+        /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
+        /// </summary>
+        public bool NeedsUpdateOnEditing => false;
+        
+        /// <summary>
         /// Called by cubism update controller. Updates controller.
         /// </summary>
         public void OnLateUpdate()
