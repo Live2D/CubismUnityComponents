@@ -79,7 +79,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => 500;
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismMouthController;
         
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

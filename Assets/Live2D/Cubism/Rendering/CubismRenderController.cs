@@ -452,7 +452,7 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => 800;
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismRenderController;
         
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

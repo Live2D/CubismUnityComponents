@@ -97,7 +97,7 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => 300;
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismExpressionController;
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

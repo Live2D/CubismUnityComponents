@@ -54,7 +54,7 @@ namespace Live2D.Cubism.Framework
             // Set delegate.
             var components = model.GetComponents<ICubismUpdatable>();
             var sortedComponents = new List<ICubismUpdatable>(components);
-            sortedComponents.Sort(CompareByExecutionOrder);
+            CubismUpdateExecutionOrder.SortByExecutionOrder(sortedComponents);
             
             foreach(var component in sortedComponents)
             {
@@ -76,11 +76,6 @@ namespace Live2D.Cubism.Framework
 #if UNITY_EDITOR
             }
 #endif
-        }
-
-        private static int CompareByExecutionOrder(ICubismUpdatable a, ICubismUpdatable b)
-        {
-            return a.ExecutionOrder - b.ExecutionOrder;
         }
 
         #region Unity Event Handling

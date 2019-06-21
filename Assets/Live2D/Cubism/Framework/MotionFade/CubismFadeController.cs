@@ -92,7 +92,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => 100;
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismFadeController;
         
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.

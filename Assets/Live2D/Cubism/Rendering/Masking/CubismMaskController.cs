@@ -150,7 +150,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => 900;
+        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismMaskController;
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
