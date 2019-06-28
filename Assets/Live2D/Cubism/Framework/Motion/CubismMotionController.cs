@@ -137,6 +137,21 @@ namespace Live2D.Cubism.Framework.Motion
         }
 
         /// <summary>
+        /// Is playing animation.
+        /// </summary>
+        /// <returns>True if the animation is playing.</returns>
+        public bool IsPlayingAnimation(int layerIndex = 0)
+        {
+            // Fail silently...
+            if(layerIndex < 0 || layerIndex >= LayerCount)
+            {
+                return false;
+            }
+
+            return _motionLayers[layerIndex].IsFinished;
+        }
+        
+        /// <summary>
         /// Set layer weight.
         /// </summary>
         /// <param name="layerIndex">layer index.</param>
