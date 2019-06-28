@@ -184,7 +184,7 @@ namespace Live2D.Cubism.Framework.Motion
             ret._playableGraph = playableGraph;
             ret._cubismFadeMotionList = fadeMotionList;
             ret._layerWeight = layerWeight;
-            ret._isFinished = false;
+            ret._isFinished = true;
             ret._motionStates = new List<CubismMotionState>();
             ret._playingMotions = new List<CubismFadePlayingMotion>();
             ret.PlayableOutput = AnimationMixerPlayable.Create(playableGraph, 1);
