@@ -148,7 +148,7 @@ namespace Live2D.Cubism.Framework.Motion
                 return false;
             }
 
-            return _motionLayers[layerIndex].IsFinished;
+            return !_motionLayers[layerIndex].IsFinished;
         }
         
         /// <summary>
