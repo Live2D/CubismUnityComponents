@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -81,12 +81,12 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
         public int ExecutionOrder => CubismUpdateExecutionOrder.CubismHarmonicMotionController;
-        
+
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
         public bool NeedsUpdateOnEditing => false;
-        
+
         /// <summary>
         /// Called by cubism update controller. Updates controller.
         /// </summary>

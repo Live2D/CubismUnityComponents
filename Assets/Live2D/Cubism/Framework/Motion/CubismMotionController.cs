@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -33,9 +33,11 @@ namespace Live2D.Cubism.Framework.Motion
         /// <summary>
         /// Action OnAnimationEnd.
         /// </summary>
-        private void OnAnimationEnd(float instanceId)
+        private void OnAnimationEnd(int layerIndex, float instanceId)
         {
-            if(AnimationEndHandler != null)
+            _motionPriorities[layerIndex] = CubismMotionPriority.PriorityNone;
+
+            if (AnimationEndHandler != null)
             {
                 AnimationEndHandler(instanceId);
             }
@@ -80,6 +82,11 @@ namespace Live2D.Cubism.Framework.Motion
         /// </summary>
         private CubismMotionLayer[] _motionLayers;
 
+        /// <summary>
+        /// Cubism motion priorities.
+        /// </summary>
+        private int[] _motionPriorities;
+
         #endregion Variable
 
         #region Function
@@ -91,15 +98,18 @@ namespace Live2D.Cubism.Framework.Motion
         /// <param name="layerIndex">layer index.</param>
         /// <param name="isLoop">Animation is loop.</param>
         /// <param name="speed">Animation speed.</param>
-        public void PlayAnimation(AnimationClip clip, int layerIndex = 0, bool isLoop = true, float speed = 1.0f)
+        public void PlayAnimation(AnimationClip clip, int layerIndex = 0, int priority = CubismMotionPriority.PriorityNormal, bool isLoop = true, float speed = 1.0f)
         {
             // Fail silently...
             if(!enabled || !_isActive || _cubismFadeMotionList == null || clip == null
-               || layerIndex < 0 || layerIndex >= LayerCount)
+               || layerIndex < 0 || layerIndex >= LayerCount ||
+               ((_motionPriorities[layerIndex] >= priority) && (priority != CubismMotionPriority.PriorityForce)))
             {
+                Debug.Log("can't start motion.");
                 return;
             }
 
+            _motionPriorities[layerIndex] = priority;
             _motionLayers[layerIndex].PlayAnimation(clip, isLoop, speed);
 
             // Play Playable Graph
@@ -150,7 +160,7 @@ namespace Live2D.Cubism.Framework.Motion
 
             return !_motionLayers[layerIndex].IsFinished;
         }
-        
+
         /// <summary>
         /// Set layer weight.
         /// </summary>
@@ -227,6 +237,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 LayerCount = (LayerCount < 1) ? 1 : LayerCount;
                 _motionLayers = new CubismMotionLayer[LayerCount];
+                _motionPriorities = new int[LayerCount];
             }
 
             return _motionLayers;
@@ -268,7 +279,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 graph.GetOutput(0).SetWeight(0);
             }
-            
+
             // Create Playable Graph.
 #if UNITY_2018_1_OR_NEWER
             _playableGrap = PlayableGraph.Create("Playable Graph : " + this.FindCubismModel().name);
@@ -289,11 +300,12 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 LayerCount = (LayerCount < 1) ? 1 : LayerCount;
                 _motionLayers = new CubismMotionLayer[LayerCount];
+                _motionPriorities = new int[LayerCount];
             }
 
             for(var i = 0; i < LayerCount; ++i)
             {
-                _motionLayers[i] = CubismMotionLayer.CreateCubismMotionLayer(_playableGrap, _cubismFadeMotionList);
+                _motionLayers[i] = CubismMotionLayer.CreateCubismMotionLayer(_playableGrap, _cubismFadeMotionList, i);
                 _motionLayers[i].AnimationEndHandler += OnAnimationEnd;
                 _layerMixer.ConnectInput(i, _motionLayers[i].PlayableOutput, 0);
                 _layerMixer.SetInputWeight(i, 1.0f);
@@ -330,6 +342,11 @@ namespace Live2D.Cubism.Framework.Motion
             for( var i = 0; i < _motionLayers.Length; ++i)
             {
                 _motionLayers[i].Update();
+
+                if (_motionLayers[i].IsFinished)
+                {
+                    _motionPriorities[i] = 0;
+                }
             }
         }
 

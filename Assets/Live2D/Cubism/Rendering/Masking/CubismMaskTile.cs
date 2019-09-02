@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -42,7 +42,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Valid values are 0f, 1f, 2, and 3f.
         /// </remarks>
         public float Channel;
-        
+
         /// <summary>
         /// Column index of the tile in subdivided texture.
         /// </summary>

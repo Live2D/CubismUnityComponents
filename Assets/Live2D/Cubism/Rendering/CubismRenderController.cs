@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -387,10 +387,10 @@ namespace Live2D.Cubism.Rendering
 
 
                 renderers = drawables.AddComponentEach<CubismRenderer>();
-                
+
                 // Store renderers.
                 Renderers = renderers;
-                
+
             }
 
 
@@ -453,12 +453,12 @@ namespace Live2D.Cubism.Rendering
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
         public int ExecutionOrder => CubismUpdateExecutionOrder.CubismRenderController;
-        
+
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
         public bool NeedsUpdateOnEditing => true;
-        
+
         /// <summary>
         /// Called by cubism update controller. Applies billboarding.
         /// </summary>
@@ -537,7 +537,7 @@ namespace Live2D.Cubism.Rendering
         #region Cubism Event Handling
 
         /// <summary>
-        /// Called by Unity. 
+        /// Called by Unity.
         /// </summary>
         private void LateUpdate()
         {
@@ -548,7 +548,7 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Called whenever new render data is available. 
+        /// Called whenever new render data is available.
         /// </summary>
         /// <param name="sender">Model with new render data.</param>
         /// <param name="data">New render data.</param>
@@ -594,8 +594,8 @@ namespace Live2D.Cubism.Rendering
                 if (data[i].IsRenderOrderDirty)
                 {
                     renderers[i].OnDrawableRenderOrderDidChange(data[i].RenderOrder);
-                    
-                    
+
+
                     swapMeshes = true;
                 }
 

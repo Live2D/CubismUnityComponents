@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -63,6 +63,31 @@ namespace Live2D.Cubism.Rendering
         public static Material UnlitMultiplyMasked
         {
             get { return LoadUnlitMaterial("UnlitMultiplyMasked"); }
+        }
+
+
+        /// <summary>
+        /// Default unlit masked inverted material.
+        /// </summary>
+        public static Material UnlitMaskedInverted
+        {
+            get { return LoadUnlitMaterial("UnlitMaskedInverted"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked inverted, additively blending material.
+        /// </summary>
+        public static Material UnlitAdditiveMaskedInverted
+        {
+            get { return LoadUnlitMaterial("UnlitAdditiveMaskedInverted"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked inverted, multiply blending material.
+        /// </summary>
+        public static Material UnlitMultiplyMaskedInverted
+        {
+            get { return LoadUnlitMaterial("UnlitMultiplyMaskedInverted"); }
         }
 
 

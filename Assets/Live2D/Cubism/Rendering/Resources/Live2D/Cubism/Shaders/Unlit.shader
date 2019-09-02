@@ -1,8 +1,8 @@
-﻿/*
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -13,7 +13,7 @@ Shader "Live2D Cubism/Unlit"
 		// Texture and model opacity settings.
 		[PerRendererData] _MainTex("Main Texture", 2D) = "white" {}
 		[PerRendererData] cubism_ModelOpacity("Model Opacity", Float) = 1
-	
+
 
 		// Blend settings.
 		_SrcColor("Source Color", Int)		= 0
@@ -24,6 +24,7 @@ Shader "Live2D Cubism/Unlit"
 
 		// Mask settings.
 		[Toggle(CUBISM_MASK_ON)] cubism_MaskOn("Mask?", Int) = 0
+		[Toggle(CUBISM_INVERT_ON)] cubism_InvertOn("Inverted?", Int) = 0
 		[PerRendererData] cubism_MaskTexture("cubism_Internal", 2D) = "white" {}
 		[PerRendererData] cubism_MaskTile("cubism_Internal", Vector) = (0, 0, 0, 0)
 		[PerRendererData] cubism_MaskTransform("cubism_Internal", Vector) = (0, 0, 0, 0)
@@ -49,8 +50,8 @@ Shader "Live2D Cubism/Unlit"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile CUBISM_MASK_ON CUBISM_MASK_OFF
-			
+			#pragma multi_compile CUBISM_MASK_ON CUBISM_MASK_OFF CUBISM_INVERT_ON
+
 
 			#include "UnityCG.cginc"
 			#include "CubismCG.cginc"
@@ -78,7 +79,7 @@ Shader "Live2D Cubism/Unlit"
 
 
 			sampler2D _MainTex;
-			
+
 
 			// Include Cubism specific shader variables.
 			CUBISM_SHADER_VARIABLES
@@ -104,12 +105,12 @@ Shader "Live2D Cubism/Unlit"
 
 				return OUT;
 			}
-			
+
 
 			fixed4 frag (v2f IN) : SV_Target
 			{
 				fixed4 OUT = tex2D(_MainTex, IN.texcoord) * IN.color;
-				
+
 
 				// Apply Cubism alpha to color.
 				CUBISM_APPLY_ALPHA(IN, OUT);

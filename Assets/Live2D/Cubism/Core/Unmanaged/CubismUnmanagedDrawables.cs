@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -23,78 +23,78 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Drawable count.
         /// </summary>>
         public int Count { get; private set; }
-        
+
         /// <summary>
         /// Drawable IDs.
         /// </summary>>
         public string[] Ids { get; private set; }
-        
+
         /// <summary>
         /// Constant drawable flags.
         /// </summary>>
         public CubismUnmanagedByteArrayView ConstantFlags { get; private set; }
-        
+
         /// <summary>
         /// Dynamic drawable flags.
         /// </summary>>
         public CubismUnmanagedByteArrayView DynamicFlags { get; private set; }
-        
+
         /// <summary>
         /// Drawable texture indices.
         /// </summary>>
         public CubismUnmanagedIntArrayView TextureIndices { get; private set; }
-        
+
         /// <summary>
         /// Drawable draw orders.
         /// </summary>>
         public CubismUnmanagedIntArrayView DrawOrders { get; private set; }
-        
+
         /// <summary>
         /// Drawable render orders.
         /// </summary>>
         public CubismUnmanagedIntArrayView RenderOrders { get; private set; }
-        
+
         /// <summary>
         /// Drawable opacities.
         /// </summary>>
         public CubismUnmanagedFloatArrayView Opacities { get; private set; }
-        
+
         /// <summary>
         /// Mask count for each drawable.
         /// </summary>>
         public CubismUnmanagedIntArrayView MaskCounts { get; private set; }
-        
+
         /// <summary>
         /// Masks for each drawable.
         /// </summary>>
         public CubismUnmanagedIntArrayView[] Masks { get; private set; }
-        
+
         /// <summary>
         /// Number of vertices of each drawable.
         /// </summary>>
         public CubismUnmanagedIntArrayView VertexCounts { get; private set; }
-        
+
         /// <summary>
         /// 2D vertex position data of each drawable.
         /// </summary>>
         public CubismUnmanagedFloatArrayView[] VertexPositions { get; private set; }
-        
+
         /// <summary>
         /// 2D texture coordinate data of each drawables.
         /// </summary>>
         public CubismUnmanagedFloatArrayView[] VertexUvs { get; private set; }
-        
+
         /// <summary>
         /// Number of triangle indices for each drawable.
         /// </summary>>
         public CubismUnmanagedIntArrayView IndexCounts { get; private set; }
-        
+
         /// <summary>
         /// Triangle index data for each drawable.
         /// </summary>>
         public CubismUnmanagedUshortArrayView[] Indices { get; private set; }
-        
-        
+
+
         /// <summary>
         /// Resets all dynamic drawable flags.
         /// </summary>

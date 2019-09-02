@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -38,7 +38,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
         /// <summary>
-        /// Callback on Cubism motions import as<see cref="AnimationClip"/>. 
+        /// Callback on Cubism motions import as<see cref="AnimationClip"/>.
         /// </summary>
         /// <param name="importer">Importer.</param>
         /// <param name="animationClip">Generated animation.</param>
@@ -74,7 +74,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
         /// <summary>
-        /// Allows getting called back whenever a Cubism motions is imported (and before it is saved). 
+        /// Allows getting called back whenever a Cubism motions is imported (and before it is saved).
         /// </summary>
         public static event MotionImportHandler OnDidImportMotion;
 

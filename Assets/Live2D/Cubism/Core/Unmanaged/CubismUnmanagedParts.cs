@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -23,18 +23,23 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Part count.
         /// </summary>>
         public int Count { get; private set; }
-        
+
         /// <summary>
         /// Part IDs.
         /// </summary>>
         public string[] Ids { get; private set; }
-        
+
         /// <summary>
         /// Opacity values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView Opacities { get; private set; }
-        
-        
+
+        /// <summary>
+        /// Part's parent part indices.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView ParentIndices { get; private set; }
+
+
 
         #region Ctors
 
@@ -60,6 +65,9 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetPartCount(modelPtr);
             Opacities = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetPartOpacities(modelPtr), length);
+
+            length = CubismCoreDll.GetPartCount(modelPtr);
+            ParentIndices = new CubismUnmanagedIntArrayView(CubismCoreDll.GetPartParentPartIndices(modelPtr), length);
 
         }
 

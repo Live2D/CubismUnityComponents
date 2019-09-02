@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -116,7 +116,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             var sourceAddress = (int*)Address.ToPointer();
             var destinationLength = buffer.Length;
-            
+
 
             // Assert buffer.Length >= Length
             if (destinationLength < Length)
@@ -131,7 +131,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             }
 
 
-            // Read data into managed.           
+            // Read data into managed.
             fixed (int* destinationAddress = buffer)
             {
                 for (var i = 0; i < Length; ++i)
@@ -278,7 +278,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             var sourceAddress = (ushort*)Address.ToPointer();
             var destinationLength = buffer.Length;
-            
+
 
             // Assert buffer.Length >= Length
             if (destinationLength < Length)
@@ -293,7 +293,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             }
 
 
-            // Read data into managed.           
+            // Read data into managed.
             fixed (ushort* destinationAddress = buffer)
             {
                 for (var i = 0; i < Length; ++i)
@@ -440,7 +440,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             var sourceAddress = (Byte*)Address.ToPointer();
             var destinationLength = buffer.Length;
-            
+
 
             // Assert buffer.Length >= Length
             if (destinationLength < Length)
@@ -455,7 +455,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             }
 
 
-            // Read data into managed.           
+            // Read data into managed.
             fixed (Byte* destinationAddress = buffer)
             {
                 for (var i = 0; i < Length; ++i)
@@ -602,7 +602,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             var sourceAddress = (float*)Address.ToPointer();
             var destinationLength = buffer.Length;
-            
+
 
             // Assert buffer.Length >= Length
             if (destinationLength < Length)
@@ -617,7 +617,7 @@ namespace Live2D.Cubism.Core.Unmanaged
             }
 
 
-            // Read data into managed.           
+            // Read data into managed.
             fixed (float* destinationAddress = buffer)
             {
                 for (var i = 0; i < Length; ++i)

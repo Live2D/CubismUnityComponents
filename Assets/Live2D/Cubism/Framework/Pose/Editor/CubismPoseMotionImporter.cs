@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -62,15 +62,14 @@ namespace Live2D.Cubism.Editor.Importers
             // Create pose animation clip
             var motions = new List<CubismModel3Json.SerializableMotion>();
 
-            if(fileReferences.Motions.Idle != null)
+            if (fileReferences.Motions.GroupNames != null)
             {
-                motions.AddRange(fileReferences.Motions.Idle);
+                for (var i = 0; i < fileReferences.Motions.GroupNames.Length; i++)
+                {
+                    motions.AddRange(fileReferences.Motions.Motions[i]);
+                }
             }
 
-            if(fileReferences.Motions.TapBody != null)
-            {
-                motions.AddRange(fileReferences.Motions.TapBody);
-            }
 
             for(var i = 0; i < motions.Count; ++i)
             {
@@ -148,7 +147,7 @@ namespace Live2D.Cubism.Editor.Importers
                     fadeMotion = CubismFadeMotionData.CreateInstance(motion3Json, fadeMotionPath.Replace(directoryPath, ""),
                                                                     newAnimationClip.length, shouldImportAsOriginalWorkflow, true);
 
-                    AssetDatabase.CreateAsset(fadeMotion, fadeMotionPath); 
+                    AssetDatabase.CreateAsset(fadeMotion, fadeMotionPath);
 
                     EditorUtility.SetDirty(fadeMotion);
 
@@ -243,14 +242,14 @@ namespace Live2D.Cubism.Editor.Importers
                 for (var partIndex = 0; partIndex < group.Length; ++partIndex)
                 {
                     var part = parts.FindById(group[partIndex].Id);
-                    
+
                     if(part == null)
                     {
                         continue;
                     }
 
                     var posePart = part.gameObject.GetComponent<CubismPosePart>();
-                    
+
                     if(posePart == null)
                     {
                         posePart = part.gameObject.AddComponent<CubismPosePart>();

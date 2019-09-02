@@ -1,9 +1,9 @@
-
-/*
+﻿
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -25,7 +25,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 0)) == (1 << 0);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -35,7 +35,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 1)) == (1 << 1);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -45,7 +45,17 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 2)) == (1 << 2);
         }
-        
+
+        /// <summary>
+        /// Checks whether flag is set.
+        /// </summary>
+        /// <param name="self">Bit field.</param>
+        /// <returns><see langword="true"/> if bit is set; <see langword="false"/> otherwise.</returns>
+        public static bool HasIsInvertedMaskFlag(this byte self)
+        {
+            return (self & (1 << 3)) == (1 << 3);
+        }
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -55,7 +65,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 0)) == (1 << 0);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -65,7 +75,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 1)) == (1 << 1);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -75,7 +85,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 2)) == (1 << 2);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -85,7 +95,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 3)) == (1 << 3);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -95,7 +105,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 4)) == (1 << 4);
         }
-        
+
         /// <summary>
         /// Checks whether flag is set.
         /// </summary>
@@ -105,6 +115,6 @@ namespace Live2D.Cubism.Core.Unmanaged
         {
             return (self & (1 << 5)) == (1 << 5);
         }
-        
+
     }
 }

@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -23,33 +23,33 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Parameter count.
         /// </summary>>
         public int Count { get; private set; }
-        
+
         /// <summary>
         /// Parameter IDs.
         /// </summary>>
         public string[] Ids { get; private set; }
-        
+
         /// <summary>
         /// Minimum parameter values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView MinimumValues { get; private set; }
-        
+
         /// <summary>
         /// Maximum parameter values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView MaximumValues { get; private set; }
-        
+
         /// <summary>
         /// Default parameter values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView DefaultValues { get; private set; }
-        
+
         /// <summary>
         /// Parameter values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView Values { get; private set; }
-        
-        
+
+
 
         #region Ctors
 
