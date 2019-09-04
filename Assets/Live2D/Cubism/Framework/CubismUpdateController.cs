@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 using Live2D.Cubism.Core;
@@ -16,6 +16,7 @@ using Live2D.Cubism.Framework.LookAt;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -50,130 +51,32 @@ namespace Live2D.Cubism.Framework
             // Clear delegate.
             Delegate.RemoveAll(OnLateUpdate, null);
 
-            ICubismUpdatable renderController = null;
-            ICubismUpdatable maskController = null;
-            ICubismUpdatable fadeController = null;
-            ICubismUpdatable poseController = null;
-            ICubismUpdatable expressionController = null;
-            ICubismUpdatable eyeBlinkController = null;
-            ICubismUpdatable mouthController = null;
-            ICubismUpdatable harmonicMotionController = null;
-            ICubismUpdatable lookController = null;
-
-            // Find cubism components.
+            // Set delegate.
             var components = model.GetComponents<ICubismUpdatable>();
-            foreach(var component in components)
+            var sortedComponents = new List<ICubismUpdatable>(components);
+            CubismUpdateExecutionOrder.SortByExecutionOrder(sortedComponents);
+
+            foreach(var component in sortedComponents)
             {
-                if (component.GetType() == typeof(CubismRenderController))
-                {
-                    renderController = component;
-                }
-                else if (component.GetType() == typeof(CubismMaskController))
-                {
-                    maskController = component;
-                }
 #if UNITY_EDITOR
-                else if (!Application.isPlaying)
+                if (!Application.isPlaying && !component.NeedsUpdateOnEditing)
                 {
                     continue;
                 }
 #endif
-                else if (component.GetType() == typeof(CubismFadeController))
-                {
-                    fadeController = component;
-                }
-                else if (component.GetType() == typeof(CubismPoseController))
-                {
-                    poseController = component;
-                }
-                else if (component.GetType() == typeof(CubismExpressionController))
-                {
-                    expressionController = component;
-                }
-                else if (component.GetType() == typeof(CubismEyeBlinkController))
-                {
-                    eyeBlinkController = component;
-                }
-                else if (component.GetType() == typeof(CubismMouthController))
-                {
-                    mouthController = component;
-                }
-                else if (component.GetType() == typeof(CubismHarmonicMotionController))
-                {
-                    harmonicMotionController = component;
-                }
-                else if(component.GetType() == typeof(CubismLookController))
-                {
-                    lookController = component;
-                }
+
+                OnLateUpdate += component.OnLateUpdate;
             }
 
 #if UNITY_EDITOR
-            // Application is playing.
-            if(Application.isPlaying)
+            if (Application.isPlaying)
             {
 #endif
-                // Cache parameter save restore.
                 _parameterStore = model.GetComponent<CubismParameterStore>();
-
-                // Add fade controller late update.
-                if (fadeController != null)
-                {
-                    OnLateUpdate += fadeController.OnLateUpdate;
-                }
-
-                // Add pose controller late update.
-                if (poseController != null)
-                {
-                    OnLateUpdate += poseController.OnLateUpdate;
-                }
-
-                // Add expression controller late update.
-                if (expressionController != null)
-                {
-                    OnLateUpdate += expressionController.OnLateUpdate;
-                }
-
-                // Add eye blink controller late update.
-                if (eyeBlinkController != null)
-                {
-                    OnLateUpdate += eyeBlinkController.OnLateUpdate;
-                }
-
-                // Add mouth controller late update.
-                if (mouthController != null)
-                {
-                    OnLateUpdate += mouthController.OnLateUpdate;
-                }
-
-                // Add harmonic motion controller late update.
-                if (harmonicMotionController != null)
-                {
-                    OnLateUpdate += harmonicMotionController.OnLateUpdate;
-                }
-
-                // Add look controller late update.
-                if (lookController != null)
-                {
-                    OnLateUpdate += lookController.OnLateUpdate;
-                }
 #if UNITY_EDITOR
             }
 #endif
-
-            // Add render late update.
-            if (renderController != null)
-            {
-                OnLateUpdate += renderController.OnLateUpdate;
-            }
-
-            // Add mask controller late update.
-            if (maskController != null)
-            {
-                OnLateUpdate += maskController.OnLateUpdate;
-            }
         }
-
 
         #region Unity Event Handling
 

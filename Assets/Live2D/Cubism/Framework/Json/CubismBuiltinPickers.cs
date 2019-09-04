@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -29,7 +29,7 @@ namespace Live2D.Cubism.Framework.Json
             if (drawable.BlendAdditive)
             {
                 return (drawable.IsMasked)
-                    ? CubismBuiltinMaterials.UnlitAdditiveMasked
+                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitAdditiveMaskedInverted : CubismBuiltinMaterials.UnlitAdditiveMasked
                     : CubismBuiltinMaterials.UnlitAdditive;
             }
 
@@ -37,13 +37,13 @@ namespace Live2D.Cubism.Framework.Json
             if (drawable.MultiplyBlend)
             {
                 return (drawable.IsMasked)
-                    ? CubismBuiltinMaterials.UnlitMultiplyMasked
+                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMultiplyMaskedInverted : CubismBuiltinMaterials.UnlitMultiplyMasked
                     : CubismBuiltinMaterials.UnlitMultiply;
             }
 
 
             return (drawable.IsMasked)
-                ? CubismBuiltinMaterials.UnlitMasked
+                ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMaskedInverted : CubismBuiltinMaterials.UnlitMasked
                 : CubismBuiltinMaterials.Unlit;
         }
 

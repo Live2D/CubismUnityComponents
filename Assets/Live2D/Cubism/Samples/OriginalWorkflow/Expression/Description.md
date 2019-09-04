@@ -1,4 +1,4 @@
-﻿# Expression
+# Expression
 
 This example shows a simple facial expression reproduction of a Cubism model with OriginalWorkflow.
 

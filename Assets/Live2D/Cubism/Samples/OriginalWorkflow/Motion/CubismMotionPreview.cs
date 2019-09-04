@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -16,6 +16,11 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Motion
     public class CubismMotionPreview : MonoBehaviour
     {
         /// <summary>
+        ///
+        /// </summary>
+        public AnimationClip Animation;
+
+        /// <summary>
         /// MotionController to be operated.
         /// </summary>
         CubismMotionController _motionController;
@@ -28,6 +33,13 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Motion
             var model = this.FindCubismModel();
 
             _motionController = model.GetComponent<CubismMotionController>();
+
+            if (Animation == null)
+            {
+                return;
+            }
+
+            _motionController.PlayAnimation(Animation, priority: CubismMotionPriority.PriorityIdle, isLoop: false);
         }
 
         /// <summary>

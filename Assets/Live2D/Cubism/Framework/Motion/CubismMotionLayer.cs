@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 using Live2D.Cubism.Framework.MotionFade;
@@ -24,7 +24,7 @@ namespace Live2D.Cubism.Framework.Motion
         /// <summary>
         /// Action animation end handler.
         /// </summary>
-        public Action<float> AnimationEndHandler;
+        public Action<int, float> AnimationEndHandler;
 
         #endregion
 
@@ -54,6 +54,11 @@ namespace Live2D.Cubism.Framework.Motion
         /// List of cubism fade motion.
         /// </summary>
         private CubismFadeMotionList _cubismFadeMotionList;
+
+        /// <summary>
+        /// Layer index.
+        /// </summary>
+        private int _layerIndex;
 
         /// <summary>
         /// Layer weight.
@@ -177,14 +182,15 @@ namespace Live2D.Cubism.Framework.Motion
         /// <param name="playableGraph">.</param>
         /// <param name="fadeMotionList">.</param>
         /// <param name="layerWeight">.</param>
-        public static CubismMotionLayer CreateCubismMotionLayer(PlayableGraph playableGraph, CubismFadeMotionList fadeMotionList, float layerWeight = 1.0f)
+        public static CubismMotionLayer CreateCubismMotionLayer(PlayableGraph playableGraph, CubismFadeMotionList fadeMotionList, int layerIndex, float layerWeight = 1.0f)
         {
             var ret = new CubismMotionLayer();
 
             ret._playableGraph = playableGraph;
             ret._cubismFadeMotionList = fadeMotionList;
+            ret._layerIndex = layerIndex;
             ret._layerWeight = layerWeight;
-            ret._isFinished = false;
+            ret._isFinished = true;
             ret._motionStates = new List<CubismMotionState>();
             ret._playingMotions = new List<CubismFadePlayingMotion>();
             ret.PlayableOutput = AnimationMixerPlayable.Create(playableGraph, 1);
@@ -319,7 +325,7 @@ namespace Live2D.Cubism.Framework.Motion
                 return;
             }
 
-            var playingMotionData = _playingMotions[index]; 
+            var playingMotionData = _playingMotions[index];
             playingMotionData.Speed = speed;
             playingMotionData.EndTime = (playingMotionData.EndTime - Time.time) / speed;
             _playingMotions[index] = playingMotionData;
@@ -375,7 +381,7 @@ namespace Live2D.Cubism.Framework.Motion
                 instanceId = events[i].intParameter;
             }
 
-            AnimationEndHandler(instanceId);
+            AnimationEndHandler(_layerIndex, instanceId);
         }
     }
 }

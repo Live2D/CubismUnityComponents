@@ -1,4 +1,4 @@
-﻿# Demo
+# Demo
 
 This example implements each function by OriginalWorkflow.
 

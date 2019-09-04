@@ -20,3 +20,6 @@ Temp/
 !Assets/Live2D/Cubism/Samples/**/*.txt
 
 !ChangeLogs/**/*.md
+
+!.gitattributes
+!.editorconfig

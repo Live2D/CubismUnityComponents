@@ -1,8 +1,8 @@
-/*
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -75,7 +75,7 @@ inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float2 coord
 }
 
 
-#if defined (CUBISM_MASK_ON)
+#if defined (CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
 #define CUBISM_MASK_SHADER_VARIABLES \
   sampler2D cubism_MaskTexture;        \
   float4 cubism_MaskTile;              \
@@ -90,25 +90,34 @@ inline float CubismSampleMaskTexture(sampler2D tex, float4 channel, float2 coord
 #define CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT) OUT.cubism_MaskCoordinates = CubismToMaskCoordinates(IN.vertex, cubism_MaskTile, cubism_MaskTransform);
 
 
-#define CUBISM_APPLY_MASK(IN, COLOR)                                                                                  \
+#if defined(CUBISM_INVERT_ON)
+#define CUBISM_APPLY_MASK(IN, COLOR)                                                                                    \
+  float4 cubism_maskChannel = CubismGetClippedMaskChannel(IN.cubism_MaskCoordinates, cubism_MaskTile);                  \
+  float  cubism_maskAlpha = CubismSampleMaskTexture(cubism_MaskTexture, cubism_maskChannel, IN.cubism_MaskCoordinates); \
+                                                                                                                        \
+                                                                                                                        \
+  COLOR *= 1.0 - cubism_maskAlpha;
+#else
+#define CUBISM_APPLY_MASK(IN, COLOR)                                                                                    \
   float4 cubism_maskChannel = CubismGetClippedMaskChannel(IN.cubism_MaskCoordinates, cubism_MaskTile);                  \
   float  cubism_maskAlpha = CubismSampleMaskTexture(cubism_MaskTexture, cubism_maskChannel, IN.cubism_MaskCoordinates); \
                                                                                                                         \
                                                                                                                         \
   COLOR *= cubism_maskAlpha;
+#endif
 #else
-#define CUBISM_MASK_SHADER_VARIABLES 
+#define CUBISM_MASK_SHADER_VARIABLES
 
 
-#define CUBISM_TO_MASK_CLIP_POS(IN, OUT) 
+#define CUBISM_TO_MASK_CLIP_POS(IN, OUT)
 #define CUBISM_MASK_CHANNEL float4(1, 1, 1, 1)
 
 
-#define CUBISM_VERTEX_OUTPUT 
-#define CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT) 
+#define CUBISM_VERTEX_OUTPUT
+#define CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT)
 
 
-#define CUBISM_APPLY_MASK(IN, COLOR) 
+#define CUBISM_APPLY_MASK(IN, COLOR)
 #endif
 
 

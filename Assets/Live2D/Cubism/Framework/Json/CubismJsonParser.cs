@@ -1,4 +1,4 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -20,8 +20,8 @@ namespace Live2D.Cubism.Framework.Json
     /// Specification is a subset of JSON.
     ///
     /// Unsupported item.
-    /// · Non-ASCII characters such as Japanese.
-    /// · Exponential representation by e.
+    /// - Non-ASCII characters such as Japanese.
+    /// - Exponential representation by e.
     /// </summary>
     public class CubismJsonParser
     {
@@ -203,7 +203,7 @@ namespace Live2D.Cubism.Framework.Json
 
             // loop till , is lasting
             for (; i < length; i++)
-            { 
+            {
                 // FOR_LOOP1:
                 for (; i < length; i++)
                 {
@@ -475,7 +475,7 @@ namespace Live2D.Cubism.Framework.Json
                         if (i + 4 < length) obj = new Value(false);
                         else throw new Exception("parse false");
                         return obj;
-                    case ',': // Array separator    
+                    case ',': // Array separator
                         throw new Exception("illegal ',' position");
                     case '\n': line_count++;
                         break;
@@ -568,7 +568,7 @@ namespace Live2D.Cubism.Framework.Json
         #endregion
 
         #region toInt
-        
+
         /// <summary>
         /// Value to int.
         /// </summary>

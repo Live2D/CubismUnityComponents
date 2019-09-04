@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -30,7 +30,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         [SerializeField]
         public CubismPhysicsOutput[] Output;
-        
+
         /// <summary>
         /// Particles.
         /// </summary>
@@ -42,7 +42,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         [SerializeField]
         public CubismPhysicsNormalization Normalization;
-        
+
         /// <summary>
         /// Rig.
         /// </summary>
@@ -54,8 +54,8 @@ namespace Live2D.Cubism.Framework.Physics
 
         [NonSerialized]
         private CubismPhysicsRig _rig;
-        
-        
+
+
         /// <summary>
         /// Updates parameter from output value.
         /// </summary>
@@ -65,7 +65,7 @@ namespace Live2D.Cubism.Framework.Physics
         private void UpdateOutputParameterValue(CubismParameter parameter, float translation, CubismPhysicsOutput output)
         {
             var outputScale = 1.0f;
-            
+
             outputScale = output.GetScale();
 
             var value = translation * outputScale;
@@ -126,7 +126,7 @@ namespace Live2D.Cubism.Framework.Physics
             )
         {
             strand[0].Position = totalTranslation;
-            
+
             var totalRadian = CubismPhysicsMath.DegreesToRadian(totalAngle);
             var currentGravity = CubismPhysicsMath.RadianToDirection(totalRadian);
             currentGravity.Normalize();
@@ -143,7 +143,7 @@ namespace Live2D.Cubism.Framework.Physics
                 var direction = strand[i].Position - strand[i - 1].Position;
                 var radian = CubismPhysicsMath.DirectionToRadian(strand[i].LastGravity, currentGravity) / CubismPhysics.AirResistance;
 
-                
+
                 direction.x = ((Mathf.Cos(radian) * direction.x) - (direction.y * Mathf.Sin(radian)));
                 direction.y = ((Mathf.Sin(radian) * direction.x) + (direction.y * Mathf.Cos(radian)));
 
@@ -210,7 +210,7 @@ namespace Live2D.Cubism.Framework.Physics
                 strand[i].LastGravity.y *= -1.0f;
             }
 
-            
+
             // Initialize inputs.
             for (var i = 0; i < Input.Length; ++i)
             {
@@ -223,7 +223,7 @@ namespace Live2D.Cubism.Framework.Physics
                 Output[i].InitializeGetter();
             }
         }
-        
+
 
         /// <summary>
         /// Evalute rig in every frame.
@@ -234,7 +234,7 @@ namespace Live2D.Cubism.Framework.Physics
             var totalAngle = 0.0f;
             var totalTranslation = Vector2.zero;
 
-            
+
             for (var i = 0; i < Input.Length; ++i)
             {
                 var weight = Input[i].Weight / CubismPhysics.MaximumWeight;
@@ -254,16 +254,16 @@ namespace Live2D.Cubism.Framework.Physics
                     Normalization,
                     weight
                     );
-                
+
             }
-            
+
 
             var radAngle = CubismPhysicsMath.DegreesToRadian(-totalAngle);
-            
+
 
             totalTranslation.x = (totalTranslation.x * Mathf.Cos(radAngle) - totalTranslation.y * Mathf.Sin(radAngle));
             totalTranslation.y = (totalTranslation.x * Mathf.Sin(radAngle) + totalTranslation.y * Mathf.Cos(radAngle));
-            
+
 
             UpdateParticles(
                 Particles,
@@ -273,8 +273,8 @@ namespace Live2D.Cubism.Framework.Physics
                 CubismPhysics.MovementThreshold * Normalization.Position.Maximum,
                 deltaTime
                 );
-                        
-            
+
+
             for (var i = 0; i < Output.Length; ++i)
             {
                 var particleIndex = Output[i].ParticleIndex;
@@ -290,17 +290,17 @@ namespace Live2D.Cubism.Framework.Physics
                 }
 
                 var parameter = Output[i].Destination;
-                
+
                 var translation = Particles[particleIndex].Position -
                                         Particles[particleIndex - 1].Position;
-                
+
                 var outputValue = Output[i].GetValue(
-                    translation, 
-                    parameter, 
-                    Particles, 
+                    translation,
+                    parameter,
+                    Particles,
                     particleIndex
                     );
-                
+
 
                 UpdateOutputParameterValue(parameter, outputValue, Output[i]);
             }

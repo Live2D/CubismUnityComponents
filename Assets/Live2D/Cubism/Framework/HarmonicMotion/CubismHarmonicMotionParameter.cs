@@ -1,8 +1,8 @@
-﻿/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 
@@ -27,7 +27,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         public int Channel;
 
         /// <summary>
-        /// Motion direction. 
+        /// Motion direction.
         /// </summary>
         [SerializeField]
         public CubismHarmonicMotionDirection Direction;
@@ -51,7 +51,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         public float NormalizedRange = 0.5f;
 
         /// <summary>
-        /// Duration of one motion cycle in seconds. 
+        /// Duration of one motion cycle in seconds.
         /// </summary>
         [SerializeField, Range(0.01f, 10f)]
         public float Duration = 3f;
@@ -138,7 +138,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
             var range  = NormalizedRange * ValueRange;
 
 
-            // Clamp the range so that it stays within the limits. 
+            // Clamp the range so that it stays within the limits.
             Clamp(ref origin, ref range);
 
 

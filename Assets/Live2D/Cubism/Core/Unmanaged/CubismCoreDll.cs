@@ -1,8 +1,8 @@
-/*
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
- * 
+ *
  * Use of this source code is governed by the Live2D Open Software license
- * that can be found at http://live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
 /* THIS FILE WAS AUTO-GENERATED. ALL CHANGES WILL BE LOST UPON RE-GENERATION. */
@@ -51,6 +51,10 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Double-sidedness bit.
         /// </sumamry>
         public const Byte IsDoubleSided = 1 << 2;
+        /// <sumamry>
+        /// Clipping mask inversion mode mask.
+        /// </sumamry>
+        public const Byte IsInvertedMask = 1 << 3;
 
 
         /// <sumamry>
@@ -79,6 +83,26 @@ namespace Live2D.Cubism.Core.Unmanaged
         public const Byte VertexPositionsDidChange = 1 << 5;
 
 
+        /// <summary>
+        /// Queries Core version.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetVersion")]
+        public static extern uint GetVersion();
+        /// <summary>
+        /// Gets Moc file supported latest version.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetLatestMocVersion")]
+        public static extern uint GetLatestMocVersion();
+        /// <summary>
+        /// Moc file format version.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetMocVersion")]
+        public static extern uint GetMocVersion(IntPtr moc);
+        /// <summary>
+        /// Sets log handler.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmSetLogFunction")]
+        public static extern void SetLogFunction(uint handler);
         /// <summary>
         /// Gets Size of model instance (in bytes).
         /// </summary>
@@ -149,6 +173,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetPartOpacities")]
         public static extern unsafe float* GetPartOpacities(IntPtr model);
+        /// <summary>
+        /// Gets part's parent part indices.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetPartParentPartIndices")]
+        public static extern unsafe int* GetPartParentPartIndices(IntPtr model);
         /// <summary>
         /// Gets drawable count.
         /// </summary>

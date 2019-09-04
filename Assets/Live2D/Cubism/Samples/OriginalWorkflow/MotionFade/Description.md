@@ -1,4 +1,4 @@
-﻿# MotionFade
+# MotionFade
 
 This example shows the fading between motions by OriginalWorkflow.
 
