@@ -175,7 +175,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         public void AddSource(ICubismMaskTextureCommandSource source)
         {
-            // Make sure isstance is valid.
+            // Make sure instance is valid.
             TryRevive();
 
 

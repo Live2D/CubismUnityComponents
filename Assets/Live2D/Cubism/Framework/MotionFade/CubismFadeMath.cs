@@ -17,7 +17,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// Calculate the easing processed signaure.
         /// </summary>
         /// <param name="value">Value to be subjected to easing.</param>
-        /// <returns>Easyed sign value.</returns>
+        /// <returns>Eased sign value.</returns>
         public static float GetEasingSine(float value)
         {
             if (value < 0.0f) return 0.0f;

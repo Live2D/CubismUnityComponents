@@ -33,7 +33,7 @@ namespace Live2D.Cubism.Framework.Expression
         public float FadeOutTime;
 
         /// <summary>
-        /// Exression Parameters
+        /// Expression Parameters
         /// </summary>
         [SerializeField]
         public SerializableExpressionParameter[] Parameters;

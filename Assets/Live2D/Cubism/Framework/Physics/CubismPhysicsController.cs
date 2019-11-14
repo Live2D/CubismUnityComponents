@@ -55,7 +55,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         public void Awake()
         {
-            // Check rig existance.
+            // Check rig existence.
             if (Rig == null)
             {
                 return;

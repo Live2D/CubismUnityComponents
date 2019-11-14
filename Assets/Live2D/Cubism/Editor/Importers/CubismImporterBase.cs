@@ -48,7 +48,7 @@ namespace Live2D.Cubism.Editor.Importers
 #region ICubismImporter
 
         /// <summary>
-        /// Sets the asset patht.
+        /// Sets the asset path.
         /// </summary>
         void ICubismImporter.SetAssetPath(string value)
         {

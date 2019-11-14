@@ -74,7 +74,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <returns>Fade data created based on motion3json.</returns>
         public static CubismFadeMotionData CreateInstance(
             CubismMotion3Json motion3Json, string motionName, float motionLength,
-             bool shouldImportAsOriginalWorkflow = false, bool isCallFormModelJson = false)
+             bool shouldImportAsOriginalWorkflow = false, bool isCallFromModelJson = false)
         {
             var fadeMotion = CreateInstance<CubismFadeMotionData>();
             var curveCount = motion3Json.Curves.Length;
@@ -83,7 +83,7 @@ namespace Live2D.Cubism.Framework.MotionFade
             fadeMotion.ParameterFadeOutTimes = new float[curveCount];
             fadeMotion.ParameterCurves = new AnimationCurve[curveCount];
 
-            return CreateInstance(fadeMotion, motion3Json, motionName, motionLength, shouldImportAsOriginalWorkflow, isCallFormModelJson);
+            return CreateInstance(fadeMotion, motion3Json, motionName, motionLength, shouldImportAsOriginalWorkflow, isCallFromModelJson);
         }
 
         /// <summary>

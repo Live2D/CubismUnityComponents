@@ -27,22 +27,22 @@ namespace Live2D.Cubism.Framework.MotionFade
         private List<CubismFadePlayingMotion> _playingMotions;
 
         /// <summary>
-        /// State that attatched this is default.
+        /// State that attached this is default.
         /// </summary>
         private bool _isDefaulState;
 
         /// <summary>
-        /// Lyaer index that attatched this.
+        /// Layer index that attached this.
         /// </summary>
         private int _layerIndex;
 
         /// <summary>
-        /// Weight of layer that attatched this.
+        /// Weight of layer that attached this.
         /// </summary>
         private float _layerWeight;
 
         /// <summary>
-        /// State that attatched this is transition finished.
+        /// State that attached this is transition finished.
         /// </summary>
         private bool _isStateTransitionFinished;
 

@@ -48,7 +48,7 @@ namespace Live2D.Cubism.Core
         /// <returns>Instance.</returns>
         public static CubismModel InstantiateFrom(CubismMoc moc)
         {
-            // Return if argument is invailed.
+            // Return if argument is invalid.
             if (moc == null)
             {
                 return null;
@@ -300,7 +300,7 @@ namespace Live2D.Cubism.Core
         #region Unity Event Handling
 
         /// <summary>
-        /// Ttrue on the frame the instance was enabled.
+        /// True on the frame the instance was enabled.
         /// </summary>
         private bool WasJustEnabled { get; set; }
 

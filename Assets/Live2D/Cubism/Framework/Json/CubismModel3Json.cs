@@ -100,11 +100,11 @@ namespace Live2D.Cubism.Framework.Json
             // Finalize deserialization.
             modelJson.AssetPath = assetPath;
             modelJson.LoadAssetAtPath = loadAssetAtPath;
-            
+
 
             // Set motion references.
             var value = CubismJsonParser.ParseFromString(modelJsonAsset);
-            
+
             // Return early if there is no references.
             if (!value.Get("FileReferences").GetMap(null).ContainsKey("Motions"))
             {
@@ -238,7 +238,7 @@ namespace Live2D.Cubism.Framework.Json
         /// The referenced expression assets.
         /// </summary>
         /// <remarks>
-        /// The references aren't chached internally.
+        /// The references aren't cached internally.
         /// </remarks>
         public CubismExp3Json[] Expression3Jsons
         {
@@ -297,7 +297,7 @@ namespace Live2D.Cubism.Framework.Json
         /// The referenced texture assets.
         /// </summary>
         /// <remarks>
-        /// The references aren't chached internally.
+        /// The references aren't cached internally.
         /// </remarks>
         public Texture2D[] Textures
         {
@@ -469,9 +469,9 @@ namespace Live2D.Cubism.Framework.Json
             if(shouldImportAsOriginalWorkflow)
             {
                 // Add cubism update manager.
-                var updateaManager = model.gameObject.GetComponent<CubismUpdateController>();
+                var updateManager = model.gameObject.GetComponent<CubismUpdateController>();
 
-                if(updateaManager == null)
+                if(updateManager == null)
                 {
                     model.gameObject.AddComponent<CubismUpdateController>();
                 }
@@ -804,7 +804,7 @@ namespace Live2D.Cubism.Framework.Json
         }
 
         /// <summary>
-        /// Motion datas.
+        /// Motion data.
         /// </summary>
         [Serializable]
         public struct SerializableMotions

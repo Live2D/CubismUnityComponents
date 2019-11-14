@@ -29,7 +29,7 @@ namespace Live2D.Cubism.Editor.Deleters
         #region ICubismDeleter
 
         /// <summary>
-        /// Sets the asset patht.
+        /// Sets the asset path.
         /// </summary>
         void ICubismDeleter.SetAssetPath(string value)
         {

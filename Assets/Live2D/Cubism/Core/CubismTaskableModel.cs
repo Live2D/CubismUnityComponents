@@ -216,7 +216,7 @@ namespace Live2D.Cubism.Core
 
 
         /// <summary>
-        /// Disptaches the task for (maybe async) execution.
+        /// Dispatches the task for (maybe async) execution.
         /// </summary>
         public void Update()
         {

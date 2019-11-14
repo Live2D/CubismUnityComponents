@@ -16,7 +16,7 @@ namespace Live2D.Cubism.Core.Unmanaged
 {
     /// <summary>
     /// Unmanaged drawables interface.
-    /// </sumamry>
+    /// </summary>
     public sealed class CubismUnmanagedDrawables
     {
         /// <summary>

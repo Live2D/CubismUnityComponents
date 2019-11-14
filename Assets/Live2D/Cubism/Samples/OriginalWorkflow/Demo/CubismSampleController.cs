@@ -44,9 +44,9 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         private AnimationClip[] _tapBodyMotions;
 
         /// <summary>
-        /// Motion set in roop motion.
+        /// Motion set in loop motion.
         /// </summary>
-        private AnimationClip _roopMotion;
+        private AnimationClip _loopMotion;
 
         /// <summary>
         /// List of Drawables info.
@@ -178,7 +178,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
                         if (hitArea == HitArea.Body)
                         {
                             // Decide motion to play at random.
-                            var motionIndex = UnityEngine.Random.Range(0, _tapBodyMotions.Length - 1);
+                            var motionIndex = UnityEngine.Random.Range(0, _tapBodyMotions.Length);
 
                             Debug.Log("Tap body : Play : " + _tapBodyMotions[motionIndex].name);
 
@@ -189,7 +189,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
                         {
                             // Decide expression motion to play at random.
                             var expressionNum = _expressionController.ExpressionsList.CubismExpressionObjects.Length;
-                            var expressionIndex = UnityEngine.Random.Range(0, expressionNum - 1);
+                            var expressionIndex = UnityEngine.Random.Range(0, expressionNum);
 
                             _expressionController.CurrentExpressionIndex = expressionIndex;
 
@@ -208,13 +208,13 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// </summary>
         private void SpecifiedAnimationCheck()
         {
-            if(_bodyAnimation != _roopMotion)
+            if(_bodyAnimation != _loopMotion)
             {
-                _roopMotion = _bodyAnimation;
+                _loopMotion = _bodyAnimation;
 
-                Debug.Log("Body animation : Play : " + _roopMotion.name);
+                Debug.Log("Body animation : Play : " + _loopMotion.name);
 
-                _motionController.PlayAnimation(_roopMotion, priority:CubismMotionPriority.PriorityIdle);
+                _motionController.PlayAnimation(_loopMotion, priority:CubismMotionPriority.PriorityIdle);
             }
         }
 
@@ -225,10 +225,10 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// <param name="instanceId"></param>
         private void AnimationEnded(float instanceId)
         {
-            // Play roop motion.
-            _motionController.PlayAnimation(_roopMotion, priority:CubismMotionPriority.PriorityIdle);
+            // Play loop motion.
+            _motionController.PlayAnimation(_loopMotion, priority:CubismMotionPriority.PriorityIdle);
 
-            Debug.Log("Body animation : Play : " + _roopMotion.name);
+            Debug.Log("Body animation : Play : " + _loopMotion.name);
         }
     }
 }

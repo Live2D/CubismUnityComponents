@@ -484,7 +484,7 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Sets visiblity.
+        /// Sets visibility.
         /// </summary>
         /// <param name="newVisibility">New visibility.</param>
         internal void OnDrawableVisiblityDidChange(bool newVisibility)

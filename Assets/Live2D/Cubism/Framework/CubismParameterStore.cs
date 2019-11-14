@@ -61,7 +61,7 @@ namespace Live2D.Cubism.Framework
                 }
             }
 
-            // save parts opcity
+            // save parts opacity
             if(DestinationParts != null && _partOpacities == null)
             {
                 _partOpacities = new float[DestinationParts.Length];

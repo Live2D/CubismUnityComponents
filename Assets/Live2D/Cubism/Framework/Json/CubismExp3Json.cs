@@ -67,7 +67,7 @@ namespace Live2D.Cubism.Framework.Json
         public float FadeOutTime;
 
         /// <summary>
-        /// Exression Parameters
+        /// Expression Parameters
         /// </summary>
         [SerializeField]
         public SerializableExpressionParameter[] Parameters;
@@ -77,7 +77,7 @@ namespace Live2D.Cubism.Framework.Json
         #region Json Helpers
 
         /// <summary>
-        /// ExpressionParameter
+        /// Expression Parameter
         /// </summary>
         [Serializable]
         public struct SerializableExpressionParameter

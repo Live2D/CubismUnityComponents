@@ -166,7 +166,7 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismPhysicsSourceComponent SourceComponent;
 
         /// <summary>
-        /// True if value is inverted; othewise.
+        /// True if value is inverted; otherwise.
         /// </summary>
         [SerializeField]
         public bool IsInverted;

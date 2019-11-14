@@ -269,7 +269,7 @@ namespace Live2D.Cubism.Rendering
         /// The value to offset the <see cref="CubismDrawable"/>s by.
         /// </summary>
         /// <remarks>
-        /// You only need to adjust this value when using perspetive cameras.
+        /// You only need to adjust this value when using perspective cameras.
         /// </remarks>
         [SerializeField, HideInInspector]
         public float _depthOffset = 0.00001f;
