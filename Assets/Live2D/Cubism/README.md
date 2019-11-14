@@ -5,6 +5,11 @@ Welcome to the open components of the Cubism SDK for Unity.
 Go [here](https://www.live2d.com/download/cubism-sdk/download-unity/)
 if you're looking for the download page of the SDK package.
 
+## Notice
+
+Please read the notices before use.
+
+Go [here](./NOTICE.md).
 
 ## Structure
 
@@ -43,24 +48,29 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Current | 2019.1.14f1 |
-| LTS | 2018.4.7f1 |
+| Latest | 2019.2.11f1 |
+| LTS | 2018.4.12f1 |
+| LTS | 2017.4.34f1 |
 
 | Library / Tool | Version |
 | --- | --- |
-| Android NDK | r16 |
-| Android SDK | 29.0.2 |
-| Visual Studio 2017 | 15.9.15 |
+| Android NDK | r16b |
+| Android SDK | 28.0.3 *1 |
+| Visual Studio 2019 | 16.3.7 |
 | Windows SDK | 10.0.18362.0 |
-| Xcode | 10.3 |
+| Xcode | 11.2 |
+
+*1 Unity 2017 requires Anroid NDK r13b
 
 
 ## Tested environment
 
 | Platform | Version |
 | --- | --- |
-| Android | 9 |
-| iOS | 12.4.1 |
+| Android | 10 |
+| iOS | 13.2 |
+| iPadOS | 13.2 |
+| Ubuntu | 19.10 |
 | macOS | 10.14.6 |
 | Windows 10 | 1903 |
 

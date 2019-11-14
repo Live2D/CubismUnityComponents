@@ -14,7 +14,7 @@ using UnityEngine;
 namespace Live2D.Cubism.Editor.OriginalWorkflow
 {
     /// <summary>
-    /// Scriptableobject to save cubism original workflow setting.
+    /// ScriptableObject to save cubism original workflow setting.
     /// </summary>
     public class CubismOriginalWorkflowSettings: ScriptableObject
     {

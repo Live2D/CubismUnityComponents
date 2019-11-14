@@ -15,7 +15,7 @@ namespace Live2D.Cubism.Core.Unmanaged
 {
     /// <summary>
     /// Unmanaged canvas information.
-    /// </sumamry>
+    /// </summary>
     public sealed class CubismUnmanagedCanvasInformation
     {
         /// <summary>

@@ -23,7 +23,7 @@ namespace Live2D.Cubism.Framework.Raycasting
         public CubismDrawable Drawable;
 
         /// <summary>
-        /// The distance the ray travelled until it hit the <see cref="CubismDrawable"/>.
+        /// The distance the ray traveled until it hit the <see cref="CubismDrawable"/>.
         /// </summary>
         public float Distance;
 

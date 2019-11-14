@@ -96,6 +96,7 @@ namespace Live2D.Cubism.Framework.Motion
         /// </summary>
         /// <param name="clip">Animator clip.</param>
         /// <param name="layerIndex">layer index.</param>
+        /// <param name="priority">Animation priority</param>
         /// <param name="isLoop">Animation is loop.</param>
         /// <param name="speed">Animation speed.</param>
         public void PlayAnimation(AnimationClip clip, int layerIndex = 0, int priority = CubismMotionPriority.PriorityNormal, bool isLoop = true, float speed = 1.0f)
@@ -132,7 +133,7 @@ namespace Live2D.Cubism.Framework.Motion
                 return;
             }
 
-            _motionLayers[layerIndex].StopAnimation(animationIndex);
+            _motionLayers[layerIndex].StopAnimationClip();
         }
 
         /// <summary>
@@ -142,7 +143,7 @@ namespace Live2D.Cubism.Framework.Motion
         {
             for(var i = 0; i < LayerCount; ++i)
             {
-                _motionLayers[i].StopAllAnimation();
+                _motionLayers[i].StopAnimationClip();
             }
         }
 
@@ -272,7 +273,7 @@ namespace Live2D.Cubism.Framework.Motion
 
             _isActive = true;
 
-            // Disabble animator's playablegrap.
+            // Disable animator's playablegrap.
             var graph = animator.playableGraph;
 
             if(graph.IsValid())

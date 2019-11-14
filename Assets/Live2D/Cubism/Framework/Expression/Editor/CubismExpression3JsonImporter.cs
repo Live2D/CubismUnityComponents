@@ -99,7 +99,7 @@ namespace Live2D.Cubism.Editor.Importers
                 AssetDatabase.CreateAsset(expressionList, expressionListPath);
             }
 
-            // Finde index.
+            // Find index.
             var expressionName = Path.GetFileName(AssetPath).Replace(".json", "");
             var expressionIndex = -1;
             for (var i = 0; i < expressionList.CubismExpressionObjects.Length; ++i)

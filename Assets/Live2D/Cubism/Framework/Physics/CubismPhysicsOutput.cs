@@ -203,7 +203,7 @@ namespace Live2D.Cubism.Framework.Physics
         }
 
         /// <summary>
-        /// Parameter ID of destionation.
+        /// Parameter ID of destination.
         /// </summary>
         [SerializeField]
         public string DestinationId;
@@ -239,7 +239,7 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismPhysicsSourceComponent SourceComponent;
 
         /// <summary>
-        /// True if value is inverted; othewise.
+        /// True if value is inverted; otherwise.
         /// </summary>
         [SerializeField]
         public bool IsInverted;

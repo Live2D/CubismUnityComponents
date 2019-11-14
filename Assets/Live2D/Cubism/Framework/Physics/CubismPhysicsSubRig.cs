@@ -198,7 +198,7 @@ namespace Live2D.Cubism.Framework.Physics
             strand[0].LastGravity.y *= -1.0f;
 
 
-            // Initialize paritcles.
+            // Initialize particles.
             for (var i = 1; i < strand.Length; ++i)
             {
                 var radius = Vector2.zero;
@@ -226,7 +226,7 @@ namespace Live2D.Cubism.Framework.Physics
 
 
         /// <summary>
-        /// Evalute rig in every frame.
+        /// Evaluate rig in every frame.
         /// </summary>
         /// <param name="deltaTime"></param>
         public void Evaluate(float deltaTime)

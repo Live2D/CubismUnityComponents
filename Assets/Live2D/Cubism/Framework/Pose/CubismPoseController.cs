@@ -20,7 +20,7 @@ namespace Live2D.Cubism.Framework.Pose
         #region variable
 
         /// <summary>
-        /// Default visiable pose index.
+        /// Default visible pose index.
         /// </summary>
         [SerializeField]
         public int defaultPoseIndex = 0;
