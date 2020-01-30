@@ -38,7 +38,8 @@ namespace Live2D.Cubism.Framework.Pose
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
         /// <summary>
         /// Pose data.
@@ -107,7 +108,7 @@ namespace Live2D.Cubism.Framework.Pose
             }
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
         /// <summary>
@@ -215,12 +216,18 @@ namespace Live2D.Cubism.Framework.Pose
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismPoseController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismPoseController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => false;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
 
         /// <summary>
         /// Called by cubism update manager. Updates controller.
@@ -255,7 +262,7 @@ namespace Live2D.Cubism.Framework.Pose
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if(!HasUpdateController)
             {
                 OnLateUpdate();
             }

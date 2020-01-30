@@ -10,6 +10,12 @@ using Live2D.Cubism.Framework;
 using System;
 using UnityEngine;
 
+#if UNITY_2019_3_OR_NEWER
+using UnityEngine.LowLevel;
+#elif UNITY_2018_1_OR_NEWER
+using UnityEngine.Experimental.LowLevel;
+#endif
+
 
 namespace Live2D.Cubism.Core
 {
@@ -218,6 +224,28 @@ namespace Live2D.Cubism.Core
             get { return Moc != null; }
         }
 
+#if UNITY_2018_1_OR_NEWER
+        /// <summary>
+        /// Model update functions for player loop.
+        /// </summary>
+        [NonSerialized]
+        private static Action _modelUpdateFunctions;
+
+        private bool WasAttachedModelUpdateFunction { get; set; }
+#endif
+
+
+        /// <summary>
+        /// True on the frame the instance was enabled.
+        /// </summary>
+        private bool WasJustEnabled { get; set; }
+
+        /// <summary>
+        /// Frame number last update was done.
+        /// </summary>
+        private int LastTick { get; set; }
+
+
         /// <summary>
         /// Revives instance.
         /// </summary>
@@ -294,27 +322,81 @@ namespace Live2D.Cubism.Core
 
 
             Revive();
+
+#if UNITY_2018_1_OR_NEWER
+            OnModelUpdate();
+#else
             OnRenderObject();
+#endif
         }
 
-        #region Unity Event Handling
+
+#if UNITY_2018_1_OR_NEWER
+        /// <summary>
+        /// Calls model update functions for player loop.
+        /// </summary>
+        private static void OnModelsUpdate()
+        {
+            if (_modelUpdateFunctions != null)
+            {
+                _modelUpdateFunctions.Invoke();
+            }
+        }
+
 
         /// <summary>
-        /// True on the frame the instance was enabled.
+        /// Register the model update function into the player loop.
         /// </summary>
-        private bool WasJustEnabled { get; set; }
+        [RuntimeInitializeOnLoadMethod]
+        private static void RegisterCallbackFunction()
+        {
+            // Prepare the function for using player loop.
+            var myPlayerLoopSystem = new PlayerLoopSystem()
+            {
+                type = typeof(CubismModel),     // Identifier for Profiler Hierarchy view.
+                updateDelegate = OnModelsUpdate    // Register the function.
+            };
 
-        /// <summary>
-        /// Frame number last update was done.
-        /// </summary>
-        private int LastTick { get; set; }
 
+            // Get the default player loop.
+            var playerLoopSystem = PlayerLoop.GetDefaultPlayerLoop();
+
+
+            // Get the "PreLateUpdate" system.
+            var playerLoopSubSystem = playerLoopSystem.subSystemList[5];
+            var subSystemList = playerLoopSubSystem.subSystemList;
+
+
+            // Register the model update function after "PreLateUpdate" system.
+            Array.Resize(ref subSystemList, subSystemList.Length + 1);
+            subSystemList[subSystemList.Length - 1] = myPlayerLoopSystem;
+
+
+            // Restore the "PreLateUpdate" sytem.
+            playerLoopSubSystem.subSystemList = subSystemList;
+            playerLoopSystem.subSystemList[5] = playerLoopSubSystem;
+            PlayerLoop.SetPlayerLoop(playerLoopSystem);
+        }
+#endif
+
+#region Unity Event Handling
 
         /// <summary>
         /// Called by Unity. Triggers <see langword="this"/> to update.
         /// </summary>
         private void Update()
         {
+#if UNITY_2018_1_OR_NEWER
+            if (!WasAttachedModelUpdateFunction)
+            {
+                _modelUpdateFunctions += OnModelUpdate;
+
+
+                WasAttachedModelUpdateFunction = true;
+            }
+#endif
+
+
             // Return on first frame enabled.
             if (WasJustEnabled)
             {
@@ -360,6 +442,16 @@ namespace Live2D.Cubism.Core
         /// Called by Unity. Blockingly updates <see langword="this"/> on first frame enabled; otherwise tries async update.
         /// </summary>
         private void OnRenderObject()
+        {
+#if !UNITY_2018_1_OR_NEWER
+            OnModelUpdate();
+#endif
+        }
+
+        /// <summary>
+        /// Update model states.
+        /// </summary>
+        private void OnModelUpdate()
         {
             // Return unless revived.
             if (!IsRevived)
@@ -421,6 +513,19 @@ namespace Live2D.Cubism.Core
 
 
             Revive();
+        }
+
+        private void OnDisable()
+        {
+#if UNITY_2018_1_OR_NEWER
+            if (WasAttachedModelUpdateFunction)
+            {
+                _modelUpdateFunctions -= OnModelUpdate;
+
+
+                WasAttachedModelUpdateFunction = false;
+            }
+#endif
         }
 
         /// <summary>

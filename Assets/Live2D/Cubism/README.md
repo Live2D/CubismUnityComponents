@@ -1,15 +1,20 @@
-# Cubism SDK for Unity
+# Cubism Unity Components
 
 Welcome to the open components of the Cubism SDK for Unity.
 
 Go [here](https://www.live2d.com/download/cubism-sdk/download-unity/)
 if you're looking for the download page of the SDK package.
 
+
+## License
+
+Please read the [license](LICENSE.md) before use.
+
+
 ## Notice
 
-Please read the notices before use.
+Please read the [notices](NOTICE.md) before use.
 
-Go [here](./NOTICE.md).
 
 ## Structure
 
@@ -48,19 +53,18 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2019.2.11f1 |
-| LTS | 2018.4.12f1 |
-| LTS | 2017.4.34f1 |
+| Latest | 2019.3.0f3 |
+| LTS | 2018.4.14f1 |
+| LTS | 2017.4.35f1 |
 
 | Library / Tool | Version |
 | --- | --- |
-| Android NDK | r16b |
-| Android SDK | 28.0.3 *1 |
-| Visual Studio 2019 | 16.3.7 |
+| Android SDK / NDK | *1 |
+| Visual Studio 2019 | 16.4.3 |
 | Windows SDK | 10.0.18362.0 |
-| Xcode | 11.2 |
+| Xcode | 11.3 |
 
-*1 Unity 2017 requires Anroid NDK r13b
+*1 Use libraries embedded with Unity or recommended.
 
 
 ## Tested environment
@@ -68,11 +72,11 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 | Platform | Version |
 | --- | --- |
 | Android | 10 |
-| iOS | 13.2 |
-| iPadOS | 13.2 |
-| Ubuntu | 19.10 |
-| macOS | 10.14.6 |
-| Windows 10 | 1903 |
+| iOS | 13.3 |
+| iPadOS | 13.3 |
+| Ubuntu | 18.04 |
+| macOS | 10.15.2 |
+| Windows 10 | 1909 |
 
 
 ## Branches
@@ -134,36 +138,3 @@ We name private fields in lower-camelcase starting with an underscore.
 - In Unity Editor extension, try to write expressive code with LINQ and all the other fancy stuff.
 - Stay away from LINQ and prefer `for` over `foreach` anywhere else.
 - Try to be explicit. Prefer `private void Update()` over `void Update()`.
-
-
-## ライセンス
-
-Cubism Unity Componentsは Live2D Open Software License で提供しています。
-- Live2D Open Software License
-
-  [日本語](https://www.live2d.com/eula/live2d-open-software-license-agreement_jp.html)
-  [English](https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html)
-
-Live2D Cubism Core for Unity は Live2D Proprietary Software License で提供しています。
-- Live2D Proprietary Software License
-
-  [日本語](https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_jp.html)
-  [English](https://www.live2d.com/eula/live2d-proprietary-software-license-agreement_en.html)
-
-Live2D のサンプルモデルは Free Material License で提供しています。
-- Free Material License
-
-  [日本語](https://www.live2d.com/eula/live2d-free-material-license-agreement_jp.html)
-  [English](https://www.live2d.com/eula/live2d-free-material-license-agreement_en.html)
-  - `./Assets/Live2D/Cubism/Samples/Models/Clipping`
-  - `./Assets/Live2D/Cubism/Samples/Models/Koharu`
-  - `./Assets/Live2D/Cubism/Samples/Models/Natori`
-  - `./Assets/Live2D/Cubism/Samples/Models/Rice`
-
-上記のモデルをご利用になられる場合、[こちら](https://docs.live2d.com/cubism-editor-manual/sample-model/)で各モデルに設定された利用条件に同意して頂く必要がございます。
-
-直近会計年度の売上高が 1000 万円以上の事業者様がご利用になる場合は、SDKリリース(出版許諾)ライセンスに同意していただく必要がございます。
-- [SDKリリース(出版許諾)ライセンス](https://www.live2d.com/ja/products/releaselicense)
-
-*All business* users must obtain a Publication License. "Business" means an entity with the annual gross revenue more than ten million (10,000,000) JPY for the most recent fiscal year.
-- [SDK Release (Publication) License](https://www.live2d.com/en/products/releaselicense)

@@ -246,7 +246,7 @@ namespace Live2D.Cubism.Framework.Json
                                                                         , bool isCallFormModelJson = false, CubismPose3Json poseJson = null)
         {
             // Clear curves.
-            if (!shouldImportAsOriginalWorkflow || isCallFormModelJson || shouldClearAnimationCurves)
+            if (shouldClearAnimationCurves && (!shouldImportAsOriginalWorkflow || (isCallFormModelJson && shouldImportAsOriginalWorkflow)))
             {
                 animationClip.ClearCurves();
             }

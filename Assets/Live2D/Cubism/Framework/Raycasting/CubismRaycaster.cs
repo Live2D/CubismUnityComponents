@@ -103,10 +103,10 @@ namespace Live2D.Cubism.Framework.Raycasting
         {
             // Cast ray against model plane.
             var intersectionInWorldSpace = ray.origin + ray.direction * (ray.direction.z / ray.origin.z);
-            var inersectionInLocalSpace = transform.InverseTransformPoint(intersectionInWorldSpace);
+            var intersectionInLocalSpace = transform.InverseTransformPoint(intersectionInWorldSpace);
 
 
-            inersectionInLocalSpace.z = 0;
+            intersectionInLocalSpace.z = 0;
 
 
             var distance = intersectionInWorldSpace.magnitude;
@@ -141,7 +141,7 @@ namespace Live2D.Cubism.Framework.Raycasting
                     var bounds = raycastable.Mesh.bounds;
 
                     // Skip non hits
-                    if (!bounds.Contains(inersectionInLocalSpace))
+                    if (!bounds.Contains(intersectionInLocalSpace))
                     {
                         continue;
                     }
@@ -149,7 +149,7 @@ namespace Live2D.Cubism.Framework.Raycasting
                 else
                 {
                     // Skip non hits
-                    if (!ContainsInTriangles(raycastable.Mesh, inersectionInLocalSpace))
+                    if (!ContainsInTriangles(raycastable.Mesh, intersectionInLocalSpace))
                     {
                         continue;
                     }
@@ -158,7 +158,7 @@ namespace Live2D.Cubism.Framework.Raycasting
 
                 result[hitCount].Drawable = raycastable.GetComponent<CubismDrawable>();
                 result[hitCount].Distance = distance;
-                result[hitCount].LocalPosition = inersectionInLocalSpace;
+                result[hitCount].LocalPosition = intersectionInLocalSpace;
                 result[hitCount].WorldPosition = intersectionInWorldSpace;
 
 

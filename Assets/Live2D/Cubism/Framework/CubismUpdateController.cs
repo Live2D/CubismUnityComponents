@@ -6,16 +6,6 @@
  */
 
 using Live2D.Cubism.Core;
-using Live2D.Cubism.Framework.Expression;
-using Live2D.Cubism.Framework.Motion;
-using Live2D.Cubism.Framework.MotionFade;
-using Live2D.Cubism.Framework.MouthMovement;
-using Live2D.Cubism.Framework.Pose;
-using Live2D.Cubism.Framework.HarmonicMotion;
-using Live2D.Cubism.Framework.LookAt;
-using Live2D.Cubism.Rendering;
-using Live2D.Cubism.Rendering.Masking;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,10 +18,10 @@ namespace Live2D.Cubism.Framework
         /// <summary>
         /// The action of cubism component late update.
         /// </summary>
-        private Action OnLateUpdate;
+        private System.Action _onLateUpdate;
 
         /// <summary>
-        /// The paremeter store cache.
+        /// The parameter store cache.
         /// </summary>
         private CubismParameterStore _parameterStore;
 
@@ -49,7 +39,7 @@ namespace Live2D.Cubism.Framework
             }
 
             // Clear delegate.
-            Delegate.RemoveAll(OnLateUpdate, null);
+            System.Delegate.RemoveAll(_onLateUpdate, null);
 
             // Set delegate.
             var components = model.GetComponents<ICubismUpdatable>();
@@ -65,7 +55,7 @@ namespace Live2D.Cubism.Framework
                 }
 #endif
 
-                OnLateUpdate += component.OnLateUpdate;
+                _onLateUpdate += component.OnLateUpdate;
             }
 
 #if UNITY_EDITOR
@@ -100,13 +90,12 @@ namespace Live2D.Cubism.Framework
             }
 
             // Cubism late update.
-            if(OnLateUpdate != null)
+            if(_onLateUpdate != null)
             {
-                OnLateUpdate();
+                _onLateUpdate();
             }
         }
 
         #endregion
     }
 }
-

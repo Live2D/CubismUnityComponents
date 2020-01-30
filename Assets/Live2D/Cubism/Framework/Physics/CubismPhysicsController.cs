@@ -16,7 +16,7 @@ namespace Live2D.Cubism.Framework.Physics
     /// Physics simulation controller.
     /// </summary>
     [CubismMoveOnReimportCopyComponentsOnly]
-    public class CubismPhysicsController : MonoBehaviour
+    public class CubismPhysicsController : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Simulation target rig.
@@ -36,6 +36,39 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         public CubismParameter[] Parameters { get; private set; }
 
+
+        /// <summary>
+        /// Model has update controller component.
+        /// </summary>
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
+
+
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismPhysicsController; }
+        }
+
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
+
+        public void OnLateUpdate()
+        {
+            var deltaTime = Time.deltaTime;
+
+
+            // Use fixed delta time if required.
+            if (CubismPhysics.UseFixedDeltaTime)
+            {
+                deltaTime = Time.fixedDeltaTime;
+            }
+
+
+            // Evaluate rig.
+            Rig.Evaluate(deltaTime);
+        }
 
         /// <summary>
         /// Sets rig and initializes <see langword="this"/>.
@@ -78,24 +111,26 @@ namespace Live2D.Cubism.Framework.Physics
         }
 
         /// <summary>
+        /// Called by Unity.
+        /// </summary>
+        public void Start()
+        {
+            // Get cubism update controller.
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
+        }
+
+        /// <summary>
         /// Called by Unity. Updates controller.
         /// </summary>
         /// <remarks>Must be call after animation update.</remarks>
         private void LateUpdate()
         {
-            var deltaTime = Time.deltaTime;
-
-
-            // Use fixed delta time if required.
-            if (CubismPhysics.UseFixedDeltaTime)
+            if (!HasUpdateController)
             {
-                deltaTime = Time.fixedDeltaTime;
+                OnLateUpdate();
             }
-
-
-            // Evaluate rig.
-            Rig.Evaluate(deltaTime);
         }
+
     #endregion
     }
 }

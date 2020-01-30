@@ -22,6 +22,7 @@ namespace Live2D.Cubism.Framework
         public static readonly int CubismMouthController = 500;
         public static readonly int CubismHarmonicMotionController = 600;
         public static readonly int CubismLookController = 700;
+        public static readonly int CubismPhysicsController = 800;
         public static readonly int CubismRenderController = 10000;
         public static readonly int CubismMaskController = 10100;
 

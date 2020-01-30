@@ -34,13 +34,24 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Motion
 
             _motionController = model.GetComponent<CubismMotionController>();
 
+            _motionController.AnimationEndHandler += PlayIdleAnimation;
+
             if (Animation == null)
             {
                 return;
             }
 
-            _motionController.PlayAnimation(Animation, priority: CubismMotionPriority.PriorityIdle, isLoop: false);
+            PlayIdleAnimation();
         }
+
+
+
+        private void PlayIdleAnimation(float index = 0.0f)
+        {
+            _motionController.PlayAnimation(Animation, isLoop: false, priority: CubismMotionPriority.PriorityIdle);
+        }
+
+
 
         /// <summary>
         /// Play specified animation.
@@ -48,7 +59,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Motion
         /// <param name="animation">Animation clip to play.</param>
         public void PlayAnimation(AnimationClip animation)
         {
-            _motionController.PlayAnimation(animation, isLoop: false);
+            _motionController.PlayAnimation(animation, isLoop: false, priority: CubismMotionPriority.PriorityForce);
         }
     }
 }

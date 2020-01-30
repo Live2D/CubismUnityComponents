@@ -194,7 +194,7 @@ namespace Live2D.Cubism.Framework.Physics
             // Initialize the top of particle.
             strand[0].InitialPosition = Vector2.zero;
             strand[0].LastPosition = strand[0].InitialPosition;
-            strand[0].LastGravity = CubismPhysics.Gravity;
+            strand[0].LastGravity = Rig.Gravity;
             strand[0].LastGravity.y *= -1.0f;
 
 
@@ -206,7 +206,7 @@ namespace Live2D.Cubism.Framework.Physics
                 strand[i].InitialPosition = strand[i - 1].InitialPosition + radius;
                 strand[i].Position = strand[i].InitialPosition;
                 strand[i].LastPosition = strand[i].InitialPosition;
-                strand[i].LastGravity = CubismPhysics.Gravity;
+                strand[i].LastGravity = Rig.Gravity;
                 strand[i].LastGravity.y *= -1.0f;
             }
 
@@ -269,7 +269,7 @@ namespace Live2D.Cubism.Framework.Physics
                 Particles,
                 totalTranslation,
                 totalAngle,
-                CubismPhysics.Wind,
+                Rig.Wind,
                 CubismPhysics.MovementThreshold * Normalization.Position.Maximum,
                 deltaTime
                 );
@@ -298,7 +298,8 @@ namespace Live2D.Cubism.Framework.Physics
                     translation,
                     parameter,
                     Particles,
-                    particleIndex
+                    particleIndex,
+                    Rig.Gravity
                     );
 
 

@@ -365,7 +365,8 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
 
         /// <summary>
@@ -452,12 +453,18 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismRenderController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismRenderController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => true;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return true; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Applies billboarding.
@@ -493,7 +500,7 @@ namespace Live2D.Cubism.Rendering
         private void Start()
         {
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
         /// <summary>
@@ -541,7 +548,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if(!HasUpdateController)
             {
                 OnLateUpdate();
             }
