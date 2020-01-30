@@ -80,7 +80,8 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
         /// <summary>
         /// Makes sure controller is initialized once.
@@ -150,12 +151,18 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismMaskController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismMaskController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => true;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return true; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Updates <see cref="Junktions"/>.
@@ -191,7 +198,7 @@ namespace Live2D.Cubism.Rendering.Masking
             MaskTexture.AddSource(this);
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
 
@@ -200,7 +207,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if(!HasUpdateController)
             {
                 OnLateUpdate();
             }

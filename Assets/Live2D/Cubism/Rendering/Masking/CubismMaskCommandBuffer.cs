@@ -92,7 +92,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="source">Source to add.</param>
         internal static void AddSource(ICubismMaskCommandSource source)
         {
-			// Make sure singleton is initialized.
+            // Make sure singleton is initialized.
             Initialize();
 
 
@@ -113,7 +113,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="source">Source to remove.</param>
         internal static void RemoveSource(ICubismMaskCommandSource source)
         {
-			// Make sure singleton is initialized.
+            // Make sure singleton is initialized.
             Initialize();
 
 
@@ -145,14 +145,14 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void LateUpdate()
         {
-			if (!ContainsSources)
-			{
-				return;
-			}
+            if (!ContainsSources)
+            {
+                return;
+            }
 
 
             // Refresh and execute buffer.
-			RefreshCommandBuffer();
+            RefreshCommandBuffer();
             Graphics.ExecuteCommandBuffer(Buffer);
         }
 

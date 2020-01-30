@@ -209,6 +209,15 @@ namespace Live2D.Cubism.Editor.Importers
             // Update model prefab.
             else
             {
+                var cubismModel = ModelPrefab.FindCubismModel();
+                if (cubismModel.Moc == null)
+                {
+                    CubismModel.ResetMocReference(cubismModel,
+                        AssetDatabase.LoadAssetAtPath<CubismMoc>(
+                            AssetPath.Replace(".model3.json", ".asset")));
+                }
+
+
                 // Copy all user data over from previous model.
                 var source = Object.Instantiate(ModelPrefab).FindCubismModel();
 

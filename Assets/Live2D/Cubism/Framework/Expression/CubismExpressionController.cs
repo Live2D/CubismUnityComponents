@@ -51,7 +51,8 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
         #endregion
 
@@ -97,12 +98,18 @@ namespace Live2D.Cubism.Framework.Expression
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismExpressionController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismExpressionController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => false;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
 
         /// <summary>
         /// Called by cubism update manager.
@@ -191,7 +198,7 @@ namespace Live2D.Cubism.Framework.Expression
             _model = this.FindCubismModel();
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
         /// <summary>
@@ -199,7 +206,7 @@ namespace Live2D.Cubism.Framework.Expression
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if(!HasUpdateController)
             {
                 OnLateUpdate();
             }

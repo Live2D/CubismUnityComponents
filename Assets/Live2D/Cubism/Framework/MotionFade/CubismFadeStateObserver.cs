@@ -158,20 +158,29 @@ namespace Live2D.Cubism.Framework.MotionFade
             }
 
             // Set playing motions end time.
-            for (var i = 0; i < _playingMotions.Count; ++i)
+            if ((_playingMotions.Count > 0) && (_playingMotions[_playingMotions.Count - 1].Motion != null))
             {
-                var motion = _playingMotions[i];
+                var motion = _playingMotions[_playingMotions.Count - 1];
 
-                if (motion.Motion == null)
-                {
-                    continue;
-                }
+                var time = Time.time;
 
-                var newEndTime = Time.time + motion.Motion.FadeOutTime;
+                var newEndTime = time + motion.Motion.FadeOutTime;
 
                 motion.EndTime = newEndTime;
 
-                _playingMotions[i] = motion;
+
+                while (motion.IsLooping)
+                {
+                    if ((motion.StartTime + motion.Motion.MotionLength) >= time)
+                    {
+                        break;
+                    }
+
+                    motion.StartTime += motion.Motion.MotionLength;
+                }
+
+
+                _playingMotions[_playingMotions.Count - 1] = motion;
             }
 
             for (var i = 0; i < animatorClipInfo.Length; ++i)
@@ -214,6 +223,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                 playingMotion.EndTime = (playingMotion.Motion.MotionLength <= 0)
                                         ? -1
                                         : playingMotion.StartTime + playingMotion.Motion.MotionLength;
+                playingMotion.IsLooping = animatorClipInfo[i].clip.isLooping;
 
                 _playingMotions.Add(playingMotion);
             }

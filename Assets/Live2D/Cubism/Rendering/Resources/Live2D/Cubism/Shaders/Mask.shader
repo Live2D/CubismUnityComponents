@@ -8,86 +8,86 @@
 
 Shader "Live2D Cubism/Mask"
 {
-	SubShader
-	{
-		Tags
-		{
-			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
-		}
+    SubShader
+    {
+        Tags
+        {
+            "Queue" = "Transparent"
+            "IgnoreProjector" = "True"
+            "RenderType" = "Transparent"
+        }
 
 
-		BindChannels{ Bind "Vertex", vertex Bind "texcoord", texcoord Bind "Color", color }
+        BindChannels{ Bind "Vertex", vertex Bind "texcoord", texcoord Bind "Color", color }
 
 
-		LOD      100
-		ZWrite   Off
-		Lighting Off
-		Cull     Off
-		Blend    One One
+        LOD      100
+        ZWrite   Off
+        Lighting Off
+        Cull     Off
+        Blend    One One
 
 
-		Pass
-		{
-			CGPROGRAM
-			#pragma vertex   vert
-			#pragma fragment frag
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex   vert
+            #pragma fragment frag
 
-			#define CUBISM_MASK_ON
-
-
-			#include "UnityCG.cginc"
-			#include "CubismCG.cginc"
+            #define CUBISM_MASK_ON
 
 
-			struct appdata_t
-			{
-				float4 vertex   : POSITION;
-				fixed4 color    : COLOR;
-				float2 texcoord : TEXCOORD0;
-
-			};
+            #include "UnityCG.cginc"
+            #include "CubismCG.cginc"
 
 
-			struct v2f
-			{
-				float4 vertex   : SV_POSITION;
-				fixed4 color    : COLOR;
-				float2 texcoord : TEXCOORD0;
-			};
+            struct appdata_t
+            {
+                float4 vertex   : POSITION;
+                fixed4 color    : COLOR;
+                float2 texcoord : TEXCOORD0;
+
+            };
 
 
-			CUBISM_SHADER_VARIABLES
+            struct v2f
+            {
+                float4 vertex   : SV_POSITION;
+                fixed4 color    : COLOR;
+                float2 texcoord : TEXCOORD0;
+            };
 
 
-			v2f vert(appdata_t IN)
-			{
-				v2f OUT;
+            CUBISM_SHADER_VARIABLES
 
 
-				CUBISM_TO_MASK_CLIP_POS(IN, OUT);
+            v2f vert(appdata_t IN)
+            {
+                v2f OUT;
 
 
-				OUT.color    = IN.color;
-				OUT.texcoord = IN.texcoord;
+                CUBISM_TO_MASK_CLIP_POS(IN, OUT);
 
 
-				return OUT;
-			}
+                OUT.color    = IN.color;
+                OUT.texcoord = IN.texcoord;
 
 
-			sampler2D _MainTex;
+                return OUT;
+            }
 
 
-			fixed4 frag(v2f IN) : SV_Target
-			{
-				return CUBISM_MASK_CHANNEL * tex2D(_MainTex, IN.texcoord).a;
-
-			}
+            sampler2D _MainTex;
 
 
-			ENDCG
-		}
-	}
+            fixed4 frag(v2f IN) : SV_Target
+            {
+                return CUBISM_MASK_CHANNEL * tex2D(_MainTex, IN.texcoord).a;
+
+            }
+
+
+            ENDCG
+        }
+    }
 }

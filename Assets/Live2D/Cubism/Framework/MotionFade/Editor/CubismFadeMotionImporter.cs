@@ -40,8 +40,6 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <param name="animationClip">Imported motion.</param>
         private static void OnFadeMotionImport(CubismMotion3JsonImporter importer, AnimationClip animationClip)
         {
-            var directoryPath = Path.GetDirectoryName(importer.AssetPath) + "/";
-
             var oldFadeMotion = AssetDatabase.LoadAssetAtPath<CubismFadeMotionData>(importer.AssetPath.Replace(".motion3.json", ".fade.asset"));
 
             // Create fade motion.
@@ -51,7 +49,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                 // Create fade motion instance.
                 fadeMotion = CubismFadeMotionData.CreateInstance(
                     importer.Motion3Json,
-                    importer.AssetPath.Replace(directoryPath, ""),
+                    importer.AssetPath,
                     animationClip.length,
                     CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow,
                     CubismUnityEditorMenu.ShouldClearAnimationCurves);
@@ -65,7 +63,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                 fadeMotion = CubismFadeMotionData.CreateInstance(
                     oldFadeMotion,
                     importer.Motion3Json,
-                    importer.AssetPath.Replace(directoryPath, ""),
+                    importer.AssetPath,
                     animationClip.length,
                     CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow,
                     CubismUnityEditorMenu.ShouldClearAnimationCurves);
@@ -77,10 +75,10 @@ namespace Live2D.Cubism.Framework.MotionFade
 
 
             // Add reference of motion for Fade to list.
-            var directoryName = Path.GetDirectoryName(importer.AssetPath).ToString();
-            var modelDir = Path.GetDirectoryName(directoryName).ToString();
-            var modelName = Path.GetFileName(modelDir).ToString();
-            var fadeMotionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".fadeMotionList.asset";
+            var directoryName = Path.GetDirectoryName(importer.AssetPath);
+            var modelDir = Path.GetDirectoryName(directoryName);
+            var modelName = Path.GetFileName(modelDir);
+            var fadeMotionListPath = modelDir + "/" + modelName + ".fadeMotionList.asset";
             var fadeMotions = AssetDatabase.LoadAssetAtPath<CubismFadeMotionList>(fadeMotionListPath);
 
             // Create reference list.
@@ -93,7 +91,27 @@ namespace Live2D.Cubism.Framework.MotionFade
             }
 
 
-            var instanceId = animationClip.GetInstanceID();
+            var instanceId = 0;
+            var isExistInstanceId = false;
+            var events = animationClip.events;
+            for (var k = 0; k < events.Length; ++k)
+            {
+                if (events[k].functionName != "InstanceId")
+                {
+                    continue;
+                }
+
+                instanceId = events[k].intParameter;
+                isExistInstanceId = true;
+                break;
+            }
+
+            if (!isExistInstanceId)
+            {
+                instanceId = animationClip.GetInstanceID();
+            }
+
+
             var motionIndex =  Array.IndexOf(fadeMotions.MotionInstanceIds, instanceId);
             if (motionIndex != -1)
             {

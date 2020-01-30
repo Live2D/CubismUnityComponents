@@ -45,7 +45,8 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Model has cubism update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
         /// <summary>
         /// Fade state machine behavior set in the animator.
@@ -64,7 +65,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Refreshes the controller. Call this method after adding and/or removing <see cref="CubismFadeParameter"/>s.
         /// </summary>
-        private void Refresh()
+        public void Refresh()
         {
             _animator = GetComponent<Animator>();
 
@@ -79,7 +80,7 @@ namespace Live2D.Cubism.Framework.MotionFade
             _motionController = GetComponent<CubismMotionController>();
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
 
             _fadeStates = (ICubismFadeState[])_animator.GetBehaviours<CubismFadeStateObserver>();
 
@@ -92,12 +93,18 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismFadeController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismFadeController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => false;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Updates controller.
@@ -237,7 +244,6 @@ namespace Live2D.Cubism.Framework.MotionFade
                 return;
             }
 
-            fadeState.SetStateTransitionFinished(false);
 
             var playingMotionCount = playingMotions.Count - 1;
 
@@ -332,7 +338,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         private void LateUpdate()
         {
-            if (!_hasUpdateController)
+            if (!HasUpdateController)
             {
                 OnLateUpdate();
             }

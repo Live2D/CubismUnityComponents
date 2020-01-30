@@ -25,6 +25,14 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismPhysicsSubRig[] SubRigs;
 
 
+        [SerializeField]
+        public Vector2 Gravity = CubismPhysics.Gravity;
+
+
+        [SerializeField]
+        public Vector2 Wind = CubismPhysics.Wind;
+
+
         /// <summary>
         /// Reference of controller to refer from children rig.
         /// </summary>

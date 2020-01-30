@@ -17,12 +17,12 @@ namespace Live2D.Cubism.Framework.Physics
     public static class CubismPhysics
     {
         /// <summary>
-        /// Gravity.
+        /// Default gravity.
         /// </summary>
         public static Vector2 Gravity = Vector2.down;
 
         /// <summary>
-        /// Direction of wind.
+        /// Default direction of wind.
         /// </summary>
         public static Vector2 Wind = Vector2.zero;
 

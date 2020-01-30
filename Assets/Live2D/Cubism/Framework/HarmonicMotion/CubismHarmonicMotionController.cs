@@ -50,7 +50,8 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
 
         /// <summary>
@@ -74,18 +75,24 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
             }
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismHarmonicMotionController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismHarmonicMotionController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => false;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Updates controller.
@@ -126,7 +133,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// </summary>
         private void LateUpdate()
         {
-            if (!_hasUpdateController)
+            if (!HasUpdateController)
             {
                 OnLateUpdate();
             }

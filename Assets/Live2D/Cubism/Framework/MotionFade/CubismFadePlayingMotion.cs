@@ -42,5 +42,11 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         [SerializeField]
         public CubismFadeMotionData Motion;
+
+        /// <summary>
+        /// Is animation loop.
+        /// </summary>
+        [SerializeField]
+        public bool IsLooping;
     }
 }

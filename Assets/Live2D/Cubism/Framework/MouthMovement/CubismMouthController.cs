@@ -25,26 +25,27 @@ namespace Live2D.Cubism.Framework.MouthMovement
 
 
         /// <summary>
-        /// The opening of the eyes.
+        /// The opening of the mouth.
         /// </summary>
         [SerializeField, Range(0f, 1f)]
         public float MouthOpening = 1f;
 
 
         /// <summary>
-        /// Eye blink parameters.
+        /// Mouth parameters.
         /// </summary>
         private CubismParameter[] Destinations { get; set; }
 
         /// <summary>
         /// Model has update controller component.
         /// </summary>
-        private bool _hasUpdateController = false;
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
 
 
 
         /// <summary>
-        /// Refreshes controller. Call this method after adding and/or removing <see cref="CubismEyeBlinkParameter"/>s.
+        /// Refreshes controller. Call this method after adding and/or removing <see cref="CubismMouthParameter"/>s.
         /// </summary>
         public void Refresh()
         {
@@ -73,18 +74,24 @@ namespace Live2D.Cubism.Framework.MouthMovement
             }
 
             // Get cubism update controller.
-            _hasUpdateController = (GetComponent<CubismUpdateController>() != null);
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
         }
 
         /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
-        public int ExecutionOrder => CubismUpdateExecutionOrder.CubismMouthController;
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismMouthController; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
         /// </summary>
-        public bool NeedsUpdateOnEditing => false;
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
 
         /// <summary>
         /// Called by cubism update controller. Updates controller.
@@ -121,7 +128,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
         /// </summary>
         private void LateUpdate()
         {
-            if(!_hasUpdateController)
+            if(!HasUpdateController)
             {
                 OnLateUpdate();
             }

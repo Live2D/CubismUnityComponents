@@ -44,6 +44,14 @@ namespace Live2D.Cubism.Framework.Json
         {
             var instance = new CubismPhysicsRig();
 
+
+            instance.Gravity.x = Meta.EffectiveForces.Gravity.X;
+            instance.Gravity.y = Meta.EffectiveForces.Gravity.Y;
+
+            instance.Wind.x = Meta.EffectiveForces.Wind.X;
+            instance.Wind.y = Meta.EffectiveForces.Wind.Y;
+
+
             instance.SubRigs = new CubismPhysicsSubRig[Meta.PhysicsSettingCount];
 
 
