@@ -358,8 +358,14 @@ namespace Live2D.Cubism.Core
             };
 
 
-            // Get the default player loop.
-            var playerLoopSystem = PlayerLoop.GetDefaultPlayerLoop();
+            var playerLoopSystem =
+#if UNITY_2019_3_OR_NEWER
+                // Get current (not default) player loop to prevent conflicts 
+                // with other packages using the same API.
+                PlayerLoop.GetCurrentPlayerLoop();
+#else
+                PlayerLoop.GetDefaultPlayerLoop();
+#endif
 
 
             // Get the "PreLateUpdate" system.
