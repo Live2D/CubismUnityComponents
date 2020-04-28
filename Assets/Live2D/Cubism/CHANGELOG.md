@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 * Change the setting of Player Loop customized by other assets not to be rewritten in Unity 2019.3 or later.
+* Change to get the path of the audio files associated with `.motion3.json` from `.model3.json`.
 
 ### Fixed
 
