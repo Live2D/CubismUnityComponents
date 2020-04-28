@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 * Fix the bug of the weight calculation of `MotionFade`.
+* Fix the bug of the weight calculation of `Expression`.
 
 
 ## [4-r.1] - 2020-01-30
