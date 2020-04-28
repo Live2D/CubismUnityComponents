@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 * Change the setting of Player Loop customized by other assets not to be rewritten in Unity 2019.3 or later.
 
+### Fixed
+
+* Fix the bug of the weight calculation of `MotionFade`.
+
 
 ## [4-r.1] - 2020-01-30
 

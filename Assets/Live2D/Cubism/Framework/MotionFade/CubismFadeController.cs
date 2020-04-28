@@ -154,6 +154,8 @@ namespace Live2D.Cubism.Framework.MotionFade
 
             var time = Time.time;
 
+            var isFadeInEnded = true;
+
             // Calculate MotionFade.
             for (var i = 0; i < playingMotions.Count; i++)
             {
@@ -179,7 +181,7 @@ namespace Live2D.Cubism.Framework.MotionFade
                     ? 1.0f
                     : CubismFadeMath.GetEasingSine((playingMotion.EndTime - Time.time) / fadeOutTime);
                 var motionWeight = (i == 0)
-                    ? (fadeInWeight * fadeOutWeight)
+                    ? 1.0f
                     : (fadeInWeight * fadeOutWeight * layerWeight);
 
                 // Apply to parameter values
@@ -237,9 +239,15 @@ namespace Live2D.Cubism.Framework.MotionFade
                             fadeMotion.ParameterFadeInTimes[index], fadeMotion.ParameterFadeOutTimes[index],
                             motionWeight, DestinationParts[j].Opacity);
                 }
+
+
+                if (fadeInWeight < 1.0f)
+                {
+                    isFadeInEnded = false;
+                }
             }
 
-            if (!fadeState.GetStateTransitionFinished())
+            if (!fadeState.GetStateTransitionFinished() || !isFadeInEnded)
             {
                 return;
             }
