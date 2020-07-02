@@ -92,11 +92,11 @@ namespace Live2D.Cubism.Framework.Expression
 
             ret.Type = expressionData.Type;
 
-            ret.FadeInTime = (expressionData.FadeInTime <= 0.0f)
+            ret.FadeInTime = (expressionData.FadeInTime < 0.0f)
                                 ? 1.0f
                                 : expressionData.FadeInTime;
 
-            ret.FadeOutTime = (expressionData.FadeOutTime <= 0.0f)
+            ret.FadeOutTime = (expressionData.FadeOutTime < 0.0f)
                                 ? 1.0f
                                 : expressionData.FadeOutTime;
 

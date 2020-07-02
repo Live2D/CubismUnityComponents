@@ -137,11 +137,14 @@ namespace Live2D.Cubism.Framework.Expression
                 playingExpression.ExpressionUserTime += Time.deltaTime;
 
                 // Update weight
-                var fadeIn = CubismFadeMath.GetEasingSine(playingExpression.ExpressionUserTime / playingExpression.FadeInTime);
-
-                var fadeOut = (playingExpression.ExpressionEndTime <= 0.0f)
+                var fadeIn = (Mathf.Abs(playingExpression.FadeInTime) < float.Epsilon)
                               ? 1.0f
-                              : CubismFadeMath.GetEasingSine((playingExpression.ExpressionEndTime - playingExpression.ExpressionUserTime) / playingExpression.FadeOutTime);
+                              : CubismFadeMath.GetEasingSine(playingExpression.ExpressionUserTime / playingExpression.FadeInTime);
+
+                var fadeOut = ((Mathf.Abs(playingExpression.ExpressionEndTime) < float.Epsilon) || (playingExpression.ExpressionEndTime < 0.0f))
+                              ? 1.0f
+                              : CubismFadeMath.GetEasingSine(
+                                  (playingExpression.ExpressionEndTime - playingExpression.ExpressionUserTime) / playingExpression.FadeOutTime);
 
                 playingExpression.Weight = fadeIn * fadeOut;
 

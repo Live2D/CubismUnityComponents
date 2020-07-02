@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Unreleased]
+
+### Changed
+
+* Change the setting of Player Loop customized by other assets not to be rewritten in Unity 2019.3 or later.
+* Change to get the path of the audio files associated with `.motion3.json` from `.model3.json`.
+
+### Fixed
+
+* Fix the bug of the weight calculation of `MotionFade`.
+* Fix the bug of the weight calculation of `Expression`.
+
+
 ## [4-r.1] - 2020-01-30
 
 ### Changed
@@ -66,7 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue that mesh remain when deleting model.
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
-
+[Unreleased]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.1...HEAD
 [4-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.2...4-r.1
 [4-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.1...4-beta.2
 [4-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/86e5b07702f74d00b4ab52b7d6c15ba3464b8b85...4-beta.1
