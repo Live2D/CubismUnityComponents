@@ -566,7 +566,10 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private IntPtr Address { get; set; }
+        /// <remarks>
+        /// It's public because it's critical to performance.
+        /// </remarks>
+        public IntPtr Address { get; private set; }
 
         #region Ctors
 
