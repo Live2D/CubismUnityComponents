@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 * Fix the bug of the weight calculation of `MotionFade`.
 * Fix the bug of the weight calculation of `Expression`.
+* Fix the bug when playing a motion that is shorter than the fade time or transitioning to a motion with a different fade value.
 
 
 ## [4-r.1] - 2020-01-30

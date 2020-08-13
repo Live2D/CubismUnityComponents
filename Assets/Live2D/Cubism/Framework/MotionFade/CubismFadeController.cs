@@ -58,6 +58,16 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         private Animator _animator;
 
+        /// <summary>
+        /// Restore parameter value.
+        /// </summary>
+        private CubismParameterStore _parameterStore;
+
+        /// <summary>
+        /// Fading flags for each layer.
+        /// </summary>
+        private bool[] _isFading;
+
         #endregion
 
         #region Function
@@ -78,6 +88,7 @@ namespace Live2D.Cubism.Framework.MotionFade
             DestinationParameters = this.FindCubismModel().Parameters;
             DestinationParts = this.FindCubismModel().Parts;
             _motionController = GetComponent<CubismMotionController>();
+            _parameterStore = GetComponent<CubismParameterStore>();
 
             // Get cubism update controller.
             HasUpdateController = (GetComponent<CubismUpdateController>() != null);
@@ -88,6 +99,12 @@ namespace Live2D.Cubism.Framework.MotionFade
             {
                 _fadeStates = _motionController.GetFadeStates();
             }
+
+            if (_fadeStates == null)
+            {
+                return;
+            }
+            _isFading = new bool[_fadeStates.Length];
         }
 
         /// <summary>
@@ -115,21 +132,82 @@ namespace Live2D.Cubism.Framework.MotionFade
         public void OnLateUpdate()
         {
             // Fail silently.
-            if (!enabled || _fadeStates == null
+            if (!enabled || _fadeStates == null || _parameterStore == null
                || DestinationParameters == null || DestinationParts == null)
             {
                 return;
             }
 
-            // Update sources and destinations.
+            var time = Time.time;
             for (var i = 0; i < _fadeStates.Length; ++i)
             {
-                if (_fadeStates[i].IsDefaultState())
+                _isFading[i] = false;
+
+                var playingMotions = _fadeStates[i].GetPlayingMotions();
+                if (playingMotions == null || playingMotions.Count <= 1)
                 {
-                    // Skip state transitioning from Entry.
                     continue;
                 }
 
+                var latestPlayingMotion = playingMotions[playingMotions.Count - 1];
+
+                var playingMotionData = latestPlayingMotion.Motion;
+                var elapsedTime = time - latestPlayingMotion.StartTime;
+                for (var j = 0; j < playingMotionData.ParameterFadeInTimes.Length; j++)
+                {
+                    if ((elapsedTime <= playingMotionData.FadeInTime) ||
+                        ((0 <= playingMotionData.ParameterFadeInTimes[j]) &&
+                          (elapsedTime <= playingMotionData.ParameterFadeInTimes[j])))
+                    {
+                        _isFading[i] = true;
+                        break;
+                    }
+                }
+            }
+
+            var isFadingAllFinished = true;
+            for (var i = 0; i < _fadeStates.Length; ++i)
+            {
+                var playingMotions = _fadeStates[i].GetPlayingMotions();
+                var playingMotionCount = playingMotions.Count - 1;
+                if (_isFading[i])
+                {
+                    isFadingAllFinished = false;
+                    continue;
+                }
+                for (var j = playingMotionCount; j >= 0; --j)
+                {
+                    if (playingMotions.Count <= 1)
+                    {
+                        break;
+                    }
+
+                    var playingMotion = playingMotions[j];
+                    if (time <= playingMotion.EndTime)
+                    {
+                        continue;
+                    }
+
+                    // If fade-in has been completed, delete the motion that has been played back.
+                    _fadeStates[i].StopAnimation(j);
+                }
+            }
+
+            if (isFadingAllFinished)
+            {
+                return;
+            }
+
+            _parameterStore.RestoreParameters();
+
+
+            // Update sources and destinations.
+            for (var i = 0; i < _fadeStates.Length; ++i)
+            {
+                if (!_isFading[i])
+                {
+                    continue;
+                }
                 UpdateFade(_fadeStates[i]);
             }
         }
@@ -142,7 +220,7 @@ namespace Live2D.Cubism.Framework.MotionFade
         {
             var playingMotions = fadeState.GetPlayingMotions();
 
-            if (playingMotions == null || playingMotions.Count <= 1)
+            if (playingMotions == null)
             {
                 // Do not process if there is only one motion, if it does not switch.
                 return;
@@ -154,7 +232,30 @@ namespace Live2D.Cubism.Framework.MotionFade
 
             var time = Time.time;
 
-            var isFadeInEnded = true;
+            // Set playing motions end time.
+            if ((playingMotions.Count > 0) && (playingMotions[playingMotions.Count - 1].Motion != null) && (playingMotions[playingMotions.Count - 1].IsLooping))
+            {
+                var motion = playingMotions[playingMotions.Count - 1];
+
+                var newEndTime = time + motion.Motion.FadeOutTime;
+
+                motion.EndTime = newEndTime;
+
+
+                while (true)
+                {
+                    if ((motion.StartTime + motion.Motion.MotionLength) >= time)
+                    {
+                        break;
+                    }
+
+                    motion.StartTime += motion.Motion.MotionLength;
+                }
+
+
+                playingMotions[playingMotions.Count - 1] = motion;
+            }
+
 
             // Calculate MotionFade.
             for (var i = 0; i < playingMotions.Count; i++)
@@ -180,8 +281,12 @@ namespace Live2D.Cubism.Framework.MotionFade
                 var fadeOutWeight = (fadeOutTime <= 0.0f)
                     ? 1.0f
                     : CubismFadeMath.GetEasingSine((playingMotion.EndTime - Time.time) / fadeOutTime);
+
+
+                playingMotions[i] = playingMotion;
+
                 var motionWeight = (i == 0)
-                    ? 1.0f
+                    ? (fadeInWeight * fadeOutWeight)
                     : (fadeInWeight * fadeOutWeight * layerWeight);
 
                 // Apply to parameter values
@@ -240,32 +345,6 @@ namespace Live2D.Cubism.Framework.MotionFade
                             motionWeight, DestinationParts[j].Opacity);
                 }
 
-
-                if (fadeInWeight < 1.0f)
-                {
-                    isFadeInEnded = false;
-                }
-            }
-
-            if (!fadeState.GetStateTransitionFinished() || !isFadeInEnded)
-            {
-                return;
-            }
-
-
-            var playingMotionCount = playingMotions.Count - 1;
-
-            for (var i = playingMotionCount; i >= 0; --i)
-            {
-                var playingMotion = playingMotions[i];
-
-                if (Time.time <= playingMotion.EndTime)
-                {
-                    continue;
-                }
-
-                // If fade-in has been completed, delete the motion that has been played back.
-                fadeState.StopAnimation(i);
             }
         }
 

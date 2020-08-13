@@ -16,6 +16,7 @@ namespace Live2D.Cubism.Framework
     public static class CubismUpdateExecutionOrder
     {
         public static readonly int CubismFadeController = 100;
+        public static readonly int CubismParameterStoreSaveParameters = 150;
         public static readonly int CubismPoseController = 200;
         public static readonly int CubismExpressionController = 300;
         public static readonly int CubismEyeBlinkController = 400;

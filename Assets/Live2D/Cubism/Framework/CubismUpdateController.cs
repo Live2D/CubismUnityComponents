@@ -21,11 +21,6 @@ namespace Live2D.Cubism.Framework
         private System.Action _onLateUpdate;
 
         /// <summary>
-        /// The parameter store cache.
-        /// </summary>
-        private CubismParameterStore _parameterStore;
-
-        /// <summary>
         /// Refresh delegate manager.
         /// </summary>
         public void Refresh()
@@ -57,15 +52,6 @@ namespace Live2D.Cubism.Framework
 
                 _onLateUpdate += component.OnLateUpdate;
             }
-
-#if UNITY_EDITOR
-            if (Application.isPlaying)
-            {
-#endif
-                _parameterStore = model.GetComponent<CubismParameterStore>();
-#if UNITY_EDITOR
-            }
-#endif
         }
 
         #region Unity Event Handling
@@ -83,12 +69,6 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         private void LateUpdate()
         {
-            // Save model parameters value and parts opacity
-            if (_parameterStore != null)
-            {
-                _parameterStore.SaveParameters();
-            }
-
             // Cubism late update.
             if(_onLateUpdate != null)
             {
