@@ -251,15 +251,12 @@ namespace Live2D.Cubism.Core
 
 
                 // Copy vertex positions.
-                var vertexLength = data.VertexPositions.Length;
                 fixed (Vector3* dataVertexPositions = data.VertexPositions)
                 {
-                    var vertexPointer = (float*)vertexPositions[i].Address.ToPointer();
-                    for (var v = 0; v < vertexLength; ++v)
+                    for (var v = 0; v < data.VertexPositions.Length; ++v)
                     {
-                        var indexBase = v * 2;
-                        dataVertexPositions[v].x = vertexPointer[indexBase + 0];
-                        dataVertexPositions[v].y = vertexPointer[indexBase + 1];
+                        dataVertexPositions[v].x = vertexPositions[i][(v * 2) + 0];
+                        dataVertexPositions[v].y = vertexPositions[i][(v * 2) + 1];
                     }
                 }
             }
