@@ -14,7 +14,7 @@ namespace Live2D.Cubism.Framework
     /// <summary>
     /// Cubism parameter store.
     /// </summary>
-    public class CubismParameterStore : MonoBehaviour
+    public class CubismParameterStore : MonoBehaviour, ICubismUpdatable
     {
         /// <summary>
         /// Parameters cache.
@@ -35,6 +35,67 @@ namespace Live2D.Cubism.Framework
         /// For storage parts opacity.
         /// </summary>
         private float[] _partOpacities;
+
+        /// <summary>
+        /// Model has cubism update controller component.
+        /// </summary>
+        [HideInInspector]
+        public bool HasUpdateController { get; set; }
+
+
+
+        /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public int ExecutionOrder
+        {
+            get { return CubismUpdateExecutionOrder.CubismParameterStoreSaveParameters; }
+        }
+
+        /// <summary>
+        /// Called by cubism update controller. Needs to invoke OnLateUpdate on Editing.
+        /// </summary>
+        public bool NeedsUpdateOnEditing
+        {
+            get { return false; }
+        }
+
+
+        public void Refresh()
+        {
+            if (DestinationParameters == null)
+            {
+                DestinationParameters = this.FindCubismModel().Parameters;
+            }
+
+            if (DestinationParts == null)
+            {
+                DestinationParts = this.FindCubismModel().Parts;
+            }
+
+            // Get cubism update controller.
+            HasUpdateController = (GetComponent<CubismUpdateController>() != null);
+
+            SaveParameters();
+        }
+
+        /// <summary>
+        /// Called by cubism update controller. Updates controller.
+        /// </summary>
+        /// <remarks>
+        /// Make sure this method is called after any animations are evaluated.
+        /// </remarks>
+        public void OnLateUpdate()
+        {
+            if (!HasUpdateController)
+            {
+                return;
+            }
+
+            SaveParameters();
+        }
+
+
 
         /// <summary>
         /// Save model parameters value and parts opacity.
@@ -111,15 +172,8 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         private void OnEnable()
         {
-            if(DestinationParameters == null)
-            {
-                DestinationParameters = this.FindCubismModel().Parameters;
-            }
-
-            if(DestinationParts == null)
-            {
-                DestinationParts = this.FindCubismModel().Parts;
-            }
+            // Initialize cache.
+            Refresh();
         }
 
     }

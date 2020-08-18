@@ -222,6 +222,7 @@ namespace Live2D.Cubism.Framework.Motion
                               ? -1
                               : ret.StartTime + ret.Motion.MotionLength / speed;
                 ret.IsLooping = isLooping;
+                ret.Weight = 0.0f;
 
                 break;
             }
@@ -269,7 +270,10 @@ namespace Live2D.Cubism.Framework.Motion
 
                 var newEndTime = time + motion.Motion.FadeOutTime;
 
-                motion.EndTime = newEndTime;
+                if (newEndTime < 0.0f || newEndTime < motion.EndTime)
+                {
+                    motion.EndTime = newEndTime;
+                }
 
 
                 while (motion.IsLooping)

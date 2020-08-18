@@ -6,6 +6,7 @@
  */
 
 
+using System;
 using UnityEngine;
 
 
@@ -48,5 +49,11 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         [SerializeField]
         public bool IsLooping;
+
+        /// <summary>
+        /// Motion weight.
+        /// </summary>
+        [NonSerialized]
+        public float Weight;
     }
 }
