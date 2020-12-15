@@ -134,27 +134,22 @@ namespace Live2D.Cubism.Framework.Raycasting
                     continue;
                 }
 
+                var bounds = raycastable.Mesh.bounds;
 
-
-                if (raycastablePrecision == CubismRaycastablePrecision.BoundingBox)
+                // Skip non hits (bounding box)
+                if (!bounds.Contains(intersectionInLocalSpace))
                 {
-                    var bounds = raycastable.Mesh.bounds;
-
-                    // Skip non hits
-                    if (!bounds.Contains(intersectionInLocalSpace))
-                    {
-                        continue;
-                    }
+				    continue;
                 }
-                else
+
+                // Do detailed hit-detection against mesh if requested.
+                if (raycastablePrecision == CubismRaycastablePrecision.Triangles)
                 {
-                    // Skip non hits
                     if (!ContainsInTriangles(raycastable.Mesh, intersectionInLocalSpace))
                     {
                         continue;
                     }
                 }
-
 
                 result[hitCount].Drawable = raycastable.GetComponent<CubismDrawable>();
                 result[hitCount].Distance = distance;
