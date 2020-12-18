@@ -151,6 +151,7 @@ namespace Live2D.Cubism.Framework.Raycasting
                     }
                 }
 
+
                 result[hitCount].Drawable = raycastable.GetComponent<CubismDrawable>();
                 result[hitCount].Distance = distance;
                 result[hitCount].LocalPosition = intersectionInLocalSpace;
