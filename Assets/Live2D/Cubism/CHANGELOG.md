@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix the bug of the weight calculation of `MotionFade`.
 * Fix the bug of the weight calculation of `Expression`.
 * Fix the bug when playing a motion that is shorter than the fade time or transitioning to a motion with a different fade value.
+* Fix checking bounding box hit every time before checking mesh hit by [@DenchiSoft](https://github.com/Live2D/CubismUnityComponents/pull/42).
 
 
 ## [4-r.1] - 2020-01-30
