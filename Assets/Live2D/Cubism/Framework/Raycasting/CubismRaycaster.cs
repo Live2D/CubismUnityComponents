@@ -136,10 +136,11 @@ namespace Live2D.Cubism.Framework.Raycasting
 
                 var bounds = raycastable.Mesh.bounds;
 
+
                 // Skip non hits (bounding box)
                 if (!bounds.Contains(intersectionInLocalSpace))
                 {
-				    continue;
+                    continue;
                 }
 
                 // Do detailed hit-detection against mesh if requested.

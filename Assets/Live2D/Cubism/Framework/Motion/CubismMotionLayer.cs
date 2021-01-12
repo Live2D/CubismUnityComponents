@@ -146,7 +146,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 return;
             }
-            
+
             _playableGraph.Disconnect(_motionState.ClipMixer, 0);
             _motionState = null;
 
@@ -247,7 +247,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 _playableGraph.Disconnect(_motionState.ClipMixer, 0);
             }
-            
+
             // Create cubism motion state.
             _motionState = CubismMotionState.CreateCubismMotionState(_playableGraph, clip, isLoop, speed);
 

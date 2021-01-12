@@ -5,19 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [Unreleased]
+## [4-r.2] - 2021-01-12
+
+### Added
+
+* Add Unity 2020 to the development environment.
+* Add feature to make Animator Controller that supports MotionFade.
+* Add a process that applies the Culling configuration from Model Data.
+* Add a `AnimatorController` generator that is already set `CubismFadeStateObserver`.
 
 ### Changed
 
 * Change the setting of Player Loop customized by other assets not to be rewritten in Unity 2019.3 or later.
 * Change to get the path of the audio files associated with `.motion3.json` from `.model3.json`.
+* Change to enable the appropriate Cubism iOS plugin before building.
 * Change the handling of `UnmanagedArrayView` pointers due to improve the performance. [@ppcuni](https://github.com/ppcuni)
+* Change the default importing mode to `Original Workflow`.
+  * Note: Importing this version into an older version SDK will override this setting.
+    see [Cubism SDK Manual page](https://docs.live2d.com/cubism-sdk-manual/unity-for-ow/)
 
 ### Fixed
 
 * Fix the bug of the weight calculation of `MotionFade`.
 * Fix the bug of the weight calculation of `Expression`.
 * Fix the bug when playing a motion that is shorter than the fade time or transitioning to a motion with a different fade value.
+* Fix fixed value for the generated .exp3.asset fade value when there is no fade value in .exp3.json.
+* Fix registering the delegate duplicately on calling `CubismUpdateController.Refresh()`.
+* Fix checking bounding box hit every time before checking mesh hit by [@DenchiSoft](https://github.com/Live2D/CubismUnityComponents/pull/42).
+
+### Removed
+
+* Remove Unity 2017 from the development environment.
 
 
 ## [4-r.1] - 2020-01-30
@@ -81,7 +99,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue that mesh remain when deleting model.
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
-[Unreleased]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.1...HEAD
+[4-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.1...4-r.2
 [4-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.2...4-r.1
 [4-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.1...4-beta.2
 [4-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/86e5b07702f74d00b4ab52b7d6c15ba3464b8b85...4-beta.1

@@ -9,10 +9,12 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.{cs,shader,cginc}]
-indent_size = 4
-
-[*.cs]
 charset = utf-8-bom
+indent_size = 4
 
 [*.{csproj,sln}]
 end_of_line = crlf
+
+[*.{anim,asset,controller,mat,meta,prefab,unity}]
+insert_final_newline = unset
+trim_trailing_whitespace = unset

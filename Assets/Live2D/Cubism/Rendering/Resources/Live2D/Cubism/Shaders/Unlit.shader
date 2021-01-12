@@ -22,6 +22,10 @@ Shader "Live2D Cubism/Unlit"
         _DstAlpha("Destination Alpha", Int) = 0
 
 
+        // Culling setting.
+        _Cull("Culling", Int) = 0
+
+
         // Mask settings.
         [Toggle(CUBISM_MASK_ON)] cubism_MaskOn("Mask?", Int) = 0
         [Toggle(CUBISM_INVERT_ON)] cubism_InvertOn("Inverted?", Int) = 0
@@ -40,7 +44,7 @@ Shader "Live2D Cubism/Unlit"
             "CanUseSpriteAtlas" = "True"
         }
 
-        Cull     Off
+        Cull     [_Cull]
         Lighting Off
         ZWrite   Off
         Blend    [_SrcColor][_DstColor], [_SrcAlpha][_DstAlpha]

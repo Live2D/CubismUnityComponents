@@ -33,8 +33,8 @@ namespace Live2D.Cubism.Framework
                 return;
             }
 
-            // Clear delegate.
-            System.Delegate.RemoveAll(_onLateUpdate, null);
+            // Set the null value when refreshed UpdateController to avoid duplicated registering.
+            _onLateUpdate = null;
 
             // Set delegate.
             var components = model.GetComponents<ICubismUpdatable>();

@@ -26,25 +26,54 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>Mapped texture.</returns>
         public static Material MaterialPicker(CubismModel3Json sender, CubismDrawable drawable)
         {
+            if (drawable.IsDoubleSided)
+            {
+                if (drawable.BlendAdditive)
+                {
+                    return (drawable.IsMasked)
+                        ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitAdditiveMaskedInverted :
+                        CubismBuiltinMaterials.UnlitAdditiveMasked
+                        : CubismBuiltinMaterials.UnlitAdditive;
+                }
+
+
+                if (drawable.MultiplyBlend)
+                {
+                    return (drawable.IsMasked)
+                        ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMultiplyMaskedInverted :
+                        CubismBuiltinMaterials.UnlitMultiplyMasked
+                        : CubismBuiltinMaterials.UnlitMultiply;
+                }
+
+
+                return (drawable.IsMasked)
+                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMaskedInverted :
+                    CubismBuiltinMaterials.UnlitMasked
+                    : CubismBuiltinMaterials.Unlit;
+            }
+
             if (drawable.BlendAdditive)
             {
                 return (drawable.IsMasked)
-                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitAdditiveMaskedInverted : CubismBuiltinMaterials.UnlitAdditiveMasked
-                    : CubismBuiltinMaterials.UnlitAdditive;
+                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitAdditiveMaskedInvertedCulling :
+                    CubismBuiltinMaterials.UnlitAdditiveMaskedCulling
+                    : CubismBuiltinMaterials.UnlitAdditiveCulling;
             }
 
 
             if (drawable.MultiplyBlend)
             {
                 return (drawable.IsMasked)
-                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMultiplyMaskedInverted : CubismBuiltinMaterials.UnlitMultiplyMasked
-                    : CubismBuiltinMaterials.UnlitMultiply;
+                    ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMultiplyMaskedInvertedCulling :
+                    CubismBuiltinMaterials.UnlitMultiplyMaskedCulling
+                    : CubismBuiltinMaterials.UnlitMultiplyCulling;
             }
 
 
             return (drawable.IsMasked)
-                ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMaskedInverted : CubismBuiltinMaterials.UnlitMasked
-                : CubismBuiltinMaterials.Unlit;
+                ? (drawable.IsInverted) ? CubismBuiltinMaterials.UnlitMaskedInvertedCulling :
+                CubismBuiltinMaterials.UnlitMaskedCulling
+                : CubismBuiltinMaterials.UnlitCulling;
         }
 
 

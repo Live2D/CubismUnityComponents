@@ -3,8 +3,9 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -12,8 +13,8 @@ MonoBehaviour:
   m_Name: exp_09.exp3
   m_EditorClassIdentifier: 
   Type: Live2D Expression
-  FadeInTime: 0
-  FadeOutTime: 0
+  FadeInTime: 1
+  FadeOutTime: 1
   Parameters:
   - Id: ParamEyeLOpen
     Value: 1.2

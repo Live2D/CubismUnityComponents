@@ -4,8 +4,9 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Unlit
   m_Shader: {fileID: 4800000, guid: b6ac6b89a3f2a5d4ba21b017d47b480c, type: 3}
   m_ShaderKeywords: 
@@ -27,6 +28,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _Cull: 0
     - _DstAlpha: 10
     - _DstColor: 10
     - _SrcAlpha: 1

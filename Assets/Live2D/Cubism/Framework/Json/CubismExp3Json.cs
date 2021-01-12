@@ -58,13 +58,13 @@ namespace Live2D.Cubism.Framework.Json
         /// Expression FadeInTime
         /// </summary>
         [SerializeField]
-        public float FadeInTime;
+        public float FadeInTime = 1.0f;
 
         /// <summary>
         /// Expression FadeOutTime
         /// </summary>
         [SerializeField]
-        public float FadeOutTime;
+        public float FadeOutTime = 1.0f;
 
         /// <summary>
         /// Expression Parameters

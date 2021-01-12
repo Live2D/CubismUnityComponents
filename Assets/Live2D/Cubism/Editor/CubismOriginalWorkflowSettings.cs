@@ -22,13 +22,13 @@ namespace Live2D.Cubism.Editor.OriginalWorkflow
         /// Should import as original workflow.
         /// </summary>
         [SerializeField, HideInInspector]
-        public bool ShouldImportAsOriginalWorkflow;
+        public bool ShouldImportAsOriginalWorkflow = true;
 
         /// <summary>
         /// Should clear animation clip curves.
         /// </summary>
         [SerializeField, HideInInspector]
-        public bool ShouldClearAnimationCurves;
+        public bool ShouldClearAnimationCurves = false;
 
         /// <summary>
         /// The cubism original workflow settings.

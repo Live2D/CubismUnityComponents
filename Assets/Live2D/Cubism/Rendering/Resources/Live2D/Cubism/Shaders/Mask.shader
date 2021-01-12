@@ -8,6 +8,11 @@
 
 Shader "Live2D Cubism/Mask"
 {
+    Properties
+    {
+        // Culling setting.
+        _Cull("Culling", Int) = 0
+    }
     SubShader
     {
         Tags
@@ -24,7 +29,7 @@ Shader "Live2D Cubism/Mask"
         LOD      100
         ZWrite   Off
         Lighting Off
-        Cull     Off
+        Cull     [_Cull]
         Blend    One One
 
 
