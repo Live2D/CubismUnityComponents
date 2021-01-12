@@ -133,6 +133,11 @@ namespace Live2D.Cubism.Framework.Json
                         modelJson.FileReferences.Motions.Motions[i][j].File = motionGroup.Get(j).Get("File").toString();
                     }
 
+                    if (motionGroup.Get(j).GetMap(null).ContainsKey("Sound"))
+                    {
+                        modelJson.FileReferences.Motions.Motions[i][j].Sound = motionGroup.Get(j).Get("Sound").toString();
+                    }
+
                     if (motionGroup.Get(j).GetMap(null).ContainsKey("FadeInTime"))
                     {
                         modelJson.FileReferences.Motions.Motions[i][j].FadeInTime = motionGroup.Get(j).Get("FadeInTime").ToFloat();
@@ -833,6 +838,12 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public string File;
+
+            /// <summary>
+            /// Sound path.
+            /// </summary>
+            [SerializeField]
+            public string Sound;
 
             /// <summary>
             /// Fade in time.

@@ -92,12 +92,97 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Default unlit material.
+        /// </summary>
+        public static Material UnlitCulling
+        {
+            get { return LoadUnlitMaterial("UnlitCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit, additively blending material.
+        /// </summary>
+        public static Material UnlitAdditiveCulling
+        {
+            get { return LoadUnlitMaterial("UnlitAdditiveCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit, multiply blending material.
+        /// </summary>
+        public static Material UnlitMultiplyCulling
+        {
+            get { return LoadUnlitMaterial("UnlitMultiplyCulling"); }
+        }
+
+
+        /// <summary>
+        /// Default unlit masked material.
+        /// </summary>
+        public static Material UnlitMaskedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitMaskedCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked, additively blending material.
+        /// </summary>
+        public static Material UnlitAdditiveMaskedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitAdditiveMaskedCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked, multiply blending material.
+        /// </summary>
+        public static Material UnlitMultiplyMaskedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitMultiplyMaskedCulling"); }
+        }
+
+
+        /// <summary>
+        /// Default unlit masked inverted material.
+        /// </summary>
+        public static Material UnlitMaskedInvertedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitMaskedInvertedCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked inverted, additively blending material.
+        /// </summary>
+        public static Material UnlitAdditiveMaskedInvertedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitAdditiveMaskedInvertedCulling"); }
+        }
+
+        /// <summary>
+        /// Default unlit masked inverted, multiply blending material.
+        /// </summary>
+        public static Material UnlitMultiplyMaskedInvertedCulling
+        {
+            get { return LoadUnlitMaterial("UnlitMultiplyMaskedInvertedCulling"); }
+        }
+
+
+
+        /// <summary>
         /// Default mask material.
         /// </summary>
         public static Material Mask
         {
             get { return LoadMaskMaterial(); }
         }
+
+        /// <summary>
+        /// Default culled mask material.
+        /// </summary>
+        public static Material MaskCulling
+        {
+            get { return LoadMaskCullingMaterial(); }
+        }
+
 
         #region Helper Methods
 
@@ -118,12 +203,21 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Loads an unlit material.
+        /// Loads an mask material.
         /// </summary>
         /// <returns>The material.</returns>
         private static Material LoadMaskMaterial()
         {
             return Resources.Load<Material>(ResourcesDirectory + "/Mask");
+        }
+
+        /// <summary>
+        /// Loads an mask culling material.
+        /// </summary>
+        /// <returns>The material.</returns>
+        private static Material LoadMaskCullingMaterial()
+        {
+            return Resources.Load<Material>(ResourcesDirectory + "/MaskCulling");
         }
 
         #endregion

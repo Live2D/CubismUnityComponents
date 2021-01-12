@@ -38,6 +38,15 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private Material MaskMaterial { get; set; }
 
+        /// <summary>
+        /// Mask culling material.
+        /// </summary>
+        private Material MaskCullingMaterial { get; set; }
+
+        /// <summary>
+        /// Culling setting.
+        /// </summary>
+        private bool IsCulling { get; set; }
 
         /// <summary>
         /// Bounds of <see cref="CubismRenderer.Mesh"/>.
@@ -56,6 +65,7 @@ namespace Live2D.Cubism.Rendering.Masking
         {
             MaskProperties = new MaterialPropertyBlock();
             MaskMaterial = CubismBuiltinMaterials.Mask;
+            MaskCullingMaterial = CubismBuiltinMaterials.MaskCulling;
         }
 
         #endregion
@@ -71,6 +81,7 @@ namespace Live2D.Cubism.Rendering.Masking
         {
             MainRenderer = value;
 
+            IsCulling = !(MainRenderer.gameObject.GetComponent<CubismDrawable>().IsDoubleSided);
 
             return this;
         }
@@ -117,7 +128,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
             // Add command.
-            buffer.DrawMesh(mesh, Matrix4x4.identity, MaskMaterial, 0, 0, MaskProperties);
+            buffer.DrawMesh(mesh, Matrix4x4.identity,
+                IsCulling
+                    ? MaskCullingMaterial
+                    : MaskMaterial,
+                0, 0, MaskProperties);
         }
 
         #endregion

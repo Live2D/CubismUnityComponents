@@ -5,8 +5,14 @@
  * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
  */
 
+using System;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Live2D.Cubism.Editor.OriginalWorkflow;
+using Live2D.Cubism.Framework.MotionFade;
 using UnityEditor;
+using UnityEngine;
 
 
 namespace Live2D.Cubism.Editor
@@ -71,6 +77,55 @@ namespace Live2D.Cubism.Editor
         private static void ClearAnimationCurves()
         {
             SetClearAnimationCurves(!ShouldClearAnimationCurves);
+        }
+
+
+        /// <summary>
+        /// Unity editor context menu create an animator controller for cubism.
+        /// </summary>
+        [MenuItem("Assets/Create/Live2D Cubism/Animator Controller for Cubism")]
+        private static void CreateAnimatorController()
+        {
+            var dataPath = Directory.GetParent(Application.dataPath).FullName + "/";
+            var assetPath = CubismUnityEditorUtility.GetCurrentDirectoryPath();
+
+            var assetName = "";
+
+            if (!File.Exists(dataPath + assetPath + "/New Cubism Animator Controller.controller"))
+            {
+                assetName = "New Cubism Animator Controller.controller";
+            }
+            else
+            {
+                var regex = new Regex(@"new cubism animator controller [0-9]+.controller");
+                var files = Directory.GetFiles(dataPath + assetPath, "*.controller")
+                    .Where(path=> regex.IsMatch(Path.GetFileName(path).ToLower()))
+                    .OrderBy(f => f, StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                for (var i = 0; i < files.Length; i++)
+                {
+                    var name = $"New Cubism Animator Controller {(i + 1)}.controller";
+
+                    if (files[i].ToLower().EndsWith(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    assetName = name;
+                    break;
+                }
+
+                if (string.IsNullOrEmpty(assetName))
+                {
+                    assetName = $"New Cubism Animator Controller {(files.Length + 1)}.controller";
+                }
+            }
+
+            assetPath = Path.Combine(assetPath, assetName);
+
+            CubismFadeMotionImporter.CreateAnimatorController(assetPath);
+            AssetDatabase.Refresh();
         }
 
         /// <summary>

@@ -146,7 +146,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 return;
             }
-            
+
             _playableGraph.Disconnect(_motionState.ClipMixer, 0);
             _motionState = null;
 
@@ -222,6 +222,7 @@ namespace Live2D.Cubism.Framework.Motion
                               ? -1
                               : ret.StartTime + ret.Motion.MotionLength / speed;
                 ret.IsLooping = isLooping;
+                ret.Weight = 0.0f;
 
                 break;
             }
@@ -246,7 +247,7 @@ namespace Live2D.Cubism.Framework.Motion
             {
                 _playableGraph.Disconnect(_motionState.ClipMixer, 0);
             }
-            
+
             // Create cubism motion state.
             _motionState = CubismMotionState.CreateCubismMotionState(_playableGraph, clip, isLoop, speed);
 
@@ -269,7 +270,10 @@ namespace Live2D.Cubism.Framework.Motion
 
                 var newEndTime = time + motion.Motion.FadeOutTime;
 
-                motion.EndTime = newEndTime;
+                if (newEndTime < 0.0f || newEndTime < motion.EndTime)
+                {
+                    motion.EndTime = newEndTime;
+                }
 
 
                 while (motion.IsLooping)

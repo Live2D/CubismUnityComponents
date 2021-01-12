@@ -6,11 +6,13 @@
  */
 
 
+using Live2D.Cubism.Core;
 using Live2D.Cubism.Editor;
 using Live2D.Cubism.Editor.Importers;
 using System;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 
@@ -26,12 +28,32 @@ namespace Live2D.Cubism.Framework.MotionFade
         [InitializeOnLoadMethod]
         private static void RegisterMotionImporter()
         {
+            CubismImporter.OnDidImportModel += OnModelImport;
             CubismImporter.OnDidImportMotion += OnFadeMotionImport;
         }
 
         #endregion
 
         #region Cubism Import Event Handling
+
+        /// <summary>
+        /// Create animator controller for MotionFade.
+        /// </summary>
+        /// <param name="importer">Event source.</param>
+        /// <param name="model">Imported model.</param>
+        private static void OnModelImport(CubismModel3JsonImporter importer, CubismModel model)
+        {
+            var dataPath = Directory.GetParent(Application.dataPath).FullName + "/";
+            var assetPath = importer.AssetPath.Replace(".model3.json", ".controller");
+
+            if (File.Exists(dataPath + assetPath))
+            {
+                return;
+            }
+
+            CreateAnimatorController(assetPath);
+            AssetDatabase.Refresh();
+        }
 
         /// <summary>
         /// Create oldFadeMotion.
@@ -160,6 +182,24 @@ namespace Live2D.Cubism.Framework.MotionFade
 
                 AnimationUtility.SetAnimationEvents(animationClip, sourceAnimationEvents);
             }
+        }
+
+        #endregion
+
+
+        #region Functions
+
+        /// <summary>
+        /// Create animator controller for MotionFade.
+        /// </summary>
+        /// <param name="assetPath"></param>
+        /// <returns>Animator controller attached CubismFadeStateObserver.</returns>
+        public static AnimatorController CreateAnimatorController(string assetPath)
+        {
+            var animatorController = AnimatorController.CreateAnimatorControllerAtPath(assetPath);
+            animatorController.layers[0].stateMachine.AddStateMachineBehaviour<CubismFadeStateObserver>();
+
+            return animatorController;
         }
 
         #endregion
