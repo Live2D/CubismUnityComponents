@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+
+* Fixed so that even if an error occurs during import, subsequent import processing will continue. [@TakahiroSato](https://github.com/TakahiroSato)
+
 
 ## [4-r.2] - 2021-01-12
 
