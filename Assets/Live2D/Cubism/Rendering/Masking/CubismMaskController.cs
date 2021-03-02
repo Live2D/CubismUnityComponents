@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
