@@ -118,8 +118,8 @@ namespace Live2D.Cubism.Rendering.Masking
                     continue;
                 }
 
-
-                pairs.Add(drawables[i], drawables[i].Masks);
+                // Make sure no leftover null-entries are added as mask.
+                pairs.Add(drawables[i], Array.FindAll(drawables[i].Masks, mask => mask != null));
             }
 
 
