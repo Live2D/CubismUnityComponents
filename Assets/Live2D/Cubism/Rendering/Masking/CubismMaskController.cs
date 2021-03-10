@@ -120,7 +120,14 @@ namespace Live2D.Cubism.Rendering.Masking
                 }
 
                 // Make sure no leftover null-entries are added as mask.
-                pairs.Add(drawables[i], Array.FindAll(drawables[i].Masks, mask => mask != null));
+                var masks = Array.FindAll(drawables[i].Masks, mask => mask != null);
+
+                if (masks.Length == 0)
+                {
+                    continue;
+                }
+
+                pairs.Add(drawables[i], masks);
             }
 
 
