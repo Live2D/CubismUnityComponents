@@ -76,6 +76,10 @@ namespace Live2D.Cubism.Core
             private set { _unmanagedIndex = value; }
         }
 
+        /// <summary>
+        /// Copy of displayId.
+        /// </summary>
+        public string displayId;
 
         /// <summary>
         /// Copy of Id.

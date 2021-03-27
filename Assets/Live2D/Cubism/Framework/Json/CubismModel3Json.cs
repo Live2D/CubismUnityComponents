@@ -93,9 +93,9 @@ namespace Live2D.Cubism.Framework.Json
             }
 
 
+
             // Deserialize Json.
             var modelJson = JsonUtility.FromJson<CubismModel3Json>(modelJsonAsset);
-
 
             // Finalize deserialization.
             modelJson.AssetPath = assetPath;
@@ -149,7 +149,6 @@ namespace Live2D.Cubism.Framework.Json
                     }
                 }
             }
-
 
             return modelJson;
         }
@@ -289,6 +288,14 @@ namespace Live2D.Cubism.Framework.Json
             get
             {
                 return string.IsNullOrEmpty(FileReferences.UserData) ? null : LoadReferencedAsset<string>(FileReferences.UserData);
+            }
+        }
+
+        public string DisplayInfo3Json
+        {
+            get
+            {
+                return string.IsNullOrEmpty(FileReferences.DisplayInfo) ? null : LoadReferencedAsset<string>(FileReferences.DisplayInfo);
             }
         }
 
@@ -566,6 +573,25 @@ namespace Live2D.Cubism.Framework.Json
                 }
             }
 
+            var displayInfo3JsonAsString = DisplayInfo3Json;
+
+
+            if (!string.IsNullOrEmpty(displayInfo3JsonAsString))
+            {
+                var displayInfo3Json = CubismDisplayInfo3Json.LoadFrom(displayInfo3JsonAsString);
+
+                for (var i = 0; i < displayInfo3Json.Parameters.Length; ++i)
+                {
+                    for (var j = 0; j < parameters.Length; j++)
+                    {
+                        if (parameters[j].Id == displayInfo3Json.Parameters[i].Id)
+                        {
+                            parameters[j].displayId = displayInfo3Json.Parameters[i].Name;
+                        }
+                    }
+                }
+            }
+
             if (model.gameObject.GetComponent<Animator>() == null)
             {
                 model.gameObject.AddComponent<Animator>();
@@ -750,6 +776,12 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public string UserData;
+
+            /// <summary>
+            /// Relative path to the Cubism display info asset.
+            /// </summary>
+            [SerializeField]
+            public string DisplayInfo;
         }
 
         /// <summary>

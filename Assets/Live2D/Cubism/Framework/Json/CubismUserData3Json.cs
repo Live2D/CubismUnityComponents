@@ -21,10 +21,10 @@ namespace Live2D.Cubism.Framework.Json
     public sealed class CubismUserData3Json
     {
         /// <summary>
-        /// Loads a cdi3.json asset.
+        /// Loads a userdata3.json asset.
         /// </summary>
-        /// <param name="userData3Json">cdi3.json to deserialize.</param>
-        /// <returns>Deserialized cdi3.json on success; <see langword="null"/> otherwise.</returns>
+        /// <param name="userData3Json">userdata3.json to deserialize.</param>
+        /// <returns>Deserialized userdata3.json on success; <see langword="null"/> otherwise.</returns>
         public static CubismUserData3Json LoadFrom(string userData3Json)
         {
             return (string.IsNullOrEmpty(userData3Json))
@@ -35,8 +35,8 @@ namespace Live2D.Cubism.Framework.Json
         /// <summary>
         /// Loads a cdi3.json asset.
         /// </summary>
-        /// <param name="userData3JsonAsset">cdi3.json to deserialize.</param>
-        /// <returns>Deserialized cdi3.json on success; <see langword="null"/> otherwise.</returns>
+        /// <param name="userData3JsonAsset">userdata3.json to deserialize.</param>
+        /// <returns>Deserialized userdata3.json on success; <see langword="null"/> otherwise.</returns>
         public static CubismUserData3Json LoadFrom(TextAsset userData3JsonAsset)
         {
             return (userData3JsonAsset == null)
