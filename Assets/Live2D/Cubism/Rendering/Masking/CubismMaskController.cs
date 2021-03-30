@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -118,8 +119,15 @@ namespace Live2D.Cubism.Rendering.Masking
                     continue;
                 }
 
+                // Make sure no leftover null-entries are added as mask.
+                var masks = Array.FindAll(drawables[i].Masks, mask => mask != null);
 
-                pairs.Add(drawables[i], drawables[i].Masks);
+                if (masks.Length == 0)
+                {
+                    continue;
+                }
+
+                pairs.Add(drawables[i], masks);
             }
 
 
