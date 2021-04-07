@@ -79,7 +79,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Copy of displayId.
         /// </summary>
-        public string displayId;
+        public string displayName;
 
         /// <summary>
         /// Copy of Id.

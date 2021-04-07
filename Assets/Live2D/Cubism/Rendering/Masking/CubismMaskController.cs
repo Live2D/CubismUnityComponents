@@ -207,7 +207,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void LateUpdate()
         {
-            if(!HasUpdateController)
+            if (!HasUpdateController)
             {
                 OnLateUpdate();
             }
@@ -308,7 +308,6 @@ namespace Live2D.Cubism.Rendering.Masking
                 {
                     var match = (Entries[i].Masks.Length == masks.Length);
 
-
                     if (!match)
                     {
                         continue;
@@ -339,22 +338,34 @@ namespace Live2D.Cubism.Rendering.Masking
                     return;
                 }
 
-
                 // Create new pair.
-                var renderers = new CubismRenderer[masks.Length];
-
-
+                var ii = 0;
                 for (var i = 0; i < masks.Length; ++i)
                 {
-                    renderers[i] = masks[i].GetComponent<CubismRenderer>();
+                    if (masks[i] != null)
+                    {
+                        ++ii;
+                    }
                 }
 
-
-                Entries.Add(new MasksMaskedsPair
+                if (ii > 0)
                 {
-                    Masks = renderers,
-                    Maskeds = new List<CubismRenderer>() { masked.GetComponent<CubismRenderer>() }
-                });
+                    var renderers = new CubismRenderer[ii];
+                    for (var i = 0; i < masks.Length; ++i)
+                    {
+                        if (masks[i] != null)
+                        {
+                            renderers[i] = masks[i].GetComponent<CubismRenderer>();
+                        }
+                    }
+
+
+                    Entries.Add(new MasksMaskedsPair
+                    {
+                        Masks = renderers,
+                        Maskeds = new List<CubismRenderer>() { masked.GetComponent<CubismRenderer>() }
+                    });
+                }
             }
         }
 

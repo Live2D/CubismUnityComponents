@@ -586,7 +586,7 @@ namespace Live2D.Cubism.Framework.Json
                     {
                         if (parameters[j].Id == displayInfo3Json.Parameters[i].Id)
                         {
-                            parameters[j].displayId = displayInfo3Json.Parameters[i].Name;
+                            parameters[j].displayName = displayInfo3Json.Parameters[i].Name;
                         }
                     }
                 }
