@@ -54,6 +54,7 @@ namespace Live2D.Cubism.Editor
             // Make sure builtin resources are available.
             GenerateBuiltinResources();
 
+            var assetList = CubismCreatedAssetList.GetInstance();
 
             // Handle any imported Cubism assets.
             foreach (var assetPath in importedAssetPaths)
@@ -77,6 +78,7 @@ namespace Live2D.Cubism.Editor
                 }
             }
 
+            assetList.OnPostImport();
 
             // Handle any deleted Cubism assets.
             foreach (var assetPath in deletedAssetPaths)

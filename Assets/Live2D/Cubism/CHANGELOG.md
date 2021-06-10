@@ -4,11 +4,27 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+
+## [4-r.3] - 2021-06-10
 
 ### Added
 
-* Fixed so that even if an error occurs during import, subsequent import processing will continue. [@TakahiroSato](https://github.com/TakahiroSato)
+* Add a function to read data from `.cdi3.json`. by [@ShigemoriHakura](https://github.com/ShigemoriHakura)
+* Add a function to display the names of parameters and parts described in `.cdi3.json`. by [@ShigemoriHakura](https://github.com/ShigemoriHakura)
+* Add a function to change the display name of parameters and parts to any name.
+* Add a display of elapsed time to the sample scene `AsyncBenchmark`.
+* Add a sample scene that manipulates the number of models to be displayed to achieve the specified frame rate.
+
+### Changed
+
+* Change to continue importing when an error occurs. [@TakahiroSato](https://github.com/TakahiroSato)
+
+### Fixed
+
+* Fix failing the model generation when importing with Unity 2020.
+* Fix registering the dynamically selection of the index for `PlayerLoopSystem.subSystemList`.
+* Fix the updating process for InstanceId; Update the InstanceId without adding the element of .fadeMotionList when the InstanceId that is registered the AnimationClip was changed.
+* Fix import of models with invalid masks. by [@DenchiSoft](https://github.com/DenchiSoft), [@ShigemoriHakura](https://github.com/ShigemoriHakura).
 
 
 ## [4-r.2] - 2021-01-12
@@ -16,9 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 * Add Unity 2020 to the development environment.
-* Add feature to make Animator Controller that supports MotionFade.
 * Add a process that applies the Culling configuration from Model Data.
-* Add a `AnimatorController` generator that is already set `CubismFadeStateObserver`.
+* Add an `AnimatorController` generator that is already set `CubismFadeStateObserver`.
 
 ### Changed
 
@@ -105,6 +120,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue that mesh remain when deleting model.
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
+[4-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.2...4-r.3
 [4-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.1...4-r.2
 [4-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.2...4-r.1
 [4-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-beta.1...4-beta.2

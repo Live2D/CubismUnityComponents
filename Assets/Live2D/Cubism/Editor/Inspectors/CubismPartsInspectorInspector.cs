@@ -38,14 +38,17 @@ namespace Live2D.Cubism.Editor.Inspectors
             var didPartsChange = false;
 
 
-            foreach (var part in Parts)
+            for (var i = 0; i < Parts.Length; i++)
             {
                 EditorGUI.BeginChangeCheck();
 
+                var name = (string.IsNullOrEmpty(PartsNameFromJson[i]))
+                    ? Parts[i].Id
+                    : PartsNameFromJson[i];
 
-                part.Opacity = EditorGUILayout.Slider(
-                    part.Id,
-                    part.Opacity,
+                Parts[i].Opacity = EditorGUILayout.Slider(
+                    name,
+                    Parts[i].Opacity,
                     0f,
                     1f
                     );
@@ -53,7 +56,7 @@ namespace Live2D.Cubism.Editor.Inspectors
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    EditorUtility.SetDirty(part);
+                    EditorUtility.SetDirty(Parts[i]);
 
 
                     didPartsChange = true;
@@ -77,6 +80,10 @@ namespace Live2D.Cubism.Editor.Inspectors
         /// </summary>
         private CubismPart[] Parts { get; set; }
 
+        /// <summary>
+        /// Array of <see cref="CubismDisplayInfoPartName.Name"/> obtained from <see cref="CubismDisplayInfoPartName"/>s.
+        /// </summary>
+        private string[] PartsNameFromJson { get; set; }
 
         /// <summary>
         /// Gets whether <see langword="this"/> is initialized.
@@ -98,6 +105,17 @@ namespace Live2D.Cubism.Editor.Inspectors
             Parts = (target as Component)
                 .FindCubismModel(true)
                 .Parts;
+
+            //Initializing the property of `PartsNameFromJson `.
+            PartsNameFromJson = new string[Parts.Length];
+
+            for (var i = 0; i < Parts.Length; i++)
+            {
+                var displayInfoParstName = Parts[i].GetComponent<CubismDisplayInfoPartName>();
+                PartsNameFromJson[i] = displayInfoParstName != null
+                                ? (string.IsNullOrEmpty(displayInfoParstName.DisplayName) ? displayInfoParstName.Name : displayInfoParstName.DisplayName)
+                                : string.Empty;
+            }
         }
     }
 }

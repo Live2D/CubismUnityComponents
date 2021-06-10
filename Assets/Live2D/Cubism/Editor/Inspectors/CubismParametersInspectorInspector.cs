@@ -38,22 +38,25 @@ namespace Live2D.Cubism.Editor.Inspectors
             var didParametersChange = false;
 
 
-            foreach (var parameter in Parameters)
+            for (var i = 0; i < Parameters.Length; i++)
             {
                 EditorGUI.BeginChangeCheck();
 
+                var name = (string.IsNullOrEmpty(ParametersNameFromJson[i]))
+                    ? Parameters[i].Id
+                    : ParametersNameFromJson[i];
 
-                parameter.Value = EditorGUILayout.Slider(
-                    parameter.Id,
-                    parameter.Value,
-                    parameter.MinimumValue,
-                    parameter.MaximumValue
+                Parameters[i].Value = EditorGUILayout.Slider(
+                    name,
+                    Parameters[i].Value,
+                    Parameters[i].MinimumValue,
+                    Parameters[i].MaximumValue
                     );
 
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    EditorUtility.SetDirty(parameter);
+                    EditorUtility.SetDirty(Parameters[i]);
 
 
                     didParametersChange = true;
@@ -99,6 +102,10 @@ namespace Live2D.Cubism.Editor.Inspectors
         /// </summary>
         private CubismParameter[] Parameters { get; set; }
 
+        /// <summary>
+        /// Array of <see cref="CubismDisplayInfoParameterName.Name"/> obtained from <see cref="CubismDisplayInfoParameterName"/>s.
+        /// </summary>
+        private string[] ParametersNameFromJson { get; set; }
 
         /// <summary>
         /// Gets whether <see langword="this"/> is initialized.
@@ -120,6 +127,17 @@ namespace Live2D.Cubism.Editor.Inspectors
             Parameters = (target as Component)
                 .FindCubismModel(true)
                 .Parameters;
+
+            //Initializing the property of `ParametersNameFromJson `.
+            ParametersNameFromJson = new string[Parameters.Length];
+
+            for (var i = 0; i < Parameters.Length; i++)
+            {
+                var displayInfoParameterName = Parameters[i].GetComponent<CubismDisplayInfoParameterName>();
+                ParametersNameFromJson[i] = displayInfoParameterName != null
+                    ? (string.IsNullOrEmpty(displayInfoParameterName.DisplayName) ? displayInfoParameterName.Name : displayInfoParameterName.DisplayName)
+                    : string.Empty;
+            }
         }
     }
 }

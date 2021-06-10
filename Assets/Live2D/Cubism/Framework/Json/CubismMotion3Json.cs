@@ -312,7 +312,7 @@ namespace Live2D.Cubism.Framework.Json
                     type = typeof(CubismPart);
 
                     // original workflow.
-                    if(shouldImportAsOriginalWorkflow && poseJson != null && poseJson.FadeInTime != 0.0f)
+                    if (shouldImportAsOriginalWorkflow && poseJson != null && poseJson.FadeInTime != 0.0f)
                     {
                         animationCurve = ConvertSteppedCurveToLinerCurver(curve, poseJson.FadeInTime);
                     }

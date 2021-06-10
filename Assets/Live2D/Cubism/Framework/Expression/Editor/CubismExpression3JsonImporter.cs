@@ -89,14 +89,39 @@ namespace Live2D.Cubism.Editor.Importers
             var modelDir = Path.GetDirectoryName(directoryName).ToString();
             var modelName = Path.GetFileName(modelDir).ToString();
             var expressionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".expressionList.asset";
-            var expressionList = AssetDatabase.LoadAssetAtPath<CubismExpressionList>(expressionListPath);
+
+            var assetList = CubismCreatedAssetList.GetInstance();
+            var assetListIndex = assetList.AssetPaths.Contains(expressionListPath)
+                ? assetList.AssetPaths.IndexOf(expressionListPath)
+                : -1;
+
+            CubismExpressionList expressionList = null;
 
             // Create expression list.
-            if(expressionList == null)
+            if(assetListIndex < 0)
             {
-                expressionList = ScriptableObject.CreateInstance<CubismExpressionList>();
-                expressionList.CubismExpressionObjects = new CubismExpressionData[0];
-                AssetDatabase.CreateAsset(expressionList, expressionListPath);
+                expressionList = AssetDatabase.LoadAssetAtPath<CubismExpressionList>(expressionListPath);
+
+                if (expressionList == null)
+                {
+                    expressionList = ScriptableObject.CreateInstance<CubismExpressionList>();
+                    expressionList.CubismExpressionObjects = new CubismExpressionData[0];
+                    AssetDatabase.CreateAsset(expressionList, expressionListPath);
+                }
+
+                assetList.Assets.Add(expressionList);
+                assetList.AssetPaths.Add(expressionListPath);
+                assetList.IsImporterDirties.Add(true);
+            }
+            else
+            {
+                expressionList = (CubismExpressionList) assetList.Assets[assetListIndex];
+            }
+
+            if (expressionList == null)
+            {
+                Debug.LogError("CubismExpression3JsonImporter : Can not create CubismExpressionList.");
+                return;
             }
 
             // Find index.
