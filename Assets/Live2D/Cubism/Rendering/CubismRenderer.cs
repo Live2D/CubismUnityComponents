@@ -334,7 +334,7 @@ namespace Live2D.Cubism.Rendering
 
 
             // Update colors.
-            Meshes[BackMesh].colors = VertexColors;
+            Meshes[FrontMesh].colors = VertexColors;
 
 
             // Update swap info.
