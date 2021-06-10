@@ -10,6 +10,7 @@ using Live2D.Cubism.Editor.Deleters;
 using Live2D.Cubism.Editor.Importers;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
+using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -53,6 +54,7 @@ namespace Live2D.Cubism.Editor
             // Make sure builtin resources are available.
             GenerateBuiltinResources();
 
+            var assetList = CubismCreatedAssetList.GetInstance();
 
             // Handle any imported Cubism assets.
             foreach (var assetPath in importedAssetPaths)
@@ -65,10 +67,18 @@ namespace Live2D.Cubism.Editor
                     continue;
                 }
 
-
-                importer.Import();
+                try
+                {
+                    importer.Import();
+                }
+                catch(Exception e)
+                {
+                    Debug.LogError("CubismAssetProcessor : Following error occurred while importing " + assetPath);
+                    Debug.LogError(e);
+                }
             }
 
+            assetList.OnPostImport();
 
             // Handle any deleted Cubism assets.
             foreach (var assetPath in deletedAssetPaths)

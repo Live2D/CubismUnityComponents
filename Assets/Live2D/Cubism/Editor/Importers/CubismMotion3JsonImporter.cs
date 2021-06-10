@@ -8,6 +8,8 @@
 
 using Live2D.Cubism.Framework.Json;
 using System;
+using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -61,18 +63,45 @@ namespace Live2D.Cubism.Editor.Importers
         {
             get
             {
-                if (_animationClip == null)
+                if (_animationClip != null)
                 {
-                    _animationClip = AssetGuid.LoadAsset<AnimationClip>(_animationClipGuid);
-
-                    if(_animationClip == null)
-                    {
-                        var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"));
-                        _animationClip = clip;
-                        _animationClipGuid = AssetGuid.GetGuid(clip);
-                    }
+                    return _animationClip;
                 }
 
+                AnimationClip clip;
+                var directoryName = Path.GetDirectoryName(AssetPath);
+                var motionName = Path.GetFileName(AssetPath.Replace(".motion3.json", ".anim"));
+                var motionPath = $"{directoryName}/{motionName}";
+                motionPath = motionPath.Replace("\\", "/");
+
+                var assetList = CubismCreatedAssetList.GetInstance();
+                var assetListIndex = assetList.AssetPaths.Contains(motionPath)
+                    ? assetList.AssetPaths.IndexOf(motionPath)
+                    : -1;
+
+                // When the AnimationClip has already been registered in CubismCreatedAssetList.Assets.
+                if (assetListIndex >= 0)
+                {
+                    clip = (AnimationClip)assetList.Assets[assetListIndex];
+                    _animationClip = clip;
+                    _animationClipGuid = AssetGuid.GetGuid(_animationClip);
+
+                    return _animationClip;
+                }
+
+                clip = AssetGuid.LoadAsset<AnimationClip>(_animationClipGuid);
+                _animationClip = clip;
+                _animationClipGuid = AssetGuid.GetGuid(_animationClip);
+
+                // When the AnimationClip can be retrieved from a GUID.
+                if (_animationClip != null)
+                {
+                    return _animationClip;
+                }
+
+                clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"));
+                _animationClip = clip;
+                _animationClipGuid = AssetGuid.GetGuid(clip);
 
                 return _animationClip;
             }
@@ -128,39 +157,75 @@ namespace Live2D.Cubism.Editor.Importers
         {
             var isImporterDirty = false;
 
-            var clip = (ShouldImportAsOriginalWorkflow)
-                    ? AssetDatabase.LoadAssetAtPath<AnimationClip>(AssetPath.Replace(".motion3.json", ".anim"))
+            // Add reference of motion to list.
+            var directoryName = Path.GetDirectoryName(AssetPath);
+            var motionName = Path.GetFileName(AssetPath.Replace(".motion3.json", ".anim"));
+            var motionPath = $"{directoryName}/{motionName}";
+
+            var assetList = CubismCreatedAssetList.GetInstance();
+            var assetListIndex = assetList.AssetPaths.Contains(motionPath)
+                ? assetList.AssetPaths.IndexOf(motionPath)
+                : -1;
+
+            AnimationClip clip;
+            if (assetListIndex < 0)
+            {
+                clip = (ShouldImportAsOriginalWorkflow)
+                    ? AssetDatabase.LoadAssetAtPath<AnimationClip>(motionPath)
                     : null;
 
-            // Convert motion.
-            var animationClip = (clip == null)
-                                ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
-                                : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
+                // Convert motion.
+                var animationClip = (clip == null)
+                    ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
+                    : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
 
+                animationClip.name = motionName;
 
-            // Create animation clip.
-            if (AnimationClip == null)
-            {
-                AssetDatabase.CreateAsset(animationClip, AssetPath.Replace(".motion3.json", ".anim"));
-
-
-                AnimationClip = animationClip;
-
+                // Create animation clip.
+                if (AnimationClip == null)
+                {
+                    AssetDatabase.CreateAsset(animationClip, AssetPath.Replace(".motion3.json", ".anim"));
+                    AnimationClip = animationClip;
+                }
 
                 isImporterDirty = true;
-            }
+                clip = AnimationClip;
 
-            // Update animation clip.
+                assetList.Assets.Add(AnimationClip);
+                assetList.AssetPaths.Add(motionPath);
+                assetList.IsImporterDirties.Add(false);
+            }
             else
             {
+                // Update animation clip.
+                clip = (AnimationClip)assetList.Assets[assetListIndex];
+
+                // Convert motion.
+                var animationClip = (clip == null)
+                    ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
+                    : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
+
+                animationClip.name = motionName;
+
+                // Create animation clip.
+                if (AnimationClip == null)
+                {
+                    AssetDatabase.CreateAsset(animationClip, AssetPath.Replace(".motion3.json", ".anim"));
+                    AnimationClip = animationClip;
+                }
+
                 EditorUtility.CopySerialized(animationClip, AnimationClip);
                 EditorUtility.SetDirty(AnimationClip);
-
 
                 // Log event.
                 CubismImporter.LogReimport(AssetPath, AssetDatabase.GUIDToAssetPath(_animationClipGuid));
             }
 
+            if (clip == null)
+            {
+                Debug.LogError("CubismFadeMotionImporter : Can not create Motion.");
+                return;
+            }
 
             // Trigger event.
             CubismImporter.SendMotionImportEvent(this, AnimationClip);
@@ -173,6 +238,19 @@ namespace Live2D.Cubism.Editor.Importers
             }
             else
             {
+                while (assetList.onPostImporting)
+                {
+                    Task.Delay(1);
+                }
+
+                assetListIndex = assetList.AssetPaths.Contains(motionPath)
+                    ? assetList.AssetPaths.IndexOf(motionPath)
+                    : -1;
+
+                if (assetListIndex >= 0)
+                {
+                    assetList.Remove(assetListIndex);
+                }
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }

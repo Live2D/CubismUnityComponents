@@ -35,11 +35,20 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         [SerializeField]
         public Text ModelCountUi;
 
+        /// <summary>
+        /// Holds the number of instances of the model.
+        /// </summary>
+        public int InstancesCount { get; private set; }
 
         /// <summary>
         /// Model instances.
         /// </summary>
         private List<GameObject> Instances { get; set; }
+
+        /// <summary>
+        /// <see cref="AsyncBenchmark.BenchmarkController"/> Component.
+        /// </summary>
+        private BenchmarkController BenchmarkController { get; set; }
 
         #region Interface for UI Elements
 
@@ -82,9 +91,13 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
             // Make sure to assign a unique sorting order to the instance.
             instance.GetComponent<CubismRenderController>().SortingOrder = Instances.Count;
 
+            // Update propertie.
+            InstancesCount = Instances.Count;
 
             // Update UI.
-            ModelCountUi.text = Instances.Count.ToString();
+            ModelCountUi.text = BenchmarkController == null
+                ? Instances.Count.ToString()
+                : string.Concat("Current Model Count:", Instances.Count.ToString());
         }
 
         /// <summary>
@@ -117,6 +130,7 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         private void Start()
         {
             Instances = new List<GameObject>();
+            BenchmarkController = GetComponent<BenchmarkController>();
         }
 
         #endregion

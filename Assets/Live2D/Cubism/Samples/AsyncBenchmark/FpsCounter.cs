@@ -23,9 +23,13 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         [SerializeField]
         public Text FpsUi;
 
+        /// <summary>
+        /// Frame rate propertie to get from external sources.
+        /// </summary>
+        public float Fps { get; private set; }
 
         /// <summary>
-        /// Model instances.
+        /// Time for FPS calculation.
         /// </summary>
         private float DeltaTime { get; set; }
 
@@ -43,6 +47,8 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
             // Compute FPS and update UI.
             var fps = 1.0f / DeltaTime;
 
+            // Save the value to the property.
+            Fps = fps;
 
             FpsUi.text = string.Format("({0:0.} fps)", fps);
         }
