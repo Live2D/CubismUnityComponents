@@ -42,6 +42,12 @@ namespace Live2D.Cubism.Framework.MouthMovement
         public bool CanOutput = true;
 
         /// <summary>
+        /// Fade when switching between <see cref="HasInput"/> on / off
+        /// </summary>
+        [SerializeField]
+        public bool HasFade = true;
+
+        /// <summary>
         /// Mouth parameters.
         /// </summary>
         private CubismParameter[] Destinations { get; set; }
@@ -103,6 +109,8 @@ namespace Live2D.Cubism.Framework.MouthMovement
             get { return false; }
         }
 
+        private float _fadeWeight = 0;
+
         /// <summary>
         /// Called by cubism update controller. Updates controller.
         /// </summary>
@@ -111,19 +119,27 @@ namespace Live2D.Cubism.Framework.MouthMovement
         /// </remarks>
         public void OnLateUpdate()
         {
-            // Fail silently.
             if (!HasInput || !CanOutput)
             {
-                return;
+                if (0 < _fadeWeight)
+                    _fadeWeight -= 0.1f;
+                if (!HasFade || _fadeWeight < 0)
+                    _fadeWeight = 0;
             }
-            if (!enabled || Destinations == null)
+            else
             {
-                return;
+                if (_fadeWeight < 1)
+                    _fadeWeight += 0.05f;
+                if (!HasFade || 1 < _fadeWeight)
+                    _fadeWeight = 1;
             }
 
+            // Fail silently.
+            if (!enabled || Destinations == null || _fadeWeight <= 0)
+                return;
 
             // Apply value.
-            Destinations.BlendToValue(BlendMode, MouthOpening);
+            Destinations.BlendToValue(BlendMode, MouthOpening, _fadeWeight);
         }
 
         #region Unity Events Handling

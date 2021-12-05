@@ -75,13 +75,14 @@ namespace Live2D.Cubism.Framework
         /// <param name="self"><see langword="this"/>.</param>
         /// <param name="value">Value to blend in.</param>
         /// <param name="mode">Blend mode to use.</param>
-        public static void BlendToValue(this CubismParameter[] self, CubismParameterBlendMode mode, float value)
+        /// <param name="weight">Blend weight.</param>
+        public static void BlendToValue(this CubismParameter[] self, CubismParameterBlendMode mode, float value, float weight = 1)
         {
             if (mode == CubismParameterBlendMode.Additive)
             {
                 for (var i = 0; i < self.Length; ++i)
                 {
-                    self[i].AddToValue(value);
+                    self[i].AddToValue(value, weight);
                 }
 
 
@@ -93,7 +94,7 @@ namespace Live2D.Cubism.Framework
             {
                 for (var i = 0; i < self.Length; ++i)
                 {
-                    self[i].MultiplyValueBy(value);
+                    self[i].MultiplyValueBy(value, weight);
                 }
 
 
@@ -103,7 +104,7 @@ namespace Live2D.Cubism.Framework
 
             for (var i = 0; i < self.Length; ++i)
             {
-                self[i].Value = value;
+                self[i].Value = self[i].Value * (1 - weight) + value * weight;
             }
         }
     }
