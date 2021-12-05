@@ -63,7 +63,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
         private void LateUpdate()
         {
             // Fail silently.
-            if (Controller == null)
+            if (Controller == null || !Controller.enabled)
             {
                 return;
             }
@@ -75,6 +75,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
 
             // Evaluate.
             Controller.MouthOpening = Mathf.Abs(Mathf.Sin(T));
+            Controller.HasInput = true;
         }
 
         #endregion

@@ -126,11 +126,11 @@ namespace Live2D.Cubism.Framework.MouthMovement
         private void Update()
         {
             // 'Fail' silently.
-            if (AudioInput == null)
+            if (AudioInput == null || !AudioInput.isPlaying || !Target.enabled)
             {
+                Target.HasInput = false;
                 return;
             }
-
 
             // Sample audio.
             var total = 0f;
@@ -162,6 +162,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
 
             // Set rms as mouth opening and store it for next evaluation.
             Target.MouthOpening = rms;
+            Target.HasInput = true;
 
 
             LastRms = rms;

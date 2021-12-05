@@ -30,6 +30,16 @@ namespace Live2D.Cubism.Framework.MouthMovement
         [SerializeField, Range(0f, 1f)]
         public float MouthOpening = 1f;
 
+        /// <summary>
+        /// It has voice input.
+        /// </summary>
+        public bool HasInput { get; set; }
+
+        /// <summary>
+        /// Apply to CubismMouthParameter or.
+        /// </summary>
+        [SerializeField]
+        public bool CanOutput = true;
 
         /// <summary>
         /// Mouth parameters.
@@ -102,6 +112,10 @@ namespace Live2D.Cubism.Framework.MouthMovement
         public void OnLateUpdate()
         {
             // Fail silently.
+            if (!HasInput || !CanOutput)
+            {
+                return;
+            }
             if (!enabled || Destinations == null)
             {
                 return;
