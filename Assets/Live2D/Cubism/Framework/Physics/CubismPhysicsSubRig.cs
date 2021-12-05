@@ -224,6 +224,20 @@ namespace Live2D.Cubism.Framework.Physics
             }
         }
 
+        /// <summary>
+        /// Take over physics rig status.
+        /// </summary>
+        /// <param name="subRig"></param>
+        public void TakeOverFrom(CubismPhysicsSubRig subRig)
+        {
+            var oldP = subRig.Particles;
+            var strand = Particles;
+
+            for (var i =01; i < strand.Length; ++i)
+            {
+                strand[i] = oldP[i];
+            }
+        }
 
         /// <summary>
         /// Evaluate rig in every frame.

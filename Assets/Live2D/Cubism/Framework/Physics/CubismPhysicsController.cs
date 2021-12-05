@@ -21,10 +21,10 @@ namespace Live2D.Cubism.Framework.Physics
         /// <summary>
         /// Simulation target rig.
         /// </summary>
-        private CubismPhysicsRig Rig
+        public CubismPhysicsRig Rig
         {
             get { return _rig; }
-            set { _rig = value; }
+            private set { _rig = value; }
         }
 
         [SerializeField]

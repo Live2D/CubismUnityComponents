@@ -64,6 +64,17 @@ namespace Live2D.Cubism.Framework
             T = 0f;
         }
 
+        /// <summary>
+        /// Take over eye blink status.
+        /// </summary>
+        /// <param name="input"></param>
+        public void TakeOverFrom(CubismAutoEyeBlinkInput input)
+        {
+            T = input.T;
+            CurrentPhase = input.CurrentPhase;
+            LastValue = input.LastValue;
+        }
+
         #region Unity Event Handling
 
         /// <summary>

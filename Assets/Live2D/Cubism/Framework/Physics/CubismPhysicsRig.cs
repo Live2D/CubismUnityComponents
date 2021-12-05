@@ -61,5 +61,20 @@ namespace Live2D.Cubism.Framework.Physics
                 SubRigs[i].Evaluate(deltaTime);
             }
         }
+
+        /// <summary>
+        /// Take over physics rig status.
+        /// </summary>
+        /// <remarks>
+        /// The structure of the physics rig needs to be the same for the old and new models.
+        /// </remarks>
+        /// <param name="physicsRig"></param>
+        public void TakeOverFrom(CubismPhysicsRig physicsRig)
+        {
+            for (var i = 0; i < SubRigs.Length; ++i)
+            {
+                SubRigs[i].TakeOverFrom(physicsRig.SubRigs[i]);
+            }
+        }
     }
 }
