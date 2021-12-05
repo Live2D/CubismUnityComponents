@@ -101,7 +101,7 @@ namespace Live2D.Cubism.Framework.Physics
             }
             else
             {
-                value = (parameter.Value * (1.0f - weight)) + (value * weight);
+                value = (parameter.Value - parameter.DefaultValue + value) * weight + parameter.DefaultValue * (1 - weight);
                 parameter.Value = value;
             }
         }
