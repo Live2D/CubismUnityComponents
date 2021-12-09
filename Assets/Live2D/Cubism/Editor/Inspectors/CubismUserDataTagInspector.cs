@@ -16,7 +16,7 @@ namespace Live2D.Cubism.Editor.Inspectors
     /// <summary>
     /// Inspector for <see cref="CubismUserDataTag"/>s.
     /// </summary>
-    [CustomEditor(typeof(CubismUserDataTag))]
+    [CustomEditor(typeof(CubismUserDataTag)), CanEditMultipleObjects]
     internal sealed class CubismUserDataTagInspector : UnityEditor.Editor
     {
         #region Editor
@@ -36,16 +36,32 @@ namespace Live2D.Cubism.Editor.Inspectors
             }
 
 
-            EditorGUILayout.BeginHorizontal();
+            using (var scope = new EditorGUI.ChangeCheckScope())
+            {
+                EditorGUILayout.BeginHorizontal();
 
 
-            // Display user data as readonly.
-            EditorGUILayout.LabelField("Value", GUILayout.Width(EditorGUIUtility.labelWidth));
-            EditorGUILayout.TextArea(tag.Value, EditorStyles.textArea, null);
+                // Display user data.
+                EditorGUILayout.LabelField("Value", GUILayout.Width(EditorGUIUtility.labelWidth));
+                var value = EditorGUILayout.TextArea(tag.Value, EditorStyles.textArea, null);
 
 
-            EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
+
+                if (!scope.changed)
+                {
+                    return;
+                }
+
+                // Apply to all selected UserData.
+                foreach (CubismUserDataTag userDataTag in targets)
+                {
+                    userDataTag.Value = value;
+
+                    EditorUtility.SetDirty(userDataTag);
+                }
+            }
         }
 
         #endregion
