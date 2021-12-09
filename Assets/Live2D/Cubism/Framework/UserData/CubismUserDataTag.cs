@@ -22,8 +22,24 @@ namespace Live2D.Cubism.Framework.UserData
         /// </summary>
         public string Value
         {
-            get { return Body.Value; }
+            get
+            {
+                if (string.IsNullOrEmpty(_value) &&
+                    !string.IsNullOrEmpty(Body.Value))
+                {
+                    _value = Body.Value;
+                }
+
+                return _value;
+            }
+            set { _value = value; }
         }
+
+        /// <summary>
+        /// Value backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private string _value;
 
         /// <summary>
         /// Body backing field.

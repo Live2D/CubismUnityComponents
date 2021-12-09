@@ -9,7 +9,10 @@
 using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Live2D.Cubism.Core;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,6 +57,7 @@ namespace Live2D.Cubism.Editor.Importers
         private static void RegisterImporter()
         {
             CubismImporter.RegisterImporter<CubismExpression3JsonImporter>(".exp3.json");
+            CubismImporter.OnDidImportModel += OnModelImport;
         }
 
         #endregion
@@ -85,43 +89,37 @@ namespace Live2D.Cubism.Editor.Importers
             EditorUtility.SetDirty(expressionData);
 
             // Add expression data to expression list.
-            var directoryName = Path.GetDirectoryName(AssetPath).ToString();
-            var modelDir = Path.GetDirectoryName(directoryName).ToString();
-            var modelName = Path.GetFileName(modelDir).ToString();
-            var expressionListPath = Path.GetDirectoryName(directoryName).ToString() + "/" + modelName + ".expressionList.asset";
+            var directoryName = Path.GetDirectoryName(AssetPath);
+            var modelDir = Path.GetDirectoryName(directoryName);
+            var modelName = Path.GetFileName(modelDir);
+            var expressionListPath = Path.GetDirectoryName(directoryName).Replace("\\", "/") + "/" + modelName + ".expressionList.asset";
 
             var assetList = CubismCreatedAssetList.GetInstance();
             var assetListIndex = assetList.AssetPaths.Contains(expressionListPath)
                 ? assetList.AssetPaths.IndexOf(expressionListPath)
                 : -1;
 
-            CubismExpressionList expressionList = null;
-
-            // Create expression list.
-            if(assetListIndex < 0)
-            {
-                expressionList = AssetDatabase.LoadAssetAtPath<CubismExpressionList>(expressionListPath);
-
-                if (expressionList == null)
-                {
-                    expressionList = ScriptableObject.CreateInstance<CubismExpressionList>();
-                    expressionList.CubismExpressionObjects = new CubismExpressionData[0];
-                    AssetDatabase.CreateAsset(expressionList, expressionListPath);
-                }
-
-                assetList.Assets.Add(expressionList);
-                assetList.AssetPaths.Add(expressionListPath);
-                assetList.IsImporterDirties.Add(true);
-            }
-            else
-            {
-                expressionList = (CubismExpressionList) assetList.Assets[assetListIndex];
-            }
+            var expressionList = GetExpressionList(expressionListPath);
 
             if (expressionList == null)
             {
                 Debug.LogError("CubismExpression3JsonImporter : Can not create CubismExpressionList.");
                 return;
+            }
+
+            // Rebuild the array if any element is null.
+            if (expressionList.CubismExpressionObjects.Any(element => element == null))
+            {
+                var cubismExpressionObjectsToList = expressionList.CubismExpressionObjects.ToList();
+                cubismExpressionObjectsToList.RemoveAll(element => element == null);
+
+                var expressionEqualityComparer = new ExpressionEqualityComparer();
+                var expressionDistinctObjectsArray = cubismExpressionObjectsToList.Distinct(expressionEqualityComparer).ToArray();
+
+                expressionList.CubismExpressionObjects = new CubismExpressionData[0];
+                Array.Resize(ref expressionList.CubismExpressionObjects, expressionDistinctObjectsArray.Length);
+
+                expressionList.CubismExpressionObjects = expressionDistinctObjectsArray;
             }
 
             // Find index.
@@ -131,7 +129,7 @@ namespace Live2D.Cubism.Editor.Importers
             {
                 var expression = expressionList.CubismExpressionObjects[i];
 
-                if (expression == null || expression.name != expressionName)
+                if (expression.name != expressionName)
                 {
                     continue;
                 }
@@ -156,6 +154,85 @@ namespace Live2D.Cubism.Editor.Importers
 
         }
 
+
+        /// <summary>
+        /// Set expression list.
+        /// </summary>
+        /// <param name="importer">Event source.</param>
+        /// <param name="model">Imported model.</param>
+        private static void OnModelImport(CubismModel3JsonImporter importer, CubismModel model)
+        {
+            var expressionController = model.GetComponent<CubismExpressionController>();
+            if (expressionController == null || importer.Model3Json.FileReferences.Expressions == null)
+            {
+                return;
+            }
+
+            var modelDir = Path.GetDirectoryName(importer.AssetPath).Replace("\\","/");
+            var modelName = Path.GetFileName(modelDir);
+            var expressionListPath = modelDir + "/" + modelName + ".expressionList.asset";
+
+            var expressionList = GetExpressionList(expressionListPath);
+
+            if (expressionList == null)
+            {
+                return;
+            }
+
+            expressionController.ExpressionsList = expressionList;
+        }
+
         #endregion
+
+        /// <summary>
+        /// Load the .expressionList.
+        /// If it does not exist, create a new one.
+        /// </summary>
+        /// <param name="expressionListPath">The path of the .expressionList.asset relative to the project.</param>
+        /// <returns>.expressionList.asset</returns>
+        private static CubismExpressionList GetExpressionList(string expressionListPath)
+        {
+            var assetList = CubismCreatedAssetList.GetInstance();
+            var assetListIndex = assetList.AssetPaths.Contains(expressionListPath)
+                ? assetList.AssetPaths.IndexOf(expressionListPath)
+                : -1;
+
+            CubismExpressionList expressionList = null;
+
+            if (assetListIndex < 0)
+            {
+                expressionList = AssetDatabase.LoadAssetAtPath<CubismExpressionList>(expressionListPath);
+
+                if (expressionList == null)
+                {
+                    expressionList = ScriptableObject.CreateInstance<CubismExpressionList>();
+                    expressionList.CubismExpressionObjects = new CubismExpressionData[0];
+                    AssetDatabase.CreateAsset(expressionList, expressionListPath);
+                }
+
+                assetList.Assets.Add(expressionList);
+                assetList.AssetPaths.Add(expressionListPath);
+                assetList.IsImporterDirties.Add(true);
+            }
+            else
+            {
+                expressionList = (CubismExpressionList)assetList.Assets[assetListIndex];
+            }
+
+            return expressionList;
+        }
+
+        private class ExpressionEqualityComparer : IEqualityComparer<CubismExpressionData>
+        {
+            public bool Equals(CubismExpressionData x, CubismExpressionData y)
+            {
+                return x.name == y.name;
+            }
+
+            public int GetHashCode(CubismExpressionData obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
     }
 }

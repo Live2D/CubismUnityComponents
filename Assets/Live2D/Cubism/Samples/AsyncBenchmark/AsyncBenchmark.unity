@@ -396,7 +396,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f22e5acc2345e624b898e84b16306e17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnableAsync: 1
+  EnableAsync: 0
 --- !u!4 &603604032
 Transform:
   m_ObjectHideFlags: 0

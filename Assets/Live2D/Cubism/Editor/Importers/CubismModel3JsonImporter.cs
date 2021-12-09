@@ -239,6 +239,9 @@ namespace Live2D.Cubism.Editor.Importers
                 // Reset moc reference.
                 CubismModel.ResetMocReference(model, MocAsset);
 
+                // Keep layer value.
+                model.gameObject.layer = ModelPrefab.layer;
+
                 // Replace prefab.
 #if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
@@ -300,7 +303,6 @@ namespace Live2D.Cubism.Editor.Importers
 
                 // skip copy original workflow component.
                 if(sourceComponent.GetType() == typeof(CubismUpdateController)
-                || sourceComponent.GetType() == typeof(CubismMotionController)
                 || sourceComponent.GetType() == typeof(CubismFadeController)
                 || sourceComponent.GetType() == typeof(CubismExpressionController)
                 || sourceComponent.GetType() == typeof(CubismPoseController)

@@ -4,6 +4,7 @@ under the terms of the Live2D Proprietary Software License Agreement:
 - Android/arm64-v8a/libLive2DCubismCore.so
 - Android/armeabi-v7a/libLive2DCubismCore.so
 - Android/x86/libLive2DCubismCore.so
+- Android/x86_64/libLive2DCubismCore.so
 - Experimental/Emscripten/Live2DCubismCore.bc
 - Experimental/UWP/arm/Live2DCubismCore.dll
 - Experimental/UWP/arm64/Live2DCubismCore.dll
