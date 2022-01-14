@@ -31,6 +31,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Remove Unity 2018 from the development environment.
 
 
+## [Unreleased]
+
+## Added
+
+* Add Weight argument to BlendToValue function.
+
+
 ## [4-r.3] - 2021-06-10
 
 ### Added
