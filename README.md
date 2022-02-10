@@ -53,7 +53,7 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2021.1.24f1 |
+| Latest | 2021.2.10f1 |
 | LTS | 2020.3.19f1 |
 | LTS | 2019.4.29f1 |
 
