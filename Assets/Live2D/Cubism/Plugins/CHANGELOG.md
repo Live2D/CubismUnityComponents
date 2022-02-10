@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## 2022-02-10
+
+### Added
+
+* [Unity] Add bitcode library(.bc) for Emscripten latest version build.
+
+### Changed
+
+* [Unity] Change the bitcode file directory location.
+  * emsdk latest version build bitcode file in `latest` directory.
+  * emsdk 1.38.48 build bitcode file in `1_38_48` directory.
+
+
 ## 2021-12-09
 
 ### Added

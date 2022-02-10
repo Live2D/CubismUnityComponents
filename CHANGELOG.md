@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [4-r.4.1] - 2022-02-10
+
+### Added
+
+* Added an editor extension that switches the library depending on Unity version when exporting to WebGL.
+
+
 ## [4-r.4] - 2021-12-09
 
 ### Added
@@ -146,6 +153,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue that mesh remain when deleting model.
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
+[4-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4...4-r.4.1
 [4-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.3...4-r.4
 [4-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.2...4-r.3
 [4-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.1...4-r.2
