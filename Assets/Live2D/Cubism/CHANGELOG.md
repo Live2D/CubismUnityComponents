@@ -4,14 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [4-r.4.2] - 2022-03-09
 
-## [Unreleased]
+### Fixed
 
-## Added
-
-* Add Weight argument to BlendToValue function. by [@ppcuni](https://github.com/ppcuni)
-* Add support to prevent exceptions depending on the presence or absence of parameters. by [@ppcuni](https://github.com/ppcuni)
-
+* Fix an issue where inversion masks did not work properly and the mask limit was different from normal.
 
 ## [4-r.4.1] - 2022-02-10
 
@@ -162,6 +159,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue that mesh remain when deleting model.
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
+[4-r.4.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4.1...4-r.4.2
 [4-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4...4-r.4.1
 [4-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.3...4-r.4
 [4-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.2...4-r.3

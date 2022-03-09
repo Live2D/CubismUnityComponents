@@ -54,7 +54,8 @@ Shader "Live2D Cubism/Unlit"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            #pragma multi_compile CUBISM_MASK_ON CUBISM_MASK_OFF CUBISM_INVERT_ON
+            #pragma multi_compile _ CUBISM_INVERT_ON
+            #pragma multi_compile _ CUBISM_MASK_ON
 
 
             #include "UnityCG.cginc"
