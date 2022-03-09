@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [Unreleased]
+
+## Added
+
+* Add Weight argument to BlendToValue function. by [@ppcuni](https://github.com/ppcuni)
+* Add support to prevent exceptions depending on the presence or absence of parameters. by [@ppcuni](https://github.com/ppcuni)
+
+
 ## [4-r.4.2] - 2022-03-09
 
 ### Fixed
