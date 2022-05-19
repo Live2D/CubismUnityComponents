@@ -57,6 +57,7 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 | LTS | 2020.3.34f1 |
 | LTS | 2019.4.39f1 |
 
+
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
