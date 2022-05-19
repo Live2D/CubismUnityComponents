@@ -26,6 +26,18 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// Diffuse color shader variable name.
+        /// </summary>
+        public const string MultiplyColor = "cubism_MultiplyColor";
+
+
+        /// <summary>
+        /// Tint color shader variable name.
+        /// </summary>
+        public const string ScreenColor = "cubism_ScreenColor";
+
+
+        /// <summary>
         /// Mask texture shader variable name.
         /// </summary>
         public const string MaskTexture = "cubism_MaskTexture";

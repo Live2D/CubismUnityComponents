@@ -37,5 +37,7 @@ Material:
     - cubism_MaskOn: 0
     - cubism_ModelOpacity: 1
     m_Colors:
+    - _MultipleColor: {r: 1, g: 1, b: 1, a: 1}
+    - _ScreenColor: {r: 0, g: 0, b: 0, a: 1}
     - cubism_MaskTile: {r: 0, g: 0, b: 0, a: 0}
     - cubism_MaskTransform: {r: 0, g: 0, b: 0, a: 0}

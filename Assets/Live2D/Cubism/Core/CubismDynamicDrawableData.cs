@@ -74,6 +74,16 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public Vector3[] VertexPositions { get; internal set; }
 
+        /// <summary>
+        /// Current multiply color.
+        /// </summary>
+        public Color MultiplyColor{ get; internal set; }
+
+        /// <summary>
+        /// Current screen color.
+        /// </summary>
+        public Color ScreenColor { get; internal set; }
+
 
         /// <summary>
         /// True if currently visible.
@@ -122,6 +132,14 @@ namespace Live2D.Cubism.Core
         public bool AreVertexPositionsDirty
         {
             get { return Flags.HasVertexPositionsDidChangeFlag(); }
+        }
+
+        /// <summary>
+        /// True if <see cref="MultiplyColor"/> and <see cref="ScreenColor"/> did change.
+        /// </summary>
+        public bool IsBlendColorDirty
+        {
+            get { return Flags.HasBlendColorDidChangeFlag(); }
         }
 
         /// <summary>
