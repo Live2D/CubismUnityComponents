@@ -46,6 +46,8 @@ namespace Live2D.Cubism.Editor.Inspectors
 
 
             controller.Opacity = EditorGUILayout.Slider("Opacity", controller.Opacity, 0f, 1f);
+            controller.OverwriteFlagForModelMultiplyColors = EditorGUILayout.Toggle("OverwriteFlagForModelMultiplyColors", controller.OverwriteFlagForModelMultiplyColors);
+            controller.OverwriteFlagForModelScreenColors = EditorGUILayout.Toggle("OverwriteFlagForModelScreenColors", controller.OverwriteFlagForModelScreenColors);
 
 
             ShowSorting = EditorGUILayout.Foldout(ShowSorting, "Sorting", EditorStyles.boldFont);
@@ -65,6 +67,8 @@ namespace Live2D.Cubism.Editor.Inspectors
                 controller.CameraToFace = EditorGUILayout.ObjectField("Camera To Face", controller.CameraToFace, typeof(Camera), true) as Camera;
                 controller.OpacityHandler = EditorGUILayout.ObjectField("Opacity Handler", controller.OpacityHandler, typeof(object), true);
                 controller.DrawOrderHandler = EditorGUILayout.ObjectField("Draw Order Handler", controller.DrawOrderHandler, typeof(object), true);
+                controller.MultiplyColorHandler = EditorGUILayout.ObjectField("Multiply Color Handler", controller.MultiplyColorHandler, typeof(object), true);
+                controller.ScreenColorHandler = EditorGUILayout.ObjectField("Screen Color Handler", controller.ScreenColorHandler, typeof(object), true);
 
                 if (controller.SortingMode.SortByDepth())
                 {

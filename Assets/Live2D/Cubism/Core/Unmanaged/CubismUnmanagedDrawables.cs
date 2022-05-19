@@ -94,6 +94,16 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>>
         public CubismUnmanagedUshortArrayView[] Indices { get; private set; }
 
+        /// <summary>
+        /// Information multiply color.
+        /// </summary>>
+        public CubismUnmanagedFloatArrayView MultiplyColors { get; private set; }
+
+        /// <summary>
+        /// Information Screen color.
+        /// </summary>>
+        public CubismUnmanagedFloatArrayView ScreenColors { get; private set; }
+
 
         /// <summary>
         /// Resets all dynamic drawable flags.
@@ -162,6 +172,12 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);
             IndexCounts = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableIndexCounts(modelPtr), length);
+
+            length = CubismCoreDll.GetDrawableCount(modelPtr);
+            MultiplyColors = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetDrawableMultiplyColors(modelPtr), length * 4);
+
+            length = CubismCoreDll.GetDrawableCount(modelPtr);
+            ScreenColors = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetDrawableScreenColors(modelPtr), length * 4);
 
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);

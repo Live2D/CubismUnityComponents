@@ -42,7 +42,11 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             EditorGUI.BeginChangeCheck();
 
+            renderer.OverwriteFlagForDrawableMultiplyColors = EditorGUILayout.Toggle("OverwriteFlagForDrawableMultiplyColors", renderer.OverwriteFlagForDrawableMultiplyColors);
+            renderer.OverwriteFlagForDrawableScreenColors = EditorGUILayout.Toggle("OverwriteFlagForDrawableScreenColors", renderer.OverwriteFlagForDrawableScreenColors);
             renderer.Color = EditorGUILayout.ColorField("Color", renderer.Color);
+            renderer.MultiplyColor = EditorGUILayout.ColorField("MultiplyColor", renderer.MultiplyColor);
+            renderer.ScreenColor = EditorGUILayout.ColorField("ScreenColor", renderer.ScreenColor);
             renderer.Material = EditorGUILayout.ObjectField("Material", renderer.Material, typeof(Material), true) as Material;
             renderer.MainTexture = EditorGUILayout.ObjectField("Main Texture", renderer.MainTexture, typeof(Texture2D), true) as Texture2D;
             renderer.LocalSortingOrder = EditorGUILayout.IntField("Local Order", renderer.LocalSortingOrder);

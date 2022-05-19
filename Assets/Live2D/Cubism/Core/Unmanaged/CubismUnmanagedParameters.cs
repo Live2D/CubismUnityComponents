@@ -49,6 +49,16 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>>
         public CubismUnmanagedFloatArrayView Values { get; private set; }
 
+        /// <summary>
+        /// Number of key values of each parameter.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView KeyCounts { get; private set; }
+
+        /// <summary>
+        /// Key values of each parameter.
+        /// </summary>>
+        public CubismUnmanagedFloatArrayView[] KeyValues { get; private set; }
+
 
 
         #region Ctors
@@ -59,6 +69,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         internal unsafe CubismUnmanagedParameters(IntPtr modelPtr)
         {
             var length = 0;
+            CubismUnmanagedIntArrayView length2;
 
 
             Count = CubismCoreDll.GetParameterCount(modelPtr);
@@ -85,6 +96,18 @@ namespace Live2D.Cubism.Core.Unmanaged
             length = CubismCoreDll.GetParameterCount(modelPtr);
             Values = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetParameterValues(modelPtr), length);
 
+            length = CubismCoreDll.GetParameterCount(modelPtr);
+            KeyCounts = new CubismUnmanagedIntArrayView(CubismCoreDll.GetParameterKeyCounts(modelPtr), length);
+
+
+            length = CubismCoreDll.GetParameterCount(modelPtr);
+            length2 = new CubismUnmanagedIntArrayView(CubismCoreDll.GetParameterKeyCounts(modelPtr), length);
+            KeyValues = new CubismUnmanagedFloatArrayView[length];
+            var _keyValues = (IntPtr *)(CubismCoreDll.GetParameterKeyValues(modelPtr));
+            for (var i = 0; i < length; ++i)
+            {
+                KeyValues[i] = new CubismUnmanagedFloatArrayView(_keyValues[i], length2[i]);
+            }
         }
 
         #endregion

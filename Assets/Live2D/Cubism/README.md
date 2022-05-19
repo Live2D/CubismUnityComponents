@@ -53,16 +53,16 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2021.2.10f1 |
-| LTS | 2020.3.19f1 |
-| LTS | 2019.4.29f1 |
+| LTS | 2021.3.2f1 |
+| LTS | 2020.3.34f1 |
+| LTS | 2019.4.39f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2019 | 16.11.7 |
+| Visual Studio 2019 | 16.11.13 |
 | Windows SDK | 10.0.19041.0 |
-| Xcode | 13.1 |
+| Xcode | 13.3.1 |
 
 *1 Use libraries embedded with Unity or recommended.
 
@@ -81,14 +81,15 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | Platform | Version |
 | --- | --- |
-| Android | 11 |
-| iOS | 15.1 |
-| iPadOS | 15.1 |
+| Android | 12 |
+| iOS | 15.4.1 |
+| iPadOS | 15.4.1|
 | Ubuntu | 20.04.3 |
-| macOS | 11.6 |
+| macOS | 12.3.1 |
 | Windows 10 | 21H2 |
-| Google Chrome | 94.0.4606.81 |
-| Chrome OS | 94.0.4606.124 |
+| Google Chrome | 101.0.4951.67 |
+| Chrome OS 64bit | 101.0.4951.59 |
+| Chrome OS 32bit | 100.0.4896.133 |
 
 
 ## Branches
@@ -156,4 +157,4 @@ We name private fields in lower-camelcase starting with an underscore.
 
 If you have any questions, please join the official Live2D community and discuss with other users.
 - [Live2D 公式コミュニティ(Japanese)](https://creatorsforum.live2d.com/)
-- [Live2D community](http://community.live2d.com/)
+- [Live2D community](https://community.live2d.com/)

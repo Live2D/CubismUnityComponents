@@ -1,5 +1,4 @@
-﻿
-/**
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -114,6 +113,16 @@ namespace Live2D.Cubism.Core.Unmanaged
         public static bool HasVertexPositionsDidChangeFlag(this byte self)
         {
             return (self & (1 << 5)) == (1 << 5);
+        }
+
+        /// <summary>
+        /// Checks whether flag is set.
+        /// </summary>
+        /// <param name="self">Bit field.</param>
+        /// <returns><see langword="true"/> if bit is set; <see langword="false"/> otherwise.</returns>
+        public static bool HasBlendColorDidChangeFlag(this byte self)
+        {
+            return (self & (1 << 6)) == (1 << 6);
         }
 
     }

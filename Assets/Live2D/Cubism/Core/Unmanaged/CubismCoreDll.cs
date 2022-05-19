@@ -81,6 +81,10 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Flag set when vertex positions did change.
         /// </sumamry>
         public const Byte VertexPositionsDidChange = 1 << 5;
+        /// <sumamry>
+        /// Flag set when blend color did change.
+        /// </sumamry>
+        public const Byte BlendColorDidChange = 1 << 6;
 
 
         /// <summary>
@@ -158,6 +162,16 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetParameterValues")]
         public static extern unsafe float* GetParameterValues(IntPtr model);
+        /// <summary>
+        /// Gets number of key values of each parameter.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetParameterKeyCounts")]
+        public static extern unsafe int* GetParameterKeyCounts(IntPtr model);
+        /// <summary>
+        /// Gets key values of each parameter.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetParameterKeyValues")]
+        public static extern unsafe float** GetParameterKeyValues(IntPtr model);
         /// <summary>
         /// Gets part count.
         /// </summary>
@@ -258,5 +272,15 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmResetDrawableDynamicFlags")]
         public static extern void ResetDrawableDynamicFlags(IntPtr model);
+        /// <summary>
+        /// Gets information multiply color.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetDrawableMultiplyColors")]
+        public static extern unsafe float* GetDrawableMultiplyColors(IntPtr model);
+        /// <summary>
+        /// Gets information Screen color.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetDrawableScreenColors")]
+        public static extern unsafe float* GetDrawableScreenColors(IntPtr model);
     }
 }
