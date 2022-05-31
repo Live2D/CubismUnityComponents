@@ -29,5 +29,29 @@ namespace Live2D.Cubism.Framework.Physics
 
             return controller.Rig.GetSubRig(name);
         }
+
+
+        /// <summary>
+        /// Set <see cref="CubismPhysicsOutput.AngleScale"/> to the ratio by the argument to the original value.
+        /// </summary>
+        /// <param name="subRig"></param>
+        /// <param name="ratio">Ratio to original value</param>
+        /// <param name="predicate">If null, all <see cref="CubismPhysicsSubRig.Output"/> are targeted</param>
+        public static void SetPhysicsSubRigOutputAngleScaleRatio(this CubismPhysicsSubRig subRig, float ratio, Func<CubismPhysicsOutput, bool> predicate = null)
+        {
+            if (subRig == null)
+                return;
+
+            for (int i = 0; i < subRig.Output.Length; i++)
+            {
+                if (!(predicate?.Invoke(subRig.Output[i]) ?? true))
+                    continue;
+
+                var original = subRig.OriginalOutput[i];
+
+                subRig.Output[i].AngleScale = Math.Max(original.AngleScale * ratio, 0);
+                subRig.Output[i].InitializeGetter();
+            }
+        }
     }
 }

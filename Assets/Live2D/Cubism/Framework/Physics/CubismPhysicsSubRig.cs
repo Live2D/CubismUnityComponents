@@ -32,10 +32,22 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismPhysicsInput[] Input;
 
         /// <summary>
+        /// Original Input.
+        /// </summary>
+        [NonSerialized]
+        public CubismPhysicsInput[] OriginalInput;
+
+        /// <summary>
         /// Output.
         /// </summary>
         [SerializeField]
         public CubismPhysicsOutput[] Output;
+
+        /// <summary>
+        /// Original Output.
+        /// </summary>
+        [NonSerialized]
+        public CubismPhysicsOutput[] OriginalOutput;
 
         /// <summary>
         /// Particles.
@@ -100,6 +112,7 @@ namespace Live2D.Cubism.Framework.Physics
 
 
             var weight = (output.Weight / CubismPhysics.MaximumWeight);
+
 
             if (weight >= 1.0f)
             {
@@ -218,14 +231,18 @@ namespace Live2D.Cubism.Framework.Physics
 
 
             // Initialize inputs.
+            OriginalInput = new CubismPhysicsInput[Input.Length];
             for (var i = 0; i < Input.Length; ++i)
             {
+                OriginalInput[i] = Input[i];
                 Input[i].InitializeGetter();
             }
 
             // Initialize outputs.
+            OriginalOutput = new CubismPhysicsOutput[Output.Length];
             for (var i = 0; i < Output.Length; ++i)
             {
+                OriginalOutput[i] = Output[i];
                 Output[i].InitializeGetter();
             }
         }
