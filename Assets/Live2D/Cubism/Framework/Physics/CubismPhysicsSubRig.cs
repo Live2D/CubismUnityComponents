@@ -20,6 +20,12 @@ namespace Live2D.Cubism.Framework.Physics
     public class CubismPhysicsSubRig
     {
         /// <summary>
+        /// Name.
+        /// </summary>
+        [SerializeField]
+        public string Name;
+
+        /// <summary>
         /// Input.
         /// </summary>
         [SerializeField]
