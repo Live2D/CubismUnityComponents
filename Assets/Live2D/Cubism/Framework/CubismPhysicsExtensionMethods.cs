@@ -53,5 +53,29 @@ namespace Live2D.Cubism.Framework.Physics
                 subRig.Output[i].InitializeGetter();
             }
         }
+
+
+        /// <summary>
+        /// Set <see cref="CubismPhysicsOutput.IsInverted"/> whether or not to invert for the original bool value.
+        /// </summary>
+        /// <param name="subRig"></param>
+        /// <param name="isInvert">Invert the original bool value</param>
+        /// <param name="predicate">If null, all <see cref="CubismPhysicsSubRig.Output"/> are targeted</param>
+        public static void SetPhysicsSubRigOutputIsInverted(this CubismPhysicsSubRig subRig, bool isInvert, Func<CubismPhysicsOutput, bool> predicate = null)
+        {
+            if (subRig == null)
+                return;
+
+            for (int i = 0; i < subRig.Output.Length; i++)
+            {
+                if (!(predicate?.Invoke(subRig.Output[i]) ?? true))
+                    continue;
+
+                var original = subRig.OriginalOutput[i];
+
+                subRig.Output[i].IsInverted = isInvert ? !original.IsInverted : original.IsInverted;
+                subRig.Output[i].InitializeGetter();
+            }
+        }
     }
 }
