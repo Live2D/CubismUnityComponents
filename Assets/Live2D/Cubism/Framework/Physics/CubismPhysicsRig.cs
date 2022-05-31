@@ -7,6 +7,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -38,15 +39,30 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         public CubismPhysicsController Controller { get; set; }
 
+        private Dictionary<string, CubismPhysicsSubRig> _subRigNameTable;
+
+        /// <summary>
+        /// Get <see cref="CubismPhysicsSubRig"/> by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public CubismPhysicsSubRig GetSubRig(string name) => _subRigNameTable.TryGetValue(name, out var subRig) ? subRig : null;
 
         /// <summary>
         /// Initializes rigs.
         /// </summary>
         public void Initialize()
         {
+            if (_subRigNameTable == null)
+                _subRigNameTable = new Dictionary<string,CubismPhysicsSubRig>();
+            else
+                _subRigNameTable.Clear();
+
             for (var i = 0; i < SubRigs.Length; ++i)
             {
-                SubRigs[i].Initialize();
+                var subRig = SubRigs[i];
+                subRig.Initialize();
+                _subRigNameTable[subRig.Name] = subRig;
             }
         }
 
