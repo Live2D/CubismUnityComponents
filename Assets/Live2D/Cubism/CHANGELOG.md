@@ -5,13 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.5-beta.2] - 2022-06-02
+
+### Fixed
+
+* Fixed a bug that caused Multiply Color / Screen Color of different objects to be applied.
+  * See `CHANGELOG.md` in Core.
+  * No modifications to Samples and Framework.
+
+
 ## [4-r.5-beta.1] - 2022-05-19
 
 ## Added
 
 * Add support to prevent exceptions depending on the presence or absence of parameters. by [@ppcuni](https://github.com/ppcuni)
 * Add Weight argument to BlendToValue function. by [@ppcuni](https://github.com/ppcuni)
-* Add processing related to multiply colors and screen colors added in Cubism 4.2.
+* Add processing related to Multiply Color / Screen Color added in Cubism 4.2.
 
 ### Fixed
 
@@ -175,6 +184,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.1...4-r.5-beta.2
 [4-r.5-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4.2...4-r.5-beta.1
 [4-r.4.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4.1...4-r.4.2
 [4-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4...4-r.4.1
