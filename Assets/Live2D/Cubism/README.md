@@ -53,16 +53,16 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| LTS | 2021.3.2f1 |
-| LTS | 2020.3.34f1 |
+| LTS | 2021.3.4f1 |
+| LTS | 2020.3.35f1 |
 | LTS | 2019.4.39f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2019 | 16.11.13 |
+| Visual Studio 2019 | 16.11.15 |
 | Windows SDK | 10.0.19041.0 |
-| Xcode | 13.3.1 |
+| Xcode | 13.4.1 |
 
 *1 Use libraries embedded with Unity or recommended.
 
@@ -82,12 +82,12 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 12 |
-| iOS | 15.4.1 |
-| iPadOS | 15.4.1|
+| iOS | 15.5 |
+| iPadOS | 15.5 |
 | Ubuntu | 20.04.3 |
-| macOS | 12.3.1 |
+| macOS | 12.4 |
 | Windows 10 | 21H2 |
-| Google Chrome | 101.0.4951.67 |
+| Google Chrome | 102.0.5005.115 |
 | Chrome OS 64bit | 101.0.4951.59 |
 | Chrome OS 32bit | 100.0.4896.133 |
 

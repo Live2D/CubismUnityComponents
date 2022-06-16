@@ -25,12 +25,14 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="targetTranslation">Result of translation.</param>
         /// <param name="targetAngle">Result of rotation.</param>
         /// <param name="parameter">Parameter.</param>
+        /// <param name="parameterValue">Parameter value.</param>
         /// <param name="normalization">Normalized components.</param>
         /// <param name="weight">Weight.</param>
         public delegate void NormalizedParameterValueGetter(
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
+            ref float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         );
@@ -41,18 +43,21 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="targetTranslation">Result of translation.</param>
         /// <param name="targetAngle">Result of rotation.</param>
         /// <param name="parameter">Parameter.</param>
+        /// <param name="parameterValue">Parameter value.</param>
         /// <param name="normalization">Normalized components.</param>
         /// <param name="weight">Weight.</param>
         private void GetInputTranslationXFromNormalizedParameterValue(
              ref Vector2 targetTranslation,
              ref float targetAngle,
              CubismParameter parameter,
+             ref float parameterValue,
              CubismPhysicsNormalization normalization,
              float weight
         )
         {
             targetTranslation.x += CubismPhysicsMath.Normalize(
                                     parameter,
+                                    ref parameterValue,
                                     normalization.Position.Minimum,
                                     normalization.Position.Maximum,
                                     normalization.Position.Default,
@@ -66,18 +71,21 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="targetTranslation">Result of translation.</param>
         /// <param name="targetAngle">Result of rotation.</param>
         /// <param name="parameter">Parameter.</param>
+        /// <param name="parameterValue">Parameter value.</param>
         /// <param name="normalization">Normalized components.</param>
         /// <param name="weight">Weight.</param>
         private void GetInputTranslationYFromNormalizedParameterValue(
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
+            ref float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         )
         {
             targetTranslation.y += CubismPhysicsMath.Normalize(
                         parameter,
+                        ref parameterValue,
                         normalization.Position.Minimum,
                         normalization.Position.Maximum,
                         normalization.Position.Default,
@@ -91,18 +99,21 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="targetTranslation">Result of translation.</param>
         /// <param name="targetAngle">Result of rotation.</param>
         /// <param name="parameter">Parameter.</param>
+        /// <param name="parameterValue">Parameter value.</param>
         /// <param name="normalization">Normalized components.</param>
         /// <param name="weight">Weight.</param>
         private void GetInputAngleFromNormalizedParameterValue(
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
+            ref float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         )
         {
             targetAngle += CubismPhysicsMath.Normalize(
                               parameter,
+                              ref parameterValue,
                               normalization.Angle.Minimum,
                               normalization.Angle.Maximum,
                               normalization.Angle.Default,

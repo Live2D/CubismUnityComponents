@@ -50,5 +50,8 @@ namespace Live2D.Cubism.Framework.Physics
         /// Threshold of moving.
         /// </summary>
         public const float MovementThreshold = 0.001f;
+
+        /// Constant of maximum allowed delta time
+        public const float MaxDeltaTime = 5.0f;
     }
 }

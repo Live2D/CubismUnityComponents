@@ -23,14 +23,12 @@ namespace Live2D.Cubism.Framework.Physics
         /// Delegation of function of getting output value.
         /// </summary>
         /// <param name="translation">Translation.</param>
-        /// <param name="parameter">Parameter.</param>
         /// <param name="particles">Particles.</param>
         /// <param name="particleIndex">Index of particle.</param>
         /// <param name="gravity">Gravity.</param>
         /// <returns>Output value.</returns>
         public delegate float ValueGetter(
             Vector2 translation,
-            CubismParameter parameter,
             CubismPhysicsParticle[] particles,
             int particleIndex,
             Vector2 gravity
@@ -42,19 +40,16 @@ namespace Live2D.Cubism.Framework.Physics
         /// <returns>Output scale.</returns>
         public delegate float ScaleGetter();
 
-
         /// <summary>
         /// Gets output for translation X-axis.
         /// </summary>
         /// <param name="translation">Translation.</param>
-        /// <param name="parameter">Parameter.</param>
         /// <param name="particles">Particles.</param>
         /// <param name="particleIndex">Index of particle.</param>
         /// <param name="gravity">Gravity.</param>
         /// <returns>Output value.</returns>
         private float GetOutputTranslationX(
             Vector2 translation,
-            CubismParameter parameter,
             CubismPhysicsParticle[] particles,
             int particleIndex,
             Vector2 gravity
@@ -74,14 +69,12 @@ namespace Live2D.Cubism.Framework.Physics
         /// Gets output for translation Y-axis.
         /// </summary>
         /// <param name="translation">Translation.</param>
-        /// <param name="parameter">Parameter.</param>
         /// <param name="particles">Particles.</param>
         /// <param name="particleIndex">Index of particle.</param>
         /// <param name="gravity">Gravity.</param>
         /// <returns>Output value.</returns>
         private float GetOutputTranslationY(
             Vector2 translation,
-            CubismParameter parameter,
             CubismPhysicsParticle[] particles,
             int particleIndex,
             Vector2 gravity
@@ -101,14 +94,12 @@ namespace Live2D.Cubism.Framework.Physics
         /// Gets output for angle.
         /// </summary>
         /// <param name="translation">Translation.</param>
-        /// <param name="parameter">Parameter.</param>
         /// <param name="particles">Particles.</param>
         /// <param name="particleIndex">Index of particle.</param>
         /// <param name="gravity">Gravity.</param>
         /// <returns>Output value.</returns>
         private float GetOutputAngle(
             Vector2 translation,
-            CubismParameter parameter,
             CubismPhysicsParticle[] particles,
             int particleIndex,
             Vector2 gravity
@@ -147,7 +138,6 @@ namespace Live2D.Cubism.Framework.Physics
 
             return outputValue;
         }
-
 
         /// <summary>
         /// Gets output scale for translation X-axis.
