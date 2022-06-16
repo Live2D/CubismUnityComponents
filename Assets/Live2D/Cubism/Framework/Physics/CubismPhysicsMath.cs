@@ -147,12 +147,14 @@ namespace Live2D.Cubism.Framework.Physics
         /// Normalize parameter value.
         /// </summary>
         /// <param name="parameter">Target parameter.</param>
+        /// <param name="parameterValue">Target parameter Value.</param>
         /// <param name="normalizedMinimum">Value of normalized minimum.</param>
         /// <param name="normalizedMaximum">Value of normalized maximum.</param>
         /// <param name="normalizedDefault">Value of normalized default.</param>
         /// <param name="isInverted">True if input is inverted; otherwise.</param>
         /// <returns></returns>
         public static float Normalize(CubismParameter parameter,
+            ref float parameterValue,
             float normalizedMinimum,
             float normalizedMaximum,
             float normalizedDefault,
@@ -162,15 +164,15 @@ namespace Live2D.Cubism.Framework.Physics
 
             var maxValue = Mathf.Max(parameter.MaximumValue, parameter.MinimumValue);
 
-            if (maxValue < parameter.Value)
+            if (maxValue < parameterValue)
             {
-                parameter.Value = maxValue;
+                parameterValue = maxValue;
             }
 
             var minValue = Mathf.Min(parameter.MaximumValue, parameter.MinimumValue);
-            if (minValue > parameter.Value)
+            if (minValue > parameterValue)
             {
-                parameter.Value = minValue;
+                parameterValue = minValue;
             }
 
             var minNormValue = Mathf.Min(normalizedMinimum, normalizedMaximum);
@@ -178,7 +180,7 @@ namespace Live2D.Cubism.Framework.Physics
             var middleNormValue = normalizedDefault;
 
             var middleValue = GetDefaultValue(minValue, maxValue);
-            var paramValue = parameter.Value - middleValue;
+            var paramValue = parameterValue - middleValue;
 
             switch ((int)Mathf.Sign(paramValue))
             {

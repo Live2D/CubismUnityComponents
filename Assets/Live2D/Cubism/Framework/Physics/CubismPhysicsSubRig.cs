@@ -57,12 +57,50 @@ namespace Live2D.Cubism.Framework.Physics
 
 
         /// <summary>
+        /// Output result of physics operations before applying to parameters.
+        /// </summary>
+        private struct SubRigPhysicsOutput
+        {
+            public float[] Output;
+        }
+
+        [NonSerialized]
+        private SubRigPhysicsOutput _currentRigOutput; // Results of the latest pendulum calculation.
+
+        [NonSerialized]
+        private SubRigPhysicsOutput _previousRigOutput; // Result of previous pendulum calculation.
+
+        /// <summary>
+        /// Applies the specified weights from the latest and one previous result of the pendulum operation.
+        /// </summary>
+        /// <param name="weight">Weight of latest results.</param>
+        public void Interpolate(float weight)
+        {
+            // Load input parameters.
+            for (int i = 0; i < Output.Length; ++i)
+            {
+                if (Output[i].Destination == null)
+                {
+                    Output[i].Destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
+                }
+
+                UpdateOutputParameterValue(
+                    Output[i].Destination,
+                    ref Output[i].Destination.Value,
+                    _previousRigOutput.Output[i] * (1 - weight) + _currentRigOutput.Output[i] * weight,
+                    Output[i]
+                );
+            }
+        }
+
+        /// <summary>
         /// Updates parameter from output value.
         /// </summary>
         /// <param name="parameter">Target parameter.</param>
+        /// <param name="parameterValue">Target parameter Value.</param>
         /// <param name="translation">Translation.</param>
         /// <param name="output">Output value.</param>
-        private void UpdateOutputParameterValue(CubismParameter parameter, float translation, CubismPhysicsOutput output)
+        private void UpdateOutputParameterValue(CubismParameter parameter, ref float parameterValue, float translation, CubismPhysicsOutput output)
         {
             var outputScale = 1.0f;
 
@@ -97,12 +135,12 @@ namespace Live2D.Cubism.Framework.Physics
 
             if (weight >= 1.0f)
             {
-                parameter.Value = value;
+                parameterValue = value;
             }
             else
             {
-                value = (parameter.Value * (1.0f - weight)) + (value * weight);
-                parameter.Value = value;
+                value = (parameterValue * (1.0f - weight)) + (value * weight);
+                parameterValue = value;
             }
         }
 
@@ -217,6 +255,12 @@ namespace Live2D.Cubism.Framework.Physics
                 Input[i].InitializeGetter();
             }
 
+            _previousRigOutput = new SubRigPhysicsOutput();
+            _currentRigOutput = new SubRigPhysicsOutput();
+
+            Array.Resize(ref _previousRigOutput.Output, Output.Length);
+            Array.Resize(ref _currentRigOutput.Output, Output.Length);
+
             // Initialize outputs.
             for (var i = 0; i < Output.Length; ++i)
             {
@@ -234,27 +278,25 @@ namespace Live2D.Cubism.Framework.Physics
             var totalAngle = 0.0f;
             var totalTranslation = Vector2.zero;
 
-
             for (var i = 0; i < Input.Length; ++i)
             {
                 var weight = Input[i].Weight / CubismPhysics.MaximumWeight;
-
 
                 if (Input[i].Source == null)
                 {
                     Input[i].Source = Rig.Controller.Parameters.FindById(Input[i].SourceId);
                 }
-
+                var index = Array.IndexOf(Rig.Controller.Parameters, Input[i].Source);
 
                 var parameter = Input[i].Source;
                 Input[i].GetNormalizedParameterValue(
                     ref totalTranslation,
                     ref totalAngle,
                     parameter,
+                    ref Rig.ParametersCache[index],
                     Normalization,
                     weight
                     );
-
             }
 
 
@@ -277,6 +319,8 @@ namespace Live2D.Cubism.Framework.Physics
 
             for (var i = 0; i < Output.Length; ++i)
             {
+                _previousRigOutput.Output[i] = _currentRigOutput.Output[i];
+
                 var particleIndex = Output[i].ParticleIndex;
 
                 if (particleIndex < 1 || particleIndex >= Particles.Length)
@@ -288,22 +332,22 @@ namespace Live2D.Cubism.Framework.Physics
                 {
                     Output[i].Destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
                 }
-
-                var parameter = Output[i].Destination;
+                var index = Array.IndexOf(Rig.Controller.Parameters, Output[i].Destination);
 
                 var translation = Particles[particleIndex].Position -
                                         Particles[particleIndex - 1].Position;
 
+                var parameter = Output[i].Destination;
                 var outputValue = Output[i].GetValue(
                     translation,
-                    parameter,
                     Particles,
                     particleIndex,
                     Rig.Gravity
                     );
 
+                _currentRigOutput.Output[i] = outputValue;
 
-                UpdateOutputParameterValue(parameter, outputValue, Output[i]);
+                UpdateOutputParameterValue(parameter, ref Rig.ParametersCache[index], outputValue, Output[i]);
             }
         }
     }

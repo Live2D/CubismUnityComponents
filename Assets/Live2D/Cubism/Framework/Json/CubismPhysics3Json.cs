@@ -51,6 +51,7 @@ namespace Live2D.Cubism.Framework.Json
             instance.Wind.x = Meta.EffectiveForces.Wind.X;
             instance.Wind.y = Meta.EffectiveForces.Wind.Y;
 
+            instance.Fps = Meta.Fps;
 
             instance.SubRigs = new CubismPhysicsSubRig[Meta.PhysicsSettingCount];
 
@@ -463,6 +464,13 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public SerializableEffectiveForces EffectiveForces;
+
+            /// <summary>
+            /// [Optional] Fps of physics operations.
+            /// If the value is not set to Json, it will change according to the application's operating FPS.
+            /// </summary>
+            [SerializeField]
+            public float Fps;
         }
 
 
