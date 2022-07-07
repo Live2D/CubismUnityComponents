@@ -104,6 +104,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>>
         public CubismUnmanagedFloatArrayView ScreenColors { get; private set; }
 
+        /// <summary>
+        /// Indices of drawables parent part.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView ParentPartIndices { get; private set; }
+
 
         /// <summary>
         /// Resets all dynamic drawable flags.
@@ -178,6 +183,9 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);
             ScreenColors = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetDrawableScreenColors(modelPtr), length * 4);
+
+            length = CubismCoreDll.GetDrawableCount(modelPtr);
+            ParentPartIndices = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableParentPartIndices(modelPtr), length);
 
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);

@@ -134,6 +134,18 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// Index of Parent Part.
+        /// </summary>
+        public int ParentPartIndex
+        {
+            get
+            {
+                // Pull data.
+                return UnmanagedDrawables.ParentPartIndices[UnmanagedIndex];
+            }
+        }
+
+        /// <summary>
         /// Copy of the masks.
         /// </summary>
         public CubismDrawable[] Masks

@@ -48,6 +48,10 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         public IntPtr Ptr { get; private set; }
 
+        /// <summary>
+        /// .moc3 version.
+        /// </summary>
+        public uint MocVersion { get; private set; }
 
         /// <summary>
         /// Releases instance.
@@ -94,7 +98,11 @@ namespace Live2D.Cubism.Core.Unmanaged
             if (Ptr == IntPtr.Zero)
             {
                 CubismUnmanagedMemory.Deallocate(memory);
+                // Fail silently.
+                return;
             }
+
+            MocVersion = CubismCoreDll.GetMocVersion(Ptr, (uint)bytes.Length);
         }
 
         #endregion

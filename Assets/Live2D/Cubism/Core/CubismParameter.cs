@@ -54,7 +54,6 @@ namespace Live2D.Cubism.Core
 
         #endregion
 
-
         /// <summary>
         /// Unmanaged parameters from unmanaged model.
         /// </summary>
@@ -86,6 +85,18 @@ namespace Live2D.Cubism.Core
             {
                 // Pull data.
                 return UnmanagedParameters.Ids[UnmanagedIndex];
+            }
+        }
+
+        /// <summary>
+        /// Get Parameter Type.
+        /// </summary>
+        public int Type
+        {
+            get
+            {
+                // Pull data.
+                return UnmanagedParameters.Types[UnmanagedIndex];
             }
         }
 

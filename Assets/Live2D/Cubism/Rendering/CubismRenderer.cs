@@ -334,6 +334,8 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
+                TryInitializeMeshRenderer();
+
                 return _meshRenderer;
             }
         }
