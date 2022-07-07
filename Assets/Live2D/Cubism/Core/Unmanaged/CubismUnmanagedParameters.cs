@@ -35,6 +35,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         public CubismUnmanagedFloatArrayView MinimumValues { get; private set; }
 
         /// <summary>
+        /// Parameter types.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView Types { get; private set; }
+
+        /// <summary>
         /// Maximum parameter values.
         /// </summary>>
         public CubismUnmanagedFloatArrayView MaximumValues { get; private set; }
@@ -86,6 +91,9 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetParameterCount(modelPtr);
             MinimumValues = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetParameterMinimumValues(modelPtr), length);
+
+            length = CubismCoreDll.GetParameterCount(modelPtr);
+            Types = new CubismUnmanagedIntArrayView(CubismCoreDll.GetParameterTypes(modelPtr), length);
 
             length = CubismCoreDll.GetParameterCount(modelPtr);
             MaximumValues = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetParameterMaximumValues(modelPtr), length);

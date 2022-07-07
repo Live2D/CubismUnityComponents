@@ -55,6 +55,17 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// Gets the latest .moc3 file version.
+        /// </summary>
+        public static uint LatestVersion
+        {
+            get
+            {
+                return CubismCoreDll.GetLatestMocVersion();
+            }
+        }
+
+        /// <summary>
         /// <see cref="Bytes"/> backing field.
         /// </summary>
         [SerializeField]
@@ -166,6 +177,14 @@ namespace Live2D.Cubism.Core
 
             // Try revive.
             UnmanagedMoc = CubismUnmanagedMoc.FromBytes(Bytes);
+        }
+
+        public uint Version
+        {
+            get
+            {
+                return UnmanagedMoc.MocVersion;
+            }
         }
     }
 }

@@ -53,14 +53,14 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| LTS | 2021.3.4f1 |
-| LTS | 2020.3.35f1 |
-| LTS | 2019.4.39f1 |
+| LTS | 2021.3.5f1 |
+| LTS | 2020.3.36f1 |
+| LTS | 2019.4.40f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2019 | 16.11.15 |
+| Visual Studio 2019 | 16.11.16 |
 | Windows SDK | 10.0.19041.0 |
 | Xcode | 13.4.1 |
 

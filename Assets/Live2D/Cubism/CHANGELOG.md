@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.5-beta.4] - 2022-07-07
+
+### Added
+
+* Add properties to get the latest .moc3 version and the .moc3 version of the loaded model in CubismMoc.
+* Add `Mao` model.
+* Add `Demo4.2` scene to run `Mao` model.
+* Add a function to get the type of parameters of the model.
+* Add a function to get the parent part of the model's Drawable.
+
+### Fixed
+
+* Fix `GetMocVersion` function argument in `CoreDll` class that was different from the original Core API argument.
+* Fix that does not occur error when Sorting Mode of CubismRenderController is changed in the Project window.
+
+
 ## [4-r.5-beta.3] - 2022-06-16
 
 ### Changed
@@ -27,7 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [4-r.5-beta.1] - 2022-05-19
 
-## Added
+### Added
 
 * Add support to prevent exceptions depending on the presence or absence of parameters. by [@ppcuni](https://github.com/ppcuni)
 * Add Weight argument to BlendToValue function. by [@ppcuni](https://github.com/ppcuni)
@@ -195,6 +211,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.5-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.3...4-r.5-beta.4
 [4-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.2...4-r.5-beta.3
 [4-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.1...4-r.5-beta.2
 [4-r.5-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.4.2...4-r.5-beta.1
