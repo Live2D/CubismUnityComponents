@@ -81,7 +81,13 @@ namespace Live2D.Cubism.Framework.Physics
             {
                 if (Output[i].Destination == null)
                 {
-                    Output[i].Destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
+                    var destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
+                    if (destination == null)
+                    {
+                        continue;
+                    }
+
+                    Output[i].Destination = destination;
                 }
 
                 UpdateOutputParameterValue(
@@ -321,17 +327,24 @@ namespace Live2D.Cubism.Framework.Physics
             {
                 _previousRigOutput.Output[i] = _currentRigOutput.Output[i];
 
+                if (Output[i].Destination == null)
+                {
+                    var destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
+                    if (destination == null)
+                    {
+                        continue;
+                    }
+
+                    Output[i].Destination = destination;
+                }
+
                 var particleIndex = Output[i].ParticleIndex;
 
                 if (particleIndex < 1 || particleIndex >= Particles.Length)
                 {
-                    break;
+                    continue;
                 }
 
-                if (Output[i].Destination == null)
-                {
-                    Output[i].Destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
-                }
                 var index = Array.IndexOf(Rig.Controller.Parameters, Output[i].Destination);
 
                 var translation = Particles[particleIndex].Position -

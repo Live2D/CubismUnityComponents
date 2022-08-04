@@ -54,28 +54,28 @@ MonoBehaviour:
   - ParamBreath
   - ParamLeftShoulderUp
   - ParamRightShoulderUp
-  - ParamArmAL01
-  - ParamArmAL02
-  - ParamArmAL03
-  - ParamHandAL
-  - ParamArmAR01
-  - ParamArmAR02
-  - ParamArmAR03
+  - ParamArmLA01
+  - ParamArmLA02
+  - ParamArmLA03
+  - ParamHandLA
+  - ParamArmRA01
+  - ParamArmRA02
+  - ParamArmRA03
   - ParamWandRotate
-  - ParamHandAR
+  - ParamHandRA
   - ParamInkDrop
   - ParamInkDropRotate
   - ParamInkDropOn
-  - ParamArmBL01
-  - ParamArmBL02
-  - ParamArmBL03
-  - ParamHandBL
+  - ParamArmLB01
+  - ParamArmLB02
+  - ParamArmLB03
+  - ParamHandLB
   - ParamHatForm
-  - ParamArmBR01
-  - ParamArmBR02
-  - ParamArmBR02Y
-  - ParamArmBR03
-  - ParamHandBR
+  - ParamArmRB01
+  - ParamArmRB02
+  - ParamArmRB02Y
+  - ParamArmRB03
+  - ParamHandRB
   - ParamAllX
   - ParamAllY
   - ParamAllRotate
@@ -103,7 +103,7 @@ MonoBehaviour:
   - ParamSmoke
   - ParamExplosionChargeOn
   - ParamExplosionLightCharge
-  - Param
+  - ParamExplosionOn
   - ParamExplosion
   - ParamWandInkColorRainbow
   - ParamHeartMissOn

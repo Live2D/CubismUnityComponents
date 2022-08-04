@@ -48,6 +48,9 @@ namespace Live2D.Cubism.Framework.Physics
         [NonSerialized]
         private float[] _parametersCache; // Cache parameters used by Evaluate.
 
+        [NonSerialized]
+        private float[] _parametersInputCache; // Cache input when UpdateParticles runs.
+
         /// <summary>
         /// Reference of controller to refer from children rig.
         /// </summary>
@@ -63,6 +66,7 @@ namespace Live2D.Cubism.Framework.Physics
             Controller.gameObject.FindCubismModel();
 
             _parametersCache = new float[Controller.Parameters.Length];
+            _parametersInputCache = new float[Controller.Parameters.Length];
 
             for (var i = 0; i < SubRigs.Length; ++i)
             {
@@ -127,17 +131,41 @@ namespace Live2D.Cubism.Framework.Physics
                 physicsDeltaTime = deltaTime;
             }
 
-            if (_parametersCache.Length < Controller.Parameters.Length)
+            if (_parametersCache == null)
             {
                 _parametersCache = new float[Controller.Parameters.Length];
             }
 
+            if (_parametersCache.Length < Controller.Parameters.Length)
+            {
+                Array.Resize(ref _parametersCache, Controller.Parameters.Length);
+            }
+
+            if (_parametersInputCache == null)
+            {
+                _parametersInputCache = new float[Controller.Parameters.Length];
+            }
+
+            if (_parametersInputCache.Length < Controller.Parameters.Length)
+            {
+                Array.Resize(ref _parametersInputCache, Controller.Parameters.Length);
+
+                for (var i = 0; i < _parametersInputCache.Length; i++)
+                {
+                    _parametersInputCache[i] = _parametersCache[i];
+                }
+            }
+
             while (_currentRemainTime >= physicsDeltaTime)
             {
-                // copy parameter model to cache
+                var inputWeight = physicsDeltaTime / _currentRemainTime;
+
+                // Calculate the input at the timing to UpdateParticles by linear interpolation with the _parameterInputCache and parameterValue.
+                // _parameterCache needs to be separated from _parameterInputCache because of its role in propagating values between groups.
                 for (var i = 0; i < Controller.Parameters.Length; i++)
                 {
-                    _parametersCache[i] = Controller.Parameters[i].Value;
+                    _parametersCache[i] = _parametersInputCache[i] * (1.0f - inputWeight) + Controller.Parameters[i].Value * inputWeight;
+                    _parametersInputCache[i] = _parametersCache[i];
                 }
 
                 for (var i = 0; i < SubRigs.Length; ++i)

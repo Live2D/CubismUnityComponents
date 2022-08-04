@@ -25,10 +25,22 @@ MonoBehaviour:
   - Id: ParamEyeLSmile
     Value: 0
     Blend: 1
+  - Id: ParamEyeLForm
+    Value: 0
+    Blend: 1
   - Id: ParamEyeROpen
     Value: 0
     Blend: 1
   - Id: ParamEyeRSmile
+    Value: 0
+    Blend: 1
+  - Id: ParamEyeRForm
+    Value: 0
+    Blend: 1
+  - Id: ParamEyeBallX
+    Value: 0
+    Blend: 1
+  - Id: ParamEyeBallY
     Value: 0
     Blend: 1
   - Id: ParamEyeBallForm
