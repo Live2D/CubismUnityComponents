@@ -25,6 +25,11 @@ namespace Live2D.Cubism.Framework
         /// <returns>Matches.</returns>
         public static T[] GetComponentsMany<T>(this Component[] self) where T : Component
         {
+            if (self == null)
+            {
+                return null;
+            }
+
             var components = new List<T>();
 
 
@@ -56,6 +61,11 @@ namespace Live2D.Cubism.Framework
         /// <returns>Added components.</returns>
         public static T[] AddComponentEach<T>(this Component[] self) where T : Component
         {
+            if (self == null)
+            {
+                return null;
+            }
+
             var components = new T[self.Length];
 
 

@@ -531,6 +531,10 @@ namespace Live2D.Cubism.Rendering
 
             }
 
+            if (renderers == null)
+            {
+                return;
+            }
 
             // Make sure renderers are initialized.
             for (var i = 0; i < renderers.Length; ++i)
@@ -568,7 +572,7 @@ namespace Live2D.Cubism.Rendering
             var applyOpacityToRenderers = (OpacityHandlerInterface == null || Opacity > (1f - Mathf.Epsilon));
 
 
-            if (applyOpacityToRenderers)
+            if (applyOpacityToRenderers && Renderers != null)
             {
                 var renderers = Renderers;
 
@@ -592,6 +596,11 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void UpdateBlendColors()
         {
+            if (Renderers == null)
+            {
+                return;
+            }
+
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
             var newMultiplyColors = new Color[Renderers.Length];

@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core.Unmanaged;
 using System.Threading;
+using UnityEngine;
 
 
 namespace Live2D.Cubism.Core
@@ -139,6 +140,14 @@ namespace Live2D.Cubism.Core
 
             UnmanagedModel = CubismUnmanagedModel.FromMoc(unmanagedMoc);
 
+            if (UnmanagedModel == null)
+            {
+                Debug.LogError("This .moc3 file version is \"Unknown\"!!\n" +
+                               "It may be broken or you are trying to use a higher version of Moc than Cubism Core.\n" +
+                               "Check the supported versions at CubismMoc.LatestVersion.\n" +
+                               "The \"CoreDll\" constants indicate which Moc version the numbers are assigned to.");
+                return;
+            }
 
             Lock = new object();
             State = TaskState.Idle;

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.5-beta.5] - 2022-08-04
+
+### Added
+
+* Add a feature to change the value of components in batches.
+
+### Changed
+
+* Update `Mao` model.
+
+### Fixed
+
+* Fix crash with exception when reading .moc3 files of unsupported versions.
+  * The console now produces an explicit error log instead of an exception.
+* Fix physics system input to be split by the physics setting time.
+* Fix a bug in which processing was interrupted when an invalid vertex was specified in the middle of a physics operation.
+
+
 ## [4-r.5-beta.4] - 2022-07-07
 
 ### Added
@@ -211,6 +229,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.5-beta.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.4...4-r.5-beta.5
 [4-r.5-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.3...4-r.5-beta.4
 [4-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.2...4-r.5-beta.3
 [4-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.1...4-r.5-beta.2
