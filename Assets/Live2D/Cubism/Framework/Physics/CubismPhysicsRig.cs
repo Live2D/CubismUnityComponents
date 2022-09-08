@@ -75,6 +75,54 @@ namespace Live2D.Cubism.Framework.Physics
         }
 
         /// <summary>
+        /// Calculations are performed until the physics are stable.
+        /// </summary>
+        public void Stabilization()
+        {
+            if (Controller == null)
+            {
+                return;
+            }
+
+            // Initialize.
+            if (_parametersCache == null)
+            {
+                _parametersCache = new float[Controller.Parameters.Length];
+            }
+
+            if (_parametersCache.Length < Controller.Parameters.Length)
+            {
+                Array.Resize(ref _parametersCache, Controller.Parameters.Length);
+            }
+
+            if (_parametersInputCache == null)
+            {
+                _parametersInputCache = new float[Controller.Parameters.Length];
+            }
+
+            if (_parametersInputCache.Length < Controller.Parameters.Length)
+            {
+                Array.Resize(ref _parametersInputCache, Controller.Parameters.Length);
+            }
+
+            // Obtain and cache the current parameter posture.
+            for (var i = 0; i < Controller.Parameters.Length; i++)
+            {
+                _parametersCache[i] = Controller.Parameters[i].Value;
+                _parametersInputCache[i] = _parametersCache[i];
+            }
+
+            // Evaluate.
+            for (var i = 0; i < SubRigs.Length; ++i)
+            {
+                SubRigs[i].Stabilization();
+            }
+
+            var model = Controller.gameObject.FindCubismModel();
+            model.ForceUpdateNow();
+        }
+
+        /// <summary>
         /// Evaluate rigs.
         ///
         /// Pendulum interpolation weights

@@ -1,3 +1,7 @@
+[English](Description.md) / [日本語](Description.ja.md)
+
+---
+
 # Animation
 
-This example shows a simple Mecanim setup for a Cubism model.
+This sample shows a simple Mecanim setup for a Cubism model.
