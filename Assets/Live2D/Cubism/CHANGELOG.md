@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.5] - 2022-09-08
+
+### Added
+
+* Add Unity 2022 to the development environment.
+* Add the multilingual supported documents.
+* Add immediate stabilization of physics.
+
+### Removed
+
+* Remove Unity 2019 from the development environment.
+
+
 ## [4-r.5-beta.5] - 2022-08-04
 
 ### Added
@@ -90,6 +103,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+* Add Unity 2021 to the development environment.
 * Add the function to set assets to a component when importing a model.
 * Add Chrome OS from the tested environment.
 
@@ -229,6 +243,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.5...4-r.5
 [4-r.5-beta.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.4...4-r.5-beta.5
 [4-r.5-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.3...4-r.5-beta.4
 [4-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.2...4-r.5-beta.3

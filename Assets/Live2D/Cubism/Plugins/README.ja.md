@@ -4,21 +4,21 @@
 
 # Live2D Cubism Core
 
-This folder contains platform-specific library files.
+このフォルダには、プラットフォーム固有のライブラリファイルが含まれています。
 
-**If you encounter exceptions upon first import, restart Unity.**
+**最初のインポート時に例外が発生した場合は、Unityを再起動してください。**
 
-## Library List
+## ライブラリリスト
 
-| Platform | Architecture | Path | Note |
+| プラットフォーム | アーキテクチャ | パス | 注記 |
 | --- | --- | --- | --- |
 | Android | ARM64 | Android/arm64-v8a |   |
 | Android | ARMv7 | Android/armeabi-v7a |   |
 | Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
-| Emscripten |  | Experimental/Emscripten/latest | bitcode(upstream LLVM wasm backend) |
-| Emscripten |  | Experimental/Emscripten/1_38_48 | bitcode(fastcomp backend) |
-| iOS | ARM64 | iOS/xxx-iphoneos | iOS Devices |
+| Emscripten |  | Experimental/Emscripten/latest | bitcode（upstream LLVM wasmバックエンド） |
+| Emscripten |  | Experimental/Emscripten/1_38_48 | bitcode（fastcompバックエンド） |
+| iOS | ARM64 | iOS/xxx-iphoneos | iOSデバイス |
 | iOS | x86_64 | iOS/xxx-iphonesimulator | iOS Simulator |
 | Linux | x86_64 | Linux/x86_64 |   |
 | macOS | x86_64 | macOS |   |
@@ -30,6 +30,6 @@ This folder contains platform-specific library files.
 | Windows | x86 | Windows/x86 |   |
 | Windows | x86_64 | Windows/x86_64 |   |
 
-### Experimental Library
+### 実験的ライブラリ
 
-`Emscripten` and `UWP` are experimental libraries.
+`Emscripten`と`UWP`は実験的なライブラリです。

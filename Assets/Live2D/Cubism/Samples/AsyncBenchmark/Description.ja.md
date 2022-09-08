@@ -4,4 +4,4 @@
 
 # Async Benchmark
 
-This scene allows simple benchmarking of the Cubism SDK.
+このシーンでは、CubismSDKの簡単なベンチマークが可能です。
