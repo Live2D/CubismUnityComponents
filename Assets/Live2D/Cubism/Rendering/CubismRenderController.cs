@@ -512,9 +512,6 @@ namespace Live2D.Cubism.Rendering
             // Try get renderers.
             var renderers = Renderers;
 
-            OverwriteFlagForModelMultiplyColors = false;
-            OverwriteFlagForModelScreenColors = false;
-
             // Create renderers if necesssary.
             if (renderers == null || renderers.Length == 0)
             {
