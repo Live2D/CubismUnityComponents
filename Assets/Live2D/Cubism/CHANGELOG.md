@@ -267,7 +267,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
-[4-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5...4-r.6
+[4-r.6]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5...4-r.6
 [4-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.5...4-r.5
 [4-r.5-beta.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.4...4-r.5-beta.5
 [4-r.5-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.3...4-r.5-beta.4
