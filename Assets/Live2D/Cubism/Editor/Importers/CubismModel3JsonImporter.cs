@@ -14,6 +14,7 @@ using Live2D.Cubism.Framework.Motion;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Pose;
 using System;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -172,13 +173,16 @@ namespace Live2D.Cubism.Editor.Importers
                 return;
             }
 
-            var moc = model.Moc;
+            var assetPath = AssetPath.Replace(".model3.json", "");
+            var modelName = Path.GetFileName(assetPath).Replace(".model3.json", "");
 
+            var moc = model.Moc;
+            moc.name = modelName;
 
             // Create moc asset.
             if (MocAsset == null)
             {
-                AssetDatabase.CreateAsset(moc, AssetPath.Replace(".model3.json", ".asset"));
+                AssetDatabase.CreateAsset(moc, $"{assetPath}.asset");
 
 
                 MocAsset = moc;
@@ -203,9 +207,9 @@ namespace Live2D.Cubism.Editor.Importers
 
                 // Create prefab and trigger saving of changes.
 #if UNITY_2018_3_OR_NEWER
-                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
+                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, $"{assetPath}.prefab");
 #else
-                ModelPrefab = PrefabUtility.CreatePrefab(AssetPath.Replace(".model3.json", ".prefab"), model.gameObject);
+                ModelPrefab = PrefabUtility.CreatePrefab($"{assetPath}.prefab", model.gameObject);
 #endif
 
                 isImporterDirty = true;
@@ -220,7 +224,7 @@ namespace Live2D.Cubism.Editor.Importers
                 {
                     CubismModel.ResetMocReference(cubismModel,
                         AssetDatabase.LoadAssetAtPath<CubismMoc>(
-                            AssetPath.Replace(".model3.json", ".asset")));
+                            $"{assetPath}.asset"));
                 }
 
 
@@ -250,7 +254,7 @@ namespace Live2D.Cubism.Editor.Importers
 
                 // Replace prefab.
 #if UNITY_2018_3_OR_NEWER
-                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, AssetPath.Replace(".model3.json", ".prefab"));
+                ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, $"{assetPath}.prefab");
 #else
                 ModelPrefab = PrefabUtility.ReplacePrefab(model.gameObject, ModelPrefab, ReplacePrefabOptions.ConnectToPrefab);
 #endif

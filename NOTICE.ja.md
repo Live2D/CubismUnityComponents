@@ -13,12 +13,22 @@
 対応する Unity のバージョンについては、`README.ja.md` の[開発環境](README.ja.md#開発環境)をご参照ください。
 
 
-## [制限事項] Apple製品の対応状況について (2021-12-09 更新)
+## [制限事項] Apple製品の対応状況について (2023-01-26 更新)
 
 Apple Silicon製のMacにつきまして、Cubism 4 SDK for Unity R4 (4-r.4) にて対応いたしました。
 ※Cubism Editorは現在Apple Silicon製のMacに対応しておりません、ご了承ください。
-また、macOS Monterey v12.0につきましては成果物の動作を確認しております。
-ただし、macOS Monterey v12.0を利用したビルドにつきましては動作を保証しておりません、ご了承ください。
+
+また、macOS Ventura v13.0以降につきましては動作を保証しておりません、ご了承ください。
+
+
+## [注意事項] Apple Silicon版 Unity Editor での動作について (2023-01-26)
+
+Apple Silicon版Unity Editorでの動作につきまして、macOS向けのCubism Coreを利用するには `Assets/Live2D/Cubism/Plugins/macOS` 以下にある `Live2DCubismCore.bundle` をインスペクタから操作する必要があります。
+手順は以下の通りとなります。
+
+1. `Live2DCubismCore.bundle` を選択状態にし、インスペクタを表示する。
+1. `Platform settings` の `Editor` を選択し、`Apple Silicon` または `Any CPU` を選択する。
+1. Unity Editorを再起動する。
 
 
 ## [注意事項] Windows 11の対応状況について (2021-12-09)

@@ -128,10 +128,10 @@ MonoBehaviour:
   - ParamAuraColor
   - ParamHealOn
   - ParamHealLight
-  - PartArmAL
-  - PartArmAR
-  - PartArmBL
-  - PartArmBR
+  - PartArmLA
+  - PartArmRA
+  - PartArmLB
+  - PartArmRB
   ParameterCurves:
   - serializedVersion: 2
     m_Curve:

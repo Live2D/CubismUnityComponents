@@ -352,9 +352,9 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_multiplyColorHandler == null)
+                if (_multiplyColorHandlerInterface == null)
                 {
-                    _multiplyColorHandlerInterface = MultiplyColorHandler.GetInterface<ICubismBlendColorHandler>();
+                    _multiplyColorHandlerInterface = MultiplyColorHandler?.GetInterface<ICubismBlendColorHandler>();
                 }
 
 
@@ -390,9 +390,9 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_screenColorHandler == null)
+                if (_screenColorHandlerInterface == null)
                 {
-                    _screenColorHandlerInterface = MultiplyColorHandler.GetInterface<ICubismBlendColorHandler>();
+                    _screenColorHandlerInterface = ScreenColorHandler?.GetInterface<ICubismBlendColorHandler>();
                 }
 
 
@@ -511,9 +511,6 @@ namespace Live2D.Cubism.Rendering
         {
             // Try get renderers.
             var renderers = Renderers;
-
-            OverwriteFlagForModelMultiplyColors = false;
-            OverwriteFlagForModelScreenColors = false;
 
             // Create renderers if necesssary.
             if (renderers == null || renderers.Length == 0)

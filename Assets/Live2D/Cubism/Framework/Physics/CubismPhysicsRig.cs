@@ -57,6 +57,24 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismPhysicsController Controller { get; set; }
 
         /// <summary>
+        /// Get <see cref="CubismPhysicsSubRig"/> by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public CubismPhysicsSubRig GetSubRig(string name)
+        {
+            for (int i = 0; i < SubRigs.Length; i++)
+            {
+                if (SubRigs[i].Name == name)
+                {
+                    return SubRigs[i];
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Initializes rigs.
         /// </summary>
         public void Initialize()

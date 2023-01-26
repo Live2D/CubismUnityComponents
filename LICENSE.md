@@ -52,6 +52,7 @@ Live2D models listed below are available under Free Material License.
 ```
 Assets/Live2D/Cubism/Samples/Models/Clipping
 Assets/Live2D/Cubism/Samples/Models/Koharu
+Assets/Live2D/Cubism/Samples/Models/Mao
 Assets/Live2D/Cubism/Samples/Models/Natori
 Assets/Live2D/Cubism/Samples/Models/Rice
 ```

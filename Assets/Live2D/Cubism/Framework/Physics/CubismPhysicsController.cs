@@ -6,6 +6,7 @@
  */
 
 
+using System;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
@@ -100,6 +101,47 @@ namespace Live2D.Cubism.Framework.Physics
             Awake();
         }
 
+        /// <summary>
+        /// Set <see cref="CubismPhysicsOutput.AngleScale"/> to the ratio by the argument to the original value.
+        /// </summary>
+        /// <param name="subRig"></param>
+        /// <param name="ratio">Ratio to original value</param>
+        public void SetPhysicsSubRigOutputAngleScaleRatio(CubismPhysicsSubRig subRig, float ratio)
+        {
+            if (subRig == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < subRig.Output.Length; i++)
+            {
+                var original = subRig.OriginalOutput[i];
+
+                subRig.Output[i].AngleScale = Math.Max(original.AngleScale * ratio, 0);
+                subRig.Output[i].InitializeGetter();
+            }
+        }
+
+        /// <summary>
+        /// Set <see cref="CubismPhysicsOutput.IsInverted"/> whether or not to invert for the original bool value.
+        /// </summary>
+        /// <param name="subRig"></param>
+        /// <param name="isInvert">Invert the original bool value</param>
+        public void SetPhysicsSubRigOutputIsInverted(CubismPhysicsSubRig subRig, bool isInvert)
+        {
+            if (subRig == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < subRig.Output.Length; i++)
+            {
+                var original = subRig.OriginalOutput[i];
+
+                subRig.Output[i].IsInverted = isInvert ? !original.IsInverted : original.IsInverted;
+                subRig.Output[i].InitializeGetter();
+            }
+        }
 
         #region Unity Event Handling
 

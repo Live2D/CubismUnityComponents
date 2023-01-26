@@ -779,10 +779,8 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void TryInitializeMultiplyColor()
         {
-            OverwriteFlagForDrawableMultiplyColors = false;
             LastIsUseUserMultiplyColor = false;
 
-            MultiplyColor = Color.white;
             LastMultiplyColor = MultiplyColor;
 
             ApplyMultiplyColor();
@@ -807,10 +805,8 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void TryInitializeScreenColor()
         {
-            OverwriteFlagForDrawableScreenColors = false;
             LastIsUseUserScreenColors = false;
 
-            ScreenColor = Color.black;
             LastScreenColor = ScreenColor;
 
             ApplyScreenColor();
