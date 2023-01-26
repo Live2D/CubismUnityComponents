@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.6] - 2023-01-26
+
+### Added
+
+* Add the feature to search for Subrig objects by the name of the physics group. by [@ppcuni](https://github.com/ppcuni)
+* Add the feature to set the magnification of the output of the physics group uniformly to an arbitrary value. by [@ppcuni](https://github.com/ppcuni)
+* Add the feature to uniformly set the inversion flag for the output of the physics group. by [@ppcuni](https://github.com/ppcuni)
+* Add editor extension to the Inspector of CubismPhysicsController to display physics group names. by [@ppcuni](https://github.com/ppcuni)
+  * To apply this feature to sample models, we regenerated sample models prefab, etc.
+
+### Changed
+
+* Sample model assets are brought up to date.
+* Change the version of the development project to `2020.3.41f1`.
+
+### Fixed
+
+* Fix a bug that caused a warning to appear when importing a model with an unmatched Object Name.
+* Fix an issue where unwanted curves on `.anim` were not correctly erased when re-importing a model where Pose3.json exists.
+* Fix wrong condition for getter in HandlerInterface of Multiply Color and Screen Color. by [@qualice-hirakawa](https://github.com/qualice-hirakawa)
+* After setting the multiply color (or screen color) and related flags on the inspector, the changes are now retained when starting play mode. by [@qualice-hirakawa](https://github.com/qualice-hirakawa)
+* Fix a bug that caused `.fadeMotionList` to be created incorrectly when loading a model containing `.pose3.json`, depending on the order in which the `CubismPoseMotionImporter` was executed.
+
+
 ## [4-r.5] - 2022-09-08
 
 ### Added
@@ -243,6 +267,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5...4-r.6
 [4-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.5...4-r.5
 [4-r.5-beta.5]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.4...4-r.5-beta.5
 [4-r.5-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5-beta.3...4-r.5-beta.4

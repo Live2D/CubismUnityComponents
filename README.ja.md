@@ -46,16 +46,16 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 | Unity | バージョン |
 | --- | --- |
-| Tech Stream | 2022.1.14f1 |
-| LTS | 2021.3.8f1 |
-| LTS | 2020.3.38f1 |
+| Tech Stream | 2022.2.2f1 |
+| LTS | 2021.3.16f1 |
+| LTS | 2020.3.43f1 |
 
 | ライブラリ / ツール | バージョン |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2019 | 16.11.18 |
-| Windows SDK | 10.0.19041.0 |
-| Xcode | 13.4.1 |
+| Visual Studio 2022 | 17.4.4 |
+| Windows SDK | 10.0.22621.0 |
+| Xcode | 14.2 |
 
 *1 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
 
@@ -73,15 +73,15 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | プラットフォーム | バージョン |
 | --- | --- |
-| Android | 12 |
-| iOS | 15.6.1 |
-| iPadOS | 15.6.1 |
-| Ubuntu | 20.04.4 |
-| macOS | 12.5.1 |
-| Windows 10 | 21H2 |
-| Google Chrome | 104.0.5112.102 |
-| Chrome OS 64bit (x86_64) | 104.0.5112.105 |
-| Chrome OS 32bit (ARMv8) (*2) | 104.0.5112.105 |
+| Android | 13 |
+| iOS | 16.2 |
+| iPadOS | 16.2 |
+| Ubuntu | 20.04.5 |
+| macOS | 12.6.2 |
+| Windows 10 | 22H2 |
+| Google Chrome | 109.0.5414.75 |
+| Chrome OS 64bit (x86_64) | 108.0.5359.172 |
+| Chrome OS 32bit (ARMv8) (*2) | 108.0.5359.172 |
 
 *2 Android向けAPKファイルでの動作確認です。
 

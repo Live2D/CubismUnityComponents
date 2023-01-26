@@ -20,16 +20,34 @@ namespace Live2D.Cubism.Framework.Physics
     public class CubismPhysicsSubRig
     {
         /// <summary>
+        /// Name.
+        /// </summary>
+        [SerializeField]
+        public string Name;
+
+        /// <summary>
         /// Input.
         /// </summary>
         [SerializeField]
         public CubismPhysicsInput[] Input;
 
         /// <summary>
+        /// Original Input.
+        /// </summary>
+        [NonSerialized]
+        public CubismPhysicsInput[] OriginalInput;
+
+        /// <summary>
         /// Output.
         /// </summary>
         [SerializeField]
         public CubismPhysicsOutput[] Output;
+
+        /// <summary>
+        /// Original Output.
+        /// </summary>
+        [NonSerialized]
+        public CubismPhysicsOutput[] OriginalOutput;
 
         /// <summary>
         /// Particles.
@@ -299,8 +317,10 @@ namespace Live2D.Cubism.Framework.Physics
 
 
             // Initialize inputs.
+            OriginalInput = new CubismPhysicsInput[Input.Length];
             for (var i = 0; i < Input.Length; ++i)
             {
+                OriginalInput[i] = Input[i];
                 Input[i].InitializeGetter();
             }
 
@@ -311,8 +331,10 @@ namespace Live2D.Cubism.Framework.Physics
             Array.Resize(ref _currentRigOutput.Output, Output.Length);
 
             // Initialize outputs.
+            OriginalOutput = new CubismPhysicsOutput[Output.Length];
             for (var i = 0; i < Output.Length; ++i)
             {
+                OriginalOutput[i] = Output[i];
                 Output[i].InitializeGetter();
             }
         }

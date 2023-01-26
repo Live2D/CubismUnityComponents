@@ -13,12 +13,21 @@ Please consider using Unity 2021 or other LTS versions when using the product as
 Please refer to [Development Environment](README.md#Developmentenvironment) in the `README.md` for the supported Unity versions.
 
 
-## [Limitation] Support for Apple products (updated 2021-12-09)
+## [Limitation] Support for Apple products (updated 2023-01-26)
 
 Apple Silicon Mac is now supported by the Cubism 4 SDK for Unity R4 (4-r.4).
 † Please note that Cubism Editor is not currently compatible with Apple Silicon Macs.
-In addition, we have confirmed that the deliverables work on macOS Monterey v12.0.
-However, please note that we do not guarantee the operation of builds using macOS Monterey v12.0.
+In addition, please note that we do not work on macOS Ventura v13.0.
+
+
+## [Caution] Operation on the Apple Silicon version of Unity Editor (2023-01-26)
+
+To use Cubism Core for macOS on the Apple Silicon version of the Unity Editor, you need to modify the `Live2DCubismCore.bundle` under `Assets/Live2D/Cubism/Plugins/macOS` from the inspector.
+The procedure is as follows:
+
+1. Select `Live2DCubismCore.bundle` and display the inspector.
+1. Go to `Platform Settings` > `Editor` and select `Apple Silicon` or `Any CPU`.
+1. Restart the Unity Editor.
 
 
 ## [Caution] Support for Windows 11 (2021-12-09)

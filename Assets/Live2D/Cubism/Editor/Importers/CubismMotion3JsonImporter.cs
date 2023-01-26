@@ -159,8 +159,8 @@ namespace Live2D.Cubism.Editor.Importers
 
             // Add reference of motion to list.
             var directoryName = Path.GetDirectoryName(AssetPath);
-            var motionName = Path.GetFileName(AssetPath.Replace(".motion3.json", ".anim"));
-            var motionPath = $"{directoryName}/{motionName}";
+            var motionName = Path.GetFileName(AssetPath.Replace(".motion3.json", ""));
+            var motionPath = $"{directoryName}/{motionName}.anim";
 
             var assetList = CubismCreatedAssetList.GetInstance();
             var assetListIndex = assetList.AssetPaths.Contains(motionPath)
