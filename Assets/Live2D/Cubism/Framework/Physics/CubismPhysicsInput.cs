@@ -189,6 +189,12 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismParameter Source;
 
         /// <summary>
+        /// <see cref="Source"/> index.
+        /// </summary>
+        [NonSerialized]
+        public int SourceIndex;
+
+        /// <summary>
         /// Function of getting normalized parameter value.
         /// </summary>
         [NonSerialized]

@@ -261,6 +261,12 @@ namespace Live2D.Cubism.Framework.Physics
         public CubismParameter Destination;
 
         /// <summary>
+        /// <see cref="Destination"/> index.
+        /// </summary>
+        [NonSerialized]
+        public int DestinationIndex;
+
+        /// <summary>
         /// Function of getting output value.
         /// </summary>
         [NonSerialized]
