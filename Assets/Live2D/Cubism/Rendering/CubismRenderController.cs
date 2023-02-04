@@ -496,13 +496,12 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_renderers== null)
+                if (_renderers == null)
                 {
                     _renderers = Model.Drawables.GetComponentsMany<CubismRenderer>();
                     _newMultiplyColors = new Color[_renderers.Length];
                     _newScreenColors = new Color[_renderers.Length];
                 }
-
 
                 return _renderers;
             }
@@ -712,7 +711,7 @@ namespace Live2D.Cubism.Rendering
         public void OnLateUpdate()
         {
             // Fail silently...
-            if(!enabled)
+            if (!enabled)
             {
                 return;
             }
@@ -790,7 +789,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void LateUpdate()
         {
-            if(!HasUpdateController)
+            if (!HasUpdateController)
             {
                 OnLateUpdate();
             }
