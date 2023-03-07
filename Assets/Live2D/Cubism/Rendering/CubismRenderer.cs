@@ -1012,12 +1012,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void ResetSwapInfoFlags()
         {
-            var swapInfo = ThisSwap;
-            swapInfo.NewVertexColors = false;
-            swapInfo.NewVertexPositions = false;
-            swapInfo.DidBecomeVisible = false;
-            swapInfo.DidBecomeInvisible = false;
-            ThisSwap = swapInfo;
+            ThisSwap = default;
         }
 
 
