@@ -499,8 +499,6 @@ namespace Live2D.Cubism.Rendering
                 if (_renderers == null)
                 {
                     _renderers = Model.Drawables.GetComponentsMany<CubismRenderer>();
-                    _newMultiplyColors = new Color[_renderers.Length];
-                    _newScreenColors = new Color[_renderers.Length];
                 }
 
                 return _renderers;
@@ -612,6 +610,8 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
+            _newMultiplyColors ??= new Color[_renderers.Length];
+            _newScreenColors ??= new Color[_renderers.Length];
             var newMultiplyColors = _newMultiplyColors;
             var newScreenColors = _newScreenColors;
 
@@ -894,6 +894,8 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
+            _newMultiplyColors ??= new Color[_renderers.Length];
+            _newScreenColors ??= new Color[_renderers.Length];
             var newMultiplyColors = _newMultiplyColors;
             var newScreenColors = _newScreenColors;
 
