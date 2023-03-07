@@ -590,6 +590,9 @@ namespace Live2D.Cubism.Rendering
         /// <param name="newRenderOrder">New render order.</param>
         internal void OnDrawableRenderOrderDidChange(int newRenderOrder)
         {
+            if (RenderOrder == newRenderOrder) return;
+
+
             RenderOrder = newRenderOrder;
 
 
