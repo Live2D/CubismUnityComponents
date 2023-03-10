@@ -25,6 +25,14 @@ namespace Live2D.Cubism.Core
         #region Factory Methods
 
         /// <summary>
+        /// Checks consistency of a moc.
+        /// </summary>
+        public static bool HasMocConsistency(byte[] moc3)
+        {
+            return CubismUnmanagedMoc.HasMocConsistency(moc3);
+        }
+
+        /// <summary>
         /// Creates a <see cref="CubismMoc"/> asset from raw bytes.
         /// </summary>
         /// <param name="moc3">Source.</param>

@@ -155,6 +155,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         [DllImport(DllName, EntryPoint = "csmInitializeModelInPlace")]
         public static extern IntPtr InitializeModelInPlace(IntPtr moc, IntPtr memory, uint modelSize);
         /// <summary>
+        /// Checks consistency of a moc.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmHasMocConsistency")]
+        public static extern int HasMocConsistency(IntPtr memory, uint mocSize);
+        /// <summary>
         /// Updates model.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmUpdateModel")]
