@@ -610,8 +610,8 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
-            _newMultiplyColors ??= new Color[_renderers.Length];
-            _newScreenColors ??= new Color[_renderers.Length];
+            _newMultiplyColors ??= new Color[Renderers.Length];
+            _newScreenColors ??= new Color[Renderers.Length];
             var newMultiplyColors = _newMultiplyColors;
             var newScreenColors = _newScreenColors;
 
@@ -894,8 +894,8 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
-            _newMultiplyColors ??= new Color[_renderers.Length];
-            _newScreenColors ??= new Color[_renderers.Length];
+            _newMultiplyColors ??= new Color[Renderers.Length];
+            _newScreenColors ??= new Color[Renderers.Length];
             var newMultiplyColors = _newMultiplyColors;
             var newScreenColors = _newScreenColors;
 
