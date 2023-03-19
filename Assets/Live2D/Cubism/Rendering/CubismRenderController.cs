@@ -479,17 +479,6 @@ namespace Live2D.Cubism.Rendering
         private CubismRenderer[] _renderers;
 
         /// <summary>
-        /// multiply color buffer.
-        /// </summary>
-        private Color[] _newMultiplyColors;
-
-        /// <summary>
-        /// screen color buffer.
-        /// </summary>
-        private Color[] _newScreenColors;
-
-
-        /// <summary>
         /// <see cref="CubismRenderer"/>s.
         /// </summary>
         public CubismRenderer[] Renderers
@@ -505,6 +494,17 @@ namespace Live2D.Cubism.Rendering
             }
             private set { _renderers = value; }
         }
+
+
+        /// <summary>
+        /// multiply color buffer.
+        /// </summary>
+        private Color[] _newMultiplyColors;
+
+        /// <summary>
+        /// screen color buffer.
+        /// </summary>
+        private Color[] _newScreenColors;
 
 
         /// <summary>
