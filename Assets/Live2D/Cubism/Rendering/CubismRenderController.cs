@@ -485,16 +485,26 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_renderers== null)
+                if (_renderers == null)
                 {
                     _renderers = Model.Drawables.GetComponentsMany<CubismRenderer>();
                 }
-
 
                 return _renderers;
             }
             private set { _renderers = value; }
         }
+
+
+        /// <summary>
+        /// multiply color buffer.
+        /// </summary>
+        private Color[] _newMultiplyColors;
+
+        /// <summary>
+        /// screen color buffer.
+        /// </summary>
+        private Color[] _newScreenColors;
 
 
         /// <summary>
@@ -600,8 +610,10 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
-            var newMultiplyColors = new Color[Renderers.Length];
-            var newScreenColors = new Color[Renderers.Length];
+            _newMultiplyColors ??= new Color[Renderers.Length];
+            _newScreenColors ??= new Color[Renderers.Length];
+            var newMultiplyColors = _newMultiplyColors;
+            var newScreenColors = _newScreenColors;
 
             for (int i = 0; i < Renderers.Length; i++)
             {
@@ -699,7 +711,7 @@ namespace Live2D.Cubism.Rendering
         public void OnLateUpdate()
         {
             // Fail silently...
-            if(!enabled)
+            if (!enabled)
             {
                 return;
             }
@@ -777,7 +789,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void LateUpdate()
         {
-            if(!HasUpdateController)
+            if (!HasUpdateController)
             {
                 OnLateUpdate();
             }
@@ -882,8 +894,10 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
-            var newMultiplyColors = new Color[Renderers.Length];
-            var newScreenColors = new Color[Renderers.Length];
+            _newMultiplyColors ??= new Color[Renderers.Length];
+            _newScreenColors ??= new Color[Renderers.Length];
+            var newMultiplyColors = _newMultiplyColors;
+            var newScreenColors = _newScreenColors;
 
             for (var i = 0; i < data.Length; ++i)
             {
