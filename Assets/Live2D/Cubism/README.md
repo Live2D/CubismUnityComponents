@@ -46,14 +46,14 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Tech Stream | 2022.2.2f1 |
-| LTS | 2021.3.16f1 |
-| LTS | 2020.3.43f1 |
+| Tech Stream | 2022.2.18f1 |
+| LTS | 2021.3.24f1 |
+| LTS | 2020.3.47f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2022 | 17.4.4 |
+| Visual Studio 2022 | 17.5.5 |
 | Windows SDK | 10.0.22621.0 |
 | Xcode | 14.2 |
 
@@ -74,14 +74,14 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 13 |
-| iOS | 16.2 |
-| iPadOS | 16.2 |
-| Ubuntu | 20.04.5 |
-| macOS | 12.6.2 |
+| iOS | 16.4.1 |
+| iPadOS | 16.4.1 |
+| Ubuntu | 20.04.6 |
+| macOS | 13.3.1 |
 | Windows 10 | 22H2 |
-| Google Chrome | 109.0.5414.75 |
-| Chrome OS 64bit (x86_64) | 108.0.5359.172 |
-| Chrome OS 32bit (ARMv8) (*2) | 108.0.5359.172 |
+| Google Chrome | 113.0.5672.93 |
+| Chrome OS 64bit (x86_64) | 113.0.5672.114 |
+| Chrome OS 32bit (ARMv8) (*2) | 113.0.5672.114 |
 
 *2 This is a confirmation of operation with APK files for Android.
 

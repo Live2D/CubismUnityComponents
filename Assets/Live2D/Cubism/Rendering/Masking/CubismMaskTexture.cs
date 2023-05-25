@@ -72,8 +72,14 @@ namespace Live2D.Cubism.Rendering.Masking
                 // Apply changes.
                 _size = value;
 
-
-                RefreshRenderTexture();
+                if (_renderTextureCount < 1)
+                {
+                    RefreshRenderTexture();
+                }
+                else
+                {
+                    RefreshRenderTextures();
+                }
             }
         }
 
@@ -111,10 +117,51 @@ namespace Live2D.Cubism.Rendering.Masking
                 _subdivisions = value;
 
 
-                RefreshRenderTexture();
+                if (_renderTextureCount < 1)
+                {
+                    RefreshRenderTexture();
+                }
+                else
+                {
+                    RefreshRenderTextures();
+                }
             }
         }
 
+        /// <summary>
+        /// <see cref="RenderTextureCount"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _renderTextureCount = 0;
+
+        /// <summary>
+        /// Number of <see cref="RenderTextures"/>.
+        /// </summary>
+        public int RenderTextureCount
+        {
+            get
+            {
+                return _renderTextureCount;
+            }
+            set
+            {
+                if (value == _renderTextureCount)
+                {
+                    return;
+                }
+
+                _renderTextureCount = value < 1 ? 0 : value;
+
+                if (_renderTextureCount < 1)
+                {
+                    RefreshRenderTexture();
+                }
+                else
+                {
+                    RefreshRenderTextures();
+                }
+            }
+        }
 
         /// <summary>
         /// Tile pool 'allocator'.
@@ -145,6 +192,27 @@ namespace Live2D.Cubism.Rendering.Masking
             set { _renderTexture = value; }
         }
 
+        /// <summary>
+        /// <see cref="RenderTextures"/> backing field.
+        /// </summary>
+        private RenderTexture[] _renderTextures;
+
+        /// <summary>
+        /// <see cref="RenderTexture"/> to draw on.
+        /// </summary>
+        public RenderTexture[] RenderTextures
+        {
+            get
+            {
+                if (_renderTextures == null)
+                {
+                    RefreshRenderTextures();
+                }
+
+                return _renderTextures;
+            }
+            private set { _renderTextures = value; }
+        }
 
         /// <summary>
         /// Sources.
@@ -171,6 +239,14 @@ namespace Live2D.Cubism.Rendering.Masking
         #region Interface For ICubismMaskSources
 
         /// <summary>
+        /// Number of command buffers required.
+        /// </summary>
+        public int CountOfCommandBuffers
+        {
+            get { return RenderTextureCount; }
+        }
+
+        /// <summary>
         /// Add source of masks for drawing.
         /// </summary>
         public void AddSource(ICubismMaskTextureCommandSource source)
@@ -192,7 +268,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 return;
             }
 
-
+            TilePool.UsedMaskCount += source.GetNecessaryTileCount();
             // Register source.
             var item = new SourcesItem
             {
@@ -229,6 +305,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 return;
             }
 
+            TilePool.UsedMaskCount -= source.GetNecessaryTileCount();
 
             // Return tiles and deregister source.
             TilePool.ReturnTiles(Sources[itemIndex].Tiles);
@@ -239,8 +316,15 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void TryRevive()
         {
+            var isUseRenderTextures = _renderTextureCount > 0;
+            if (isUseRenderTextures)
+            {
+                // Prevent the contents of RenderTextures from becoming empty.
+                RefreshRenderTextures();
+            }
+
             // Return early if already revived.
-            if (IsRevived)
+            if (IsRevived || isUseRenderTextures)
             {
                 return;
             }
@@ -254,6 +338,12 @@ namespace Live2D.Cubism.Rendering.Masking
             // Reallocate tiles if sources exist.
             if (ContainsSources)
             {
+                for (var sourceIndex = 0; sourceIndex < Sources.Count; sourceIndex++)
+                {
+                    var source = Sources[sourceIndex];
+                    TilePool.UsedMaskCount += source.Source.GetNecessaryTileCount();
+                }
+
                 for (var i = 0; i < Sources.Count; ++i)
                 {
                     var source = Sources[i];
@@ -274,10 +364,52 @@ namespace Live2D.Cubism.Rendering.Masking
             // Recreate render texture.
             RenderTexture = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
 
+            // return early.
+            if (RenderTextureCount > 0)
+            {
+                RefreshRenderTextures();
+                return;
+            }
+
+            // Recreate render textures.
+            if (_renderTextures != null)
+            {
+                for (int renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
+                {
+                    DestroyImmediate(RenderTextures[renderTextureIndex]);
+                }
+            }
+
+            RenderTextures = new RenderTexture[0];
 
             // Recreate allocator.
             TilePool = new CubismMaskTilePool(Subdivisions, Channels);
 
+
+            // Reinitialize sources.
+            ReinitializeSources();
+        }
+
+        private void RefreshRenderTextures()
+        {
+            // Recreate render textures.
+            if (_renderTextures != null)
+            {
+                for (int renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
+                {
+                    DestroyImmediate(RenderTextures[renderTextureIndex]);
+                }
+            }
+
+            RenderTextures = new RenderTexture[RenderTextureCount];
+
+            for (int renderTextureIndex = 0; renderTextureIndex < RenderTextureCount; renderTextureIndex++)
+            {
+                RenderTextures[renderTextureIndex] = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
+            }
+
+            // Recreate allocator.
+            TilePool = new CubismMaskTilePool(-1, Channels, RenderTextureCount);
 
             // Reinitialize sources.
             ReinitializeSources();
@@ -311,24 +443,35 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Called to enqueue source.
         /// </summary>
         /// <param name="buffer">Buffer to enqueue in.</param>
-        void ICubismMaskCommandSource.AddToCommandBuffer(CommandBuffer buffer)
+        void ICubismMaskCommandSource.AddToCommandBuffer(CommandBuffer buffer, bool isUsingMultipleBuffer, int renderTextureIndex)
         {
-            // Return early if empty.
-            if (!ContainsSources)
+            // Return early if empty or failed.
+            if (!ContainsSources
+                || (isUsingMultipleBuffer && (renderTextureIndex >= RenderTextureCount))
+                || (isUsingMultipleBuffer && (renderTextureIndex < 0))
+                || (!isUsingMultipleBuffer && RenderTextureCount > 0))
             {
                 return;
             }
 
 
             // Enqueue render target.
-            buffer.SetRenderTarget(RenderTexture);
+            if (isUsingMultipleBuffer)
+            {
+                buffer.SetRenderTarget(RenderTextures[renderTextureIndex]);
+            }
+            else
+            {
+                buffer.SetRenderTarget(RenderTexture);
+            }
+
             buffer.ClearRenderTarget(false, true, Color.clear);
 
 
             // Enqueue sources.
             for (var i = 0; i < Sources.Count; ++i)
             {
-                Sources[i].Source.AddToCommandBuffer(buffer);
+                Sources[i].Source.AddToCommandBuffer(buffer, isUsingMultipleBuffer, renderTextureIndex);
             }
         }
 

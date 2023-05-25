@@ -405,7 +405,6 @@ namespace Live2D.Cubism.Framework.Physics
                     }
 
                     output.Destination = destination;
-                    output.DestinationIndex = Array.IndexOf(Rig.Controller.Parameters, output.Destination);
                 }
 
                 var particleIndex = output.ParticleIndex;
@@ -414,6 +413,8 @@ namespace Live2D.Cubism.Framework.Physics
                 {
                     continue;
                 }
+                // Update each time as the index may fluctuate.
+                output.DestinationIndex = Array.IndexOf(Rig.Controller.Parameters, output.Destination);
 
                 var translation = Particles[particleIndex].Position -
                                         Particles[particleIndex - 1].Position;

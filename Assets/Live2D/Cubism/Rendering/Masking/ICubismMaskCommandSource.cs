@@ -16,10 +16,12 @@ namespace Live2D.Cubism.Rendering.Masking
     /// </summary>
     public interface ICubismMaskCommandSource
     {
+        int CountOfCommandBuffers { get; }
+
         /// <summary>
         /// Called to enqueue source.
         /// </summary>
         /// <param name="buffer">Buffer to enqueue in.</param>
-        void AddToCommandBuffer(CommandBuffer buffer);
+        void AddToCommandBuffer(CommandBuffer buffer, bool isUsingMultipleBuffer, int bufferIndex);
     }
 }

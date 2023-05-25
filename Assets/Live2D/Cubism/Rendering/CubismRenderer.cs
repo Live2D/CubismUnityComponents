@@ -645,9 +645,14 @@ namespace Live2D.Cubism.Rendering
         {
             MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
 
+            var renderTextureIndex = newMaskProperties.Tile.RenderTextureIndex;
+
+            var texture = newMaskProperties.Texture.RenderTextureCount > 0
+                ? newMaskProperties.Texture.RenderTextures[renderTextureIndex]
+                : (Texture)newMaskProperties.Texture;
 
             // Write properties.
-            SharedPropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, newMaskProperties.Texture);
+            SharedPropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, texture);
             SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTile, newMaskProperties.Tile);
             SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTransform, newMaskProperties.Transform);
 

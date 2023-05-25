@@ -13,6 +13,7 @@ using Live2D.Cubism.Framework.Json;
 using Live2D.Cubism.Framework.Motion;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Rendering.Masking;
 using System;
 using System.IO;
 using System.Linq;
@@ -204,6 +205,15 @@ namespace Live2D.Cubism.Editor.Importers
                     CubismImporter.SendModelTextureImportEvent(this, model, texture);
                 }
 
+                var modelMaskTexture = ScriptableObject.CreateInstance<CubismMaskTexture>();
+                modelMaskTexture.name = model.name + "MaskTexture";
+
+                var filePath = string.Format("{0}/{1}.asset", Path.GetDirectoryName(AssetPath), modelMaskTexture.name);
+
+                if (!File.Exists(filePath))
+                {
+                    AssetDatabase.CreateAsset(modelMaskTexture, filePath);
+                }
 
                 // Create prefab and trigger saving of changes.
 #if UNITY_2018_3_OR_NEWER
