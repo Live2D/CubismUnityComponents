@@ -351,20 +351,21 @@ namespace Live2D.Cubism.Framework.Physics
 
             for (var i = 0; i < Input.Length; ++i)
             {
-                var weight = Input[i].Weight / CubismPhysics.MaximumWeight;
+                ref var input = ref Input[i];
+                var weight = input.Weight / CubismPhysics.MaximumWeight;
 
-                if (Input[i].Source == null)
+                if (input.Source == null)
                 {
-                    Input[i].Source = Rig.Controller.Parameters.FindById(Input[i].SourceId);
+                    input.Source = Rig.Controller.Parameters.FindById(input.SourceId);
+                    input.SourceIndex = Array.IndexOf(Rig.Controller.Parameters, input.Source);
                 }
-                var index = Array.IndexOf(Rig.Controller.Parameters, Input[i].Source);
 
-                var parameter = Input[i].Source;
-                Input[i].GetNormalizedParameterValue(
+                var parameter = input.Source;
+                input.GetNormalizedParameterValue(
                     ref totalTranslation,
                     ref totalAngle,
                     parameter,
-                    ref Rig.ParametersCache[index],
+                    ref Rig.ParametersCache[input.SourceIndex],
                     Normalization,
                     weight
                     );
@@ -390,42 +391,45 @@ namespace Live2D.Cubism.Framework.Physics
 
             for (var i = 0; i < Output.Length; ++i)
             {
-                _previousRigOutput.Output[i] = _currentRigOutput.Output[i];
+                ref var currentRigOutput = ref _currentRigOutput.Output[i];
+                _previousRigOutput.Output[i] = currentRigOutput;
 
-                if (Output[i].Destination == null)
+                ref var output = ref Output[i];
+
+                if (output.Destination == null)
                 {
-                    var destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
+                    var destination = Rig.Controller.Parameters.FindById(output.DestinationId);
                     if (destination == null)
                     {
                         continue;
                     }
 
-                    Output[i].Destination = destination;
+                    output.Destination = destination;
                 }
 
-                var particleIndex = Output[i].ParticleIndex;
+                var particleIndex = output.ParticleIndex;
 
                 if (particleIndex < 1 || particleIndex >= Particles.Length)
                 {
                     continue;
                 }
-
-                var index = Array.IndexOf(Rig.Controller.Parameters, Output[i].Destination);
+                // Update each time as the index may fluctuate.
+                output.DestinationIndex = Array.IndexOf(Rig.Controller.Parameters, output.Destination);
 
                 var translation = Particles[particleIndex].Position -
                                         Particles[particleIndex - 1].Position;
 
-                var parameter = Output[i].Destination;
-                var outputValue = Output[i].GetValue(
+                var parameter = output.Destination;
+                var outputValue = output.GetValue(
                     translation,
                     Particles,
                     particleIndex,
                     Rig.Gravity
                     );
 
-                _currentRigOutput.Output[i] = outputValue;
+                currentRigOutput = outputValue;
 
-                UpdateOutputParameterValue(parameter, ref Rig.ParametersCache[index], outputValue, Output[i]);
+                UpdateOutputParameterValue(parameter, ref Rig.ParametersCache[output.DestinationIndex], outputValue, output);
             }
         }
 

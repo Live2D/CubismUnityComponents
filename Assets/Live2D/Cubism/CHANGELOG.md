@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [4-r.7] - 2023-05-25
+
+### Added
+
+* The number of render textures used can now be increased arbitrarily.
+  * The maximum number of masks when using multiple render textures has been increased to "number of render textures * 32".
+  * You can also continue to use the pre-R6_2 method.
+* Importing a model now generates a MaskTexture asset containing the model's name.
+  * It is generated only if the model prefab has not been generated.
+* Add the function of checking consistency on importing a MOC3. (`CubismMoc.CreateFrom`)
+  * This feature is enabled by default.Please see the following manual for more information.
+    * https://docs.live2d.com/cubism-sdk-manual/moc3-consistency/
+* Add component for changing Multiply Color / Screen Color from parent part.
+  * Components are automatically added to each part object of the model when the model is imported.
+
+### Fixed
+
+* Fix to improve physics and rendering performance. by [@ppcuni](https://github.com/ppcuni)
+* Fix an issue with `ResetSwapInfoFlags` function where flags were not initialized correctly. by [@ppcuni](https://github.com/ppcuni)
+
+
 ## [4-r.6.2] - 2023-03-16
 
 ### Fixed
@@ -282,6 +303,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[4-r.7]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6.2...4-r.7
 [4-r.6.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6.1...4-r.6.2
 [4-r.6.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6...4-r.6.1
 [4-r.6]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.5...4-r.6

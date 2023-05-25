@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7106950a06563f4a893b4e239e2e1ac, type: 3}
-  m_Name: GlobalMaskTexture
+  m_Name: MaoMaskTexture
   m_EditorClassIdentifier: 
   _size: 1024
   _subdivisions: 3

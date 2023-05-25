@@ -125,7 +125,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Appends junction draw commands to a buffer.
         /// </summary>
         /// <param name="buffer">Buffer to append commands to.</param>
-        public void AddToCommandBuffer(CommandBuffer buffer)
+        public void AddToCommandBuffer(CommandBuffer buffer, bool isUsingMultipleBuffer, int renderTextureIndex)
         {
             // Make sure mask transform is initialized.
             RecalculateMaskTransform();
@@ -134,10 +134,25 @@ namespace Live2D.Cubism.Rendering.Masking
             // Initialize and enqueue masks.
             for (var i = 0; i < Masks.Length; ++i)
             {
-                Masks[i]
-                    .SetMaskTile(MaskTile)
-                    .SetMaskTransform(MaskTransform)
-                    .AddToCommandBuffer(buffer);
+                if (isUsingMultipleBuffer)
+                {
+                    if (MaskTile.RenderTextureIndex != renderTextureIndex)
+                    {
+                        continue;
+                    }
+
+                    Masks[i]
+                        .SetMaskTile(MaskTile)
+                        .SetMaskTransform(MaskTransform)
+                        .AddToCommandBuffer(buffer);
+                }
+                else
+                {
+                    Masks[i]
+                        .SetMaskTile(MaskTile)
+                        .SetMaskTransform(MaskTransform)
+                        .AddToCommandBuffer(buffer);
+                }
             }
         }
 

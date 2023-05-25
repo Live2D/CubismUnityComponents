@@ -57,5 +57,10 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Size of the tile in texture coordinates.
         /// </summary>
         public float Size;
+
+        /// <summary>
+        /// Index of RenderTextures where the tile is located.
+        /// </summary>
+        public int RenderTextureIndex;
     }
 }

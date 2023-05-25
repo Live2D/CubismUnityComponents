@@ -420,8 +420,21 @@ namespace Live2D.Cubism.Framework.Json
             }
 
 
+            if (model.Parts != null)
+            {
+                var parts = model.Parts;
+
+                // Create and initialize partColorsEditors.
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    var partColorsEditor = parts[i].gameObject.AddComponent<CubismPartColorsEditor>();
+                    partColorsEditor.TryInitialize(rendererController, parts[i], model.Drawables);
+                }
+            }
+
+
             // Initialize drawables.
-            if(HitAreas != null)
+            if (HitAreas != null)
             {
                 for (var i = 0; i < HitAreas.Length; i++)
                 {

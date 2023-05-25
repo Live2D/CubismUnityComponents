@@ -21,6 +21,8 @@ namespace Live2D.Cubism.Editor.Inspectors
     {
         #region Editor
 
+        private bool _foldoutStatus = true;
+
         /// <summary>
         /// Draws inspector.
         /// </summary>
@@ -39,10 +41,41 @@ namespace Live2D.Cubism.Editor.Inspectors
             // Show settings.
             EditorGUI.BeginChangeCheck();
 
+            var message = "Current using system: ";
+            message += texture.RenderTextureCount < 1 ? "Subdivisions (Legacy)" : "Multiple RenderTexture";
+            EditorGUILayout.HelpBox(message, MessageType.Info);
+            EditorGUILayout.Space();
 
+            EditorGUILayout.LabelField("Subdivisions (Legacy)", EditorStyles.boldLabel);
+
+            EditorGUI.indentLevel++;
             texture.Size = EditorGUILayout.IntField("Size (In Pixels)", texture.Size);
             texture.Subdivisions = EditorGUILayout.IntSlider("Subdivisions", texture.Subdivisions, 1, 5);
             EditorGUILayout.ObjectField("Render Texture (Read-only)", (RenderTexture) texture, typeof(RenderTexture), false);
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Multiple RenderTexture", EditorStyles.boldLabel);
+
+            EditorGUI.indentLevel++;
+            texture.RenderTextureCount = EditorGUILayout.IntSlider("RenderTextureCount", texture.RenderTextureCount, 0, 5);
+            EditorGUILayout.Space();
+
+            _foldoutStatus = EditorGUILayout.Foldout(_foldoutStatus, "Render Textures (Read-only)");
+            if (_foldoutStatus)
+            {
+                EditorGUILayout.BeginVertical(GUI.skin.box);
+
+                // Make it practically ReadOnly.
+                GUI.enabled = false;
+                for (int renderTextureIndex = 0; renderTextureIndex < texture.RenderTextures.Length; renderTextureIndex++)
+                {
+                    EditorGUILayout.ObjectField($"element {renderTextureIndex} (Read-only)", texture.RenderTextures[renderTextureIndex], typeof(RenderTexture), false);
+                }
+                GUI.enabled = true;
+                EditorGUILayout.EndVertical();
+            }
+            EditorGUI.indentLevel--;
 
 
             // Save any changes.

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8918661573268245142}
   - component: {fileID: 2668418617695777636}
+  - component: {fileID: 6638369967342906242}
   - component: {fileID: 2001013907799670360}
   m_Layer: 0
   m_Name: PartLeg
@@ -46,6 +47,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 21
   Opacity: 1
+--- !u!114 &6638369967342906242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 67815099409765111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &2001013907799670360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2724,6 +2748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2533037342595525972}
   - component: {fileID: 4682425357785506314}
+  - component: {fileID: 7202320895085519877}
   - component: {fileID: 8136632586160078206}
   m_Layer: 0
   m_Name: PartHairFront
@@ -2760,6 +2785,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 9
   Opacity: 1
+--- !u!114 &7202320895085519877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906788474728877236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &8136632586160078206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2904,6 +2948,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6558768661954216341}
   - component: {fileID: 5459731238005964955}
+  - component: {fileID: 3632379753644171467}
   - component: {fileID: 2516597576125058952}
   m_Layer: 0
   m_Name: PartEye
@@ -2940,6 +2985,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 12
   Opacity: 1
+--- !u!114 &3632379753644171467
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012416885166422954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &2516597576125058952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3204,6 +3286,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1229265763316687652}
   - component: {fileID: 8104890461898425227}
+  - component: {fileID: 3871609252725336855}
   - component: {fileID: 1466533067890847458}
   m_Layer: 0
   m_Name: PartHoodie
@@ -3240,6 +3323,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 20
   Opacity: 1
+--- !u!114 &3871609252725336855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234154158720094563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1466533067890847458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5544,6 +5660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1500613068999857663}
   - component: {fileID: 2200555827061930144}
+  - component: {fileID: 1199673860600963933}
   - component: {fileID: 1248106928283971867}
   m_Layer: 0
   m_Name: PartCheek
@@ -5580,6 +5697,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 13
   Opacity: 1
+--- !u!114 &1199673860600963933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1893741753219567644}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1248106928283971867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6346,6 +6485,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5938244488586498601}
   - component: {fileID: 6680635955010544503}
+  - component: {fileID: 7344810911349229863}
   - component: {fileID: 8748691718706119197}
   m_Layer: 0
   m_Name: PartRobe
@@ -6382,6 +6522,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 19
   Opacity: 1
+--- !u!114 &7344810911349229863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2055435987469235878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &8748691718706119197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7306,6 +7472,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1024280021389571370}
   - component: {fileID: 2619723239140822106}
+  - component: {fileID: 8958842602618324062}
   - component: {fileID: 5698767915382339284}
   m_Layer: 0
   m_Name: PartCore
@@ -7342,6 +7509,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
   Opacity: 1
+--- !u!114 &8958842602618324062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2193932521291924052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &5698767915382339284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10246,6 +10432,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3666311218311851214}
   - component: {fileID: 6041213496421123516}
+  - component: {fileID: 6313150548209761465}
   - component: {fileID: 7671443299518191381}
   m_Layer: 0
   m_Name: PartNose
@@ -10282,6 +10469,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 14
   Opacity: 1
+--- !u!114 &6313150548209761465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2830478406349908333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &7671443299518191381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12327,6 +12533,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6703419126568372606}
   - component: {fileID: 962173203848572162}
+  - component: {fileID: 2509674785051864001}
   - component: {fileID: 4326477557665260460}
   m_Layer: 0
   m_Name: PartHairBack
@@ -12363,6 +12570,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 10
   Opacity: 1
+--- !u!114 &2509674785051864001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3429827517220143231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &4326477557665260460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14607,6 +14834,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8458909834016823645}
   - component: {fileID: 1823764760253546344}
+  - component: {fileID: 6653543755427803483}
   - component: {fileID: 6148833652805540647}
   m_Layer: 0
   m_Name: PartWandA
@@ -14643,6 +14871,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 27
   Opacity: 1
+--- !u!114 &6653543755427803483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3953471350534175569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &6148833652805540647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15267,6 +15517,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3020717605512448535}
   - component: {fileID: 9106036936082471046}
+  - component: {fileID: 7790577330583143516}
   - component: {fileID: 153903082830557800}
   m_Layer: 0
   m_Name: PartInk
@@ -15303,6 +15554,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
   Opacity: 1
+--- !u!114 &7790577330583143516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4099592961035850889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &153903082830557800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17067,6 +17341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4204777408229665359}
   - component: {fileID: 3212447505637952593}
+  - component: {fileID: 1658588054235425830}
   - component: {fileID: 1830432723133976108}
   m_Layer: 0
   m_Name: PartNeck
@@ -17103,6 +17378,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 18
   Opacity: 1
+--- !u!114 &1658588054235425830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4516667689028885755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1830432723133976108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17847,6 +18143,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2632318665878346286}
   - component: {fileID: 5618220192525042725}
+  - component: {fileID: 2204175958780635013}
   - component: {fileID: 505380348027378715}
   m_Layer: 0
   m_Name: PartHat
@@ -17883,6 +18180,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 7
   Opacity: 1
+--- !u!114 &2204175958780635013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4690892043893237266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &505380348027378715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18027,6 +18352,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6921714321928213656}
   - component: {fileID: 5158315726556807764}
+  - component: {fileID: 2238503152125483291}
   - component: {fileID: 6833929986813724491}
   m_Layer: 0
   m_Name: PartExplosionLight
@@ -18063,6 +18389,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 3
   Opacity: 1
+--- !u!114 &2238503152125483291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4816812262541997449}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &6833929986813724491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19947,6 +20308,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1408166212317323118}
   - component: {fileID: 1783473067431889559}
+  - component: {fileID: 4599495175018186514}
   - component: {fileID: 9183856816892700530}
   m_Layer: 0
   m_Name: PartMouth
@@ -19983,6 +20345,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 15
   Opacity: 1
+--- !u!114 &4599495175018186514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5222128922588414400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &9183856816892700530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20187,6 +20575,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7479789565661659085}
   - component: {fileID: 8247556467463157413}
+  - component: {fileID: 8522310112005973929}
   - component: {fileID: 8051341571610101613}
   m_Layer: 0
   m_Name: PartEar
@@ -20223,6 +20612,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 17
   Opacity: 1
+--- !u!114 &8522310112005973929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5280922266063579809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &8051341571610101613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20847,6 +21255,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5027700439427834894}
   - component: {fileID: 4890518200415566693}
+  - component: {fileID: 4725907148758791067}
   - component: {fileID: 982514612951783931}
   m_Layer: 0
   m_Name: PartHairSide
@@ -20883,6 +21292,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 8
   Opacity: 1
+--- !u!114 &4725907148758791067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5353656691355269093}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &982514612951783931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22946,6 +23377,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8157425837186884456}
   - component: {fileID: 2487402342064626530}
+  - component: {fileID: 939139701234375198}
   - component: {fileID: 153692133145800801}
   m_Layer: 0
   m_Name: PartSmoke
@@ -22982,6 +23414,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 2
   Opacity: 1
+--- !u!114 &939139701234375198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5947409484697726901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &153692133145800801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25166,6 +25618,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1718525196865572684}
   - component: {fileID: 7967673406230451598}
+  - component: {fileID: 2753336566025737240}
   - component: {fileID: 4924939091561762986}
   m_Layer: 0
   m_Name: PartLight
@@ -25202,6 +25655,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 5
   Opacity: 1
+--- !u!114 &2753336566025737240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6404615508462191026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &4924939091561762986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25766,6 +26250,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5553698859584112312}
   - component: {fileID: 5703648473606084098}
+  - component: {fileID: 8768992723842859130}
   - component: {fileID: 1201022521440911925}
   m_Layer: 0
   m_Name: PartHeart
@@ -25802,6 +26287,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 6
   Opacity: 1
+--- !u!114 &8768992723842859130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6662538736149537931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &1201022521440911925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26366,6 +26893,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3848618515008341028}
   - component: {fileID: 2147174427686628524}
+  - component: {fileID: 7894404599610629264}
   - component: {fileID: 8382728958334022744}
   m_Layer: 0
   m_Name: PartBrow
@@ -26402,6 +26930,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 11
   Opacity: 1
+--- !u!114 &7894404599610629264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6793840340511556669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &8382728958334022744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27234,6 +27783,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5442134173949967674}
   - component: {fileID: 8277071111556489311}
+  - component: {fileID: 4794708977248247233}
   - component: {fileID: 91867196436330821}
   - component: {fileID: 8703183002370447243}
   m_Layer: 0
@@ -27271,6 +27821,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 23
   Opacity: 1
+--- !u!114 &4794708977248247233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7012144673837347460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &91867196436330821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31930,6 +32503,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3277071166320433224}
   - component: {fileID: 6240761250121533594}
+  - component: {fileID: 6173507395707082533}
   - component: {fileID: 4572916039764327254}
   - component: {fileID: 7087773924892577948}
   m_Layer: 0
@@ -31967,6 +32541,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 25
   Opacity: 1
+--- !u!114 &6173507395707082533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8271433476101057018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &4572916039764327254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32126,6 +32726,7 @@ GameObject:
   m_Component:
   - component: {fileID: 241720599975512805}
   - component: {fileID: 5580616532659273913}
+  - component: {fileID: 8483132678553078522}
   - component: {fileID: 2109756286037202181}
   m_Layer: 0
   m_Name: Partaura
@@ -32162,6 +32763,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 4
   Opacity: 1
+--- !u!114 &8483132678553078522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8370840892463769539}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &2109756286037202181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32606,6 +33230,7 @@ GameObject:
   m_Component:
   - component: {fileID: 91729883581678139}
   - component: {fileID: 4347922985997173890}
+  - component: {fileID: 8285777730971539347}
   - component: {fileID: 5614590626829203121}
   - component: {fileID: 8385416645622357023}
   m_Layer: 0
@@ -32643,6 +33268,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 24
   Opacity: 1
+--- !u!114 &8285777730971539347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8463368096010416267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &5614590626829203121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32862,6 +33508,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1044919368645177895}
   - component: {fileID: 4157055183488747592}
+  - component: {fileID: 3423421896331714919}
   - component: {fileID: 2261558924810810973}
   - component: {fileID: 2370260691457564310}
   m_Layer: 0
@@ -32899,6 +33546,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 22
   Opacity: 1
+--- !u!114 &3423421896331714919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8483923452942423433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &2261558924810810973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34138,6 +34807,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5283940451524461046}
   - component: {fileID: 6259856516463401038}
+  - component: {fileID: 4181971048979504849}
   - component: {fileID: 222466471200709878}
   m_Layer: 0
   m_Name: PartWandB
@@ -34174,6 +34844,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 28
   Opacity: 1
+--- !u!114 &4181971048979504849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8781628131583811310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &222466471200709878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36480,6 +37172,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8056075127917952874}
   - component: {fileID: 1425512334765199565}
+  - component: {fileID: 2179851977216271750}
   - component: {fileID: 8698556165614344493}
   m_Layer: 0
   m_Name: PartEyeBall
@@ -36516,6 +37209,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 26
   Opacity: 1
+--- !u!114 &2179851977216271750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9148715054738569238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &8698556165614344493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36660,6 +37380,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3363192353052577008}
   - component: {fileID: 3010253222052380931}
+  - component: {fileID: 2611813255672777051}
   - component: {fileID: 946949833872676163}
   m_Layer: 0
   m_Name: PartFace
@@ -36696,6 +37417,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 16
   Opacity: 1
+--- !u!114 &2611813255672777051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9183889372323545714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28e5d11781244f449b6c9aa654a03100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _childDrawableRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _isOverwrittenPartMultiplyColors: 0
+  _isOverwrittenPartScreenColors: 0
+  _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
+  _screenColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &946949833872676163
 MonoBehaviour:
   m_ObjectHideFlags: 0

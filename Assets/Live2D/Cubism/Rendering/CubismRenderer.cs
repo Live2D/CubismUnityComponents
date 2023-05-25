@@ -590,6 +590,9 @@ namespace Live2D.Cubism.Rendering
         /// <param name="newRenderOrder">New render order.</param>
         internal void OnDrawableRenderOrderDidChange(int newRenderOrder)
         {
+            if (RenderOrder == newRenderOrder) return;
+
+
             RenderOrder = newRenderOrder;
 
 
@@ -642,9 +645,14 @@ namespace Live2D.Cubism.Rendering
         {
             MeshRenderer.GetPropertyBlock(SharedPropertyBlock);
 
+            var renderTextureIndex = newMaskProperties.Tile.RenderTextureIndex;
+
+            var texture = newMaskProperties.Texture.RenderTextureCount > 0
+                ? newMaskProperties.Texture.RenderTextures[renderTextureIndex]
+                : (Texture)newMaskProperties.Texture;
 
             // Write properties.
-            SharedPropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, newMaskProperties.Texture);
+            SharedPropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, texture);
             SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTile, newMaskProperties.Tile);
             SharedPropertyBlock.SetVector(CubismShaderVariables.MaskTransform, newMaskProperties.Transform);
 
@@ -1009,12 +1017,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void ResetSwapInfoFlags()
         {
-            var swapInfo = ThisSwap;
-            swapInfo.NewVertexColors = false;
-            swapInfo.NewVertexPositions = false;
-            swapInfo.DidBecomeVisible = false;
-            swapInfo.DidBecomeInvisible = false;
-            ThisSwap = swapInfo;
+            ThisSwap = default;
         }
 
 
