@@ -47,6 +47,21 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// <see cref="ChildParts"/>s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismPartColorsEditor[] _childParts;
+
+        /// <summary>
+        /// Array of own child parts.
+        /// </summary>
+        public CubismPartColorsEditor[] ChildParts
+        {
+            get { return _childParts; }
+            set { _childParts = value; }
+        }
+
+        /// <summary>
         /// <see cref="OverwriteColorForPartMultiplyColors"/>s backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -66,6 +81,11 @@ namespace Live2D.Cubism.Rendering
                     ChildDrawableRenderers[i].LastMultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].LastMultiplyColor;
                     ChildDrawableRenderers[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
                     ChildDrawableRenderers[i].ApplyMultiplyColor();
+                }
+                for (int i = 0; i < ChildParts.Length; i++)
+                {
+                    ChildParts[i].OverwriteColorForPartMultiplyColors = OverwriteColorForPartMultiplyColors;
+                    ChildParts[i].MultiplyColor = MultiplyColor;
                 }
             }
         }
@@ -90,6 +110,11 @@ namespace Live2D.Cubism.Rendering
                     ChildDrawableRenderers[i].LastScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].LastScreenColor;
                     ChildDrawableRenderers[i].ScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
                     ChildDrawableRenderers[i].ApplyScreenColor();
+                }
+                for (int i = 0; i < ChildParts.Length; i++)
+                {
+                    ChildParts[i].OverwriteColorForPartScreenColors = OverwriteColorForPartScreenColors;
+                    ChildParts[i].ScreenColor = ScreenColor;
                 }
             }
         }
@@ -118,13 +143,15 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // 値を保存
-                _multiplyColor = (value != null)
-                    ? value
-                    : Color.white;
+                _multiplyColor = value;
 
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
                     ChildDrawableRenderers[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
+                }
+                for (int i = 0; i < ChildParts.Length; i++)
+                {
+                    ChildParts[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildParts[i].MultiplyColor;
                 }
             }
         }
@@ -153,36 +180,54 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // 値を保存
-                _screenColor = (value != null)
-                    ? value
-                    : Color.black;
+                _screenColor = value;
 
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
                     ChildDrawableRenderers[i].ScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
                 }
+                for (int i = 0; i < ChildParts.Length; i++)
+                {
+                    ChildParts[i].ScreenColor = OverwriteColorForPartMultiplyColors ? ScreenColor : ChildParts[i].ScreenColor;
+                }
             }
         }
 
+        [Obsolete]
         public void TryInitialize(CubismRenderController cubismRenderController, CubismPart part, CubismDrawable[] drawables)
         {
+            TryInitialize(gameObject.FindCubismModel(true));
+        }
+
+        public void TryInitialize(CubismModel model)
+        {
+            var drawables = model.Drawables;
+
             // Initialize.
-            _renderController = cubismRenderController;
+            _renderController = model.GetComponent<CubismRenderController>();
             _renderers = _renderController.Renderers;
-            _part = part;
+            _part = _part = GetComponent<CubismPart>();
 
             // Initialize elements.
             ChildDrawableRenderers = Array.Empty<CubismRenderer>();
 
-            for (var j = 0; j < _renderers.Length; j++)
+            for (var i = 0; i < _renderers.Length; i++)
             {
                 // When this object is the parent part.
-                if (drawables[j].ParentPartIndex == _part.UnmanagedIndex)
+                if (drawables[i].ParentPartIndex == _part.UnmanagedIndex)
                 {
                     // Register the corresponding renderers in the dictionary.
                     Array.Resize(ref _childDrawableRenderers, _childDrawableRenderers.Length + 1);
-                    ChildDrawableRenderers[ChildDrawableRenderers.Length - 1] = _renderers[j];
+                    ChildDrawableRenderers[ChildDrawableRenderers.Length - 1] = _renderers[i];
                 }
+            }
+
+            _childParts = Array.Empty<CubismPartColorsEditor>();
+            foreach (var part in model.Parts.Where((e) => e.UnmanagedParentIndex == _part.UnmanagedIndex))
+            {
+                Array.Resize(ref _childParts, _childParts.Length + 1);
+                var colorsEditor = part.GetComponent<CubismPartColorsEditor>();
+                _childParts[_childParts.Length - 1] = colorsEditor;
             }
         }
 
@@ -196,23 +241,9 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            // Making cash.
-            var model = gameObject.FindCubismModel(true);
-            var drawables = model.Drawables;
-
-            if (_renderController == null)
-            {
-                _renderController = model.GetComponent<CubismRenderController>();
-                _renderers = _renderController.Renderers;
-            }
-
-            if (_part == null)
-            {
-                _part = GetComponent<CubismPart>();
-            }
-
             // Initialize.
-            TryInitialize(_renderController, _part, drawables);
+            var model = gameObject.FindCubismModel(true);
+            TryInitialize(model);
         }
 
 #endregion

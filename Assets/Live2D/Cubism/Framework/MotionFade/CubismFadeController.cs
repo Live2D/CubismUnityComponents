@@ -157,7 +157,8 @@ namespace Live2D.Cubism.Framework.MotionFade
                 {
                     if ((elapsedTime <= playingMotionData.FadeInTime) ||
                         ((0 <= playingMotionData.ParameterFadeInTimes[j]) &&
-                          (elapsedTime <= playingMotionData.ParameterFadeInTimes[j])))
+                         (elapsedTime <= playingMotionData.ParameterFadeInTimes[j])) ||
+                        !_fadeStates[i].GetStateTransitionFinished())
                     {
                         _isFading[i] = true;
                         break;

@@ -16,6 +16,7 @@ namespace Live2D.Cubism.Editor.Inspectors
     internal sealed class PortfolioPartBlendColorEditorInspector : UnityEditor.Editor
     {
         private SerializedProperty childDrawableRenderers;
+        private SerializedProperty childParts;
 
         #region Editor
 
@@ -37,11 +38,20 @@ namespace Live2D.Cubism.Editor.Inspectors
             {
                 childDrawableRenderers = serializedObject.FindProperty("_childDrawableRenderers");
             }
+            if (childParts == null)
+            {
+                childParts = serializedObject.FindProperty("_childParts");
+            }
 
             if (childDrawableRenderers != null)
             {
                 // Show renderers.
                 EditorGUILayout.PropertyField(childDrawableRenderers);
+            }
+            if (childParts != null)
+            {
+                // Show parts.
+                EditorGUILayout.PropertyField(childParts);
             }
 
             EditorGUI.BeginChangeCheck();

@@ -141,6 +141,7 @@ namespace Live2D.Cubism.Framework.MotionFade
             }
 
             _cubismFadeMotionList = fadeController.CubismFadeMotionList;
+            _isStateTransitionFinished = false;
 
             _layerIndex = layerIndex;
             _layerWeight = (_layerIndex == 0)

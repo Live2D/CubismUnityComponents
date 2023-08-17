@@ -428,7 +428,7 @@ namespace Live2D.Cubism.Framework.Json
                 for (int i = 0; i < parts.Length; i++)
                 {
                     var partColorsEditor = parts[i].gameObject.AddComponent<CubismPartColorsEditor>();
-                    partColorsEditor.TryInitialize(rendererController, parts[i], model.Drawables);
+                    partColorsEditor.TryInitialize(model);
                 }
             }
 
@@ -459,7 +459,6 @@ namespace Live2D.Cubism.Framework.Json
 
             // Initialize groups.
             var parameters = model.Parameters;
-
 
             for (var i = 0; i < parameters.Length; ++i)
             {
@@ -492,10 +491,17 @@ namespace Live2D.Cubism.Framework.Json
                 if (cdi3Json != null)
                 {
                     var cubismDisplayInfoParameterName = parameters[i].gameObject.AddComponent<CubismDisplayInfoParameterName>();
-                    cubismDisplayInfoParameterName.Name = cdi3Json.Parameters[i].Name;
+                    cubismDisplayInfoParameterName.Name = parameters[i].Id;
+                    for (int j = 0; j < cdi3Json.Parameters.Length; j++)
+                    {
+                        if (cdi3Json.Parameters[j].Id == parameters[i].Id)
+                        {
+                            cubismDisplayInfoParameterName.Name = cdi3Json.Parameters[j].Name;
+                            break;
+                        }
+                    }
                     cubismDisplayInfoParameterName.DisplayName = string.Empty;
                 }
-
             }
 
             // Setting up the part name for display.
@@ -507,7 +513,15 @@ namespace Live2D.Cubism.Framework.Json
                 for (var i = 0; i < parts.Length; i++)
                 {
                     var cubismDisplayInfoPartNames = parts[i].gameObject.AddComponent<CubismDisplayInfoPartName>();
-                    cubismDisplayInfoPartNames.Name = cdi3Json.Parts[i].Name;
+                    cubismDisplayInfoPartNames.Name = parts[i].Id;
+                    for (int j = 0; j < cdi3Json.Parts.Length; j++)
+                    {
+                        if (cdi3Json.Parts[j].Id == parts[i].Id)
+                        {
+                            cubismDisplayInfoPartNames.Name = cdi3Json.Parts[j].Name;
+                            break;
+                        }
+                    }
                     cubismDisplayInfoPartNames.DisplayName = string.Empty;
                 }
             }
