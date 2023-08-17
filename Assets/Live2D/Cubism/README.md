@@ -6,6 +6,8 @@
 
 Welcome to the open components of the Cubism SDK for Unity.
 
+It is used in conjunction with the Live2D Cubism Core.
+
 Go [here](https://www.live2d.com/download/cubism-sdk/download-unity/) if you're looking for the download page of the SDK package.
 
 ## License
@@ -15,6 +17,13 @@ Please read the [license](LICENSE.md) before use.
 ## Notices
 
 Please read the [notices](NOTICE.md) before use.
+
+## Compatibility with Cubism 5 new features and previous Cubism SDK versions
+
+This SDK is compatible with Cubism 5.  
+For SDK compatibility with new features in Cubism 5 Editor, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/cubism-5-new-functions/).  
+For compatibility with previous versions of Cubism SDK, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/compatibility-with-cubism-5/).
+
 
 ## Structure
 
@@ -46,16 +55,16 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Tech Stream | 2022.2.18f1 |
-| LTS | 2021.3.24f1 |
-| LTS | 2020.3.47f1 |
+| LTS | 2022.3.6f1 |
+| LTS | 2021.3.29f1 |
+| LTS | 2020.3.48f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *1 |
-| Visual Studio 2022 | 17.5.5 |
+| Visual Studio 2022 | 17.7.0 |
 | Windows SDK | 10.0.22621.0 |
-| Xcode | 14.2 |
+| Xcode | 14.3.1 |
 
 *1 Use libraries embedded with Unity or recommended.
 
@@ -74,14 +83,14 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 13 |
-| iOS | 16.4.1 |
-| iPadOS | 16.4.1 |
+| iOS | 16.6 |
+| iPadOS | 16.6 |
 | Ubuntu | 20.04.6 |
-| macOS | 13.3.1 |
+| macOS | 13.5 |
 | Windows 10 | 22H2 |
-| Google Chrome | 113.0.5672.93 |
-| Chrome OS 64bit (x86_64) | 113.0.5672.114 |
-| Chrome OS 32bit (ARMv8) (*2) | 113.0.5672.114 |
+| Google Chrome | 115.0.5790.171 |
+| Chrome OS 64bit (x86_64) | 115.0.5790.160 |
+| Chrome OS 32bit (ARMv8) (*2) | 115.0.5790.160 |
 
 *2 This is a confirmation of operation with APK files for Android.
 

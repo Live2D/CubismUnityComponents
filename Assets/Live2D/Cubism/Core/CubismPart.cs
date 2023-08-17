@@ -95,6 +95,21 @@ namespace Live2D.Cubism.Core
         [SerializeField, HideInInspector]
         public float Opacity;
 
+        /// <summary>
+        /// Parent part position in unmanaged arrays.
+        /// </summary>
+        internal int UnmanagedParentIndex
+        {
+            get
+            {
+                if (UnmanagedIndex > 0)
+                {
+                    // Pull data.
+                    return UnmanagedParts.ParentIndices[UnmanagedIndex];
+                }
+                return -1;
+            }
+        }
 
         /// <summary>
         /// Revives instance.

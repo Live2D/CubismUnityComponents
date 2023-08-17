@@ -46,9 +46,33 @@ namespace Live2D.Cubism.Framework.MotionFade
             var dataPath = Directory.GetParent(Application.dataPath).FullName + "/";
             var assetPath = importer.AssetPath.Replace(".model3.json", ".controller");
 
+            var animator = model.GetComponent<Animator>();
+
             if (!File.Exists(dataPath + assetPath))
             {
-                CreateAnimatorController(assetPath);
+                var controller = CreateAnimatorController(assetPath);
+
+                if (!CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow)
+                {
+                    if (animator != null)
+                    {
+                        animator.runtimeAnimatorController = controller;
+                    }
+                }
+            }
+            else
+            {
+                if (animator != null)
+                {
+                    if (CubismUnityEditorMenu.ShouldImportAsOriginalWorkflow)
+                    {
+                        animator.runtimeAnimatorController = null;
+                    }
+                    else
+                    {
+                        animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<AnimatorController>(assetPath);
+                    }
+                }
             }
 
             var fadeController = model.GetComponent<CubismFadeController>();
