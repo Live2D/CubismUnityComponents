@@ -55,18 +55,20 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| LTS | 2022.3.6f1 |
-| LTS | 2021.3.29f1 |
-| LTS | 2020.3.48f1 |
+| Latest | 2023.1.14f1 (*1) |
+| LTS | 2022.3.10f1 |
+| LTS | 2021.3.30f1 |
+
+*1 ARMv7 Android is not supported.
 
 | Library / Tool | Version |
 | --- | --- |
-| Android SDK / NDK | *1 |
-| Visual Studio 2022 | 17.7.0 |
+| Android SDK / NDK | *2 |
+| Visual Studio 2022 | 17.7.4 |
 | Windows SDK | 10.0.22621.0 |
 | Xcode | 14.3.1 |
 
-*1 Use libraries embedded with Unity or recommended.
+*2 Use libraries embedded with Unity or recommended.
 
 ### C# compiler
 
@@ -83,16 +85,16 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 13 |
-| iOS | 16.6 |
-| iPadOS | 16.6 |
+| iOS | 16.6.1 |
+| iPadOS | 16.6.1 |
 | Ubuntu | 20.04.6 |
-| macOS | 13.5 |
+| macOS | 13.6 |
 | Windows 10 | 22H2 |
 | Google Chrome | 115.0.5790.171 |
-| Chrome OS 64bit (x86_64) | 115.0.5790.160 |
-| Chrome OS 32bit (ARMv8) (*2) | 115.0.5790.160 |
+| Chrome OS 64bit (x86_64) | 116.0.5845.210 |
+| Chrome OS 32bit (ARMv8) (*3) | 115.0.5790.160 |
 
-*2 This is a confirmation of operation with APK files for Android.
+*3 This is a confirmation of operation with APK files for Android.
 
 ## Branches
 
@@ -136,9 +138,9 @@ Try to stick to the [Microsoft guidelines](https://msdn.microsoft.com/en-us/libr
 - Stay away from LINQ and prefer `for` over `foreach` anywhere else.
 - Try to be explicit. Prefer `private void Update()` over `void Update()`.
 
-## Community
+## Forum
 
-If you have any questions, please join the official Live2D community and discuss with other users.
+If you have any questions, please join the official Live2D forum and discuss with other users.
 
-- [Live2D community](https://community.live2d.com/)
-- [Live2D 公式コミュニティ (Japanese)](https://creatorsforum.live2d.com/)
+- [Live2D Creator's Forum](https://community.live2d.com/)
+- [Live2D 公式クリエイターズフォーラム (Japanese)](https://creatorsforum.live2d.com/)

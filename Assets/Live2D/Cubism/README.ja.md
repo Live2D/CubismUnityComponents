@@ -54,18 +54,20 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 | Unity | バージョン |
 | --- | --- |
-| LTS | 2022.3.6f1 |
-| LTS | 2021.3.29f1 |
-| LTS | 2020.3.48f1 |
+| Latest | 2023.1.14f1 (*1) |
+| LTS | 2022.3.10f1 |
+| LTS | 2021.3.30f1 |
+
+*1 ARMv7のAndroidは非対応です。
 
 | ライブラリ / ツール | バージョン |
 | --- | --- |
-| Android SDK / NDK | *1 |
-| Visual Studio 2022 | 17.7.0 |
+| Android SDK / NDK | *2 |
+| Visual Studio 2022 | 17.7.4 |
 | Windows SDK | 10.0.22621.0 |
 | Xcode | 14.3.1 |
 
-*1 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
+*2 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
 
 ### C#コンパイラ
 
@@ -82,16 +84,16 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | プラットフォーム | バージョン |
 | --- | --- |
 | Android | 13 |
-| iOS | 16.6 |
-| iPadOS | 16.6 |
+| iOS | 16.6.1 |
+| iPadOS | 16.6.1 |
 | Ubuntu | 20.04.6 |
-| macOS | 13.5 |
+| macOS | 13.6 |
 | Windows 10 | 22H2 |
 | Google Chrome | 115.0.5790.171 |
-| Chrome OS 64bit (x86_64) | 115.0.5790.160 |
-| Chrome OS 32bit (ARMv8) (*2) | 115.0.5790.160 |
+| Chrome OS 64bit (x86_64) | 116.0.5845.210 |
+| Chrome OS 32bit (ARMv8) (*3) | 115.0.5790.160 |
 
-*2 Android向けAPKファイルでの動作確認です。
+*3 Android向けAPKファイルでの動作確認です。
 
 ## ブランチ
 
@@ -135,9 +137,9 @@ SDKの将来についてのフィードバックにも関心があります。Li
 - それ以外の場所ではLINQを使用せず、`foreach`よりも`for`を優先してください。
 - アクセス修飾子を明示的にするようにしてください。`void Update()`ではなく `private void Update()`を使いましょう。
 
-## コミュニティ
+## フォーラム
 
-ご不明な点がございましたら、公式のLive2Dコミュニティに参加して、他のユーザーと話し合ってください。
+ご不明な点がございましたら、公式のLive2Dフォーラムに参加して、他のユーザーと話し合ってください。
 
-- [Live2D 公式コミュニティ](https://creatorsforum.live2d.com/)
-- [Live2D community (English)](https://community.live2d.com/)
+- [Live2D 公式クリエイターズフォーラム](https://creatorsforum.live2d.com/)
+- [Live2D Creator's Forum(English)](https://community.live2d.com/)
