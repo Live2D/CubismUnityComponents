@@ -20,8 +20,8 @@ MonoBehaviour:
     Value: 0
     Blend: 1
   - Id: ParamEyeLOpen
-    Value: -1.2
-    Blend: 1
+    Value: 0
+    Blend: 2
   - Id: ParamEyeLSmile
     Value: 0
     Blend: 1
@@ -29,8 +29,8 @@ MonoBehaviour:
     Value: 0
     Blend: 1
   - Id: ParamEyeROpen
-    Value: -1.2
-    Blend: 1
+    Value: 0
+    Blend: 2
   - Id: ParamEyeRSmile
     Value: 0
     Blend: 1
@@ -73,19 +73,19 @@ MonoBehaviour:
   - Id: ParamBrowRForm
     Value: 0
     Blend: 1
-  - Id: ParamMouthA
+  - Id: ParamA
     Value: 0
     Blend: 1
-  - Id: ParamMouthI
+  - Id: ParamI
     Value: 0
     Blend: 1
-  - Id: ParamMouthU
+  - Id: ParamU
     Value: 0
     Blend: 1
-  - Id: ParamMouthE
+  - Id: ParamE
     Value: 0
     Blend: 1
-  - Id: ParamMouthO
+  - Id: ParamO
     Value: 0
     Blend: 1
   - Id: ParamMouthUp

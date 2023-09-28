@@ -97,7 +97,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedFloatArrayView(float* address, int length)
+        public unsafe CubismUnmanagedFloatArrayView(float* address, int length)
         {
             UnmanagedFixedAddress = address;
             Length = length;
@@ -108,7 +108,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedFloatArrayView(IntPtr address, int length)
+        public unsafe CubismUnmanagedFloatArrayView(IntPtr address, int length)
         {
             UnmanagedFixedAddress = (float*)address.ToPointer();
             Length = length;
@@ -275,7 +275,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedIntArrayView(int* address, int length)
+        public unsafe CubismUnmanagedIntArrayView(int* address, int length)
         {
             UnmanagedFixedAddress = address;
             Length = length;
@@ -286,7 +286,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedIntArrayView(IntPtr address, int length)
+        public unsafe CubismUnmanagedIntArrayView(IntPtr address, int length)
         {
             UnmanagedFixedAddress = (int*)address.ToPointer();
             Length = length;
@@ -453,7 +453,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedByteArrayView(Byte* address, int length)
+        public unsafe CubismUnmanagedByteArrayView(Byte* address, int length)
         {
             UnmanagedFixedAddress = address;
             Length = length;
@@ -464,7 +464,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedByteArrayView(IntPtr address, int length)
+        public unsafe CubismUnmanagedByteArrayView(IntPtr address, int length)
         {
             UnmanagedFixedAddress = (Byte*)address.ToPointer();
             Length = length;
@@ -631,7 +631,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedUshortArrayView(ushort* address, int length)
+        public unsafe CubismUnmanagedUshortArrayView(ushort* address, int length)
         {
             UnmanagedFixedAddress = address;
             Length = length;
@@ -642,7 +642,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         /// <param name="address">Unmanaged buffer address.</param>
         /// <param name="length">Length of unmanaged buffer (in types).</param>
-        internal unsafe CubismUnmanagedUshortArrayView(IntPtr address, int length)
+        public unsafe CubismUnmanagedUshortArrayView(IntPtr address, int length)
         {
             UnmanagedFixedAddress = (ushort*)address.ToPointer();
             Length = length;

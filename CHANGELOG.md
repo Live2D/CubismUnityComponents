@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [5-r.1-beta.2] - 2023-09-28
+
+### Added
+
+* Added configuration file so that assemblies are split.
+
+### Changed
+
+* Replace the sample model `Mao` with the updated version that is compatible with Cubism 5.0.
+
+### Fixed
+
+* Fix an issue where 1 byte of memory was allocated unnecessarily.
+* Fix a bug where automatic eye blinking did not close the eyes fully.
+
+
 ## [5-r.1-beta.1] - 2023-08-17
 
 ### Changed
@@ -315,6 +332,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.1-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.1...5-r.1-beta.2
 [5-r.1-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.7...5-r.1-beta.1
 [4-r.7]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6.2...4-r.7
 [4-r.6.2]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6.1...4-r.6.2

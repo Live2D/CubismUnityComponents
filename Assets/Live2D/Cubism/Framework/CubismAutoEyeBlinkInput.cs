@@ -34,16 +34,10 @@ namespace Live2D.Cubism.Framework
         [SerializeField, Range(1f, 20f)]
         public float Timescale = 10f;
 
-
         /// <summary>
         /// Target controller.
         /// </summary>
         private CubismEyeBlinkController Controller { get; set; }
-
-        /// <summary>
-        /// Time until next eye blink.
-        /// </summary>
-        private float T { get; set; }
 
         /// <summary>
         /// Control over whether output should be evaluated.
@@ -55,13 +49,170 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         private float LastValue { get; set; }
 
+        /// <summary>
+        /// Totalized delta time [s].
+        /// </summary>
+        private float UserTimeSeconds { get; set; }
+
+        /// <summary>
+        /// Time when the current state started [sec].
+        /// </summary>
+        private float StateStartTimeSeconds { get; set; }
+
+        /// <summary>
+        /// Duration of eyelid closing motion [sec]
+        /// </summary>
+        private float ClosingSeconds { get; set; }
+
+        /// <summary>
+        /// Duration of eyelid closed state [sec]
+        /// </summary>
+        private float ClosedSeconds { get; set; }
+
+        /// <summary>
+        /// Duration of eyelid opening motion [sec]
+        /// </summary>
+        private float OpeningSeconds { get; set; }
+
+        /// <summary>
+        /// Next blinking time.
+        /// </summary>
+        private float NextBlinkingTime { get; set; }
 
         /// <summary>
         /// Resets the input.
         /// </summary>
         public void Reset()
         {
-            T = 0f;
+            CurrentPhase = Phase.Idling;
+            NextBlinkingTime = Mean + Random.Range(-MaximumDeviation, MaximumDeviation);
+        }
+
+        /// <summary>
+        /// Calculate the value when the eyes are closed.
+        /// </summary>
+        /// <returns>Eye closing value.</returns>
+        private float UpdateEyeBlinkClosing()
+        {
+            var t = (UserTimeSeconds - StateStartTimeSeconds) / ClosingSeconds;
+
+            if (t >= 1.0f)
+            {
+                CurrentPhase = Phase.ClosedEyes;
+                StateStartTimeSeconds = UserTimeSeconds;
+            }
+
+            var value = 1.0f - t;
+
+            return value;
+        }
+
+        /// <summary>
+        /// Calculate the value when the eyes are closed.
+        /// </summary>
+        /// <returns>Eye closed value.</returns>
+        private float UpdateEyeBlinkClosed()
+        {
+            var t = (UserTimeSeconds - StateStartTimeSeconds) / ClosedSeconds;
+
+            if (t >= 1.0f)
+            {
+                CurrentPhase = Phase.OpeningEyes;
+                StateStartTimeSeconds = UserTimeSeconds;
+            }
+
+            var value = 0.0f;
+
+            return value;
+        }
+
+        /// <summary>
+        /// Calculate the value when the eyes are opening.
+        /// </summary>
+        /// <returns>Eye opening value.</returns>
+        private float UpdateEyeBlinkOpening()
+        {
+            var t = (UserTimeSeconds - StateStartTimeSeconds) / OpeningSeconds;
+
+            if (t >= 1.0f)
+            {
+                t = 1.0f;
+                CurrentPhase = Phase.Idling;
+                NextBlinkingTime = Mean + Random.Range(-MaximumDeviation, MaximumDeviation);
+            }
+
+            var value = t;
+
+            return value;
+        }
+
+        /// <summary>
+        /// Calculate the value when the eyes are opened.
+        /// </summary>
+        /// <returns>Eye opened value.</returns>
+        private float UpdateEyeBlinkIdling()
+        {
+            NextBlinkingTime -= Time.deltaTime;
+
+            if (NextBlinkingTime < 0.0f)
+            {
+                CurrentPhase = Phase.ClosingEyes;
+                StateStartTimeSeconds = UserTimeSeconds;
+            }
+
+            var value = 1.0f;
+
+            return value;
+        }
+
+
+
+        /// <summary>
+        /// Update eye blink.
+        /// </summary>
+        private void UpdateEyeBlink()
+        {
+            UserTimeSeconds += (Time.deltaTime * Timescale);
+            var value = 0.0f;
+
+            switch (CurrentPhase)
+            {
+                case Phase.ClosingEyes:
+                {
+                    value = UpdateEyeBlinkClosing();
+                    break;
+                }
+                case Phase.ClosedEyes:
+                {
+                    value = UpdateEyeBlinkClosed();
+                    break;
+                }
+                case Phase.OpeningEyes:
+                {
+                    value = UpdateEyeBlinkOpening();
+                    break;
+                }
+                case Phase.Idling:
+                {
+                    value = UpdateEyeBlinkIdling();
+                    break;
+                }
+            }
+
+            Controller.EyeOpening = value;
+        }
+
+        /// <summary>
+        /// Set the details of the blinking motion.
+        /// </summary>
+        /// <param name="closing">Duration of eyelid closing motion [sec].</param>
+        /// <param name="closed">Duration of eyelid closed state [sec].</param>
+        /// <param name="opening">Duration of eyelid opening motion [sec].</param>
+        public void SetBlinkingSettings(float closing, float closed, float opening)
+        {
+            ClosingSeconds = closing;
+            ClosedSeconds = closed;
+            OpeningSeconds = opening;
         }
 
         #region Unity Event Handling
@@ -72,6 +223,9 @@ namespace Live2D.Cubism.Framework
         private void Start()
         {
             Controller = GetComponent<CubismEyeBlinkController>();
+            CurrentPhase = Phase.Idling;
+            NextBlinkingTime = Mean + Random.Range(-MaximumDeviation, MaximumDeviation);
+            SetBlinkingSettings(1.0f, 0.5f, 1.5f);
         }
 
 
@@ -89,45 +243,7 @@ namespace Live2D.Cubism.Framework
                 return;
             }
 
-
-            // Wait for time until blink.
-            if (CurrentPhase == Phase.Idling)
-            {
-                T -= Time.deltaTime;
-
-
-                if (T < 0f)
-                {
-                    T = (Mathf.PI * -0.5f);
-                    LastValue = 1f;
-                    CurrentPhase = Phase.ClosingEyes;
-                }
-                else
-                {
-                    return;
-                }
-            }
-
-
-            // Evaluate eye blinking.
-            T += (Time.deltaTime * Timescale);
-            var value = Mathf.Abs(Mathf.Sin(T));
-
-
-            if (CurrentPhase == Phase.ClosingEyes && value > LastValue)
-            {
-                CurrentPhase = Phase.OpeningEyes;
-            }
-            else if (CurrentPhase == Phase.OpeningEyes && value < LastValue)
-            {
-                value = 1f;
-                CurrentPhase = Phase.Idling;
-                T = Mean + Random.Range(-MaximumDeviation, MaximumDeviation);
-            }
-
-
-            Controller.EyeOpening = value;
-            LastValue = value;
+            UpdateEyeBlink();
         }
 
         #endregion
@@ -146,6 +262,11 @@ namespace Live2D.Cubism.Framework
             /// State when closing eyes.
             /// </summary>
             ClosingEyes,
+
+            /// <summary>
+            /// State when closed eyes.
+            /// </summary>
+            ClosedEyes,
 
             /// <summary>
             /// State when opening eyes.

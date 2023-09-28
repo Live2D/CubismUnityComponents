@@ -18,7 +18,7 @@ namespace Live2D.Cubism.Core.Unmanaged
     /// <summary>
     /// Unmanaged memory helper methods.
     /// </summary>
-    internal static class CubismUnmanagedMemory
+    public static class CubismUnmanagedMemory
     {
         #region Allocation
 
@@ -69,7 +69,7 @@ namespace Live2D.Cubism.Core.Unmanaged
 
 
             // Allocate unaligned memory block.
-            var unalignedAddress = Marshal.AllocHGlobal(size + align);
+            var unalignedAddress = Marshal.AllocHGlobal(size + align - 1);
 
 
             // Get aligned address.
