@@ -4,16 +4,6 @@
 
 # お知らせ
 
-## [注意事項] Apple Silicon版 Unity Editor での動作について (2023-01-26)
-
-Apple Silicon版Unity Editorでの動作につきまして、macOS向けのCubism Coreを利用するには `Assets/Live2D/Cubism/Plugins/macOS` 以下にある `Live2DCubismCore.bundle` をインスペクタから操作する必要があります。
-手順は以下の通りとなります。
-
-1. `Live2DCubismCore.bundle` を選択状態にし、インスペクタを表示する。
-1. `Platform settings` の `Editor` を選択し、`Apple Silicon` または `Any CPU` を選択する。
-1. Unity Editorを再起動する。
-
-
 ## [注意事項] Windows 11の対応状況について (2021-12-09)
 
 Windows 11対応につきまして、Windows 11上にて成果物の動作を確認しております。

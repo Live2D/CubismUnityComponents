@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.1-beta.3] - 2023-11-14
+
+### Added
+
+* Add `HarmonicMotion` sample scenes.
+
+### Changed
+
+* Change the version of the development project to `2021.3.30f1`.
+* Change the value of `Editor` to `AnyCPU` in the `Platform settings` of `Live2DCubismCore.bundle`.
+  * Apple Silicon version of the Unity Editor will work without the need to change `Platform settings`.
+
+### Fixed
+
+* Fix an error when displaying CubismRendererInspector for uninitialized models.
+* Fix condition for clearing AnimationCurve when Reimporting .motion3.json.
+
+
 ## [5-r.1-beta.2] - 2023-09-28
 
 ### Added
@@ -332,6 +350,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.1-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.2...5-r.1-beta.3
 [5-r.1-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.1...5-r.1-beta.2
 [5-r.1-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.7...5-r.1-beta.1
 [4-r.7]: https://github.com/Live2D/CubismUnityComponents/compare/4-r.6.2...4-r.7

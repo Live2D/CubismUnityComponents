@@ -513,11 +513,31 @@ namespace Live2D.Cubism.Rendering
         [HideInInspector]
         public bool HasUpdateController { get; set; }
 
+        /// <summary>
+        /// <see cref="IsInitialized"/>s backing field.
+        /// </summary>
+        private bool _isInitialized = false;
+
+        /// <summary>
+        /// Is renderers initialized.
+        /// </summary>
+        [HideInInspector]
+        public bool IsInitialized
+        {
+            get
+            {
+                return _isInitialized;
+            }
+            private set
+            {
+                _isInitialized = value;
+            }
+        }
 
         /// <summary>
         /// Makes sure all <see cref="CubismDrawable"/>s have <see cref="CubismRenderer"/>s attached to them.
         /// </summary>
-        private void TryInitializeRenderers()
+        public void TryInitializeRenderers()
         {
             // Try get renderers.
             var renderers = Renderers;
@@ -530,12 +550,10 @@ namespace Live2D.Cubism.Rendering
                 .FindCubismModel()
                 .Drawables;
 
-
                 renderers = drawables.AddComponentEach<CubismRenderer>();
 
                 // Store renderers.
                 Renderers = renderers;
-
             }
 
             if (renderers == null)
@@ -549,12 +567,13 @@ namespace Live2D.Cubism.Rendering
                 renderers[i].TryInitialize(this);
             }
 
-
             // Initialize sorting layer.
             // We set the backing field here directly because we pull the sorting layer directly from the renderer.
             _sortingLayerId = renderers[0]
                 .MeshRenderer
                 .sortingLayerID;
+
+            IsInitialized = true;
         }
 
 
