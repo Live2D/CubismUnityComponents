@@ -55,9 +55,9 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2023.1.14f1 (*1) |
-| LTS | 2022.3.10f1 |
-| LTS | 2021.3.30f1 |
+| Latest | 2023.1.19f1 (*1) |
+| LTS | 2022.3.12f1 |
+| LTS | 2021.3.31f1 |
 
 *1 ARMv7 Android is not supported.
 
@@ -88,9 +88,10 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | iOS | 16.6.1 |
 | iPadOS | 16.6.1 |
 | Ubuntu | 20.04.6 |
-| macOS | 13.6 |
+| macOS | 14.1.1 |
 | Windows 10 | 22H2 |
 | Google Chrome | 115.0.5790.171 |
+| Google Chrome | 119.0.6045.106 |
 | Chrome OS 64bit (x86_64) | 116.0.5845.210 |
 | Chrome OS 32bit (ARMv8) (*3) | 115.0.5790.160 |
 

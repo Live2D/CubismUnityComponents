@@ -6,6 +6,7 @@
  */
 
 
+using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
 using UnityEditor;
 using UnityEngine;
@@ -35,6 +36,15 @@ namespace Live2D.Cubism.Editor.Inspectors
                 return;
             }
 
+            if (!renderer.isActiveAndEnabled)
+            {
+                var model = renderer.FindCubismModel(true);
+                var ctrl = model.GetComponent<CubismRenderController>();
+                if (!ctrl.IsInitialized)
+                {
+                    ctrl.TryInitializeRenderers();
+                }
+            }
 
             // Show settings.
             EditorGUILayout.ObjectField("Mesh", renderer.Mesh, typeof(Mesh), false);
