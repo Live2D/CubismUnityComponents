@@ -13,7 +13,7 @@
 | プラットフォーム | アーキテクチャ | パス | 注記 |
 | --- | --- | --- | --- |
 | Android | ARM64 | Android/arm64-v8a |   |
-| Android | ARMv7 | Android/armeabi-v7a |   |
+| Android | ARMv7 | Android/armeabi-v7a | このライブラリは現在非推奨で、近日中に削除される予定です。 |
 | Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
 | Emscripten |  | Experimental/Emscripten/latest | bitcode（upstream LLVM wasmバックエンド） |

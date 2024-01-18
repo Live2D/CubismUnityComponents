@@ -70,7 +70,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Position in unmanaged arrays.
         /// </summary>
-        internal int UnmanagedIndex
+        public int UnmanagedIndex
         {
             get { return _unmanagedIndex; }
             private set { _unmanagedIndex = value; }
@@ -98,7 +98,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Parent part position in unmanaged arrays.
         /// </summary>
-        internal int UnmanagedParentIndex
+        public int UnmanagedParentIndex
         {
             get
             {

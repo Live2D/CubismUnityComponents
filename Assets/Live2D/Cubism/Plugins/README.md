@@ -13,7 +13,7 @@ This folder contains platform-specific library files.
 | Platform | Architecture | Path | Note |
 | --- | --- | --- | --- |
 | Android | ARM64 | Android/arm64-v8a |   |
-| Android | ARMv7 | Android/armeabi-v7a |   |
+| Android | ARMv7 | Android/armeabi-v7a | This library is currently deprecated and will be removed in the near future. |
 | Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
 | Emscripten |  | Experimental/Emscripten/latest | bitcode(upstream LLVM wasm backend) |

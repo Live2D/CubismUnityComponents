@@ -76,6 +76,13 @@ namespace Live2D.Cubism.Core
             private set { _unmanagedIndex = value; }
         }
 
+        /// <summary>
+        /// Parent Part Position in unmanaged arrays.
+        /// </summary>
+        public int UnmanagedParentIndex
+        {
+            get { return UnmanagedDrawables.ParentPartIndices[UnmanagedIndex]; }
+        }
 
         /// <summary>
         /// Copy of Id.
