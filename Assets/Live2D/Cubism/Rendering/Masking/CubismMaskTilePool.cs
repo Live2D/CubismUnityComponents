@@ -51,7 +51,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Channel count.
         /// </summary>
-        private int Channels { get; set; }
+        private int ColorChannelCount { get; set; }
 
         /// <summary>
         /// Number of masks used.
@@ -87,7 +87,7 @@ namespace Live2D.Cubism.Rendering.Masking
         public CubismMaskTilePool(int subdivisions, int channels, int renderTextureCount = -1)
         {
             RenderTextureCount = renderTextureCount;
-            Channels = channels;
+            ColorChannelCount = channels;
 
             if (RenderTextureCount < 1)
             {
@@ -98,7 +98,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 Subdivisions = subdivisions;
 
 
-                Slots = new bool[(int)Mathf.Pow(4, subdivisions) * Channels];
+                Slots = new bool[(int)Mathf.Pow(4, subdivisions) * ColorChannelCount];
             }
             else
             {
@@ -109,10 +109,10 @@ namespace Live2D.Cubism.Rendering.Masking
                     ? ClippingMaskMaxCountOnMultiRenderTexture * renderTextureCount
                     : ClippingMaskMaxCountOnDefault;
 
-                Slots = new bool[UseClippingMaskMaxCount * Channels];
+                Slots = new bool[UseClippingMaskMaxCount * ColorChannelCount];
                 UsedMaskCount = 0;
 
-                LayoutContexts = new LayoutContext[UseClippingMaskMaxCount * Channels];
+                LayoutContexts = new LayoutContext[UseClippingMaskMaxCount * ColorChannelCount];
                 for (int layoutContextIndex = 0; layoutContextIndex < LayoutContexts.Length; layoutContextIndex++)
                 {
                     LayoutContexts[layoutContextIndex] = new LayoutContext
@@ -224,12 +224,18 @@ namespace Live2D.Cubism.Rendering.Masking
                 // If there is one render texture, divide it into 9 pieces (maximum 36 pieces).
                 var layoutCountMaxValue = RenderTextureCount <= 1 ? 9 : 8;
 
-                var countPerSheetDiv = UsedMaskCount / RenderTextureCount;
-                var countPerSheetMod = UsedMaskCount % RenderTextureCount;
+                // Lay out masks using one RenderTexture as much as possible.
+                // If the number of mask groups is less than 4, place one mask for each RGBA channel; if the number is between 5 and 6, place RGBA as 2,2,1,1.
+
+                // how many pieces to allocate per render texture (rounded up)
+                var countPerSheetDiv = (UsedMaskCount + RenderTextureCount - 1) / RenderTextureCount;
+
+                // Number of render textures that reduce the number of layouts by one (for this number of render textures)
+                var reduceLayoutTextureCount = UsedMaskCount % RenderTextureCount;
 
                 // Use RGBA in sequence.
-                var div = countPerSheetDiv / Channels; // Number of masks to be placed in one channel.
-                var mod = countPerSheetDiv % Channels; // Excess. Allocate one by one to this numbered channel.
+                var divCount = countPerSheetDiv / ColorChannelCount; // Number of masks to be placed in one channel.
+                var modCount = countPerSheetDiv % ColorChannelCount; // Excess. Allocate one by one to this numbered channel.
 
                 // Start the calculation as the first index of that channel.
                 if (LayoutContexts[index].LayoutCount < 1)
@@ -237,48 +243,42 @@ namespace Live2D.Cubism.Rendering.Masking
                     if (HeadOfChannels.Length < 1)
                     {
                         LayoutContexts[index].Channel = 0;
+                        LayoutContexts[index].RenderTextureIndex = 0;
                     }
                     else
                     {
-                        LayoutContexts[index].Channel = HeadOfChannels[HeadOfChannels.Length - 1].Channel < (Channels - 1)
-                            ? (HeadOfChannels[HeadOfChannels.Length - 1].Channel + 1) : 0;
+                        var previousUseChannel = HeadOfChannels[HeadOfChannels.Length - 1].Channel;
+
+                        // Channel
+                        LayoutContexts[index].Channel = previousUseChannel < (ColorChannelCount - 1)
+                            ? (previousUseChannel + 1) : 0;
+
+                        // RenderTextureIndex
+                        LayoutContexts[index].RenderTextureIndex = previousUseChannel < (ColorChannelCount - 1)
+                            ? HeadOfChannels[HeadOfChannels.Length - 1].RenderTextureIndex : HeadOfChannels[HeadOfChannels.Length - 1].RenderTextureIndex + 1;
                     }
 
-                    var checkChannelNo = mod + 1 >= Channels ? 0 : mod;
-                    var calcCountPerSheetDiv = countPerSheetDiv;
+                    // Number of layouts in this channel.
+                    // NOTE: Number of layouts = basic masks to place on one channel + one additional channel to place extra masks.
+                    LayoutContexts[index].LayoutCount = divCount + (LayoutContexts[index].Channel < modCount ? 1 : 0);
 
-                    var addCountPerSheetDiv = 0;
-                    if (countPerSheetDiv < 1)
+                    // Determine the channel that does it when reducing the number of layouts by one.
+                    // Adjust to be within the normal index range when div is 0.
+                    var checkChannelIndex = modCount + (divCount < 1 ? -1 : 0);
+
+                    // If this is the target channel and there is a render texture that reduces the number of layouts by one.
+                    if (LayoutContexts[index].Channel == checkChannelIndex && reduceLayoutTextureCount > 0)
                     {
-                        addCountPerSheetDiv = countPerSheetMod > 0 ? 1 : 0;
-                    }
-                    else
-                    {
-                        addCountPerSheetDiv = (index % countPerSheetDiv) < countPerSheetMod ? 1 : 0;
-                    }
-                    calcCountPerSheetDiv += addCountPerSheetDiv;
-
-                    var assignedRenderTextureIndex = (index / calcCountPerSheetDiv);
-
-                    LayoutContexts[index].RenderTextureIndex = assignedRenderTextureIndex;
-
-                    var addLayout = 0;
-                    if ((LayoutContexts[index].Channel > mod && div < 1)
-                        || (LayoutContexts[index].Channel < mod))
-                    {
-                        addLayout = 1;
+                        // If the current render texture is the target render texture, reduce the number of layouts by one.
+                        LayoutContexts[index].LayoutCount -= !(LayoutContexts[index].RenderTextureIndex < reduceLayoutTextureCount)
+                            ? 1
+                            : 0;
                     }
 
-                    LayoutContexts[index].LayoutCount = div + addLayout;
                     LayoutContexts[index].LayoutCountContextIndex = 0;
 
-                    if (LayoutContexts[index].LayoutCount < layoutCountMaxValue
-                        && LayoutContexts[index].Channel == checkChannelNo)
-                    {
-                        LayoutContexts[index].LayoutCount += (LayoutContexts[index].RenderTextureIndex < countPerSheetMod ? 1 : 0);
-                    }
-
-                    for (int count = 1; count < LayoutContexts[index].LayoutCount; count++)
+                    // Set the required number of information.
+                    for (var count = 1; count < LayoutContexts[index].LayoutCount; count++)
                     {
                         LayoutContexts[index + count].RenderTextureIndex = LayoutContexts[index].RenderTextureIndex;
                         LayoutContexts[index + count].Channel = LayoutContexts[index].Channel;
@@ -290,29 +290,10 @@ namespace Live2D.Cubism.Rendering.Masking
                     HeadOfChannels[HeadOfChannels.Length - 1] = LayoutContexts[index];
                 }
 
-                var assignedChannelIndex = div < 1 ? index : (index / div); // What number of Channel to assign.
-                while (assignedChannelIndex > Channels - 1)
-                {
-                    assignedChannelIndex = (assignedChannelIndex % Channels);
-                }
-
                 var layoutCount = LayoutContexts[index].LayoutCount;
 
-                if (layoutCount == 0)
-                {
-                    Debug.LogError("\"layerCount contains\" an unexpected value.");
-
-                    // Tentative creation as nothing can be returned...
-                    return new CubismMaskTile
-                    {
-                        Channel = 0,
-                        Column = 0,
-                        Row = 0,
-                        Size = 1f,
-                        RenderTextureIndex = 0
-                    };
-                }
-                else if (layoutCount == 1)
+                // Set tile layout.
+                if (layoutCount <= 1)
                 {
                     return new CubismMaskTile
                     {
@@ -410,12 +391,12 @@ namespace Live2D.Cubism.Rendering.Masking
                 var countPerSheetMod = UsedMaskCount % RenderTextureCount;
 
                 // Use RGBA in sequence.
-                var div = countPerSheetDiv / Channels; // Number of masks to be placed in one channel.
-                var mod = countPerSheetDiv % Channels; // Excess. Allocate one by one to this numbered channel.
+                var div = countPerSheetDiv / ColorChannelCount; // Number of masks to be placed in one channel.
+                var mod = countPerSheetDiv % ColorChannelCount; // Excess. Allocate one by one to this numbered channel.
 
                 tileCounts = div + (tile.Channel < mod ? 1 : 0);
 
-                var checkChannelNo = mod + 1 >= Channels ? 0 : mod + 1;
+                var checkChannelNo = mod + 1 >= ColorChannelCount ? 0 : mod + 1;
                 if (tile.Channel == checkChannelNo)
                 {
                     tileCounts += tile.RenderTextureIndex < countPerSheetMod ? 1 : 0;
@@ -434,7 +415,7 @@ namespace Live2D.Cubism.Rendering.Masking
                     tilesPerRow = 3;
                 }
 
-                return (int)((tile.Channel * tileCounts) + (tile.Column * tilesPerRow) + tile.Channel * (UseClippingMaskMaxCount / Channels));
+                return (int)((tile.Channel * tileCounts) + (tile.Column * tilesPerRow) + tile.Channel * (UseClippingMaskMaxCount / ColorChannelCount));
             }
             else
             {
@@ -455,7 +436,7 @@ namespace Live2D.Cubism.Rendering.Masking
             public int RenderTextureIndex;
 
             /// <summary>
-            /// Index of the <see cref="Channels"/> to which this mask is assigned.
+            /// Index of the <see cref="ColorChannelCount"/> to which this mask is assigned.
             /// </summary>
             public int Channel;
 

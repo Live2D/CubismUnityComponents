@@ -647,6 +647,13 @@ namespace Live2D.Cubism.Rendering
 
             var renderTextureIndex = newMaskProperties.Tile.RenderTextureIndex;
 
+            if (newMaskProperties.Texture.RenderTextureCount > 0 && !(renderTextureIndex < newMaskProperties.Texture.RenderTextures.Length))
+            {
+                Debug.LogError("An invalid value has been entered for `newMaskProperties.Tile.RenderTextureIndex`.\n" +
+                               $"[Details] newMaskProperties.Tile.RenderTextureIndex: {renderTextureIndex}, newMaskProperties.Texture.RenderTextureCount: {newMaskProperties.Texture.RenderTextureCount}");
+                return;
+            }
+
             var texture = newMaskProperties.Texture.RenderTextureCount > 0
                 ? newMaskProperties.Texture.RenderTextures[renderTextureIndex]
                 : (Texture)newMaskProperties.Texture;

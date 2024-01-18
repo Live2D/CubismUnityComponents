@@ -20,6 +20,56 @@ namespace Live2D.Cubism.Editor.Inspectors
     [CustomEditor(typeof(CubismPartsInspector))]
     internal sealed class CubismPartsInspectorInspector : UnityEditor.Editor
     {
+        private static class Internal
+        {
+            public sealed class InspectorViewData
+            {
+                public CubismPart part;
+                public string name;
+                public InspectorViewData[] children = new InspectorViewData[0];
+                public bool foldout = true;
+            }
+
+            public static void OnInspectorGUI(ref bool didPartsChange, InspectorViewData[] src, int indent = 0)
+            {
+                for (var i = 0; i < src.Length; i++)
+                {
+                    EditorGUI.BeginChangeCheck();
+
+                    var rect = EditorGUILayout.GetControlRect();
+                    //EditorGUI.indentLevel = indent;
+
+                    var leftWidth = rect.width * 0.4f;
+                    var indentSize = 12f * indent;
+
+                    var left = new Rect(rect.x + indentSize, rect.y, leftWidth - indentSize, rect.height);
+                    var right = new Rect(rect.x + leftWidth, rect.y, rect.width * 0.6f, rect.height);
+                    if (src[i].children.Length > 0)
+                    {
+                        src[i].foldout = EditorGUI.Foldout(left, src[i].foldout, src[i].name);
+                        src[i].part.Opacity = EditorGUI.Slider(right, src[i].part.Opacity, 0f, 1f);
+                    }
+                    else
+                    {
+                        EditorGUI.LabelField(left, src[i].name);
+                        src[i].part.Opacity = EditorGUI.Slider(right, src[i].part.Opacity, 0f, 1f);
+                    }
+
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        EditorUtility.SetDirty(src[i].part);
+
+                        didPartsChange = true;
+                    }
+
+                    if (src[i].foldout)
+                    {
+                        OnInspectorGUI(ref didPartsChange, src[i].children, indent + 1);
+                    }
+                }
+            }
+        }
+
         #region Editor
 
         /// <summary>
@@ -33,36 +83,9 @@ namespace Live2D.Cubism.Editor.Inspectors
                 Initialize();
             }
 
-
             // Show parts.
             var didPartsChange = false;
-
-
-            for (var i = 0; i < Parts.Length; i++)
-            {
-                EditorGUI.BeginChangeCheck();
-
-                var name = (string.IsNullOrEmpty(PartsNameFromJson[i]))
-                    ? Parts[i].Id
-                    : PartsNameFromJson[i];
-
-                Parts[i].Opacity = EditorGUILayout.Slider(
-                    name,
-                    Parts[i].Opacity,
-                    0f,
-                    1f
-                    );
-
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    EditorUtility.SetDirty(Parts[i]);
-
-
-                    didPartsChange = true;
-                }
-            }
-
+            Internal.OnInspectorGUI(ref didPartsChange, _data);
 
             // FIXME Force model update in case parameters have changed.
             if (didPartsChange)
@@ -80,10 +103,7 @@ namespace Live2D.Cubism.Editor.Inspectors
         /// </summary>
         private CubismPart[] Parts { get; set; }
 
-        /// <summary>
-        /// Array of <see cref="CubismDisplayInfoPartName.Name"/> obtained from <see cref="CubismDisplayInfoPartName"/>s.
-        /// </summary>
-        private string[] PartsNameFromJson { get; set; }
+        private Internal.InspectorViewData[] _data = new Internal.InspectorViewData[0];
 
         /// <summary>
         /// Gets whether <see langword="this"/> is initialized.
@@ -106,15 +126,32 @@ namespace Live2D.Cubism.Editor.Inspectors
                 .FindCubismModel(true)
                 .Parts;
 
-            //Initializing the property of `PartsNameFromJson `.
-            PartsNameFromJson = new string[Parts.Length];
-
+            var work = new Internal.InspectorViewData[Parts.Length];
             for (var i = 0; i < Parts.Length; i++)
             {
-                var displayInfoParstName = Parts[i].GetComponent<CubismDisplayInfoPartName>();
-                PartsNameFromJson[i] = displayInfoParstName != null
-                                ? (string.IsNullOrEmpty(displayInfoParstName.DisplayName) ? displayInfoParstName.Name : displayInfoParstName.DisplayName)
-                                : string.Empty;
+                var view = work[i] == null ? work[i] = new Internal.InspectorViewData() : work[i];
+                view.part = Parts[i];
+
+                var cdiPartName = view.part.GetComponent<CubismDisplayInfoPartName>();
+                view.name = cdiPartName != null
+                ? (string.IsNullOrEmpty(cdiPartName.DisplayName) ? cdiPartName.Name : cdiPartName.DisplayName)
+                : string.Empty;
+
+                var pi = view.part.UnmanagedParentIndex;
+                if (pi < 0)
+                {
+                    System.Array.Resize(ref _data, _data.Length + 1);
+                    _data[_data.Length - 1] = view;
+                }
+                else
+                {
+                    var parent = work[pi] == null
+                        ? work[pi] = new Internal.InspectorViewData()
+                        : work[pi];
+
+                    System.Array.Resize(ref parent.children, parent.children.Length + 1);
+                    parent.children[parent.children.Length - 1] = view;
+                }
             }
         }
     }
