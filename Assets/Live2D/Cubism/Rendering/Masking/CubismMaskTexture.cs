@@ -221,6 +221,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
         /// <summary>
+        /// Command sources.
+        /// </summary>
+        private List<ICubismMaskTextureCommandSource> CommandSources { get; set; }
+
+        /// <summary>
         /// True if instance is revived.
         /// </summary>
         private bool IsRevived
@@ -233,7 +238,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private bool ContainsSources
         {
-            get { return Sources != null && Sources.Count > 0; }
+            get { return CommandSources != null && CommandSources.Count > 0; }
         }
 
         #region Interface For ICubismMaskSources
@@ -254,34 +259,24 @@ namespace Live2D.Cubism.Rendering.Masking
             // Make sure instance is valid.
             TryRevive();
 
-
-            // Initialize container if necessary.
-            if (Sources == null)
-            {
-                Sources = new List<SourcesItem>();
-            }
-
-
-            // Return early if source already exists.
-            else if (Sources.FindIndex(i => i.Source == source) != -1)
+            // Return early if empty.
+            if (source == null)
             {
                 return;
             }
 
-            TilePool.UsedMaskCount += source.GetNecessaryTileCount();
-            // Register source.
-            var item = new SourcesItem
+            if (CommandSources == null)
             {
-                Source = source,
-                Tiles = TilePool.AcquireTiles(source.GetNecessaryTileCount())
-            };
+                CommandSources = new List<ICubismMaskTextureCommandSource>();
+            }
 
+            if (CommandSources.FindIndex(i => i == source) != -1)
+            {
+                return;
+            }
+            CommandSources.Add(source);
 
-            Sources.Add(item);
-
-
-            // Apply tiles to source.
-            source.SetTiles(item.Tiles);
+            ReinitializeSources();
         }
 
         /// <summary>
@@ -305,11 +300,10 @@ namespace Live2D.Cubism.Rendering.Masking
                 return;
             }
 
-            TilePool.UsedMaskCount -= source.GetNecessaryTileCount();
-
             // Return tiles and deregister source.
-            TilePool.ReturnTiles(Sources[itemIndex].Tiles);
-            Sources.RemoveAt(itemIndex);
+            CommandSources.RemoveAt(itemIndex);
+
+            ReinitializeSources();
         }
 
         #endregion
@@ -338,23 +332,26 @@ namespace Live2D.Cubism.Rendering.Masking
             // Reallocate tiles if sources exist.
             if (ContainsSources)
             {
-                for (var sourceIndex = 0; sourceIndex < Sources.Count; sourceIndex++)
+                TilePool.UsedMaskCount = 0;
+                for (var i = 0; i < CommandSources.Count; i++)
                 {
-                    var source = Sources[sourceIndex];
-                    TilePool.UsedMaskCount += source.Source.GetNecessaryTileCount();
+                    TilePool.UsedMaskCount += CommandSources[i].GetNecessaryTileCount();
                 }
 
-                for (var i = 0; i < Sources.Count; ++i)
+                TilePool.ResetTiles();
+                Sources = new List<SourcesItem>();
+
+                for (var i = 0; i < CommandSources.Count; i++)
                 {
-                    var source = Sources[i];
+                    var item = new SourcesItem
+                    {
+                        Source = CommandSources[i],
+                        Tiles = TilePool.AcquireTiles(CommandSources[i].GetNecessaryTileCount())
+                    };
+                    Sources.Add(item);
 
-
-                    source.Tiles = TilePool.AcquireTiles(source.Source.GetNecessaryTileCount());
-
-                    source.Source.SetTiles(source.Tiles);
-
-
-                    Sources[i] = source;
+                    // Apply tiles to source.
+                    CommandSources[i].SetTiles(item.Tiles);
                 }
             }
         }
@@ -374,7 +371,7 @@ namespace Live2D.Cubism.Rendering.Masking
             // Recreate render textures.
             if (_renderTextures != null)
             {
-                for (int renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
+                for (var renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
                 {
                     DestroyImmediate(RenderTextures[renderTextureIndex]);
                 }
@@ -395,7 +392,7 @@ namespace Live2D.Cubism.Rendering.Masking
             // Recreate render textures.
             if (_renderTextures != null)
             {
-                for (int renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
+                for (var renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
                 {
                     DestroyImmediate(RenderTextures[renderTextureIndex]);
                 }
@@ -403,7 +400,7 @@ namespace Live2D.Cubism.Rendering.Masking
 
             RenderTextures = new RenderTexture[RenderTextureCount];
 
-            for (int renderTextureIndex = 0; renderTextureIndex < RenderTextureCount; renderTextureIndex++)
+            for (var renderTextureIndex = 0; renderTextureIndex < RenderTextureCount; renderTextureIndex++)
             {
                 RenderTextures[renderTextureIndex] = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
             }

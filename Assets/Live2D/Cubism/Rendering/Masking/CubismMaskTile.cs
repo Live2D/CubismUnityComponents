@@ -62,5 +62,15 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Index of RenderTextures where the tile is located.
         /// </summary>
         public int RenderTextureIndex;
+
+        /// <summary>
+        /// Index of HeadOfChannels.
+        /// </summary>
+        public int HeadOfChannelsIndex;
+
+        /// <summary>
+        /// Index of mask tile.
+        /// </summary>
+        public int Index;
     }
 }

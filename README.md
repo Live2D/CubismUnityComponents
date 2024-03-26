@@ -55,18 +55,18 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2023.2.5f1 (*1) |
-| LTS | 2022.3.17f1 |
-| LTS | 2021.3.34f1 |
+| Latest | 2023.2.14f1 (*1) |
+| LTS | 2022.3.21f1 |
+| LTS | 2021.3.36f1 |
 
 *1 ARMv7 Android is not supported.
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.7.7 |
+| Visual Studio 2022 | 17.9.3 |
 | Windows SDK | 10.0.22621.0 |
-| Xcode | 15.2 |
+| Xcode | 15.3 |
 
 *2 Use libraries embedded with Unity or recommended.
 
@@ -85,14 +85,14 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 14 |
-| iOS | 17.2.1 |
-| iPadOS | 17.2.1 |
+| iOS | 17.4 |
+| iPadOS | 17.4 |
 | Ubuntu | 20.04.6 |
-| macOS | 14.2.1 |
-| Windows 10 | 22H2 |
-| Google Chrome | 120.0.6099.217 |
-| Chrome OS 64bit (x86_64) | 120.0.6099.203 |
-| Chrome OS 32bit (ARMv8) (*3) | 115.0.5790.160 |
+| macOS | 14.4 |
+| Windows 11 | 23H2 |
+| Google Chrome | 122.0.6261.129 |
+| Chrome OS 64bit (x86_64) | 122.0.6261.118 |
+| Chrome OS 32bit (ARMv8) (*3) | 122.0.6261.118 |
 
 *3 This is a confirmation of operation with APK files for Android.
 
@@ -116,7 +116,7 @@ There are many ways to contribute to the project: logging bugs, submitting pull 
 
 ### Forking And Pull Requests
 
-We very much appreciate your pull requests, whether they bring fixes, improvements, or even new features. Note, however, that the wrapper is designed to be as lightweight and shallow as possible and should therefore only be subject to bug fixes and memory/performance improvements. To keep the main repository as clean as possible, create a personal fork and feature branches there as needed.
+We very much appreciate your pull requests, whether they bring fixes, improvements, or even new features. To keep the main repository as clean as possible, create a personal fork and feature branches there as needed.
 
 ### Bugs
 

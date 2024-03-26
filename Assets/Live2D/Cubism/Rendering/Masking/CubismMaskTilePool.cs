@@ -96,9 +96,13 @@ namespace Live2D.Cubism.Rendering.Masking
 #endif
 
                 Subdivisions = subdivisions;
+                if (Subdivisions < 1)
+                {
+                    Subdivisions = 1;
+                    Debug.LogError("`Subdivisions` must be at least 1. It will be automatically set to 1.");
+                }
 
-
-                Slots = new bool[(int)Mathf.Pow(4, subdivisions) * ColorChannelCount];
+                Slots = new bool[(int)Mathf.Pow(4, Subdivisions) * ColorChannelCount];
             }
             else
             {
@@ -120,7 +124,7 @@ namespace Live2D.Cubism.Rendering.Masking
                         RenderTextureIndex = 0,
                         Channel = 0,
                         LayoutCount = 0,
-                        LayoutCountContextIndex = 0,
+                        LayoutContextIndex = 0,
                     };
                 }
 
@@ -188,12 +192,27 @@ namespace Live2D.Cubism.Rendering.Masking
         /// Releases tiles.
         /// </summary>
         /// <param name="tiles">Tiles to release.</param>
+        [Obsolete("ReturnTiles() is not used.", false)]
         public void ReturnTiles(CubismMaskTile[] tiles)
         {
             // Flag slots as available.
             for (var i = 0; i < tiles.Length; ++i)
             {
                 Slots[ToIndex(tiles[i])] = false;
+            }
+        }
+
+
+        /// <summary>
+        /// Reset HeadOfChannels.
+        /// </summary>
+        public void ResetTiles()
+        {
+            HeadOfChannels = new LayoutContext[0];
+            LayoutContexts = new LayoutContext[UseClippingMaskMaxCount * ColorChannelCount];
+            for (var i = 0; i < Slots.Length; i++)
+            {
+                Slots[i] = false;
             }
         }
 
@@ -217,7 +236,8 @@ namespace Live2D.Cubism.Rendering.Masking
                         Column = 0,
                         Row = 0,
                         Size = 1,
-                        RenderTextureIndex = 0
+                        RenderTextureIndex = 0,
+                        HeadOfChannelsIndex = -1
                     };
                 }
 
@@ -240,6 +260,9 @@ namespace Live2D.Cubism.Rendering.Masking
                 // Start the calculation as the first index of that channel.
                 if (LayoutContexts[index].LayoutCount < 1)
                 {
+                    var headOfChannelsIndex = (HeadOfChannels.Length == 0)
+                        ? 0
+                        : HeadOfChannels.Length - 1; ;
                     if (HeadOfChannels.Length < 1)
                     {
                         LayoutContexts[index].Channel = 0;
@@ -255,12 +278,14 @@ namespace Live2D.Cubism.Rendering.Masking
 
                         // RenderTextureIndex
                         LayoutContexts[index].RenderTextureIndex = previousUseChannel < (ColorChannelCount - 1)
-                            ? HeadOfChannels[HeadOfChannels.Length - 1].RenderTextureIndex : HeadOfChannels[HeadOfChannels.Length - 1].RenderTextureIndex + 1;
+                            ? HeadOfChannels[headOfChannelsIndex].RenderTextureIndex : HeadOfChannels[headOfChannelsIndex].RenderTextureIndex + 1;
                     }
 
                     // Number of layouts in this channel.
                     // NOTE: Number of layouts = basic masks to place on one channel + one additional channel to place extra masks.
-                    LayoutContexts[index].LayoutCount = divCount + (LayoutContexts[index].Channel < modCount ? 1 : 0);
+                    LayoutContexts[index].LayoutCount = divCount + (LayoutContexts[index].Channel < modCount
+                        ? 1
+                        : 0);
 
                     // Determine the channel that does it when reducing the number of layouts by one.
                     // Adjust to be within the normal index range when div is 0.
@@ -275,7 +300,7 @@ namespace Live2D.Cubism.Rendering.Masking
                             : 0;
                     }
 
-                    LayoutContexts[index].LayoutCountContextIndex = 0;
+                    LayoutContexts[index].LayoutContextIndex = 0;
 
                     // Set the required number of information.
                     for (var count = 1; count < LayoutContexts[index].LayoutCount; count++)
@@ -283,7 +308,7 @@ namespace Live2D.Cubism.Rendering.Masking
                         LayoutContexts[index + count].RenderTextureIndex = LayoutContexts[index].RenderTextureIndex;
                         LayoutContexts[index + count].Channel = LayoutContexts[index].Channel;
                         LayoutContexts[index + count].LayoutCount = LayoutContexts[index].LayoutCount;
-                        LayoutContexts[index + count].LayoutCountContextIndex = count;
+                        LayoutContexts[index + count].LayoutContextIndex = count;
                     }
 
                     Array.Resize(ref _headOfChannels, HeadOfChannels.Length + 1);
@@ -301,13 +326,14 @@ namespace Live2D.Cubism.Rendering.Masking
                         Column = 0,
                         Row = 0,
                         Size = 1,
-                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex
+                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex,
+                        Index = index
                     };
                 }
                 else if (layoutCount <= 4)
                 {
                     var tilesPerRow = 2; // Rows per tile
-                    var currentTilePosition = LayoutContexts[index].LayoutCountContextIndex;
+                    var currentTilePosition = LayoutContexts[index].LayoutContextIndex;
                     var tileSize = 1f / (float)tilesPerRow;
                     var column = currentTilePosition / tilesPerRow;
                     var rowId = currentTilePosition % tilesPerRow;
@@ -318,14 +344,14 @@ namespace Live2D.Cubism.Rendering.Masking
                         Column = column,
                         Row = rowId,
                         Size = tileSize,
-                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex
+                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex,
+                        Index = index
                     };
                 }
                 else if (layoutCount <= layoutCountMaxValue)
                 {
                     var tilesPerRow = 3; // Rows per tile
-
-                    var currentTilePosition = LayoutContexts[index].LayoutCountContextIndex;
+                    var currentTilePosition = LayoutContexts[index].LayoutContextIndex;
                     var tileSize = 1f / (float)tilesPerRow;
                     var column = currentTilePosition / tilesPerRow;
                     var rowId = currentTilePosition % tilesPerRow;
@@ -336,7 +362,8 @@ namespace Live2D.Cubism.Rendering.Masking
                         Column = column,
                         Row = rowId,
                         Size = tileSize,
-                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex
+                        RenderTextureIndex = LayoutContexts[index].RenderTextureIndex,
+                        Index = index
                     };
                 }
                 else
@@ -349,7 +376,9 @@ namespace Live2D.Cubism.Rendering.Masking
                         Column = 0,
                         Row = 0,
                         Size = 1f,
-                        RenderTextureIndex = 0
+                        RenderTextureIndex = 0,
+                        HeadOfChannelsIndex = 0,
+                        Index = index
                     };
                 }
             }
@@ -358,8 +387,6 @@ namespace Live2D.Cubism.Rendering.Masking
                 var tileCounts = (int)Mathf.Pow(4, Subdivisions - 1);
                 var tilesPerRow = (int)Mathf.Pow(2, Subdivisions - 1);
                 var tileSize = 1f / (float)tilesPerRow;
-
-
                 var channel = index / tileCounts;
                 var currentTilePosition = index - (channel * tileCounts);
                 var column = currentTilePosition / tilesPerRow;
@@ -370,7 +397,10 @@ namespace Live2D.Cubism.Rendering.Masking
                     Channel = channel,
                     Column = column,
                     Row = rowId,
-                    Size = tileSize
+                    Size = tileSize,
+                    RenderTextureIndex = -1,
+                    HeadOfChannelsIndex = -1,
+                    Index = index
                 };
             }
         }
@@ -380,6 +410,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         /// <param name="tile">Tile to convert.</param>
         /// <returns>Tile index.</returns>
+        [Obsolete("ToIndex() is not used.", false)]
         private int ToIndex(CubismMaskTile tile)
         {
             var tilesPerRow = 0;
@@ -448,7 +479,7 @@ namespace Live2D.Cubism.Rendering.Masking
             /// <summary>
             /// Index within a division.
             /// </summary>
-            public int LayoutCountContextIndex;
+            public int LayoutContextIndex;
         }
     }
 }

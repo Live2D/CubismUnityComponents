@@ -4,16 +4,19 @@
 
 # お知らせ
 
-## [注意事項] Windows 11の対応状況について (2021-12-09)
-
-Windows 11対応につきまして、Windows 11上にて成果物の動作を確認しております。
-ただし、Windows 11を利用したビルドにつきましては動作を保証しておりません、ご了承ください。
-対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
-
 ## [制限事項] Windows ARM64向けの対応状況について (2024-01-18)
 
 Unity 2023.1以降にて指定可能となったWindows ARM64向けビルドにつきまして、Cubim SDK for Unityは現在対応しておりません。
 対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
+
+
+## [注意事項] Apple社のPrivacy Manifest Policy対応について
+
+Apple社が対応を必要としているPrivacy Manifest Policyについて、本製品では指定されているAPI及びサードパーティ製品を使用しておりません。
+もし本製品で対応が必要と判断した場合、今後のアップデートにて順次対応する予定です。
+詳しくはApple社が公開しているドキュメントをご確認ください。
+
+[Privacy updates for App Store submissions](https://developer.apple.com/news/?id=3d8a9yyh)
 
 
 ## [注意事項] macOS Catalina 以降での `.bundle` と `.dylib` の利用について
@@ -23,6 +26,12 @@ macOS Catalina 以降で `.bundle` と `.dylib` を利用する際、公証の�
 詳しくは、Apple社 公式ドキュメントをご確認ください。
 
 * [Apple社 公式ドキュメント](https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution)
+
+
+## [制限事項] 実行中のマスク用テクスチャの `RenderTextureCount` の値操作について (2024-03-26)
+
+シーン実行中に `CubismMaskTexture.RenderTextureCount` を実行開始時よりも大きい値に変更すると、マスクが正常に再生成されない不具合を確認しています。
+対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
 ---
 
 ©Live2D
