@@ -17,7 +17,6 @@
 | Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
 | Emscripten |  | Experimental/Emscripten/latest | bitcode（upstream LLVM wasmバックエンド） |
-| Emscripten |  | Experimental/Emscripten/1_38_48 | bitcode（fastcompバックエンド） |
 | iOS | ARM64 | iOS/xxx-iphoneos | iOSデバイス |
 | iOS | x86_64 | iOS/xxx-iphonesimulator | iOS Simulator |
 | Linux | x86_64 | Linux/x86_64 |   |

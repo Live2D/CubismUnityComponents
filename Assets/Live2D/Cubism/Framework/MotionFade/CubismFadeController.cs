@@ -176,14 +176,15 @@ namespace Live2D.Cubism.Framework.MotionFade
                 }
 
                 var playingMotions = _fadeStates[i].GetPlayingMotions();
-                for (int j = 0; j < playingMotions.Count && playingMotions.Count > 2;)
+                for (var j = playingMotions.Count - 2; j >= 0; --j)
                 {
                     var playingMotion = playingMotions[j];
                     if (time <= playingMotion.EndTime)
                     {
-                        j++;
                         continue;
                     }
+
+                    // If fade-in has been completed, delete the motion that has been played back.
                     _fadeStates[i].StopAnimation(j);
                 }
             }
