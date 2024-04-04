@@ -10,6 +10,9 @@ under the terms of the Live2D Proprietary Software License Agreement:
 - Experimental/UWP/arm64/Live2DCubismCore.dll
 - Experimental/UWP/x64/Live2DCubismCore.dll
 - Experimental/UWP/x86/Live2DCubismCore.dll
+- HarmonyOS/arm64-v8a/libLive2DCubismCore.so
+- HarmonyOS/armeabi-v7a/libLive2DCubismCore.so
+- HarmonyOS/x86_64/libLive2DCubismCore.so
 - iOS/Debug-iphoneos/libLive2DCubismCore.a
 - iOS/Debug-iphonesimulator/libLive2DCubismCore.a
 - iOS/Release-iphoneos/libLive2DCubismCore.a

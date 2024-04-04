@@ -69,6 +69,13 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 *2 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
 
+| HarmonyOS NEXT 対応ツール | バージョン |
+| --- | --- |
+| Tuanjie | 1.0.1 |
+| DevEco Studio *3 | 4.0 |
+
+*3 中国国外でのHarmonyOS NEXT向けビルドはDevEcoを通じてビルドする必要があります。
+
 ### C#コンパイラ
 
 Unity2018.4以降でサポートされているRoslynまたはmcsコンパイラを使用してビルドします。
@@ -92,6 +99,7 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Google Chrome | 122.0.6261.129 |
 | Chrome OS 64bit (x86_64) | 122.0.6261.118 |
 | Chrome OS 32bit (ARMv8) (*3) | 122.0.6261.118 |
+| HarmonyOS NEXT | 4.0.0.66 |
 
 *3 Android向けAPKファイルでの動作確認です。
 

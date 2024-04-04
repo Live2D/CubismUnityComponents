@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [5-r.2] - 2024-04-04
+
+### Added
+
+* Add HarmonyOS NEXT from the tested environment.
+
+### Fixed
+
+* Fix an issue where the `Allow 'unsafe' Code` property was not enabled in the `Live2D.Cubism.asmdef`.
+
 
 ## [5-r.1] - 2024-03-26
 
@@ -396,6 +406,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1...5-r.2
 [5-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.4...5-r.1
 [5-r.1-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.3...5-r.1-beta.4
 [5-r.1-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.2...5-r.1-beta.3

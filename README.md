@@ -70,6 +70,13 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 *2 Use libraries embedded with Unity or recommended.
 
+| HarmonyOS NEXT Supported Tools | Version |
+| --- | --- |
+| Tuanjie | 1.0.1 |
+| DevEco Studio *3 | 4.0 |
+
+*3 Builds for HarmonyOS NEXT outside of China must be built through DevEco.
+
 ### C# compiler
 
 Build using Roslyn or mcs compiler supported by Unity 2018.4 and above.
@@ -93,6 +100,7 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Google Chrome | 122.0.6261.129 |
 | Chrome OS 64bit (x86_64) | 122.0.6261.118 |
 | Chrome OS 32bit (ARMv8) (*3) | 122.0.6261.118 |
+| HarmonyOS NEXT | 4.0.0.66 |
 
 *3 This is a confirmation of operation with APK files for Android.
 
