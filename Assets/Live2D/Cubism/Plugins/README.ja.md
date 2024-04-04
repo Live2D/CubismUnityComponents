@@ -17,6 +17,9 @@
 | Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
 | Emscripten |  | Experimental/Emscripten/latest | bitcode（upstream LLVM wasmバックエンド） |
+| HarmonyOS | ARM64 | HarmonyOS/arm64-v8a |   |
+| HarmonyOS | ARMv7 | HarmonyOS/armeabi-v7a |  |
+| HarmonyOS | x86_64 | HarmonyOS/x86_64 |   |
 | iOS | ARM64 | iOS/xxx-iphoneos | iOSデバイス |
 | iOS | x86_64 | iOS/xxx-iphonesimulator | iOS Simulator |
 | Linux | x86_64 | Linux/x86_64 |   |
