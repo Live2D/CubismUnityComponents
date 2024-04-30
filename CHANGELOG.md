@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased] - ####-##-##
+
+### Changed
+
+- Change `OnGeneratedCSProjectFiles` function to be disabled in Unity 2017.3 and later by [@moz-moz](https://github.com/moz-moz)
+
+
 ## [5-r.2] - 2024-04-04
 
 ### Added
