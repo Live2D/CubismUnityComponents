@@ -75,7 +75,7 @@ namespace Live2D.Cubism.Framework.LookAt
         /// </summary>
         /// <param name="targetOffset">Delta to target.</param>
         /// <returns>Evaluation result.</returns>
-        internal float TickAndEvaluate(Vector3 targetOffset)
+        public float TickAndEvaluate(Vector3 targetOffset)
         {
             var result = (Axis == CubismLookAxis.X)
                 ? targetOffset.x

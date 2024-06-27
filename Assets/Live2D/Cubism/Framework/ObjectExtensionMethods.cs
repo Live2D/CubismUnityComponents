@@ -14,7 +14,7 @@ namespace Live2D.Cubism.Framework
     /// <summary>
     /// Extensions for <see cref="Object"/>s.
     /// </summary>
-    internal static class ObjectExtensionMethods
+    public static partial class ObjectExtensionMethods
     {
         /// <summary>
         /// Extracts an interface from an <see cref="Object"/>.
