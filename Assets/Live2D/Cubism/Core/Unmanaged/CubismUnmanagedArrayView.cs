@@ -88,7 +88,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private unsafe float* UnmanagedFixedAddress { get; set; }
+        internal unsafe float* UnmanagedFixedAddress { get; set; }
 
         #region Ctors
 

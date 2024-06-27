@@ -815,6 +815,11 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// The display order of any of the <see cref="Renderers"/> changed during this frame or not.
+        /// </summary>
+        public bool IsRenderOrderChanged;
+
+        /// <summary>
         /// Called whenever new render data is available.
         /// </summary>
         /// <param name="sender">Model with new render data.</param>
@@ -824,6 +829,7 @@ namespace Live2D.Cubism.Rendering
             // Get drawables.
             var drawables = sender.Drawables;
             var renderers = Renderers;
+            IsRenderOrderChanged = false;
 
 
             // Handle render data changes.
@@ -838,7 +844,7 @@ namespace Live2D.Cubism.Rendering
 
 
                 // Update render order if last SwapInfo flags is true.
-                renderers[i].UpdateRenderOrder();
+                IsRenderOrderChanged |= renderers[i].UpdateRenderOrder();
 
 
                 // Skip completely non-dirty data.

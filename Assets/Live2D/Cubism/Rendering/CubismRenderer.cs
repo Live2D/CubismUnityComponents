@@ -515,15 +515,19 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Updates render order.
         /// </summary>
-        public void UpdateRenderOrder()
+        /// <returns>is sorted.</returns>
+        public bool UpdateRenderOrder()
         {
+            var res = false;
             if (LastSwap.NewRenderOrder)
             {
                 ApplySorting();
+                res = true;
             }
 
 
             ResetRenderOrderFlag();
+            return res;
         }
 
         /// <summary>
