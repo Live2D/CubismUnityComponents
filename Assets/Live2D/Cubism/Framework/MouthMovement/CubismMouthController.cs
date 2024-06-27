@@ -42,7 +42,11 @@ namespace Live2D.Cubism.Framework.MouthMovement
         [HideInInspector]
         public bool HasUpdateController { get; set; }
 
-
+        /// <summary>
+        /// Blend Weight
+        /// </summary>
+        [SerializeField]
+        public float Weight = 1;
 
         /// <summary>
         /// Refreshes controller. Call this method after adding and/or removing <see cref="CubismMouthParameter"/>s.
@@ -109,7 +113,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
 
 
             // Apply value.
-            Destinations.BlendToValue(BlendMode, MouthOpening);
+            Destinations.BlendToValue(BlendMode, MouthOpening, Weight);
         }
 
         #region Unity Events Handling
