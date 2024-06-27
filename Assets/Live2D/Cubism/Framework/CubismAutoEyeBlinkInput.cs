@@ -6,6 +6,7 @@
  */
 
 
+using OrangeCube.Sentia.Views.Cubism;
 using UnityEngine;
 
 
@@ -33,6 +34,12 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         [SerializeField, Range(1f, 20f)]
         public float Timescale = 10f;
+
+        /// <summary>
+        /// Disable during animation.
+        /// </summary>
+        [SerializeField]
+        public bool DisableDuringAnimation = false;
 
         /// <summary>
         /// Target controller.
@@ -78,6 +85,11 @@ namespace Live2D.Cubism.Framework
         /// Next blinking time.
         /// </summary>
         private float NextBlinkingTime { get; set; }
+
+        /// <summary>
+        /// Animator
+        /// </summary>
+        private Animator _animator;
 
         /// <summary>
         /// Resets the input.
@@ -194,6 +206,14 @@ namespace Live2D.Cubism.Framework
                 }
                 case Phase.Idling:
                 {
+                    // Do not blink while playing non-loop motion
+                    if (DisableDuringAnimation && _animator is { } animator)
+                    {
+                        var stateInfo = animator.GetCurrentAnimatorStateInfo((int)CubismAnimationLayer.Motion);
+                        var stopAutoBlink = !stateInfo.loop && stateInfo.normalizedTime < 1;
+                        if (stopAutoBlink) return;
+                    }
+
                     value = UpdateEyeBlinkIdling();
                     break;
                 }
@@ -226,6 +246,7 @@ namespace Live2D.Cubism.Framework
             CurrentPhase = Phase.Idling;
             NextBlinkingTime = Mean + Random.Range(-MaximumDeviation, MaximumDeviation);
             SetBlinkingSettings(1.0f, 0.5f, 1.5f);
+            _animator = GetComponent<Animator>();
         }
 
 
