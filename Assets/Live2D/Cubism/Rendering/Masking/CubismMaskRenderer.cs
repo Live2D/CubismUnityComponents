@@ -123,6 +123,9 @@ namespace Live2D.Cubism.Rendering.Masking
             var mainTexture = MainRenderer.MainTexture;
             var mesh = MainRenderer.Mesh;
 
+            //  Exception handling in iOS "ArgumentNullException: Value cannot be null. Parameter name: value"
+            if (mainTexture == null) return;
+
 
             MaskProperties.SetTexture(CubismShaderVariables.MainTexture, mainTexture);
 
