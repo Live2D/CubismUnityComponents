@@ -17,6 +17,7 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
     /// </summary>
     public sealed class AsyncToggler : MonoBehaviour
     {
+#if !UNITY_WEBGL
         /// <summary>
         /// Controls async task handling.
         /// </summary>
@@ -26,9 +27,20 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         /// Last <see cref="EnableAsync"/> state.
         /// </summary>
         private bool LastEnableSync { get; set; }
+#endif
 
-       #region Unity Event Handling
+        #region Unity Event Handling
 
+#if UNITY_WEBGL
+        /// <summary>
+        /// Called by Unity.
+        /// </summary>
+        private void Start()
+        {
+            // Deactivate Async.
+            CubismBuiltinAsyncTaskHandler.Deactivate();
+        }
+#else
         /// <summary>
         /// Called by Unity. Enables/Disables async task handler.
         /// </summary>
@@ -64,7 +76,8 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
 
             Update();
         }
+#endif
 
-        #endregion
+            #endregion
+        }
     }
-}

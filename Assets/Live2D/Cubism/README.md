@@ -37,7 +37,7 @@ Components and classes in this group are a shim layer for wrapping the unmanaged
 
 #### Framework
 
-Components and classes in this group provide additional functionality like lip-syncing, as well as integration of "foreign" Cubism files with Unity. Turning Cubism files into Prefabs and AnimationClips is done here. All the framework code is located in `./Assets/Live2D/Cubism/Framework`.
+Components and classes in this group provide additional functionality like lip-syncing, as well as integration of "foreign" Cubism files with Unity. The feature to convert Cubism files into Prefabs and AnimationClips is here.All the framework code is located in `./Assets/Live2D/Cubism/Framework`.
 
 #### Rendering
 
@@ -55,25 +55,22 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 2023.2.14f1 (*1) |
-| LTS | 2022.3.21f1 |
-| LTS | 2021.3.36f1 |
-
-*1 ARMv7 Android is not supported.
+| Latest | 6000.0.27f1 |
+| LTS | 2022.3.52f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.9.3 |
-| Windows SDK | 10.0.22621.0 |
-| Xcode | 15.3 |
+| Visual Studio 2022 | 17.12.1 |
+| Windows SDK | 10.0.26100.0 |
+| Xcode | 16.1 |
 
 *2 Use libraries embedded with Unity or recommended.
 
 | HarmonyOS NEXT Supported Tools | Version |
 | --- | --- |
 | Tuanjie | 1.0.1 |
-| DevEco Studio *3 | 4.0 |
+| DevEco Studio *3 | 5.0.3.906 |
 
 *3 Builds for HarmonyOS NEXT outside of China must be built through DevEco.
 
@@ -91,18 +88,19 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | Platform | Version |
 | --- | --- |
-| Android | 14 |
-| iOS | 17.4 |
-| iPadOS | 17.4 |
-| Ubuntu | 20.04.6 |
-| macOS | 14.4 |
-| Windows 11 | 23H2 |
-| Google Chrome | 122.0.6261.129 |
-| Chrome OS 64bit (x86_64) | 122.0.6261.118 |
-| Chrome OS 32bit (ARMv8) (*3) | 122.0.6261.118 |
-| HarmonyOS NEXT | 4.0.0.66 |
+| Android | 15 |
+| iOS | 18.1.1 |
+| iPadOS | 18.1.1 |
+| Ubuntu | 24.04.1 |
+| macOS | 15.1 |
+| Windows 11 | 23H2 (*4) |
+| Google Chrome | 131.0.6778.86 |
+| Chrome OS x86_64 | 130.0.6723.126 |
+| Chrome OS ARMv8 (*5) | 130.0.6723.126|
+| HarmonyOS NEXT | 5.0.0.71 |
 
-*3 This is a confirmation of operation with APK files for Android.
+*4 In Unity 6, we have not verified the operation of builds for UWP.
+*5 This is a confirmation of operation with APK files for Android.
 
 ## Branches
 

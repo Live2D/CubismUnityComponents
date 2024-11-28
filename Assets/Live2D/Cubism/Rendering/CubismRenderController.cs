@@ -631,8 +631,6 @@ namespace Live2D.Cubism.Rendering
             var isScreenColorUpdated = false;
             _newMultiplyColors ??= new Color[Renderers.Length];
             _newScreenColors ??= new Color[Renderers.Length];
-            var newMultiplyColors = _newMultiplyColors;
-            var newScreenColors = _newScreenColors;
 
             for (int i = 0; i < Renderers.Length; i++)
             {
@@ -663,7 +661,7 @@ namespace Live2D.Cubism.Rendering
                     isMultiplyColorUpdated = true;
                 }
 
-                newMultiplyColors[i] = Renderers[i].MultiplyColor;
+                _newMultiplyColors[i] = Renderers[i].MultiplyColor;
                 Renderers[i].LastIsUseUserMultiplyColor = isUseUserMultiplyColor;
 
                 var isUseUserScreenColor = (Renderers[i].OverwriteFlagForDrawableScreenColors ||
@@ -693,18 +691,18 @@ namespace Live2D.Cubism.Rendering
                     isScreenColorUpdated = true;
                 }
 
-                newScreenColors[i] = Renderers[i].ScreenColor;
+                _newScreenColors[i] = Renderers[i].ScreenColor;
                 Renderers[i].LastIsUseUserScreenColors = isUseUserScreenColor;
             }
 
             if (MultiplyColorHandler != null && isMultiplyColorUpdated)
             {
-                MultiplyColorHandlerInterface.OnBlendColorDidChange(this, newMultiplyColors);
+                MultiplyColorHandlerInterface.OnBlendColorDidChange(this, _newMultiplyColors);
             }
 
             if (ScreenColorHandler != null && isScreenColorUpdated)
             {
-                ScreenColorHandlerInterface.OnBlendColorDidChange(this, newScreenColors);
+                ScreenColorHandlerInterface.OnBlendColorDidChange(this, _newScreenColors);
             }
         }
 

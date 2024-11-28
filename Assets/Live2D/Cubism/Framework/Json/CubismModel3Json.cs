@@ -126,8 +126,14 @@ namespace Live2D.Cubism.Framework.Json
                 modelJson.FileReferences.Motions.Motions[i] = new SerializableMotion[motionCount];
 
 
+                var fadeInTime = -1.0f;
+                var fadeOutTime = -1.0f;
                 for (var j = 0; j < motionCount; j++)
                 {
+                    // Reset fade time cache.
+                    fadeInTime = -1.0f;
+                    fadeOutTime = -1.0f;
+
                     if (motionGroup.Get(j).GetMap(null).ContainsKey("File"))
                     {
                         modelJson.FileReferences.Motions.Motions[i][j].File = motionGroup.Get(j).Get("File").toString();
@@ -140,13 +146,15 @@ namespace Live2D.Cubism.Framework.Json
 
                     if (motionGroup.Get(j).GetMap(null).ContainsKey("FadeInTime"))
                     {
-                        modelJson.FileReferences.Motions.Motions[i][j].FadeInTime = motionGroup.Get(j).Get("FadeInTime").ToFloat();
+                        fadeInTime = motionGroup.Get(j).Get("FadeInTime").ToFloat();
                     }
+                    modelJson.FileReferences.Motions.Motions[i][j].FadeInTime = fadeInTime;
 
                     if (motionGroup.Get(j).GetMap(null).ContainsKey("FadeOutTime"))
                     {
-                        modelJson.FileReferences.Motions.Motions[i][j].FadeOutTime = motionGroup.Get(j).Get("FadeOutTime").ToFloat();
+                        fadeOutTime = motionGroup.Get(j).Get("FadeOutTime").ToFloat();
                     }
+                    modelJson.FileReferences.Motions.Motions[i][j].FadeOutTime = fadeOutTime;
                 }
             }
 
@@ -504,9 +512,9 @@ namespace Live2D.Cubism.Framework.Json
                 }
             }
 
-            // Setting up the part name for display.
             if (cdi3Json != null)
             {
+                // Setting up the part name for display.
                 // Initialize groups.
                 var parts = model.Parts;
 
@@ -523,6 +531,38 @@ namespace Live2D.Cubism.Framework.Json
                         }
                     }
                     cubismDisplayInfoPartNames.DisplayName = string.Empty;
+                }
+
+                // Get combined parameter information
+                var combinedParameters = cdi3Json.CombinedParameters;
+
+                if (combinedParameters != null)
+                {
+                    // Parameters are always combined in pairs of two.
+                    const int combinedParameterCount = 2;
+
+                    // Set up CubismDisplayInfoCombinedParameterInfo component.
+                    var combinedParameterInfo = model.gameObject.AddComponent<CubismDisplayInfoCombinedParameterInfo>();
+                    combinedParameterInfo.CombinedParameters = new CubismDisplayInfo3Json.CombinedParameter[combinedParameters.Length];
+
+                    for (var index = 0; index < combinedParameters.Length; index++)
+                    {
+                        // Skip if the combined parameter is invalid.
+                        if (combinedParameters[index].Ids == null || combinedParameters[index].Ids.Length != combinedParameterCount)
+                        {
+                            Debug.LogWarning($"The data contains invalid CombinedParameters in {model.Moc.name}.cdi3.json.");
+                            continue;
+                        }
+
+                        var combinedParameterIds = combinedParameters[index].Ids;
+
+                        // Set CombinedParameter.
+                        combinedParameterInfo.CombinedParameters[index] = new CubismDisplayInfo3Json.CombinedParameter
+                        {
+                            HorizontalParameterId = combinedParameterIds[0],
+                            VerticalParameterId = combinedParameterIds[1]
+                        };
+                    }
                 }
             }
 

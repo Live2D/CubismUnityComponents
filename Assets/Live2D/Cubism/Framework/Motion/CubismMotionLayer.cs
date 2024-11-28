@@ -24,7 +24,12 @@ namespace Live2D.Cubism.Framework.Motion
         /// <summary>
         /// Action animation end handler.
         /// </summary>
-        public Action<int, float> AnimationEndHandler;
+        public Action<int, int> AnimationBeginHandler;
+
+        /// <summary>
+        /// Action animation end handler.
+        /// </summary>
+        public Action<int, int> AnimationEndHandler;
 
         #endregion
 
@@ -223,6 +228,7 @@ namespace Live2D.Cubism.Framework.Motion
                               : ret.StartTime + ret.Motion.MotionLength / speed;
                 ret.IsLooping = isLooping;
                 ret.Weight = 0.0f;
+                AnimationBeginHandler(_layerIndex, instanceId);
 
                 break;
             }

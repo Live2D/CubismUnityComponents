@@ -4,12 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased] - ####-##-##
+
+## [5-r.3] - 2024-11-28
+
+### Added
+
+* Add processing to parse `CombinedParameters` from `.cdi3.json` file.
+  * Also add `CubismDisplayInfoCombinedParameterInfo` component to store this information.
+* Add `AnimationBeganHandler`, which calls a function when the motion playback starts, to both `CubismMotionController` and `CubismMotionLayer`.
+* Add the definition of the function `GetLogFunction` to `CubismCoreDll`.
 
 ### Changed
 
-- Change `OnGeneratedCSProjectFiles` function to be disabled in Unity 2017.3 and later by [@moz-moz](https://github.com/moz-moz)
+* Change `OnGeneratedCSProjectFiles` function to be disabled in Unity 2017.3 and later by [@moz-moz](https://github.com/moz-moz)
+* Change to a single function The initialization process in CubismModel class. by [@KT](https://creatorsforum.live2d.com/t/topic/2356/)
+* Change to optimize update process for Multiply Color and Screen Color.
+* Change argument type of `CubismMotionLayer.AnimationEndHandler` and `CubismMotionController.AnimationEndHandler` to match the current usage.
+* Move the definition of `csmSetLogFunction` from `CubismLogging` to `CubismCoreDll` and rename to `SetLogFunction`.
+* Raycast processing now supports 3D intersection determination.
+* In the `AsyncBenchmark` scene and `AutomaticAsyncBenchmark`, changed it so that asynchronous processing is not performed in WebGL.
 
+### Fixed
+
+* The fade in and fade out functionality has been improved to better maintain compatibility with other CubismSDK implementations.
+* Fix an issue in which when the number of textures for masks was increased, masks were not generated for the increased number of textures from the time of execution.
+* Fix an issue that caused an error when parsing Json if the name of the model had certain characters.
+* Fix the condition for setting the fade-out end time for Expression.
 
 ## [5-r.2] - 2024-04-04
 
@@ -413,6 +433,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.2...5-r.3
 [5-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1...5-r.2
 [5-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.4...5-r.1
 [5-r.1-beta.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.3...5-r.1-beta.4

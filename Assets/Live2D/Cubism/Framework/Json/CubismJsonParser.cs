@@ -127,7 +127,7 @@ namespace Live2D.Cubism.Framework.Json
 
             for (var i = pos; i < length; i++)
             {
-                c = (char)(str[i] & 0xFF);
+                c = (char)(str[i]);
 
                 switch (c)
                 {
@@ -154,7 +154,7 @@ namespace Live2D.Cubism.Framework.Json
 
                         if (i < length)
                         {
-                            c2 = (char)(str[i] & 0xFF);
+                            c2 = (char)(str[i]);
                             switch (c2)
                             {
                                 case '\\': stringBuffer.Append('\\'); break;
@@ -207,7 +207,7 @@ namespace Live2D.Cubism.Framework.Json
                 // FOR_LOOP1:
                 for (; i < length; i++)
                 {
-                    c = (char)(buffer[i] & 0xFF);
+                    c = (char)(buffer[i]);
 
                     switch (c)
                     {
@@ -233,7 +233,7 @@ namespace Live2D.Cubism.Framework.Json
                 // FOR_LOOP2:
                 for (; i < length; i++)
                 {
-                    c = (char)(buffer[i] & 0xFF);
+                    c = (char)(buffer[i]);
 
                     switch (c)
                     {
@@ -258,7 +258,7 @@ namespace Live2D.Cubism.Framework.Json
                 // FOR_LOOP3:
                 for (; i < length; i++)
                 {
-                    c = (char)(buffer[i] & 0xFF);
+                    c = (char)(buffer[i]);
 
                     switch (c)
                     {
@@ -306,7 +306,7 @@ namespace Live2D.Cubism.Framework.Json
                 // FOR_LOOP3:
                 for (; i < length; i++)
                 {
-                    c = (char)(buffer[i] & 0xFF);
+                    c = (char)(buffer[i]);
 
                     switch (c)
                     {
@@ -340,7 +340,7 @@ namespace Live2D.Cubism.Framework.Json
             var v1 = 0.0;
 
             // check minus
-            var c = (char)(str[i] & 0xFF);
+            var c = (char)(str[i]);
             if(c == '-')
             {
                 minus = true;
@@ -351,7 +351,7 @@ namespace Live2D.Cubism.Framework.Json
             // FOR_LOOP:
             for (; i < length; i++)
             {
-                c = (char)(str[i] & 0xFF);
+                c = (char)(str[i]);
 
                 switch (c)
                 {
@@ -384,7 +384,7 @@ namespace Live2D.Cubism.Framework.Json
                 // FOR_LOOP2:
                 for (; i < length; i++)
                 {
-                    c = (char)(str[i] & 0xFF);
+                    c = (char)(str[i]);
 
                     switch (c)
                     {
@@ -432,7 +432,7 @@ namespace Live2D.Cubism.Framework.Json
             var i = pos;
             for (; i < length; i++)
             {
-                var c = (char)(buffer[i] & 0xFF);
+                var c = (char)(buffer[i]);
 
                 switch (c)
                 {

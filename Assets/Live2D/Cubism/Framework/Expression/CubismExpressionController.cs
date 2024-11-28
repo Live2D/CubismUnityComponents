@@ -95,7 +95,12 @@ namespace Live2D.Cubism.Framework.Expression
             if(_playingExpressions.Count > 0)
             {
                 var playingExpression = _playingExpressions[_playingExpressions.Count - 1];
-                playingExpression.ExpressionEndTime = playingExpression.ExpressionUserTime + playingExpression.FadeOutTime;
+                var newExpressionEndTime = playingExpression.ExpressionUserTime + playingExpression.FadeOutTime;
+
+                if (playingExpression.ExpressionEndTime == 0.0f || newExpressionEndTime < playingExpression.ExpressionEndTime)
+                {
+                    playingExpression.ExpressionEndTime = newExpressionEndTime;
+                }
                 _playingExpressions[_playingExpressions.Count - 1] = playingExpression;
             }
 
