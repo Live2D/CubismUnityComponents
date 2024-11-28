@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## 2024-11-07
+
+### Added
+
+* [Native] Add experimental support `arm64` library for linux.
+
+### Removed
+
+* [Unity,Native,Java] Remove Android ARM v7 library.
+
+
 ## 2024-04-04
 
 ### Added

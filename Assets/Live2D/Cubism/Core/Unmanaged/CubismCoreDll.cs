@@ -142,7 +142,12 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Sets log handler.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmSetLogFunction")]
-        public static extern void SetLogFunction(uint handler);
+        public static extern void SetLogFunction(IntPtr handler);
+        /// <summary>
+        /// Gets log handler.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetLogFunction")]
+        public static extern IntPtr GetLogFunction();
         /// <summary>
         /// Gets Size of model instance (in bytes).
         /// </summary>
