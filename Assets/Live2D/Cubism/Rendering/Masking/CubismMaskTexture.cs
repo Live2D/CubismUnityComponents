@@ -389,6 +389,8 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void RefreshRenderTextures()
         {
+            CubismMaskCommandBuffer.RemoveSource(this);
+
             // Recreate render textures.
             if (_renderTextures != null)
             {
@@ -404,6 +406,8 @@ namespace Live2D.Cubism.Rendering.Masking
             {
                 RenderTextures[renderTextureIndex] = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
             }
+
+            CubismMaskCommandBuffer.AddSource(this);
 
             // Recreate allocator.
             TilePool = new CubismMaskTilePool(-1, Channels, RenderTextureCount);

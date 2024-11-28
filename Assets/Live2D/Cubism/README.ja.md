@@ -36,7 +36,7 @@ Cubism 5 Editorに搭載された新機能のSDK対応については [こちら
 
 #### フレームワーク
 
-このグループのコンポーネントとクラスは、リップシンクやCubismの組み込み用ファイルとUnityの統合などの追加機能を提供します。CubismファイルをプレハブとAnimationClipに変換するのはここで行われます。すべてのフレームワークコードは`./Assets/Live2D/Cubism/Framework`にあります。
+このグループのコンポーネントとクラスは、リップシンクやCubismの組み込み用ファイルとUnityの統合などの追加機能を提供します。CubismファイルをプレハブとAnimationClipに変換する機能はここにあります。すべてのフレームワークコードは`./Assets/Live2D/Cubism/Framework`にあります。
 
 #### レンダリング
 
@@ -54,25 +54,22 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 | Unity | バージョン |
 | --- | --- |
-| Latest | 2023.2.14f1 (*1) |
-| LTS | 2022.3.21f1 |
-| LTS | 2021.3.36f1 |
-
-*1 ARMv7のAndroidは非対応です。
+| Latest | 6000.0.27f1 |
+| LTS | 2022.3.52f1 |
 
 | ライブラリ / ツール | バージョン |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.9.3 |
-| Windows SDK | 10.0.22621.0 |
-| Xcode | 15.3 |
+| Visual Studio 2022 | 17.12.1 |
+| Windows SDK | 10.0.26100.0 |
+| Xcode | 16.1 |
 
 *2 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
 
 | HarmonyOS NEXT 対応ツール | バージョン |
 | --- | --- |
 | Tuanjie | 1.0.1 |
-| DevEco Studio *3 | 4.0 |
+| DevEco Studio *3 | 5.0.3.906 |
 
 *3 中国国外でのHarmonyOS NEXT向けビルドはDevEcoを通じてビルドする必要があります。
 
@@ -90,18 +87,19 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | プラットフォーム | バージョン |
 | --- | --- |
-| Android | 14 |
-| iOS | 17.4 |
-| iPadOS | 17.4 |
-| Ubuntu | 20.04.6 |
-| macOS | 14.4 |
-| Windows 11 | 23H2 |
-| Google Chrome | 122.0.6261.129 |
-| Chrome OS 64bit (x86_64) | 122.0.6261.118 |
-| Chrome OS 32bit (ARMv8) (*3) | 122.0.6261.118 |
-| HarmonyOS NEXT | 4.0.0.66 |
+| Android | 15 |
+| iOS | 18.1.1 |
+| iPadOS | 18.1.1 |
+| Ubuntu | 24.04.1 |
+| macOS | 15.1 |
+| Windows 11 | 23H2 (*4) |
+| Google Chrome | 131.0.6778.86 |
+| Chrome OS x86_64 | 130.0.6723.126 |
+| Chrome OS ARMv8 (*5) | 130.0.6723.126|
+| HarmonyOS NEXT | 5.0.0.71 |
 
-*3 Android向けAPKファイルでの動作確認です。
+*4 Unity6ではUWP向けビルドは動作確認をしておりません。
+*5 Android向けAPKファイルでの動作確認です。
 
 ## ブランチ
 

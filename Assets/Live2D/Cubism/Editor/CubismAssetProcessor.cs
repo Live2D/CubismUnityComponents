@@ -28,6 +28,7 @@ namespace Live2D.Cubism.Editor
     {
         #region Unity Event Handling
 
+#if !UNITY_2017_3_OR_NEWER
         /// <summary>
         /// Called by Unity. Makes sure <see langword="unsafe"/> code is allowed.
         /// </summary>
@@ -36,6 +37,7 @@ namespace Live2D.Cubism.Editor
         {
             AllowUnsafeCode();
         }
+#endif
 
 
         /// <summary>

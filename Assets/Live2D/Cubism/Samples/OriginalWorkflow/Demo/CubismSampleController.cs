@@ -223,7 +223,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// Called at the end of the animation.
         /// </summary>
         /// <param name="instanceId"></param>
-        private void AnimationEnded(float instanceId)
+        private void AnimationEnded(int instanceId)
         {
             // Play loop motion.
             _motionController.PlayAnimation(_loopMotion, priority:CubismMotionPriority.PriorityIdle);

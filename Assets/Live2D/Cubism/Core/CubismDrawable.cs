@@ -109,6 +109,11 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// <see cref="MultiplyColor"/> backing field.
+        /// </summary>
+        private Color _multiplyColor;
+
+        /// <summary>
         /// Copy of MultiplyColor.
         /// </summary>
         public Color MultiplyColor
@@ -116,13 +121,21 @@ namespace Live2D.Cubism.Core
             get
             {
                 var index = UnmanagedIndex * 4;
+
                 // Pull data.
-                return new Color(UnmanagedDrawables.MultiplyColors[index],
-                    UnmanagedDrawables.MultiplyColors[index + 1],
-                    UnmanagedDrawables.MultiplyColors[index + 2],
-                    UnmanagedDrawables.MultiplyColors[index + 3]);
+                _multiplyColor.r = UnmanagedDrawables.MultiplyColors[index];
+                _multiplyColor.g = UnmanagedDrawables.MultiplyColors[index + 1];
+                _multiplyColor.b = UnmanagedDrawables.MultiplyColors[index + 2];
+                _multiplyColor.a = UnmanagedDrawables.MultiplyColors[index + 3];
+
+                return _multiplyColor;
             }
         }
+
+        /// <summary>
+        /// <see cref="ScreenColor"/> backing field.
+        /// </summary>
+        public Color _screenColor;
 
         /// <summary>
         /// Copy of ScreenColor.
@@ -132,11 +145,14 @@ namespace Live2D.Cubism.Core
             get
             {
                 var index = UnmanagedIndex * 4;
+
                 // Pull data.
-                return new Color(UnmanagedDrawables.ScreenColors[index],
-                    UnmanagedDrawables.ScreenColors[index + 1],
-                    UnmanagedDrawables.ScreenColors[index + 2],
-                    UnmanagedDrawables.ScreenColors[index + 3]);
+                _screenColor.r = UnmanagedDrawables.ScreenColors[index];
+                _screenColor.g = UnmanagedDrawables.ScreenColors[index + 1];
+                _screenColor.b = UnmanagedDrawables.ScreenColors[index + 2];
+                _screenColor.a = UnmanagedDrawables.ScreenColors[index + 3];
+
+                return _screenColor; ;
             }
         }
 
@@ -359,7 +375,6 @@ namespace Live2D.Cubism.Core
                 return flags[UnmanagedIndex].HasBlendMultiplicativeFlag();
             }
         }
-
 
         /// <summary>
         /// Revives instance.

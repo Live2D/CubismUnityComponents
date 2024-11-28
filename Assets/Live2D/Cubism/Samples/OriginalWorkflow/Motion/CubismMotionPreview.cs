@@ -46,7 +46,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Motion
 
 
 
-        private void PlayIdleAnimation(float index = 0.0f)
+        private void PlayIdleAnimation(int index = 0)
         {
             _motionController.PlayAnimation(Animation, isLoop: false, priority: CubismMotionPriority.PriorityIdle);
         }

@@ -6,8 +6,8 @@
  */
 
 
-using Live2D.Cubism.Framework.Json;
 using UnityEngine;
+using Live2D.Cubism.Framework.Json;
 
 
 namespace Live2D.Cubism.Framework.MotionFade
@@ -19,6 +19,20 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         [SerializeField]
         public string MotionName;
+
+        /// <summary>
+        /// Store time to fade in from .model3.json.
+        /// NOTE: It is used to save `FadeInTime` from .model3.json. Please use <see cref="FadeInTime"/> instead of using it directly.
+        /// </summary>
+        [HideInInspector, SerializeField]
+        public float ModelFadeInTime = -1.0f;
+
+        /// <summary>
+        /// Store time to fade out from .model3.json.
+        /// NOTE: It is used to save `FadeOutTime` from .model3.json. Please use <see cref="FadeOutTime"/> instead of using it directly.
+        /// </summary>
+        [HideInInspector, SerializeField]
+        public float ModelFadeOutTime = -1.0f;
 
         /// <summary>
         /// Time to fade in.
@@ -71,10 +85,11 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <param name="motionLength">Length of target motion.</param>
         /// <param name="shouldImportAsOriginalWorkflow">Whether the original work flow or not.</param>
         /// <param name="isCallFromModelJson">Whether it is a call from the model json.</param>
+        /// <param name="model3Json">.model3.json to retrieve the fade time.</param>
         /// <returns>Fade data created based on motion3json.</returns>
         public static CubismFadeMotionData CreateInstance(
             CubismMotion3Json motion3Json, string motionName, float motionLength,
-             bool shouldImportAsOriginalWorkflow = false, bool isCallFromModelJson = false)
+             bool shouldImportAsOriginalWorkflow = false, bool isCallFromModelJson = false, CubismModel3Json model3Json = null)
         {
             var fadeMotion = CreateInstance<CubismFadeMotionData>();
             var curveCount = motion3Json.Curves.Length;
@@ -83,7 +98,7 @@ namespace Live2D.Cubism.Framework.MotionFade
             fadeMotion.ParameterFadeOutTimes = new float[curveCount];
             fadeMotion.ParameterCurves = new AnimationCurve[curveCount];
 
-            return CreateInstance(fadeMotion, motion3Json, motionName, motionLength, shouldImportAsOriginalWorkflow, isCallFromModelJson);
+            return CreateInstance(fadeMotion, motion3Json, motionName, motionLength, shouldImportAsOriginalWorkflow, isCallFromModelJson, model3Json);
         }
 
         /// <summary>
@@ -95,15 +110,42 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <param name="motionLength">Motion length.</param>
         /// <param name="shouldImportAsOriginalWorkflow">Whether the original work flow or not.</param>
         /// <param name="isCallFormModelJson">Whether it is a call from the model json.</param>
+        /// <param name="model3Json">.model3.json to retrieve the fade time.</param>
         /// <returns>Fade data created based on fademotiondata.</returns>
         public static CubismFadeMotionData CreateInstance(
             CubismFadeMotionData fadeMotion, CubismMotion3Json motion3Json, string motionName, float motionLength,
-             bool shouldImportAsOriginalWorkflow = false, bool isCallFormModelJson = false)
+             bool shouldImportAsOriginalWorkflow = false, bool isCallFormModelJson = false, CubismModel3Json model3Json = null)
         {
+            if (model3Json != null)
+            {
+                GetFadeDataFromModel3Json(model3Json, fadeMotion);
+            }
+
+            if (motion3Json == null)
+            {
+                return fadeMotion;
+            }
+
             fadeMotion.MotionName = motionName;
             fadeMotion.MotionLength = motionLength;
-            fadeMotion.FadeInTime = (motion3Json.Meta.FadeInTime < 0.0f) ? 1.0f : motion3Json.Meta.FadeInTime;
-            fadeMotion.FadeOutTime = (motion3Json.Meta.FadeOutTime < 0.0f) ? 1.0f : motion3Json.Meta.FadeOutTime;
+
+            if (fadeMotion.ModelFadeInTime < 0.0f)
+            {
+                fadeMotion.FadeInTime = (motion3Json.Meta.FadeInTime < 0.0f) ? 1.0f : motion3Json.Meta.FadeInTime;
+            }
+            else
+            {
+                fadeMotion.FadeInTime = fadeMotion.ModelFadeInTime;
+            }
+
+            if (fadeMotion.ModelFadeOutTime < 0.0f)
+            {
+                fadeMotion.FadeOutTime = (motion3Json.Meta.FadeOutTime < 0.0f) ? 1.0f : motion3Json.Meta.FadeOutTime;
+            }
+            else
+            {
+                fadeMotion.FadeOutTime = fadeMotion.ModelFadeOutTime;
+            }
 
             for (var i = 0; i < motion3Json.Curves.Length; ++i)
             {
@@ -122,6 +164,38 @@ namespace Live2D.Cubism.Framework.MotionFade
             }
 
             return fadeMotion;
+        }
+
+        private static void GetFadeDataFromModel3Json(CubismModel3Json modelJson, CubismFadeMotionData fadeMotion)
+        {
+            var motions = modelJson.FileReferences.Motions.Motions;
+
+            for (var groupIndex = 0; groupIndex < motions?.Length; groupIndex++)
+            {
+                if (motions[groupIndex] == null)
+                {
+                    continue;
+                }
+
+                for (var motionIndex = 0; motionIndex < motions[groupIndex]?.Length; motionIndex++)
+                {
+                    var motion = motions[groupIndex][motionIndex];
+
+                    // Set FadeInTime.
+                    if (!(motion.FadeInTime < 0.0f))
+                    {
+                        fadeMotion.ModelFadeInTime = motion.FadeInTime;
+                        fadeMotion.FadeInTime = fadeMotion.ModelFadeInTime;
+                    }
+
+                    // Set FadeOutTime.
+                    if (!(motion.FadeOutTime < 0.0f))
+                    {
+                        fadeMotion.ModelFadeOutTime = motion.FadeOutTime;
+                        fadeMotion.FadeInTime = fadeMotion.ModelFadeInTime;
+                    }
+                }
+            }
         }
     }
 }

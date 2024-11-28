@@ -31,6 +31,38 @@ namespace Live2D.Cubism.Framework.Json
 
             var ret = JsonUtility.FromJson<CubismDisplayInfo3Json>(cdi3Json);
 
+            // Parse CombinedParameters.
+            // Unity is unable to parse the double array.
+            var value = CubismJsonParser.ParseFromString(cdi3Json);
+
+            // Return early if there is no references.
+            if (value.Get("CombinedParameters") == null)
+            {
+                return ret;
+            }
+
+            // Get CombinedParameters from json data.
+            var rawCombinedParameters = value.Get("CombinedParameters").GetVector(null);
+            ret.CombinedParameters = new SerializableCombinedParameterIds[rawCombinedParameters.Count];
+
+            for (var combinedParameterIndex = 0; combinedParameterIndex < rawCombinedParameters.Count; combinedParameterIndex++)
+            {
+                var combinedParameter = rawCombinedParameters[combinedParameterIndex];
+                var ids = new string[combinedParameter.GetVector(null).Count];
+
+                // Set ids.
+                for (var idIndex = 0; idIndex < ids.Length; idIndex++)
+                {
+                    ids.SetValue(combinedParameter.GetVector(null)[idIndex].toString(), idIndex);
+                }
+
+                // Set combined parameters.
+                ret.CombinedParameters[combinedParameterIndex] = new SerializableCombinedParameterIds
+                {
+                    Ids = ids
+                };
+            }
+
             return ret;
         }
 
@@ -60,6 +92,9 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         [SerializeField]
         public SerializableParts[] Parts;
+
+        [SerializeField]
+        public SerializableCombinedParameterIds[] CombinedParameters;
 
         #endregion
 
@@ -123,6 +158,31 @@ namespace Live2D.Cubism.Framework.Json
             /// </summary>
             [SerializeField]
             public string Name;
+        }
+
+        [Serializable]
+        public struct SerializableCombinedParameterIds
+        {
+            /// <summary>
+            /// The ID of the part.
+            /// </summary>
+            [SerializeField]
+            public string[] Ids;
+        }
+
+        public struct CombinedParameter
+        {
+            /// <summary>
+            /// The Id of the parameter that becomes the X-axis when combined.
+            /// </summary>
+            [SerializeField]
+            public string HorizontalParameterId;
+
+            /// <summary>
+            /// The Id of the parameter that becomes the Y-axis when combined.
+            /// </summary>
+            [SerializeField]
+            public string VerticalParameterId;
         }
 
         #endregion
