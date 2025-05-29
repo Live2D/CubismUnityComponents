@@ -6,6 +6,9 @@
  */
 
 
+using Live2D.Cubism.Core;
+using System;
+using System.Linq;
 using UnityEngine;
 
 
@@ -14,7 +17,80 @@ namespace Live2D.Cubism.Framework
     /// <summary>
     /// Allows inspecting <see cref="Core.CubismParameter"/>s.
     /// </summary>
-    public sealed class CubismParametersInspector : MonoBehaviour
+    public sealed class CubismParametersInspector : CubismInspectorAbstract
     {
+        /// <summary>
+        /// Called by cubism update controller. Order to invoke OnLateUpdate.
+        /// </summary>
+        public override int ExecutionOrder => CubismUpdateExecutionOrder.CubismParametersInspector;
+
+        /// <summary>
+        /// Model has cubism update controller component.
+        /// </summary>
+        [field: NonSerialized, HideInInspector]
+        public override bool HasUpdateController { get; set; }
+
+        /// <summary>
+        /// Called by cubism update controller. Updates controller.
+        /// </summary>
+        public override void OnLateUpdate()
+        {
+#if UNITY_EDITOR
+            // Fail silently.
+            if (!enabled)
+            {
+                return;
+            }
+
+            if (Model == null)
+            {
+                Model = this.FindCubismModel();
+            }
+            if (Model.Parameters == null)
+            {
+                return;
+            }
+            OverrideFlags ??= new bool[Model.Parameters.Length];
+            if (OverrideFlags.Length != Model.Parameters.Length)
+            {
+                Array.Resize(ref OverrideValues, Model.Parameters.Length);
+            }
+            OverrideValues ??= new float[Model.Parameters.Length];
+            if (OverrideValues.Length != Model.Parameters.Length)
+            {
+                Array.Resize(ref OverrideValues, Model.Parameters.Length);
+            }
+            for (var i = 0; i < Model.Parameters.Length; i++)
+            {
+                if (OverrideFlags[i])
+                {
+                    Model.Parameters[i].OverrideValue(OverrideValues[i]);
+                }
+                else
+                {
+                    OverrideValues[i] = Model.Parameters[i].Value;
+                }
+            }
+            DispatchValueChanges();
+#endif
+        }
+
+        /// <summary>
+        /// Called by Inspector.
+        /// </summary>
+        public void Refresh()
+        {
+            Model = this.FindCubismModel();
+            if (Model == null)
+            {
+                OverrideValues = new float[0];
+                OverrideFlags = new bool[0];
+            }
+            else
+            {
+                OverrideValues = Model.Parameters.Select(e => e.Value).ToArray();
+                OverrideFlags = new bool[Model.Parameters.Length];
+            }
+        }
     }
 }

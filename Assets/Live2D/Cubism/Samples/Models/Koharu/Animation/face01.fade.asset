@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: face01.fade
   m_EditorClassIdentifier: 
   MotionName: Assets/Live2D/Cubism/Samples/Models/Koharu/Animation/face01.motion3.json
+  ModelFadeInTime: -1
+  ModelFadeOutTime: -1
   FadeInTime: 1
   FadeOutTime: 1
   ParameterIds:

@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: mtn_03.fade
   m_EditorClassIdentifier: 
   MotionName: Assets/Live2D/Cubism/Samples/Models/Natori/motions/mtn_03.motion3.json
+  ModelFadeInTime: -1
+  ModelFadeOutTime: -1
   FadeInTime: 1
   FadeOutTime: 1
   ParameterIds:

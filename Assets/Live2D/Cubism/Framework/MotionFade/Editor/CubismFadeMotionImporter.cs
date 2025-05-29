@@ -127,6 +127,11 @@ namespace Live2D.Cubism.Framework.MotionFade
                 var directoryPath = Path.GetDirectoryName(assetPath) + "/";
                 var motion3Json = CubismMotion3Json.LoadFrom(jsonString);
 
+                if (motion3Json == null)
+                {
+                    continue;
+                }
+
                 var animationClipPath = directoryPath + motions[i].File.Replace(".motion3.json", ".anim");
                 animationClipPath = animationClipPath.Replace("\\", "/");
 

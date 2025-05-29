@@ -155,6 +155,11 @@ namespace Live2D.Cubism.Editor.Importers
         /// </summary>
         public override void Import()
         {
+            if (Motion3Json == null)
+            {
+                return;
+            }
+
             var isImporterDirty = false;
 
             // Add reference of motion to list.
@@ -178,6 +183,11 @@ namespace Live2D.Cubism.Editor.Importers
                 var animationClip = (clip == null)
                     ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
                     : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
+
+                if (animationClip == null)
+                {
+                    return;
+                }
 
                 animationClip.name = motionName;
 
@@ -204,6 +214,11 @@ namespace Live2D.Cubism.Editor.Importers
                 var animationClip = (clip == null)
                     ? Motion3Json.ToAnimationClip(ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves)
                     : Motion3Json.ToAnimationClip(clip, ShouldImportAsOriginalWorkflow, ShouldClearAnimationCurves);
+
+                if (animationClip == null)
+                {
+                    return;
+                }
 
                 animationClip.name = motionName;
 

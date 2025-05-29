@@ -210,6 +210,31 @@ namespace Live2D.Cubism.Core
         CubismParameterStore _parameterStore;
 
         /// <summary>
+        /// Whether parameter repetition is performed for the entire model.
+        /// </summary>
+        [SerializeField]
+        private bool _isOverriddenParameterRepeat = true;
+
+
+        /// <summary>
+        /// Checks whether parameter repetition is performed for the entire model.
+        /// </summary>
+        /// <returns>True if parameter repetition is performed for the entire model; otherwise returns false.</returns>
+        public bool GetOverrideFlagForModelParameterRepeat()
+        {
+            return _isOverriddenParameterRepeat;
+        }
+
+        /// <summary>
+        /// Sets whether parameter repetition is performed for the entire model.
+        /// </summary>
+        /// <param name="isRepeat">Use true to perform parameter repetition for the entire model, or false to not perform it.</param>
+        public void SetOverrideFlagForModelParameterRepeat(bool isRepeat)
+        {
+            _isOverriddenParameterRepeat = isRepeat;
+        }
+
+        /// <summary>
         /// True if instance is revived.
         /// </summary>
         public bool IsRevived
@@ -330,6 +355,8 @@ namespace Live2D.Cubism.Core
             CanvasInformation = new CubismCanvasInformation(TaskableModel.UnmanagedModel);
 
             RefreshParameterStore();
+
+            SetOverrideFlagForModelParameterRepeat(_isOverriddenParameterRepeat);
         }
 
         /// <summary>
@@ -484,9 +511,16 @@ namespace Live2D.Cubism.Core
             TaskableModel.TryReadParameters(Parameters);
 
             // restore last frame parameters value and parts opacity.
-            if(_parameterStore != null)
+            if (_parameterStore != null)
             {
+#if UNITY_EDITOR
+                if (Application.isPlaying)
+                {
+                    _parameterStore.RestoreParameters();
+                }
+#else
                 _parameterStore.RestoreParameters();
+#endif
             }
 
             // Trigger event.

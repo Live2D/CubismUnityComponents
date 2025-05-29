@@ -376,9 +376,22 @@ namespace Live2D.Cubism.Editor.Importers
 
                     // Copy component.
                     var destinationComponent = destinationT.GetOrAddComponent(sourceComponent.GetType());
-
-
-                    EditorUtility.CopySerialized(sourceComponent, destinationComponent);
+                    if (destinationComponent is CubismDisplayInfoParameterName cdiParameterName && !string.IsNullOrEmpty(cdiParameterName.Name))
+                    {
+                        var name = cdiParameterName.Name;
+                        EditorUtility.CopySerialized(sourceComponent, destinationComponent);
+                        cdiParameterName.Name = name;
+                    }
+                    else if (destinationComponent is CubismDisplayInfoPartName cdiPartName && !string.IsNullOrEmpty(cdiPartName.Name))
+                    {
+                        var name = cdiPartName.Name;
+                        EditorUtility.CopySerialized(sourceComponent, destinationComponent);
+                        cdiPartName.Name = name;
+                    }
+                    else
+                    {
+                        EditorUtility.CopySerialized(sourceComponent, destinationComponent);
+                    }
                 }
             }
         }

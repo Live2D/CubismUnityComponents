@@ -214,6 +214,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         [DllImport(DllName, EntryPoint = "csmGetParameterValues")]
         public static extern unsafe float* GetParameterValues(IntPtr model);
         /// <summary>
+        /// Gets Parameter Repeat informations.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetParameterRepeats")]
+        public static extern unsafe int* GetParameterRepeats(IntPtr model);
+        /// <summary>
         /// Gets number of key values of each parameter.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetParameterKeyCounts")]

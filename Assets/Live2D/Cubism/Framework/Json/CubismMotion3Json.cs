@@ -32,8 +32,9 @@ namespace Live2D.Cubism.Framework.Json
         /// Loads a motion3.json asset.
         /// </summary>
         /// <param name="motion3Json">motion3.json to deserialize.</param>
+        /// <param name="shouldCheckMotionConsistency">Should check consistency of the .motion3.json.</param>
         /// <returns>Deserialized motion3.json on success; <see langword="null"/> otherwise.</returns>
-        public static CubismMotion3Json LoadFrom(string motion3Json)
+        public static CubismMotion3Json LoadFrom(string motion3Json, bool shouldCheckMotionConsistency = true)
         {
             if (string.IsNullOrEmpty(motion3Json))
             {
@@ -41,6 +42,15 @@ namespace Live2D.Cubism.Framework.Json
             }
 
             var cubismMotion3Json = JsonUtility.FromJson<CubismMotion3Json>(motion3Json);
+
+            if (shouldCheckMotionConsistency)
+            {
+                var consistency = cubismMotion3Json.HasConsistency();
+                if (!consistency)
+                {
+                    return null;
+                }
+            }
 
             cubismMotion3Json.Meta.FadeInTime = -1.0f;
             cubismMotion3Json.Meta.FadeOutTime = -1.0f;
@@ -58,12 +68,13 @@ namespace Live2D.Cubism.Framework.Json
         /// Loads a motion3.json asset.
         /// </summary>
         /// <param name="motion3JsonAsset">motion3.json to deserialize.</param>
+        /// <param name="shouldCheckMotionConsistency">Should check consistency of the .motion3.json.</param>
         /// <returns>Deserialized motion3.json on success; <see langword="null"/> otherwise.</returns>
-        public static CubismMotion3Json LoadFrom(TextAsset motion3JsonAsset)
+        public static CubismMotion3Json LoadFrom(TextAsset motion3JsonAsset, bool shouldCheckMotionConsistency = true)
         {
             return (motion3JsonAsset == null)
                 ? null
-                : LoadFrom(motion3JsonAsset.text);
+                : LoadFrom(motion3JsonAsset.text, shouldCheckMotionConsistency);
         }
 
         #endregion
@@ -197,7 +208,7 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         /// <param name="shouldImportAsOriginalWorkflow">Should import as original workflow.</param>
         /// <param name="shouldClearAnimationCurves">Should clear animation clip curves.</param>
-        /// <param name="isCallFormModelJson">Is function call form <see cref="CubismModel3Json"/>.</param>
+        /// <param name="isCallFormModelJson">Is function call from <see cref="CubismModel3Json"/>.</param>
         /// <param name="poseJson">pose3.json asset.</param>
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
         /// <remarks>
@@ -236,7 +247,7 @@ namespace Live2D.Cubism.Framework.Json
         /// <param name="animationClip">Previous animation clip.</param>
         /// <param name="shouldImportAsOriginalWorkflow">Should import as original workflow.</param>
         /// <param name="shouldClearAnimationCurves">Should clear animation clip curves.</param>
-        /// <param name="isCallFormModelJson">Is function call form <see cref="CubismModel3Json"/>.</param>
+        /// <param name="isCallFormModelJson">Is function call from <see cref="CubismModel3Json"/>.</param>
         /// <param name="poseJson">pose3.json asset.</param>
         /// <returns>The instantiated clip on success; <see langword="null"/> otherwise.</returns>
         /// <remarks>
@@ -376,6 +387,80 @@ namespace Live2D.Cubism.Framework.Json
 #endif
 
             return animationClip;
+        }
+
+        /// <summary>
+        /// Returns the consistency of the motion3.json file.
+        /// </summary>
+        /// <returns>True if the file is consistent; otherwise returns false.</returns>
+        public bool HasConsistency()
+        {
+            var result = true;
+
+            var actualCurveListSize = Curves.Length;
+            var actualTotalSegmentCount = 0;
+            var actualTotalPointCount = 0;
+
+            // カウント処理
+            for (var curvePosition = 0; curvePosition < actualCurveListSize; ++curvePosition)
+            {
+                 var curve = Curves[curvePosition];
+
+                for (var segmentPosition = 0; segmentPosition < curve.Segments.Length;)
+                {
+                    if (segmentPosition == 0)
+                    {
+                        actualTotalPointCount += 1;
+                        segmentPosition += 2;
+                    }
+
+                    var segment = (int)curve.Segments[segmentPosition];
+
+                    switch (segment)
+                    {
+                    case 0:
+                        actualTotalPointCount += 1;
+                        segmentPosition += 3;
+                        break;
+                    case 1:
+                        actualTotalPointCount += 3;
+                        segmentPosition += 7;
+                        break;
+                    case 2:
+                        actualTotalPointCount += 1;
+                        segmentPosition += 3;
+                        break;
+                    case 3:
+                        actualTotalPointCount += 1;
+                        segmentPosition += 3;
+                        break;
+                    default:
+                        return false;
+                        break;
+                    }
+
+                    ++actualTotalSegmentCount;
+                }
+            }
+
+            // 個数チェック
+            if (actualCurveListSize != Meta.CurveCount)
+            {
+                Debug.LogWarning("The number of curves does not match the metadata.");
+                result = false;
+            }
+            if (actualTotalSegmentCount != Meta.TotalSegmentCount)
+            {
+                Debug.LogWarning("The number of segment does not match the metadata.");
+                result = false;
+            }
+            if (actualTotalPointCount != Meta.TotalPointCount)
+            {
+                Debug.LogWarning("The number of point does not match the metadata.");
+                result = false;
+            }
+
+            return result;
         }
 
         #region Segment Parsing
