@@ -29,7 +29,7 @@ namespace Live2D.Cubism.Framework
                 return;
             }
 
-            parameter.Value += (value * weight);
+            parameter.OverrideValue(parameter.Value + (value * weight));
         }
 
 
@@ -46,7 +46,32 @@ namespace Live2D.Cubism.Framework
                 return;
             }
 
-            parameter.Value *= (1f + ((value - 1f) * weight));
+            parameter.OverrideValue(parameter.Value * (1f + ((value - 1f) * weight)));
+        }
+
+        /// <summary>
+        /// Override blends a value in.
+        /// </summary>
+        /// <param name="parameter"><see langword="this"/>.</param>
+        /// <param name="value">Value to blend in.</param>
+        /// <param name="weight">Blend weight.</param>
+        public static void OverrideValue(this CubismParameter parameter, float value, float weight = 1.0f)
+        {
+            if (parameter == null)
+            {
+                return;
+            }
+
+            if (parameter.IsRepeat())
+            {
+                value = parameter.GetParameterRepeatValue(value);
+            }
+            else
+            {
+                value = parameter.GetParameterClampValue(value);
+            }
+
+            parameter.Value = parameter.Value * (1 - weight) + value * weight;
         }
 
 
@@ -81,7 +106,8 @@ namespace Live2D.Cubism.Framework
             }
 
 
-            self.Value = self.Value * (1 - weight) + value * weight;
+
+            self.OverrideValue(self.Value * (1 - weight) + value * weight);
         }
 
         /// <summary>
@@ -123,7 +149,7 @@ namespace Live2D.Cubism.Framework
 
             for (var i = 0; i < self.Length; ++i)
             {
-                self[i].Value = self[i].Value * (1 - weight) + value * weight;
+                self[i].OverrideValue(self[i].Value, weight);
             }
         }
     }

@@ -399,8 +399,8 @@ namespace Live2D.Cubism.Framework.Json
 
 #if UNITY_EDITOR
             // Add parameters and parts inspectors.
-            model.gameObject.AddComponent<CubismParametersInspector>();
-            model.gameObject.AddComponent<CubismPartsInspector>();
+            model.gameObject.AddComponent<CubismParametersInspector>().hideFlags = HideFlags.DontSaveInBuild;
+            model.gameObject.AddComponent<CubismPartsInspector>().hideFlags = HideFlags.DontSaveInBuild;
 #endif
 
             // Create renderers.

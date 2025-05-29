@@ -55,6 +55,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         public CubismUnmanagedFloatArrayView Values { get; private set; }
 
         /// <summary>
+        /// Parameter Repeat informations.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView Repeats { get; private set; }
+
+        /// <summary>
         /// Number of key values of each parameter.
         /// </summary>>
         public CubismUnmanagedIntArrayView KeyCounts { get; private set; }
@@ -103,6 +108,9 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetParameterCount(modelPtr);
             Values = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetParameterValues(modelPtr), length);
+
+            length = CubismCoreDll.GetParameterCount(modelPtr);
+            Repeats = new CubismUnmanagedIntArrayView(CubismCoreDll.GetParameterRepeats(modelPtr), length);
 
             length = CubismCoreDll.GetParameterCount(modelPtr);
             KeyCounts = new CubismUnmanagedIntArrayView(CubismCoreDll.GetParameterKeyCounts(modelPtr), length);

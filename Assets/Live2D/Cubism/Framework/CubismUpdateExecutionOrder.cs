@@ -15,6 +15,7 @@ namespace Live2D.Cubism.Framework
     /// </summary>
     public static class CubismUpdateExecutionOrder
     {
+        public static readonly int CubismRepeatController = 50;
         public static readonly int CubismFadeController = 100;
         public static readonly int CubismParameterStoreSaveParameters = 150;
         public static readonly int CubismPoseController = 200;
@@ -26,6 +27,8 @@ namespace Live2D.Cubism.Framework
         public static readonly int CubismPhysicsController = 800;
         public static readonly int CubismRenderController = 10000;
         public static readonly int CubismMaskController = 10100;
+        public static readonly int CubismParametersInspector = int.MaxValue;
+        public static readonly int CubismPartsInspector = int.MaxValue;
 
         public static void SortByExecutionOrder(List<ICubismUpdatable> updatables)
         {

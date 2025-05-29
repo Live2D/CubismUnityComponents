@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: mtn_04.fade
   m_EditorClassIdentifier: 
   MotionName: Assets/Live2D/Cubism/Samples/Models/Mao/motions/mtn_04.motion3.json
+  ModelFadeInTime: -1
+  ModelFadeOutTime: -1
   FadeInTime: 0.5
   FadeOutTime: 0.5
   ParameterIds:

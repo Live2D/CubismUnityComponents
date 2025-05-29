@@ -7,6 +7,7 @@
 
 
 using Live2D.Cubism.Core.Unmanaged;
+using Live2D.Cubism.Framework;
 using System;
 using UnityEngine;
 
@@ -97,7 +98,7 @@ namespace Live2D.Cubism.Core
             // Pull.
             for (var i = 0; i < self.Length; ++i)
             {
-                self[i].Value = values[self[i].UnmanagedIndex];
+                self[i].OverrideValue(values[self[i].UnmanagedIndex]);
             }
         }
 

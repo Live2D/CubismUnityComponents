@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.4] 2025-05-29
+
+### Added
+
+* Add an empty `AnimatorController` at the same hierarchy level as each model's Prefab.
+* Add an API to `CubismMotionJson` for verifying the consistency of `motion3.json`. by [@pillowtrucker](https://github.com/Live2D/CubismNativeFramework/pull/57)
+* Add parameter repeat processing that connects the right and left ends of the parameter to create a loop, allowing the motion to repeat.
+  * Add the variable `_isOverriddenParameterRepeat` to the `CubismModel` class for managing parameter repeat flags at the model level.
+  * Add variables `_isOverriddenUserParameterRepeat` to the `CubismModel` class and `_isParameterRepeated` to the `CubismParameter` class for managing parameter repeat flags for each parameter.
+
+### Changed
+
+* Change the version of the development project to `2022.3.59f1`.
+* Change CubismMath class not to inherit from MonoBehaviour.
+* Change `CubismMoc._bytes` not to be displayed in Inspector.
+
+### Fixed
+
+* Fix `CubismPhysicsController` to be in the correct disabled state.
+* When performing a Reimport Fixed a problem that `.cdi3.json` updates were not reflected in `CubismDisplayInfoParameterName`,`CubismDisplayInfoPartName`.
+* Fix a problem in which the slider of CubismParametersInspector and CubismPartsInspector in the Inspector window did not move when operated.
+* Fix a bug that CubismParametersInspector and CubismPartsInspector do not display the names of parameters and parts if .cdi3.json is not set on the model.
+* Fix `CubismParameterInspector` and `CubismPartInspector` can be operated in play mode.
+* Fix a bug that prevented MotionFade fade-out from working properly.
+* Fix unnecessary processing in `CubismFadeController`.
+* Fix so that end events are sent for all clips played by `CubismMotionController`.
+* Fix an error that occurred when playing a expression that uses parameters that do not exist in the model.
+
+
 ## [5-r.3] - 2024-11-28
 
 ### Added
@@ -16,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+* Change an expression "overwrite" to "override" for multiply color, screen color, and culling to adapt the actual behavior.
 * Change `OnGeneratedCSProjectFiles` function to be disabled in Unity 2017.3 and later by [@moz-moz](https://github.com/moz-moz)
 * Change to a single function The initialization process in CubismModel class. by [@KT](https://creatorsforum.live2d.com/t/topic/2356/)
 * Change to optimize update process for Multiply Color and Screen Color.
@@ -433,6 +463,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.3...5-r.4
 [5-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.2...5-r.3
 [5-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1...5-r.2
 [5-r.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1-beta.4...5-r.1

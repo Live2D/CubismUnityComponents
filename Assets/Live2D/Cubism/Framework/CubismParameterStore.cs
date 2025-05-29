@@ -153,7 +153,7 @@ namespace Live2D.Cubism.Framework
             {
                 for(var i = 0; i < _parameterValues.Length; ++i)
                 {
-                    DestinationParameters[i].Value = _parameterValues[i];
+                    DestinationParameters[i].OverrideValue(_parameterValues[i]);
                 }
             }
 

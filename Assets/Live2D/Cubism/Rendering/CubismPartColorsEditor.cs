@@ -62,58 +62,80 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// <see cref="OverwriteColorForPartMultiplyColors"/>s backing field.
+        /// <see cref="OverrideColorForPartMultiplyColors"/>s backing field.
         /// </summary>
         [SerializeField, HideInInspector]
-        private bool _isOverwrittenPartMultiplyColors;
+        private bool _isOverriddenPartMultiplyColors;
 
         /// <summary>
-        /// Whether to overwrite with multiply color from the model.
+        /// Whether to override with multiply color from the model.
+        ///
+        /// This property is deprecated due to a naming change. Use <see cref="OverrideColorForPartMultiplyColors"/> instead.
         /// </summary>
         public bool OverwriteColorForPartMultiplyColors
         {
-            get { return _isOverwrittenPartMultiplyColors; }
+            get { return OverrideColorForPartMultiplyColors; }
+            set { OverrideColorForPartMultiplyColors = value; }
+        }
+
+        /// <summary>
+        /// Whether to override with multiply color from the model.
+        /// </summary>
+        public bool OverrideColorForPartMultiplyColors
+        {
+            get { return _isOverriddenPartMultiplyColors; }
             set {
-                _isOverwrittenPartMultiplyColors = value;
+                _isOverriddenPartMultiplyColors = value;
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
-                    ChildDrawableRenderers[i].OverwriteFlagForDrawableMultiplyColors = OverwriteColorForPartMultiplyColors;
-                    ChildDrawableRenderers[i].LastMultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].LastMultiplyColor;
-                    ChildDrawableRenderers[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
+                    ChildDrawableRenderers[i].OverrideFlagForDrawableMultiplyColors = OverrideColorForPartMultiplyColors;
+                    ChildDrawableRenderers[i].LastMultiplyColor = OverrideColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].LastMultiplyColor;
+                    ChildDrawableRenderers[i].MultiplyColor = OverrideColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
                     ChildDrawableRenderers[i].ApplyMultiplyColor();
                 }
                 for (int i = 0; i < ChildParts.Length; i++)
                 {
-                    ChildParts[i].OverwriteColorForPartMultiplyColors = OverwriteColorForPartMultiplyColors;
+                    ChildParts[i].OverrideColorForPartMultiplyColors = OverrideColorForPartMultiplyColors;
                     ChildParts[i].MultiplyColor = MultiplyColor;
                 }
             }
         }
 
         /// <summary>
-        /// <see cref="OverwriteColorForPartScreenColors"/>s backing field.
+        /// <see cref="OverrideColorForPartScreenColors"/>s backing field.
         /// </summary>
         [SerializeField, HideInInspector]
-        private bool _isOverwrittenPartScreenColors;
+        private bool _isOverriddenPartScreenColors;
 
         /// <summary>
-        /// Whether to overwrite with screen color from the model.
+        /// Whether to override with screen color from the model.
+        ///
+        /// This property is deprecated due to a naming change. Use <see cref="OverrideColorForPartScreenColors"/> instead.
         /// </summary>
         public bool OverwriteColorForPartScreenColors
         {
-            get { return _isOverwrittenPartScreenColors; }
+            get { return OverrideColorForPartScreenColors; }
+            set { OverrideColorForPartScreenColors = value;}
+        }
+
+        /// <summary>
+        /// Whether to override with screen color from the model.
+        /// </summary>
+        public bool OverrideColorForPartScreenColors
+        {
+            get { return _isOverriddenPartScreenColors; }
             set {
-                _isOverwrittenPartScreenColors = value;
+                _isOverriddenPartScreenColors = value;
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
-                    ChildDrawableRenderers[i].OverwriteFlagForDrawableScreenColors = OverwriteColorForPartScreenColors;
-                    ChildDrawableRenderers[i].LastScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].LastScreenColor;
-                    ChildDrawableRenderers[i].ScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
+                    ChildDrawableRenderers[i].OverrideFlagForDrawableScreenColors = OverrideColorForPartScreenColors;
+                    ChildDrawableRenderers[i].LastScreenColor = OverrideColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].LastScreenColor;
+                    ChildDrawableRenderers[i].ScreenColor = OverrideColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
                     ChildDrawableRenderers[i].ApplyScreenColor();
                 }
                 for (int i = 0; i < ChildParts.Length; i++)
                 {
-                    ChildParts[i].OverwriteColorForPartScreenColors = OverwriteColorForPartScreenColors;
+                    ChildParts[i].OverrideColorForPartScreenColors = OverrideColorForPartScreenColors;
                     ChildParts[i].ScreenColor = ScreenColor;
                 }
             }
@@ -147,11 +169,11 @@ namespace Live2D.Cubism.Rendering
 
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
-                    ChildDrawableRenderers[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
+                    ChildDrawableRenderers[i].MultiplyColor = OverrideColorForPartMultiplyColors ? MultiplyColor : ChildDrawableRenderers[i].MultiplyColor;
                 }
                 for (int i = 0; i < ChildParts.Length; i++)
                 {
-                    ChildParts[i].MultiplyColor = OverwriteColorForPartMultiplyColors ? MultiplyColor : ChildParts[i].MultiplyColor;
+                    ChildParts[i].MultiplyColor = OverrideColorForPartMultiplyColors ? MultiplyColor : ChildParts[i].MultiplyColor;
                 }
             }
         }
@@ -184,11 +206,11 @@ namespace Live2D.Cubism.Rendering
 
                 for (int i = 0; i < ChildDrawableRenderers.Length; i++)
                 {
-                    ChildDrawableRenderers[i].ScreenColor = OverwriteColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
+                    ChildDrawableRenderers[i].ScreenColor = OverrideColorForPartScreenColors ? ScreenColor : ChildDrawableRenderers[i].ScreenColor;
                 }
                 for (int i = 0; i < ChildParts.Length; i++)
                 {
-                    ChildParts[i].ScreenColor = OverwriteColorForPartMultiplyColors ? ScreenColor : ChildParts[i].ScreenColor;
+                    ChildParts[i].ScreenColor = OverrideColorForPartMultiplyColors ? ScreenColor : ChildParts[i].ScreenColor;
                 }
             }
         }

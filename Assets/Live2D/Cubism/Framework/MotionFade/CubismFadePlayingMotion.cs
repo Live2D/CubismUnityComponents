@@ -55,5 +55,17 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// </summary>
         [NonSerialized]
         public float Weight;
+
+        /// <summary>
+        /// Clip event <see cref="CubismFadeMotionData"/> InstanceId.
+        /// </summary>
+        [NonSerialized]
+        public int? InstanceId;
+
+        /// <summary>
+        /// Is animation end event invoked.
+        /// </summary>
+        [NonSerialized]
+        public bool IsAnimationEndEventInvoked;
     }
 }

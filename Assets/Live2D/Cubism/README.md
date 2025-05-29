@@ -55,22 +55,22 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 6000.0.27f1 |
-| LTS | 2022.3.52f1 |
+| Latest | 6000.0.49f1 |
+| LTS | 2022.3.61f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.12.1 |
-| Windows SDK | 10.0.26100.0 |
+| Visual Studio 2022 | 17.14.2 |
+| Windows SDK | 11.0.26100.3916 |
 | Xcode | 16.1 |
 
 *2 Use libraries embedded with Unity or recommended.
 
 | HarmonyOS NEXT Supported Tools | Version |
 | --- | --- |
-| Tuanjie | 1.0.1 |
-| DevEco Studio *3 | 5.0.3.906 |
+| Tuanjie | 1.5.2 |
+| DevEco Studio *3 | 5.0.13.200 |
 
 *3 Builds for HarmonyOS NEXT outside of China must be built through DevEco.
 
@@ -88,16 +88,16 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | Platform | Version |
 | --- | --- |
-| Android | 15 |
-| iOS | 18.1.1 |
-| iPadOS | 18.1.1 |
+| Android | 16 |
+| iOS | 18.5 |
+| iPadOS | 18.5 |
 | Ubuntu | 24.04.1 |
-| macOS | 15.1 |
-| Windows 11 | 23H2 (*4) |
+| macOS | 15.5 |
+| Windows 11 | 24H2 (*4) |
 | Google Chrome | 131.0.6778.86 |
 | Chrome OS x86_64 | 130.0.6723.126 |
-| Chrome OS ARMv8 (*5) | 130.0.6723.126|
-| HarmonyOS NEXT | 5.0.0.71 |
+| Chrome OS ARMv8 (*5) | 130.0.6723.126　|
+| HarmonyOS NEXT | 5.0.0.102 |
 
 *4 In Unity 6, we have not verified the operation of builds for UWP.
 *5 This is a confirmation of operation with APK files for Android.
