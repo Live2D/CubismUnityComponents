@@ -5,31 +5,31 @@ PluginImporter:
   serializedVersion: 2
   iconMap: {}
   executionOrder: {}
+  defineConstraints: []
   isPreloaded: 0
   isOverridable: 0
+  isExplicitlyReferenced: 0
+  validateReferences: 1
   platformData:
   - first:
-      '': Any
+      : Any
     second:
       enabled: 0
       settings:
         Exclude Android: 0
         Exclude Editor: 1
-        Exclude Linux: 1
         Exclude Linux64: 1
-        Exclude LinuxUniversal: 1
         Exclude OSXUniversal: 1
-        Exclude WebGL: 1
         Exclude Win: 1
         Exclude Win64: 1
-        Exclude WindowsStoreApps: 1
-        Exclude iOS: 1
   - first:
       Android: Android
     second:
       enabled: 1
       settings:
+        AndroidSharedLibraryType: Executable
         CPU: ARM64
+        Is16KbAligned: true
   - first:
       Any: 
     second:
@@ -44,31 +44,7 @@ PluginImporter:
         DefaultValueInitialized: true
         OS: AnyOS
   - first:
-      Facebook: Win
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Facebook: Win64
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-  - first:
-      Standalone: Linux
-    second:
-      enabled: 0
-      settings:
-        CPU: x86
-  - first:
       Standalone: Linux64
-    second:
-      enabled: 0
-      settings:
-        CPU: x86_64
-  - first:
-      Standalone: LinuxUniversal
     second:
       enabled: 0
       settings:
@@ -78,36 +54,19 @@ PluginImporter:
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Win
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
+        CPU: None
   - first:
       Standalone: Win64
     second:
       enabled: 0
       settings:
-        CPU: AnyCPU
-  - first:
-      Windows Store Apps: WindowsStoreApps
-    second:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: 
-        SDK: AnySDK
-        ScriptingBackend: AnyScriptingBackend
-  - first:
-      iPhone: iOS
-    second:
-      enabled: 0
-      settings:
-        CompileFlags: 
-        FrameworkDependencies: 
+        CPU: None
   userData: 
   assetBundleName: 
   assetBundleVariant: 
