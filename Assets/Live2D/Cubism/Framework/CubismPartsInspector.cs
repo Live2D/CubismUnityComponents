@@ -9,7 +9,6 @@
 using Live2D.Cubism.Core;
 using System;
 using System.Linq;
-using UnityEngine;
 
 
 namespace Live2D.Cubism.Framework
@@ -23,12 +22,6 @@ namespace Live2D.Cubism.Framework
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
         public override int ExecutionOrder => CubismUpdateExecutionOrder.CubismPartsInspector;
-
-        /// <summary>
-        /// Model has cubism update controller component.
-        /// </summary>
-        [field: NonSerialized, HideInInspector]
-        public override bool HasUpdateController { get; set; }
 
         /// <summary>
         /// Called by cubism update controller. Updates controller.
@@ -75,6 +68,7 @@ namespace Live2D.Cubism.Framework
 #endif
         }
 
+#if UNITY_EDITOR
         /// <summary>
         /// Called by Inspector.
         /// </summary>
@@ -92,5 +86,6 @@ namespace Live2D.Cubism.Framework
                 OverrideFlags = new bool[Model.Parts.Length];
             }
         }
+#endif
     }
 }

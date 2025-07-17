@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [5-r.4] 2025-05-29
+## [5-r.4.1] - 2025-07-17
+
+### Changed
+
+* Implement support for Android 16KB page size.
+
+### Fixed
+
+* Fix a bug that prevented builds from working under certain settings.
+
+
+## [5-r.4] - 2025-05-29
 
 ### Added
 
@@ -463,6 +474,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4...5-r.4.1
 [5-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.3...5-r.4
 [5-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.2...5-r.3
 [5-r.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.1...5-r.2
