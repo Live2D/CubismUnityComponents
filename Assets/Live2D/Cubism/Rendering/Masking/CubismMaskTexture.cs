@@ -19,6 +19,55 @@ namespace Live2D.Cubism.Rendering.Masking
     [CreateAssetMenu(menuName = "Live2D Cubism/Mask Texture")]
     public sealed class CubismMaskTexture : ScriptableObject, ICubismMaskCommandSource
     {
+        /// <summary>
+        /// <see cref="IsHighPrecision"/> backing field.
+        /// </summary>
+        private bool _isHighPrecision = false;
+
+        /// <summary>
+        /// Is high precision mode enabled?
+        /// </summary>
+        public bool IsHighPrecision
+        {
+            get { return _isHighPrecision; }
+            set
+            {
+                _isHighPrecision = value;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="HighPrecisionRenderTexture"/> backing field.
+        /// </summary>
+        private RenderTexture _highPrecisionRenderTexture;
+
+        /// <summary>
+        /// RenderTexture for high precision.
+        /// </summary>
+        public RenderTexture HighPrecisionRenderTexture
+        {
+            get
+            {
+                if (_highPrecisionRenderTexture == null && IsHighPrecision)
+                {
+                    // Create a new RenderTexture with 1x1 size.
+                    _highPrecisionRenderTexture = new RenderTexture(1, 1, 0, RenderTextureFormat.ARGB32);
+                }
+
+                return _highPrecisionRenderTexture;
+            }
+            set
+            {
+                if (_highPrecisionRenderTexture != null)
+                {
+                    // Release and destroy the previous texture.
+                    _highPrecisionRenderTexture.Release();
+                    DestroyImmediate(_highPrecisionRenderTexture);
+                }
+                _highPrecisionRenderTexture = value;
+            }
+        }
+
         #region Conversion
 
         /// <summary>
@@ -61,6 +110,11 @@ namespace Live2D.Cubism.Rendering.Masking
                     return;
                 }
 
+                if (IsHighPrecision)
+                {
+                    _size = 0;
+                    return;
+                }
 
                 // Fail silently if not power-of-two.
                 if (!value.IsPowerOfTwo())
@@ -112,6 +166,17 @@ namespace Live2D.Cubism.Rendering.Masking
                     return;
                 }
 
+                if (IsHighPrecision)
+                {
+                    _subdivisions = 0;
+                    if (RenderTexture != null)
+                    {
+                        DestroyImmediate(RenderTexture);
+                    }
+                    RenderTexture = null;
+                    return;
+                }
+
 
                 // Apply changes.
                 _subdivisions = value;
@@ -150,6 +215,22 @@ namespace Live2D.Cubism.Rendering.Masking
                     return;
                 }
 
+                if (IsHighPrecision)
+                {
+                    _renderTextureCount = 0;
+                    // Recreate render textures.
+                    if (_renderTextures != null)
+                    {
+                        for (var renderTextureIndex = 0; renderTextureIndex < RenderTextures.Length; renderTextureIndex++)
+                        {
+                            DestroyImmediate(RenderTextures[renderTextureIndex]);
+                        }
+                    }
+
+                    RenderTextures = null;
+                    return;
+                }
+
                 _renderTextureCount = value < 1 ? 0 : value;
 
                 if (_renderTextureCount < 1)
@@ -181,7 +262,7 @@ namespace Live2D.Cubism.Rendering.Masking
         {
             get
             {
-                if (_renderTexture == null)
+                if (_renderTexture == null && !IsHighPrecision)
                 {
                     RefreshRenderTexture();
                 }
@@ -204,7 +285,7 @@ namespace Live2D.Cubism.Rendering.Masking
         {
             get
             {
-                if (_renderTextures == null)
+                if (_renderTextures == null && !IsHighPrecision)
                 {
                     RefreshRenderTextures();
                 }
@@ -259,8 +340,8 @@ namespace Live2D.Cubism.Rendering.Masking
             // Make sure instance is valid.
             TryRevive();
 
-            // Return early if empty.
-            if (source == null)
+            // Return early if empty or high precision mode.
+            if (source == null || IsHighPrecision)
             {
                 return;
             }
@@ -284,8 +365,8 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         public void RemoveSource(ICubismMaskTextureCommandSource source)
         {
-            // Return early if empty.
-            if (!ContainsSources)
+            // Return early if empty or high precision mode.
+            if (!ContainsSources || IsHighPrecision)
             {
                 return;
             }
@@ -310,6 +391,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void TryRevive()
         {
+            if (IsHighPrecision)
+            {
+                return;
+            }
+
             var isUseRenderTextures = _renderTextureCount > 0;
             if (isUseRenderTextures)
             {
@@ -329,6 +415,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void ReinitializeSources()
         {
+            if (IsHighPrecision)
+            {
+                return;
+            }
+
             // Reallocate tiles if sources exist.
             if (ContainsSources)
             {
@@ -358,6 +449,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void RefreshRenderTexture()
         {
+            if (IsHighPrecision)
+            {
+                return;
+            }
+
             // Recreate render texture.
             RenderTexture = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
 
@@ -389,6 +485,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
         private void RefreshRenderTextures()
         {
+            if (IsHighPrecision)
+            {
+                return;
+            }
+
             CubismMaskCommandBuffer.RemoveSource(this);
 
             // Recreate render textures.
@@ -421,16 +522,20 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <summary>
         /// Initializes instance.
         /// </summary>
-        // ReSharper disable once UnusedMember.Local
         private void OnEnable()
         {
+            if (IsHighPrecision)
+            {
+                CubismMaskCommandBuffer.RemoveSource(this);
+                return;
+            }
+
             CubismMaskCommandBuffer.AddSource(this);
         }
 
         /// <summary>
         /// Finalizes instance.
         /// </summary>
-        // ReSharper disable once UnusedMember.Local
         private void OnDestroy()
         {
             CubismMaskCommandBuffer.RemoveSource(this);
@@ -446,8 +551,9 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="buffer">Buffer to enqueue in.</param>
         void ICubismMaskCommandSource.AddToCommandBuffer(CommandBuffer buffer, bool isUsingMultipleBuffer, int renderTextureIndex)
         {
-            // Return early if empty or failed.
+            // Return early if empty, high precision mode or invalid.
             if (!ContainsSources
+                || IsHighPrecision
                 || (isUsingMultipleBuffer && (renderTextureIndex >= RenderTextureCount))
                 || (isUsingMultipleBuffer && (renderTextureIndex < 0))
                 || (!isUsingMultipleBuffer && RenderTextureCount > 0))

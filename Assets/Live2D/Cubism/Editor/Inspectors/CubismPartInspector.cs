@@ -1,4 +1,14 @@
-﻿using Live2D.Cubism.Core;
+﻿/**
+ * Copyright(c) Live2D Inc. All rights reserved.
+ *
+ * Use of this source code is governed by the Live2D Open Software license
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+
+using System;
+using Live2D.Cubism.Core;
+using Live2D.Cubism.Rendering;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -75,9 +85,9 @@ namespace Live2D.Cubism.Editor.Inspectors
                     EditorGUILayout.ObjectField(ChildPartDrawables.Drawables[i], typeof(CubismDrawable), true);
                 }
                 EditorGUI.indentLevel++;
-                for (var i = 0; i < ChildPartDrawables.Childs.Length; i++)
+                for (var i = 0; i < ChildPartDrawables.Children.Length; i++)
                 {
-                    DrawTree(ChildPartDrawables.Childs[i]);
+                    DrawTree(ChildPartDrawables.Children[i]);
                 }
                 EditorGUI.indentLevel--;
             }
@@ -92,9 +102,9 @@ namespace Live2D.Cubism.Editor.Inspectors
                 {
                     EditorGUILayout.ObjectField(item.Drawables[i], typeof(CubismDrawable), true);
                 }
-                for (var i = 0; i < item.Childs.Length; i++)
+                for (var i = 0; i < item.Children.Length; i++)
                 {
-                    DrawTree(item.Childs[i]);
+                    DrawTree(item.Children[i]);
                 }
             }
         }
@@ -121,25 +131,15 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             var model = part.FindCubismModel(true);
             var parts = model.Parts;
-            var drawables = model.Drawables;
 
             _parent = part.UnmanagedParentIndex < 0 ? null : parts[part.UnmanagedParentIndex];
 
-            var childParts = new CubismPart[0];
-            for (var i = 0; i < parts.Length; i++)
-            {
-                if (parts[i].UnmanagedParentIndex == part.UnmanagedIndex)
-                {
-                    System.Array.Resize(ref childParts, childParts.Length + 1);
-                    childParts[childParts.Length - 1] = parts[i];
-                }
-            }
+            var childParts = part.ChildParts;
 
             ChildParts = new ReorderableList(childParts, typeof(CubismPart), false, false, false, false)
             {
                 drawElementCallback = (rect, index, isActive, isFocused) =>
                 {
-                    var element = childParts[index];
                     rect.height = EditorGUIUtility.singleLineHeight;
                     var labelRect = new Rect(rect.x, rect.y, rect.width * 0.2f, rect.height);
                     var objRect = new Rect(rect.x + labelRect.width, rect.y, rect.width * 0.8f, rect.height);
@@ -148,9 +148,8 @@ namespace Live2D.Cubism.Editor.Inspectors
                 }
             };
 
-            int count = 0;
-            ChildPartDrawables = new InternalTreeInfo(part, drawables, parts, ref count);
-            DrawablesTotalCount = count;
+            ChildPartDrawables = new InternalTreeInfo(part);
+            DrawablesTotalCount = ChildPartDrawables.Drawables.Length;
         }
 
         private class InternalTreeInfo
@@ -159,31 +158,19 @@ namespace Live2D.Cubism.Editor.Inspectors
             public readonly CubismPart Part;
             public readonly CubismDrawable[] Drawables;
 
-            public readonly InternalTreeInfo[] Childs;
+            public readonly InternalTreeInfo[] Children;
 
 
-            public InternalTreeInfo(CubismPart part, CubismDrawable[] srcDrawables, CubismPart[] srcParts, ref int drawableCount)
+            public InternalTreeInfo(CubismPart part)
             {
-                this.Part = part;
-                Drawables = new CubismDrawable[0];
-                for (var i = 0; i < srcDrawables.Length; i++)
-                {
-                    if (srcDrawables[i].UnmanagedParentIndex == part.UnmanagedIndex)
-                    {
-                        System.Array.Resize(ref Drawables, Drawables.Length + 1);
-                        Drawables[Drawables.Length - 1] = srcDrawables[i];
-                        drawableCount++;
-                    }
-                }
+                Part = part;
+                Drawables = Part.ChildDrawables;
 
-                Childs = new InternalTreeInfo[0];
-                for (var i = 0; i < srcParts.Length; i++)
+                Children = Array.Empty<InternalTreeInfo>();
+                for (var i = 0; i < Part.ChildParts.Length; i++)
                 {
-                    if (srcParts[i].UnmanagedParentIndex == part.UnmanagedIndex)
-                    {
-                        System.Array.Resize(ref Childs, Childs.Length + 1);
-                        Childs[Childs.Length - 1] = new InternalTreeInfo(srcParts[i], srcDrawables, srcParts, ref drawableCount);
-                    }
+                    Array.Resize(ref Children, Children.Length + 1);
+                    Children[^1] = new InternalTreeInfo(Part.ChildParts[i]);
                 }
             }
         }

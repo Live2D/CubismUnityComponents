@@ -6,9 +6,13 @@
  */
 
 
+using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
 using System;
 using UnityEngine;
+using Live2D.Cubism.Rendering.Util;
+
+
 #if UNITY_2019_3_OR_NEWER
 using UnityEngine.LowLevel;
 using UnityEngine.PlayerLoop;
@@ -115,7 +119,7 @@ namespace Live2D.Cubism.Core
         private CubismParameter[] _parameters;
 
         /// <summary>
-        /// Drawables of model.
+        /// Parameters of model.
         /// </summary>
         public CubismParameter[] Parameters
         {
@@ -205,6 +209,40 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// <see cref="Offscreens"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private CubismOffscreen[] _offscreens;
+
+        /// <summary>
+        /// Offscreens of model.
+        /// </summary>
+        public CubismOffscreen[] Offscreens
+        {
+            get
+            {
+                if (_offscreens == null)
+                {
+                    Revive();
+                }
+
+                return _offscreens;
+            }
+            private set { _offscreens = value; }
+        }
+
+        /// <summary>
+        /// All draw objects render order.
+        /// </summary>
+        public CubismUnmanagedIntArrayView AllDrawObjectsRenderOrder
+        {
+            get
+            {
+                return TaskableModel.UnmanagedModel.AllDrawObjectRenderOrders;
+            }
+        }
+
+        /// <summary>
         /// Parameter store cache.
         /// </summary>
         CubismParameterStore _parameterStore;
@@ -271,6 +309,39 @@ namespace Live2D.Cubism.Core
         /// </summary>
         private int LastTick { get; set; }
 
+        /// <summary>
+        /// Is the model's MOC version higher than Cubism 5.0?
+        /// </summary>
+        public bool IsOverMocVersion50
+        {
+            get
+            {
+                return CubismCoreDll.MocVersion_50 < Moc.Version;
+            }
+        }
+
+        /// <summary>
+        /// Is this model using blend mode.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private bool _isUsingBlendMode;
+
+
+        /// <summary>
+        /// Get Flag is this model using blend mode.
+        /// </summary>
+        /// <returns>True if Is this model using blend mode; otherwise returns false.</returns>
+        public bool IsUsingBlendMode
+        {
+            get
+            {
+                return _isUsingBlendMode;
+            }
+            private set
+            {
+                _isUsingBlendMode = value;
+            }
+        }
 
         /// <summary>
         /// Revives instance.
@@ -308,7 +379,6 @@ namespace Live2D.Cubism.Core
             {
                 return;
             }
-
 
             Parameters = GetComponentsInChildren<CubismParameter>();
             if (Parameters.Length < 1 && (transform.Find("Parameters") == null))
@@ -351,6 +421,42 @@ namespace Live2D.Cubism.Core
                 Drawables.Revive(TaskableModel.UnmanagedModel);
             }
 
+            if (0 < CubismCoreDll.GetOffscreenCount(TaskableModel.UnmanagedModel.Ptr))
+            {
+                IsUsingBlendMode = true;
+                Offscreens = GetComponentsInChildren<CubismOffscreen>();
+                if (Offscreens.Length < 1 && (transform.Find("Offscreens") == null))
+                {
+                    // Create and initialize proxies.
+                    var offscreens = CubismOffscreen.CreateOffscreens(TaskableModel.UnmanagedModel);
+                    offscreens.transform.SetParent(transform);
+                    Offscreens = offscreens.GetComponentsInChildren<CubismOffscreen>();
+                }
+                else
+                {
+                    Offscreens.Revive(TaskableModel.UnmanagedModel);
+                }
+            }
+
+            if (IsOverMocVersion50 && !IsUsingBlendMode)
+            {
+                var drawableCount = Drawables.Length;
+                for (var i = 0; i < drawableCount; ++i)
+                {
+                    var colorBlendType = Drawables[i].ColorBlend;
+                    var alphaBlendType = Drawables[i].AlphaBlend;
+                    if (colorBlendType == BlendTypes.ColorBlend.Normal &&
+                        alphaBlendType == BlendTypes.AlphaBlend.Over ||
+                        colorBlendType == BlendTypes.ColorBlend.Add ||
+                        colorBlendType == BlendTypes.ColorBlend.Multiply)
+                    {
+                        continue;
+                    }
+
+                    IsUsingBlendMode = true;
+                    break;
+                }
+            }
 
             CanvasInformation = new CubismCanvasInformation(TaskableModel.UnmanagedModel);
 

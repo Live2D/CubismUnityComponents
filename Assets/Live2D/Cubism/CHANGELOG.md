@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.5-beta.1] - 2025-08-26
+
+### Added
+
+* Add support for Blend mode and Offscreen drawing.
+  * If the model uses blend mode or offscreen drawing, it will be rendered using a new drawing method that differs from `Cubism 5.2` and earlier.
+* Add high-precision mask method.
+  * This is only available with the new rendering method in `Cubism 5.3` and later, and masks in the new rendering method from `Cubism 5.3` onward will automatically use this method.
+
+### Changed
+
+* Change the version of the development project to `6000.0.55f1`.
+* Change `_isOverriddenDrawableScreenColors` and `_isOverriddenDrawableMultiplyColors` to `_isOverriddenDrawObjectScreenColors` and `_isOverriddenDrawObjectMultiplyColors`.
+  * The property names that use these backing fields have also been updated accordingly.
+  * Serialization of `_isOverriddenDrawableScreenColors` and `_isOverriddenDrawableMultiplyColors` is maintained by the `FormerlySerializedAs` attribute.
+
+### Removed
+
+* Remove `CubismCoreDll.GetDrawableRenderOrders` and `CubismUnmanagedDrawables.RenderOrders`.
+  * If you need to use these functions, please use `CubismModel.AllDrawObjectsRenderOrder` instead.
+    * See `CHANGELOG.md` in Core.
+* Remove Chrome OS from the tested environment.
+
+
 ## [5-r.4.1] - 2025-07-17
 
 ### Changed
@@ -474,6 +498,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.5-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4.1...5-r.5-beta.1
 [5-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4...5-r.4.1
 [5-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.3...5-r.4
 [5-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.2...5-r.3

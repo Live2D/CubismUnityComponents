@@ -15,7 +15,7 @@ using UnityEngine;
 namespace Live2D.Cubism.Editor.Inspectors
 {
     /// <summary>
-    /// Inspector for <see cref="CubismRenderController"/>s.
+    /// Inspector for <see cref="Live2D.Cubism.Rendering.CubismRenderController"/>s.
     /// </summary>
     [CustomEditor(typeof(CubismRenderController))]
     internal sealed class CubismRenderControllerInspector : UnityEditor.Editor
@@ -44,6 +44,7 @@ namespace Live2D.Cubism.Editor.Inspectors
             // Show settings.
             EditorGUI.BeginChangeCheck();
 
+            controller.ModelCanvasRenderer = EditorGUILayout.ObjectField("ModelCanvasRenderer", controller.ModelCanvasRenderer, typeof(MeshRenderer), true) as MeshRenderer;
 
             controller.Opacity = EditorGUILayout.Slider("Opacity", controller.Opacity, 0f, 1f);
             controller.OverrideFlagForModelMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForModelMultiplyColors", controller.OverrideFlagForModelMultiplyColors);

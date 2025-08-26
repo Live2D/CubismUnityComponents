@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
+using Live2D.Cubism.Rendering.Util;
 using UnityEngine;
 
 
@@ -152,7 +153,7 @@ namespace Live2D.Cubism.Core
                 _screenColor.b = UnmanagedDrawables.ScreenColors[index + 2];
                 _screenColor.a = UnmanagedDrawables.ScreenColors[index + 3];
 
-                return _screenColor; ;
+                return _screenColor;
             }
         }
 
@@ -375,6 +376,34 @@ namespace Live2D.Cubism.Core
                 return flags[UnmanagedIndex].HasBlendMultiplicativeFlag();
             }
         }
+
+        #region Cubism 5.3
+
+        /// <summary>
+        /// Gets the color blend mode of the drawable.
+        /// </summary>
+        public BlendTypes.ColorBlend ColorBlend
+        {
+            get
+            {
+                // Pull data.
+                return (BlendTypes.ColorBlend)(UnmanagedDrawables.BlendModes[UnmanagedIndex] & 0xFF);
+            }
+        }
+
+        /// <summary>
+        /// Gets the alpha blend mode of the drawable.
+        /// </summary>
+        public BlendTypes.AlphaBlend AlphaBlend
+        {
+            get
+            {
+                // Pull data.
+                return (BlendTypes.AlphaBlend)((UnmanagedDrawables.BlendModes[UnmanagedIndex] >> 8) & 0xFF);
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Revives instance.

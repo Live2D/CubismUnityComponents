@@ -4,6 +4,27 @@
 
 # Notices
 
+## [Caution] About Support for Input System Package in Samples (2025-08-26)
+
+The Samples in Cubism SDK for Unity use the traditional `Input Manager` for input handling.
+Therefore, if your project is set to use only the `Input System Package`, errors may occur when running scenes.
+
+If necessary, please change your project settings to use the `Input Manager` by following these steps:
+
+1. Open `Project Settings` -> `Player`.
+2. Set `Active Input Handling` to `both`.
+
+
+## [Restrictions] Rendering Models That Use the Features Added in Cubism 5.3 (2025-08-26)
+
+Starting with `Cubism 5 SDK for Unity R5 beta1`, if you use models that take advantage of the blend-mode or off-screen features introduced in Cubism 5.3, they will be drawn with a new rendering method. We have confirmed the following issues with this new method:
+
+* Hit detection does not match the model’s visual appearance.
+* The model may be partially clipped when rendered.
+
+These restrictions are scheduled to be resolved in `Cubism 5 SDK for Unity R5 beta2` and later.
+
+
 ## [Restrictions] Regarding lip-sync support from AudioClips when exporting to WebGL. (2024-11-28)
 
 The lip-sync from audio feature in the Cubism SDK for Unity uses the AudioClip API to obtain waveform information.
@@ -12,12 +33,6 @@ However, since the API for dynamically obtaining waveform information from an Au
 For details, please check　the official Unity documentation.
 
 * [Audio in WebGL](https://docs.unity3d.com/Manual/webgl-audio.html)
-
-
-## [Restrictions] Manipulation of `RenderTextureCount` value for mask textures during execution (2024-03-26)
-
-If `CubismMaskTexture.RenderTextureCount` is changed during scene execution to a value greater than that at the start of execution, the mask will not be regenerated correctly.
-A supported version will be announced in a future release.
 
 
 ## [Restrictions] Support for Windows ARM64 (2024-01-18)

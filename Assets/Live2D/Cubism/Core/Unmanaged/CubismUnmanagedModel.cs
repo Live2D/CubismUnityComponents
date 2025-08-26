@@ -59,9 +59,25 @@ namespace Live2D.Cubism.Core.Unmanaged
         public CubismUnmanagedDrawables Drawables { get; private set; }
 
         /// <summary>
+        /// Unmanaged offscreen.
+        /// </summary>
+        public CubismUnmanagedOffscreens Offscreens { get; private set; }
+
+        /// <summary>
         /// Unmanaged canvas information(size, origin, ppu).
         /// </summary>
         public CubismUnmanagedCanvasInformation CanvasInformation { get; private set; }
+
+        /// <summary>
+        /// Unmanaged render order of all draw objects.
+        /// </summary>
+        public CubismUnmanagedIntArrayView AllDrawObjectRenderOrders { get; private set; }
+
+        private unsafe void InitializeDrawObjectRenderOrders()
+        {
+            var length = Drawables.Count + Offscreens.Count;
+            AllDrawObjectRenderOrders = new CubismUnmanagedIntArrayView(CubismCoreDll.GetRenderOrders(Ptr), length);
+        }
 
         /// <summary>
         /// Native model pointer.
@@ -137,6 +153,10 @@ namespace Live2D.Cubism.Core.Unmanaged
             Parts = new CubismUnmanagedParts(Ptr);
             Drawables = new CubismUnmanagedDrawables(Ptr);
             CanvasInformation = new CubismUnmanagedCanvasInformation(Ptr);
+            Offscreens = new CubismUnmanagedOffscreens(Ptr);
+
+            // Initialize draw objects render order.
+            InitializeDrawObjectRenderOrders();
         }
 
         #endregion

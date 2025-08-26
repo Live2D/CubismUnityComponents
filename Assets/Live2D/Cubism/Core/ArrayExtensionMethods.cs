@@ -278,5 +278,25 @@ namespace Live2D.Cubism.Core
         }
 
         #endregion
+
+        #region Offscreens
+
+        /// <summary>
+        /// Revives (and sorts) <see cref="CubismOffscreen"/>s.
+        /// </summary>
+        /// <param name="self">Container.</param>
+        /// <param name="model">TaskableModel to unmanaged model.</param>
+        internal static void Revive(this CubismOffscreen[] self, CubismUnmanagedModel model)
+        {
+            Array.Sort(self, (a, b) => a.UnmanagedIndex - b.UnmanagedIndex);
+
+
+            for (var i = 0; i < self.Length; ++i)
+            {
+                self[i].Revive(model);
+            }
+        }
+
+        #endregion
     }
 }

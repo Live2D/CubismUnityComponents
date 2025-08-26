@@ -60,9 +60,13 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </sumamry>
         public const int MocVersion_42 = 4;
         /// <sumamry>
-        /// .moc3 file version 5.0.00 -
+        /// .moc3 file version 5.0.00 - 5.2.03
         /// </sumamry>
         public const int MocVersion_50 = 5;
+        /// <sumamry>
+        /// .moc3 file version 5.3.00 -
+        /// </sumamry>
+        public const int MocVersion_53 = 6;
 
 
         /// <sumamry>
@@ -73,6 +77,102 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// Parameter for blend shape.
         /// </sumamry>
         public const int ParameterType_BlendShape = 1;
+
+
+        /// <sumamry>
+        /// Normal blend.
+        /// </sumamry>
+        public const int ColorBlendType_Normal = 0;
+        /// <sumamry>
+        /// Add blend.
+        /// </sumamry>
+        public const int ColorBlendType_Add = 3;
+        /// <sumamry>
+        /// AddGlow blend.
+        /// </sumamry>
+        public const int ColorBlendType_AddGlow = 4;
+        /// <sumamry>
+        /// Darken blend.
+        /// </sumamry>
+        public const int ColorBlendType_Darken = 5;
+        /// <sumamry>
+        /// Multiply blend.
+        /// </sumamry>
+        public const int ColorBlendType_Multiply = 6;
+        /// <sumamry>
+        /// ColorBurn blend.
+        /// </sumamry>
+        public const int ColorBlendType_ColorBurn = 7;
+        /// <sumamry>
+        /// LinearBurn blend.
+        /// </sumamry>
+        public const int ColorBlendType_LinearBurn = 8;
+        /// <sumamry>
+        /// Lighten blend.
+        /// </sumamry>
+        public const int ColorBlendType_Lighten = 9;
+        /// <sumamry>
+        /// Screen blend.
+        /// </sumamry>
+        public const int ColorBlendType_Screen = 10;
+        /// <sumamry>
+        /// ColorDodge blend.
+        /// </sumamry>
+        public const int ColorBlendType_ColorDodge = 11;
+        /// <sumamry>
+        /// Overlay blend.
+        /// </sumamry>
+        public const int ColorBlendType_Overlay = 12;
+        /// <sumamry>
+        /// SoftLight blend.
+        /// </sumamry>
+        public const int ColorBlendType_SoftLight = 13;
+        /// <sumamry>
+        /// HardLight blend.
+        /// </sumamry>
+        public const int ColorBlendType_HardLight = 14;
+        /// <sumamry>
+        /// LinearLight blend.
+        /// </sumamry>
+        public const int ColorBlendType_LinearLight = 15;
+        /// <sumamry>
+        /// Hue blend.
+        /// </sumamry>
+        public const int ColorBlendType_Hue = 16;
+        /// <sumamry>
+        /// Color blend.
+        /// </sumamry>
+        public const int ColorBlendType_Color = 17;
+        /// <sumamry>
+        /// Add compatible blend.
+        /// </sumamry>
+        public const int ColorBlendType_AddCompatible = 1;
+        /// <sumamry>
+        /// Multiply compatible blend.
+        /// </sumamry>
+        public const int ColorBlendType_MultiplyCompatible = 2;
+
+
+        /// <sumamry>
+        /// Over blend.
+        /// </sumamry>
+        public const int AlphaBlendType_Over = 0;
+        /// <sumamry>
+        /// Atop blend.
+        /// </sumamry>
+        public const int AlphaBlendType_Atop = 1;
+        /// <sumamry>
+        /// Out blend.
+        /// </sumamry>
+        public const int AlphaBlendType_Out = 2;
+        /// <sumamry>
+        /// ConjointOver blend.
+        /// </sumamry>
+        public const int AlphaBlendType_ConjointOver = 3;
+        /// <sumamry>
+        /// DisjointOver blend.
+        /// </sumamry>
+        public const int AlphaBlendType_DisjointOver = 4;
 
 
         /// <sumamry>
@@ -179,6 +279,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         [DllImport(DllName, EntryPoint = "csmReadCanvasInfo")]
         public static extern void ReadCanvasInfo(IntPtr model, IntPtr outSizeInPixels, IntPtr outOriginInPixels, IntPtr outPixelsPerUnit);
         /// <summary>
+        /// Gets model draw orders.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetRenderOrders")]
+        public static extern unsafe int* GetRenderOrders(IntPtr model);
+        /// <summary>
         /// Gets parameter count.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetParameterCount")]
@@ -249,6 +354,11 @@ namespace Live2D.Cubism.Core.Unmanaged
         [DllImport(DllName, EntryPoint = "csmGetPartParentPartIndices")]
         public static extern unsafe int* GetPartParentPartIndices(IntPtr model);
         /// <summary>
+        /// Gets part's offscreen indices. If the part does not use an offscreen, the value is '-1'.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetPartOffscreenIndices")]
+        public static extern unsafe int* GetPartOffscreenIndices(IntPtr model);
+        /// <summary>
         /// Gets drawable count.
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetDrawableCount")]
@@ -278,11 +388,6 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetDrawableDrawOrders")]
         public static extern unsafe int* GetDrawableDrawOrders(IntPtr model);
-        /// <summary>
-        /// Gets drawable render orders.
-        /// </summary>
-        [DllImport(DllName, EntryPoint = "csmGetDrawableRenderOrders")]
-        public static extern unsafe int* GetDrawableRenderOrders(IntPtr model);
         /// <summary>
         /// Gets drawable opacities.
         /// </summary>
@@ -343,5 +448,55 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// </summary>
         [DllImport(DllName, EntryPoint = "csmGetDrawableParentPartIndices")]
         public static extern unsafe int* GetDrawableParentPartIndices(IntPtr model);
+        /// <summary>
+        /// Gets blend modes of drawables.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetDrawableBlendModes")]
+        public static extern unsafe int* GetDrawableBlendModes(IntPtr model);
+        /// <summary>
+        /// Gets number of offscreens.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenCount")]
+        public static extern int GetOffscreenCount(IntPtr model);
+        /// <summary>
+        /// Gets offscreen blend modes.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenBlendModes")]
+        public static extern unsafe int* GetOffscreenBlendModes(IntPtr model);
+        /// <summary>
+        /// Gets offscreen opacities.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenOpacities")]
+        public static extern unsafe float* GetOffscreenOpacities(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's owner indices.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenOwnerIndices")]
+        public static extern unsafe int* GetOffscreenOwnerIndices(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's multiply colors.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenMultiplyColors")]
+        public static extern unsafe float* GetOffscreenMultiplyColors(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's screen colors.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenScreenColors")]
+        public static extern unsafe float* GetOffscreenScreenColors(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's mask counts.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenMaskCounts")]
+        public static extern unsafe int* GetOffscreenMaskCounts(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's masks.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenMasks")]
+        public static extern unsafe int** GetOffscreenMasks(IntPtr model);
+        /// <summary>
+        /// Gets offscreen's constant flags.
+        /// </summary>
+        [DllImport(DllName, EntryPoint = "csmGetOffscreenConstantFlags")]
+        public static extern unsafe Byte* GetOffscreenConstantFlags(IntPtr model);
     }
 }

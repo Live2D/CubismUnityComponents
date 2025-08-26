@@ -199,6 +199,11 @@ namespace Live2D.Cubism.Core
         {
             get
             {
+                if (!IsRevived)
+                {
+                    Revive();
+                }
+
                 return UnmanagedMoc.MocVersion;
             }
         }

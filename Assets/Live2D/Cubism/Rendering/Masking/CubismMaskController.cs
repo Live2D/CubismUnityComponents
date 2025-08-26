@@ -7,6 +7,7 @@
 
 
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,28 @@ namespace Live2D.Cubism.Rendering.Masking
     public sealed class CubismMaskController : MonoBehaviour, ICubismMaskTextureCommandSource, ICubismUpdatable
     {
         /// <summary>
+        /// <see cref="Model"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private CubismModel _model;
+
+        /// <summary>
+        /// Model to use mask.
+        /// </summary>
+        public CubismModel Model
+        {
+            get
+            {
+                if (!_model)
+                {
+                    _model = this.FindCubismModel();
+                }
+
+                return _model;
+            }
+        }
+
+        /// <summary>
         /// <see cref="MaskTexture"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -36,11 +59,22 @@ namespace Live2D.Cubism.Rendering.Masking
             get
             {
                 // Fall back to global mask texture.
-                if (_maskTexture == null)
+                if (_maskTexture == null && !Model.IsUsingBlendMode)
                 {
                     _maskTexture = CubismMaskTexture.GlobalMaskTexture;
                 }
 
+                if (_maskTexture != null && _maskTexture.IsHighPrecision != Model.IsUsingBlendMode)
+                {
+                    _maskTexture.IsHighPrecision = Model.IsUsingBlendMode;
+                }
+
+                if (_maskTexture == CubismMaskTexture.GlobalMaskTexture)
+                {
+                    // By default, GlobalMaskTexture never uses high precision.
+                    // if you want to use GlobalMaskTexture with high precision, customize this property.
+                    CubismMaskTexture.GlobalMaskTexture.IsHighPrecision = false;
+                }
 
                 return _maskTexture;
             }
@@ -54,7 +88,7 @@ namespace Live2D.Cubism.Rendering.Masking
 
 
                 _maskTexture = value;
-
+                _maskTexture.IsHighPrecision = Model.IsUsingBlendMode;
 
                 // Try switch mask textures.
                 OnDestroy();
@@ -103,6 +137,11 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         private void ForceRevive()
         {
+            if (MaskTexture.IsHighPrecision)
+            {
+                return;
+            }
+
             var drawables = this
                 .FindCubismModel()
                 .Drawables;
@@ -177,7 +216,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// </summary>
         public void OnLateUpdate()
         {
-            if (!enabled || !IsRevived)
+            if (!enabled || !IsRevived || MaskTexture.IsHighPrecision)
             {
                 return;
             }
@@ -202,11 +241,15 @@ namespace Live2D.Cubism.Rendering.Masking
                 return;
             }
 
-
-            MaskTexture.AddSource(this);
-
             // Get cubism update controller.
             HasUpdateController = (GetComponent<CubismUpdateController>() != null);
+
+            if (MaskTexture.IsHighPrecision)
+            {
+                return;
+            }
+
+            MaskTexture.AddSource(this);
         }
 
 

@@ -6,6 +6,7 @@
  */
 
 
+using Live2D.Cubism.Rendering.Util;
 using UnityEngine;
 
 
@@ -183,6 +184,68 @@ namespace Live2D.Cubism.Rendering
             get { return LoadMaskCullingMaterial(); }
         }
 
+        /// <summary>
+        /// Unlit plane material for BlendMode.
+        /// </summary>
+        public static Material UnlitPlane
+        {
+            get
+            {
+                return LoadBlendModeMaterial("UnlitPlane");
+            }
+        }
+
+        /// <summary>
+        /// <see cref="BlendMask"/>'s backing field.
+        /// </summary>
+        private static Material _unlitBlendMask;
+
+        /// <summary>
+        /// Unlit mask material for BlendMode.
+        /// </summary>
+        public static Material BlendMask
+        {
+            get
+            {
+                if (_unlitBlendMask == null)
+                {
+                    _unlitBlendMask = LoadBlendModeMaterial("UnlitBlendMask");
+                }
+
+                return _unlitBlendMask;
+            }
+        }
+
+        /// <summary>
+        /// Returns a material for the given BlendMode.
+        /// </summary>
+        /// <param name="materialName">Name</param>
+        /// <param name="colorBlend">ColorBlend type</param>
+        /// <param name="alphaBlend">AlphaBlend type</param>
+        /// <param name="masked">Is masked?</param>
+        /// <param name="inverted">Is using invert mask?</param>
+        /// <param name="isDoubleSided">Is double-sided rendering?</param>
+        /// <returns></returns>
+        public static Material GetBlendModeMaterial(string materialName, BlendTypes.ColorBlend colorBlend, BlendTypes.AlphaBlend alphaBlend, bool masked, bool inverted, bool isDoubleSided)
+        {
+            var maskedString = masked ? "Masked" : "";
+            var invertedString = masked && inverted ? "Invert" : "";
+            var cullingString = isDoubleSided ? "" : "Culling";
+
+            switch (colorBlend)
+            {
+                case BlendTypes.ColorBlend.Add:
+                case BlendTypes.ColorBlend.Multiply:
+                    materialName += $"{invertedString}{maskedString}{colorBlend}{cullingString}";
+                    break;
+                default:
+                    materialName += $"{invertedString}{maskedString}{colorBlend}{alphaBlend}{cullingString}";
+                    break;
+            }
+
+            return LoadBlendModeMaterial(materialName);
+        }
+
 
         #region Helper Methods
 
@@ -218,6 +281,21 @@ namespace Live2D.Cubism.Rendering
         private static Material LoadMaskCullingMaterial()
         {
             return Resources.Load<Material>(ResourcesDirectory + "/MaskCulling");
+        }
+
+        /// <summary>
+        /// Loads a material for BlendMode.
+        /// </summary>
+        /// <param name="name">Material's name</param>
+        /// <returns>Material</returns>
+        private static Material LoadBlendModeMaterial(string name)
+        {
+            var material = Resources.Load<Material>(ResourcesDirectory + "/BlendMode/" + name);
+            if (material == null)
+            {
+                Debug.LogError($"Could not load material '{name}'");
+            }
+            return material;
         }
 
         #endregion

@@ -21,52 +21,52 @@ namespace Live2D.Cubism.Core.Unmanaged
     {
         /// <summary>
         /// Parameter count.
-        /// </summary>>
+        /// </summary>
         public int Count { get; private set; }
 
         /// <summary>
         /// Parameter IDs.
-        /// </summary>>
+        /// </summary>
         public string[] Ids { get; private set; }
 
         /// <summary>
         /// Minimum parameter values.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView MinimumValues { get; private set; }
 
         /// <summary>
         /// Parameter types.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView Types { get; private set; }
 
         /// <summary>
         /// Maximum parameter values.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView MaximumValues { get; private set; }
 
         /// <summary>
         /// Default parameter values.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView DefaultValues { get; private set; }
 
         /// <summary>
         /// Parameter values.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView Values { get; private set; }
 
         /// <summary>
         /// Parameter Repeat informations.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView Repeats { get; private set; }
 
         /// <summary>
         /// Number of key values of each parameter.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView KeyCounts { get; private set; }
 
         /// <summary>
         /// Key values of each parameter.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView[] KeyValues { get; private set; }
 
 

@@ -159,6 +159,11 @@ namespace Live2D.Cubism.Rendering.Masking
             // Enqueue sources.
             for (var i = 0; i < Sources.Count; ++i)
             {
+                if (Sources[i] == null)
+                {
+                    continue;
+                }
+
                 Sources[i].AddToCommandBuffer(Buffer, false, -1);
             }
         }
