@@ -55,15 +55,15 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| Latest | 6000.0.49f1 |
-| LTS | 2022.3.61f1 |
+| Latest | 6000.1.15f1 |
+| LTS | 6000.0.55f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.14.2 |
-| Windows SDK | 11.0.26100.3916 |
-| Xcode | 16.1 |
+| Visual Studio 2022 | 17.14.12 |
+| Windows SDK | 10.0.26100.4948 |
+| Xcode | 16.4 |
 
 *2 Use libraries embedded with Unity or recommended.
 
@@ -89,18 +89,15 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 16 |
-| iOS | 18.5 |
-| iPadOS | 18.5 |
-| Ubuntu | 24.04.1 |
-| macOS | 15.5 |
+| iOS | 18.6.1 |
+| iPadOS | 18.6.1 |
+| Ubuntu | 24.04.3 |
+| macOS | 15.6 |
 | Windows 11 | 24H2 (*4) |
-| Google Chrome | 131.0.6778.86 |
-| Chrome OS x86_64 | 130.0.6723.126 |
-| Chrome OS ARMv8 (*5) | 130.0.6723.126　|
+| Google Chrome | 139.0.7258.128 |
 | HarmonyOS NEXT | 5.0.0.102 |
 
 *4 In Unity 6, we have not verified the operation of builds for UWP.
-*5 This is a confirmation of operation with APK files for Android.
 
 ## Branches
 

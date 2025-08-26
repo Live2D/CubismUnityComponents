@@ -52,30 +52,30 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             EditorGUI.BeginChangeCheck();
 
-            // Display OverrideFlagForDrawableMultiplyColors.
+            // Display OverrideFlagForDrawObjectMultiplyColors.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawableMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForDrawableMultiplyColors", renderer.OverrideFlagForDrawableMultiplyColors);
+                var overrideFlagForDrawObjectMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForDrawObjectMultiplyColors", renderer.OverrideFlagForDrawObjectMultiplyColors);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawableMultiplyColors = overrideFlagForDrawableMultiplyColors;
+                        cubismRenderer.OverrideFlagForDrawObjectMultiplyColors = overrideFlagForDrawObjectMultiplyColors;
                     }
                 }
             }
 
-            // Display OverrideFlagForDrawableScreenColors.
+            // Display OverrideFlagForDrawObjectScreenColors.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawableScreenColors = EditorGUILayout.Toggle("OverrideFlagForDrawableScreenColors", renderer.OverrideFlagForDrawableScreenColors);
+                var overrideFlagForDrawObjectScreenColors = EditorGUILayout.Toggle("OverrideFlagForDrawObjectScreenColors", renderer.OverrideFlagForDrawObjectScreenColors);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawableScreenColors = overrideFlagForDrawableScreenColors;
+                        cubismRenderer.OverrideFlagForDrawObjectScreenColors = overrideFlagForDrawObjectScreenColors;
                     }
                 }
             }
@@ -97,13 +97,17 @@ namespace Live2D.Cubism.Editor.Inspectors
             // Display multiply color.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var multiplyColor = EditorGUILayout.ColorField("MultiplyColor", renderer.MultiplyColor);
-
-                if (scope.changed)
+                if (renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Drawable
+                    || renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen)
                 {
-                    foreach (CubismRenderer cubismRenderer in targets)
+                    var multiplyColor = EditorGUILayout.ColorField("MultiplyColor", renderer.MultiplyColor);
+
+                    if (scope.changed)
                     {
-                        cubismRenderer.MultiplyColor = multiplyColor;
+                        foreach (CubismRenderer cubismRenderer in targets)
+                        {
+                            cubismRenderer.MultiplyColor = multiplyColor;
+                        }
                     }
                 }
             }
@@ -111,13 +115,17 @@ namespace Live2D.Cubism.Editor.Inspectors
             // Display screen color.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var screenColor = EditorGUILayout.ColorField("ScreenColor", renderer.ScreenColor);
-
-                if (scope.changed)
+                if (renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Drawable
+                    || renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen)
                 {
-                    foreach (CubismRenderer cubismRenderer in targets)
+                    var screenColor = EditorGUILayout.ColorField("ScreenColor", renderer.ScreenColor);
+
+                    if (scope.changed)
                     {
-                        cubismRenderer.ScreenColor = screenColor;
+                        foreach (CubismRenderer cubismRenderer in targets)
+                        {
+                            cubismRenderer.ScreenColor = screenColor;
+                        }
                     }
                 }
             }
@@ -171,8 +179,11 @@ namespace Live2D.Cubism.Editor.Inspectors
                 foreach (CubismRenderer cubismRenderer in targets)
                 {
                     EditorUtility.SetDirty(cubismRenderer);
-                    EditorUtility.SetDirty(cubismRenderer.MeshFilter);
                     EditorUtility.SetDirty(cubismRenderer.MeshRenderer);
+                    if (cubismRenderer.MeshFilter)
+                    {
+                        EditorUtility.SetDirty(cubismRenderer.MeshFilter);
+                    }
                 }
             }
 
@@ -186,7 +197,10 @@ namespace Live2D.Cubism.Editor.Inspectors
             {
                 foreach (CubismRenderer cubismRenderer in targets)
                 {
-                    cubismRenderer.MeshFilter.hideFlags ^= HideFlags.HideInInspector;
+                    if (cubismRenderer.MeshFilter)
+                    {
+                        cubismRenderer.MeshFilter.hideFlags ^= HideFlags.HideInInspector;
+                    }
                     cubismRenderer.MeshRenderer.hideFlags ^= HideFlags.HideInInspector;
                 }
             }

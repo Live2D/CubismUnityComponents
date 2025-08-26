@@ -436,7 +436,6 @@ namespace Live2D.Cubism.Framework.Json
                         break;
                     default:
                         return false;
-                        break;
                     }
 
                     ++actualTotalSegmentCount;

@@ -21,94 +21,99 @@ namespace Live2D.Cubism.Core.Unmanaged
     {
         /// <summary>
         /// Drawable count.
-        /// </summary>>
+        /// </summary>
         public int Count { get; private set; }
 
         /// <summary>
         /// Drawable IDs.
-        /// </summary>>
+        /// </summary>
         public string[] Ids { get; private set; }
 
         /// <summary>
         /// Constant drawable flags.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedByteArrayView ConstantFlags { get; private set; }
 
         /// <summary>
         /// Dynamic drawable flags.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedByteArrayView DynamicFlags { get; private set; }
 
         /// <summary>
         /// Drawable texture indices.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView TextureIndices { get; private set; }
 
         /// <summary>
         /// Drawable draw orders.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView DrawOrders { get; private set; }
 
         /// <summary>
-        /// Drawable render orders.
-        /// </summary>>
-        public CubismUnmanagedIntArrayView RenderOrders { get; private set; }
-
-        /// <summary>
         /// Drawable opacities.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView Opacities { get; private set; }
 
         /// <summary>
         /// Mask count for each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView MaskCounts { get; private set; }
 
         /// <summary>
         /// Masks for each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView[] Masks { get; private set; }
 
         /// <summary>
         /// Number of vertices of each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView VertexCounts { get; private set; }
 
         /// <summary>
         /// 2D vertex position data of each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView[] VertexPositions { get; private set; }
 
         /// <summary>
         /// 2D texture coordinate data of each drawables.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView[] VertexUvs { get; private set; }
 
         /// <summary>
         /// Number of triangle indices for each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView IndexCounts { get; private set; }
 
         /// <summary>
         /// Triangle index data for each drawable.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedUshortArrayView[] Indices { get; private set; }
 
         /// <summary>
         /// Information multiply color.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView MultiplyColors { get; private set; }
 
         /// <summary>
         /// Information Screen color.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedFloatArrayView ScreenColors { get; private set; }
 
         /// <summary>
         /// Indices of drawables parent part.
-        /// </summary>>
+        /// </summary>
         public CubismUnmanagedIntArrayView ParentPartIndices { get; private set; }
 
+        /// <summary>
+        /// Blend modes of drawables.
+        /// </summary>
+        public CubismUnmanagedIntArrayView BlendModes { get; private set; }
+
+
+        /// <summary>
+        /// Gets drawable render orders.
+        /// </summary>>
+        public CubismUnmanagedIntArrayView RenderOrders { get; private set; }
 
         /// <summary>
         /// Resets all dynamic drawable flags.
@@ -164,9 +169,6 @@ namespace Live2D.Cubism.Core.Unmanaged
             DrawOrders = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableDrawOrders(modelPtr), length);
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);
-            RenderOrders = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableRenderOrders(modelPtr), length);
-
-            length = CubismCoreDll.GetDrawableCount(modelPtr);
             Opacities = new CubismUnmanagedFloatArrayView(CubismCoreDll.GetDrawableOpacities(modelPtr), length);
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);
@@ -186,6 +188,12 @@ namespace Live2D.Cubism.Core.Unmanaged
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);
             ParentPartIndices = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableParentPartIndices(modelPtr), length);
+
+            length = CubismCoreDll.GetDrawableCount(modelPtr);
+            BlendModes = new CubismUnmanagedIntArrayView(CubismCoreDll.GetDrawableBlendModes(modelPtr), length * 2);
+
+            length = CubismCoreDll.GetDrawableCount(modelPtr);
+            RenderOrders = new CubismUnmanagedIntArrayView(CubismCoreDll.GetRenderOrders(modelPtr), length);
 
 
             length = CubismCoreDll.GetDrawableCount(modelPtr);

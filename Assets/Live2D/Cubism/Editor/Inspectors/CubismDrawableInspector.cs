@@ -1,4 +1,12 @@
-﻿using Live2D.Cubism.Core;
+﻿/**
+ * Copyright(c) Live2D Inc. All rights reserved.
+ *
+ * Use of this source code is governed by the Live2D Open Software license
+ * that can be found at https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html.
+ */
+
+
+using Live2D.Cubism.Core;
 using UnityEditor;
 
 namespace Live2D.Cubism.Editor.Inspectors
@@ -26,6 +34,11 @@ namespace Live2D.Cubism.Editor.Inspectors
             if (Parts == null)
             {
                 Parts = drawable.FindCubismModel(true).Parts;
+            }
+
+            if (drawable?.ParentPartIndex < 0)
+            {
+                return;
             }
 
             EditorGUILayout.ObjectField("Parent Part", Parts[drawable.ParentPartIndex], typeof(CubismPart), false);

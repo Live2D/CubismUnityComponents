@@ -13,6 +13,7 @@ using Live2D.Cubism.Framework.Json;
 using Live2D.Cubism.Framework.Motion;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Rendering;
 using Live2D.Cubism.Rendering.Masking;
 using System;
 using System.IO;
@@ -167,7 +168,7 @@ namespace Live2D.Cubism.Editor.Importers
 
 
             // Instantiate model source and model.
-            var model = Model3Json.ToModel(CubismImporter.OnPickMaterial, CubismImporter.OnPickTexture, ShouldImportAsOriginalWorkflow);
+            var model = Model3Json.ToModel(CubismImporter.OnPickDrawableMaterial, CubismImporter.OnPickTexture, CubismImporter.OnPickOffscreenMaterial, ShouldImportAsOriginalWorkflow);
 
             if (model == null)
             {
@@ -215,6 +216,16 @@ namespace Live2D.Cubism.Editor.Importers
                     AssetDatabase.CreateAsset(modelMaskTexture, filePath);
                 }
 
+                if (model.IsUsingBlendMode)
+                {
+                    var renderController = model.GetComponent<CubismRenderController>();
+
+                    if (renderController?.MaskController != null)
+                    {
+                        renderController.MaskController.MaskTexture = AssetDatabase.LoadAssetAtPath<CubismMaskTexture>(filePath);
+                    }
+                }
+
                 // Create prefab and trigger saving of changes.
 #if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, $"{assetPath}.prefab");
@@ -243,6 +254,18 @@ namespace Live2D.Cubism.Editor.Importers
 
 
                 CopyUserData(source, model);
+
+                // プレハブのインスタンスからマスクテクスチャをコピー
+                if (model.IsUsingBlendMode)
+                {
+                    var renderController = model.GetComponent<CubismRenderController>();
+
+                    if (renderController?.MaskController != null)
+                    {
+                        renderController.MaskController.MaskTexture = source.GetComponent<CubismRenderController>()?.MaskController?.MaskTexture;
+                    }
+                }
+
                 Object.DestroyImmediate(source.gameObject, true);
 
 

@@ -23,13 +23,16 @@ namespace Live2D.Cubism.Rendering
         /// <returns>Combined bounds.</returns>
         public static Bounds GetMeshRendererBounds(this CubismRenderer[] self)
         {
-            var min = self[0].MeshRenderer.bounds.min;
-            var max = self[0].MeshRenderer.bounds.max;
+            var useModelCanvasRenderer = self[0].ModelCanvasRenderer != null;
+            var meshRenderer = useModelCanvasRenderer ? self[0].ModelCanvasRenderer : self[0].MeshRenderer;
+            var min = meshRenderer.bounds.min;
+            var max = meshRenderer.bounds.max;
 
 
             for (var i = 1; i < self.Length; ++i)
             {
-                var boundsI = self[i].MeshRenderer.bounds;
+                meshRenderer = useModelCanvasRenderer ? self[i].ModelCanvasRenderer : self[i].MeshRenderer;
+                var boundsI = meshRenderer.bounds;
 
 
                 if (boundsI.min.x < min.x)

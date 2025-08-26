@@ -65,12 +65,17 @@ namespace Live2D.Cubism.Editor.Importers
         /// <summary>
         /// Material picker to use when importing models.
         /// </summary>
-        public static CubismModel3Json.MaterialPicker OnPickMaterial = CubismBuiltinPickers.MaterialPicker;
+        public static CubismModel3Json.DrawableMaterialPicker OnPickDrawableMaterial = CubismBuiltinPickers.DrawableMaterialPicker;
 
         /// <summary>
         /// Texture picker to use when importing models.
         /// </summary>
         public static CubismModel3Json.TexturePicker OnPickTexture = CubismBuiltinPickers.TexturePicker;
+
+        /// <summary>
+        /// Offscreen material picker to use when importing models.
+        /// </summary>
+        public static CubismModel3Json.OffscreenMaterialPicker OnPickOffscreenMaterial = CubismBuiltinPickers.OffscreenMaterialPicker;
 
 
         /// <summary>

@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
+using System;
 using UnityEngine;
 
 
@@ -112,6 +113,265 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// Offscreen index.
+        /// </summary>
+        public int OffscreenIndex
+        {
+            get
+            {
+                return UnmanagedParts.OffscreenIndices[UnmanagedIndex];
+            }
+        }
+
+        /// <summary>
+        /// <see cref="AllChildDrawables"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismDrawable[] _allChildrenDrawables = null;
+
+        /// <summary>
+        /// All child drawables of this part, including children of children.
+        /// </summary>
+        public CubismDrawable[] AllChildDrawables
+        {
+            get
+            {
+                if (_allChildrenDrawables == null)
+                {
+                    var model = this.FindCubismModel(true);
+                    if (!model)
+                    {
+                        return null;
+                    }
+
+                    var parts = model.Parts;
+
+                    var childrenParts = Array.Empty<CubismPart>();
+
+                    for (var index = 0; index < parts.Length; index++)
+                    {
+                        if (parts[index].UnmanagedParentIndex == UnmanagedIndex)
+                        {
+                            Array.Resize(ref childrenParts, childrenParts.Length + 1);
+                            childrenParts[^1] = parts[index];
+                        }
+                    }
+
+                    // Initialize the array of all children drawables.
+                    _allChildrenDrawables = Array.Empty<CubismDrawable>();
+
+                    // Add the drawables of this part.
+                    Array.Resize(ref _allChildrenDrawables, ChildDrawables.Length);
+                    Array.Copy(ChildDrawables, _allChildrenDrawables, ChildDrawables.Length);
+
+                    // Collect all children drawables from child parts.
+                    for (var index = 0; index < childrenParts.Length; index++)
+                    {
+                        Array.Resize(ref _allChildrenDrawables, _allChildrenDrawables.Length + childrenParts[index].AllChildDrawables.Length);
+                        Array.Copy(childrenParts[index].AllChildDrawables,
+                            0,
+                            _allChildrenDrawables,
+                            _allChildrenDrawables.Length - childrenParts[index].AllChildDrawables.Length,
+                            childrenParts[index].AllChildDrawables.Length);
+                    }
+                }
+
+                return _allChildrenDrawables;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="ChildParts"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismPart[] _childParts;
+
+        /// <summary>
+        /// Child parts of this part.
+        /// </summary>
+        public CubismPart[] ChildParts
+        {
+            get
+            {
+                if (_childParts == null)
+                {
+                    var model = this.FindCubismModel(true);
+                    if (!model)
+                    {
+                        return null;
+                    }
+
+                    var parts = model.Parts;
+                    _childParts = Array.Empty<CubismPart>();
+                    for (var index = 0; index < parts.Length; index++)
+                    {
+                        // When this object is the parent part.
+                        if (parts[index].UnmanagedParentIndex == UnmanagedIndex)
+                        {
+                            Array.Resize(ref _childParts, _childParts.Length + 1);
+                            _childParts[^1] = parts[index];
+                        }
+                    }
+                }
+                return _childParts;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="ChildDrawables"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismDrawable[] _childDrawables;
+
+        /// <summary>
+        /// Child drawables of this part.
+        /// </summary>
+        public CubismDrawable[] ChildDrawables
+        {
+            get
+            {
+                if (_childDrawables == null)
+                {
+                    var model = this.FindCubismModel(true);
+                    if (!model)
+                    {
+                        return null;
+                    }
+
+                    var drawables = model.Drawables;
+                    _childDrawables = Array.Empty<CubismDrawable>();
+                    for (var index = 0; index < drawables.Length; index++)
+                    {
+                        // When this object is the parent part.
+                        if (drawables[index].ParentPartIndex == UnmanagedIndex)
+                        {
+                            Array.Resize(ref _childDrawables, _childDrawables.Length + 1);
+                            _childDrawables[^1] = drawables[index];
+                        }
+                    }
+                }
+                return _childDrawables;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="ChildOffscreens"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismOffscreen[] _childOffscreens;
+
+        /// <summary>
+        /// Child offscreens of this part.
+        /// </summary>
+        public CubismOffscreen[] ChildOffscreens
+        {
+            get
+            {
+                if (_childOffscreens == null)
+                {
+                    var model = this.FindCubismModel(true);
+                    if (!model)
+                    {
+                        return null;
+                    }
+
+                    var offscreens = model.Offscreens;
+
+                    if (offscreens == null)
+                    {
+                        return null;
+                    }
+
+                    for (var index = 0; index < offscreens.Length; index++)
+                    {
+                        // When this object is the parent part.
+                        if (offscreens[index].OwnerIndex == UnmanagedIndex)
+                        {
+                            Array.Resize(ref _childOffscreens, _childOffscreens?.Length ?? 0 + 1);
+                            _childOffscreens[^1] = offscreens[index];
+                        }
+                    }
+                }
+                return _childOffscreens;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="PartInfo"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private CubismModelTypes.PartInfo? _partInfo;
+
+        /// <summary>
+        /// Information about this part.
+        /// </summary>
+        public CubismModelTypes.PartInfo? PartInfo
+        {
+            get
+            {
+                if (_partInfo == null)
+                {
+                    InitializePartInfo();
+                }
+                return _partInfo;
+            }
+        }
+
+        /// <summary>
+        /// Initializes <see cref="PartInfo"/>.
+        /// </summary>
+        private void InitializePartInfo()
+        {
+            if (ChildDrawables == null
+                || ChildParts == null
+                || ChildOffscreens == null)
+            {
+                // Failed silently...
+                return;
+            }
+
+            var childObjectCount = ChildDrawables.Length + ChildParts.Length;
+
+            _partInfo = new CubismModelTypes.PartInfo
+            {
+                PartUnmanagedIndex = UnmanagedIndex,
+                ChildObjects = new CubismModelTypes.PartChildObjectInfo[childObjectCount],
+                DrawObjects = new CubismModelTypes.PartDrawObjectInfo
+                {
+                    Drawables = AllChildDrawables,
+                    Offscreens = ChildOffscreens
+                }
+            };
+
+            for (var i = 0; i < _partInfo.Value.ChildObjects.Length; i++)
+            {
+                var childInfo = new CubismModelTypes.PartChildObjectInfo
+                {
+                    ChildObjectType = CubismModelTypes.PartChildObjectType.Unknown,
+                    ChildObjectIndex = -1
+                };
+
+                if (i >= childObjectCount)
+                {
+                    childInfo.ChildObjectType = CubismModelTypes.PartChildObjectType.Unknown;
+                    childInfo.ChildObjectIndex = -1;
+                }
+                else if (i < ChildDrawables.Length)
+                {
+                    childInfo.ChildObjectType = CubismModelTypes.PartChildObjectType.Drawable;
+                    childInfo.ChildObjectIndex = ChildDrawables[i].UnmanagedIndex;
+                }
+                else
+                {
+                    childInfo.ChildObjectType = CubismModelTypes.PartChildObjectType.Parts;
+                    childInfo.ChildObjectIndex = ChildParts[i - ChildDrawables.Length].UnmanagedIndex;
+                }
+
+                _partInfo.Value.ChildObjects[i] = childInfo;
+            }
+        }
+
+        /// <summary>
         /// Revives instance.
         /// </summary>
         /// <param name="unmanagedModel">TaskableModel to unmanaged unmanagedModel.</param>
@@ -133,6 +393,12 @@ namespace Live2D.Cubism.Core
             UnmanagedIndex = unmanagedIndex;
             name = Id;
             Opacity = UnmanagedParts.Opacities[unmanagedIndex];
+
+            _allChildrenDrawables = null;
+            _childParts = null;
+            _childDrawables = null;
+            _childOffscreens = null;
+            InitializePartInfo();
         }
     }
 }

@@ -4,6 +4,28 @@
 
 # お知らせ
 
+## [注意事項] SamplesにおけるInput System Packageへの対応について (2025-08-26)
+
+Cubism SDK for UnityのSamplesでは従来の `Input Manager` を利用して入力を管理しております。
+そのため、`Input System Package` のみを利用する方式が有効になっている場合、シーン再生時にエラーが発生する可能性があります。
+
+必要に応じて以下の手順で `Input Manager` を利用するようにプロジェクト設定を変更してください。
+
+1. `Project Settings` -> `Player` を開く。
+1. `Active Input Handling` を `both` へ変更する。
+
+
+## [制限事項] Cubism 5.3で追加された機能を使ったモデルの描画について (2025-08-26)
+
+`Cubism 5 SDK for Unity R5 beta1` 以降、Cubism 5.3で追加されたブレンドモード機能やオフスクリーン機能を利用したモデルを利用する場合、新しい描画方式に切り替わって描画されます。
+この新しい描画方式で描画する場合に以下の不具合を確認しています。
+
+* 当たり判定が見た目と異なる。
+* モデルが見切れて描画されることがある。
+
+これらの制限事項については `Cubism 5 SDK for Unity R5 beta2` 以降で対応予定です。
+
+
 ## [制限事項] WebGL書き出し時のAudioClipからのリップシンク対応について (2024-11-28)
 
 Cubism SDK for Unityの音声からのリップシンクは、波形情報の取得にAudioClipのAPIを利用しています。
@@ -12,12 +34,6 @@ Cubism SDK for Unityの音声からのリップシンクは、波形情報の取
 詳しくは、Unity社 公式ドキュメントをご確認ください。
 
 * [WebGL のオーディオ](https://docs.unity3d.com/ja/current/Manual/webgl-audio.html)
-
-
-## [制限事項] 実行中のマスク用テクスチャの `RenderTextureCount` の値操作について (2024-03-26)
-
-シーン実行中に `CubismMaskTexture.RenderTextureCount` を実行開始時よりも大きい値に変更すると、マスクが正常に再生成されない不具合を確認しています。
-対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
 
 
 ## [制限事項] Windows ARM64向けの対応状況について (2024-01-18)

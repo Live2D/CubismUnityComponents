@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f401bb1c5c52514eba33c0c2ffdc8ff, type: 3}
+  m_Name: Ren.expressionList
+  m_EditorClassIdentifier: 
+  CubismExpressionObjects:
+  - {fileID: 11400000, guid: a855ae8afb4535c488d2ceaec047a434, type: 2}
+  - {fileID: 11400000, guid: ea91b255b05377143a8af27bcadccbdb, type: 2}
+  - {fileID: 11400000, guid: 00bd00b28bdd5f842abf5b46872c2f43, type: 2}
+  - {fileID: 11400000, guid: 8c0bbbbf756594d429890a5db76cea86, type: 2}
+  - {fileID: 11400000, guid: 91b663681ced34b48b58ddbf534bdbe1, type: 2}

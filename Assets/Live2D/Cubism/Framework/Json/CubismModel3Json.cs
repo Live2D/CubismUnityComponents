@@ -33,6 +33,8 @@ namespace Live2D.Cubism.Framework.Json
     // ReSharper disable once ClassCannotBeInstantiated
     public sealed class CubismModel3Json
     {
+        public static readonly string ModelCanvasName = "ModelCanvas";
+
         #region Delegates
 
         /// <summary>
@@ -49,8 +51,9 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         /// <param name="sender">Event source.</param>
         /// <param name="drawable">Drawable to pick for.</param>
+        /// <param name="isUsingBlendMode">Is model's moc version after Cubism 5.3?</param>
         /// <returns>Picked material.</returns>
-        public delegate Material MaterialPicker(CubismModel3Json sender, CubismDrawable drawable);
+        public delegate Material DrawableMaterialPicker(CubismModel3Json sender, CubismDrawable drawable, bool isUsingBlendMode);
 
         /// <summary>
         /// Picks a <see cref="Texture2D"/> for a <see cref="CubismDrawable"/>.
@@ -59,6 +62,14 @@ namespace Live2D.Cubism.Framework.Json
         /// <param name="drawable">Drawable to pick for.</param>
         /// <returns>Picked texture.</returns>
         public delegate Texture2D TexturePicker(CubismModel3Json sender, CubismDrawable drawable);
+
+        /// <summary>
+        /// Picks a <see cref="Material"/> for a <see cref="CubismOffscreen"/>.
+        /// </summary>
+        /// <param name="sender">Event source.</param>
+        /// <param name="offscreen">Offscreen to pick for.</param>
+        /// <returns></returns>
+        public delegate Material OffscreenMaterialPicker(CubismModel3Json sender, CubismOffscreen offscreen);
 
         #endregion
 
@@ -362,17 +373,17 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>The instantiated <see cref="CubismModel">model</see> on success; <see langword="null"/> otherwise.</returns>
         public CubismModel ToModel(bool shouldImportAsOriginalWorkflow = false)
         {
-            return ToModel(CubismBuiltinPickers.MaterialPicker, CubismBuiltinPickers.TexturePicker, shouldImportAsOriginalWorkflow);
+            return ToModel(CubismBuiltinPickers.DrawableMaterialPicker, CubismBuiltinPickers.TexturePicker, CubismBuiltinPickers.OffscreenMaterialPicker,shouldImportAsOriginalWorkflow);
         }
 
         /// <summary>
         /// Instantiates a <see cref="CubismMoc">model source</see> and a <see cref="CubismModel">model</see>.
         /// </summary>
-        /// <param name="pickMaterial">The material mapper to use.</param>
+        /// <param name="pickDrawableMaterial">The material mapper to use.</param>
         /// <param name="pickTexture">The texture mapper to use.</param>
         /// <param name="shouldImportAsOriginalWorkflow">Should import as original workflow.</param>
         /// <returns>The instantiated <see cref="CubismModel">model</see> on success; <see langword="null"/> otherwise.</returns>
-        public CubismModel ToModel(MaterialPicker pickMaterial, TexturePicker pickTexture, bool shouldImportAsOriginalWorkflow = false)
+        public CubismModel ToModel(DrawableMaterialPicker pickDrawableMaterial, TexturePicker pickTexture, OffscreenMaterialPicker pickOffscreenMaterial, bool shouldImportAsOriginalWorkflow = false)
         {
             // Initialize model source and instantiate it.
             var mocAsBytes = Moc3;
@@ -405,25 +416,79 @@ namespace Live2D.Cubism.Framework.Json
 
             // Create renderers.
             var rendererController = model.gameObject.AddComponent<CubismRenderController>();
+
+            if (model.IsUsingBlendMode)
+            {
+                if (model.transform.Find(ModelCanvasName) == null)
+                {
+                    // Prefabをロード
+                    var canvasPrefab = Resources.Load<GameObject>($"Live2D/Cubism/Prefabs/{ModelCanvasName}");
+
+                    if (canvasPrefab != null)
+                    {
+                        // Prefabをインスタンス化
+                        var instance = GameObject.Instantiate(canvasPrefab);
+                        if (instance != null)
+                        {
+                            // インスタンスのTransformを親に設定
+                            instance.transform.SetParent(model.transform, false);
+                            instance.name = ModelCanvasName;
+                        }
+                    }
+                }
+
+                rendererController.ModelCanvasRenderer = model.transform.Find(ModelCanvasName).GetComponent<MeshRenderer>();
+                rendererController.TryInitializeFrameBuffers(true);
+            }
+
             var renderers = rendererController.Renderers;
 
             var drawables = model.Drawables;
+            var offscreens = model.Offscreens;
 
-            if (renderers == null || drawables  == null)
+            var drawableRenderers = rendererController.DrawableRenderers;
+            var offscreenRenderers = rendererController.OffscreenRenderers;
+
+            if (renderers == null
+                || drawables  == null
+                || drawableRenderers == null)
             {
                 return null;
             }
 
             // Initialize materials.
-            for (var i = 0; i < renderers.Length; ++i)
+            for (var i = 0; i < drawableRenderers.Length; ++i)
             {
-                renderers[i].Material = pickMaterial(this, drawables[i]);
+                var renderer = drawableRenderers[i];
+
+                renderer.Material = pickDrawableMaterial(this, drawables[i], model.IsUsingBlendMode);
+                if (model.IsUsingBlendMode)
+                {
+                    renderer.ColorBlendType = drawables[i].ColorBlend;
+                    renderer.AlphaBlendType = drawables[i].AlphaBlend;
+                }
+            }
+
+            for (var i = 0; i < offscreenRenderers?.Length; i++)
+            {
+                var renderer = offscreenRenderers[i];
+
+                renderer.Material = pickOffscreenMaterial(this, offscreens[i]);
+                if (model.IsUsingBlendMode)
+                {
+                    renderer.ColorBlendType = offscreens[i].ColorBlend;
+                    renderer.AlphaBlendType = offscreens[i].AlphaBlend;
+                }
             }
 
 
             // Initialize textures.
             for (var i = 0; i < renderers.Length; ++i)
             {
+                if (renderers[i].DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+                {
+                    continue;
+                }
                 renderers[i].MainTexture = pickTexture(this, drawables[i]);
             }
 
@@ -567,19 +632,41 @@ namespace Live2D.Cubism.Framework.Json
             }
 
             // Add mask controller if required.
-            for (var i = 0; i < drawables.Length; ++i)
+            var anyMasked = false;
+            for (var i = 0; i < renderers.Length; i++)
             {
-                if (!drawables[i].IsMasked)
+                var renderer = renderers[i];
+                switch (renderer.DrawObjectType)
                 {
-                    continue;
+                    case CubismModelTypes.DrawObjectType.Drawable:
+                        if (renderer.Drawable.IsMasked)
+                        {
+                            anyMasked = true;
+                        }
+                        break;
+                    case CubismModelTypes.DrawObjectType.Offscreen:
+                        if (renderer.Offscreen.IsMasked)
+                        {
+                            anyMasked = true;
+                        }
+                        break;
+                    default:
+                        Debug.LogWarning($"Unknown draw object type {renderer.DrawObjectType} in {model.name}.model3.json.");
+                        break;
                 }
 
+                if (anyMasked)
+                {
+                    // Add controller exactly once...
+                    rendererController.MaskController = model.gameObject.AddComponent<CubismMaskController>();
 
-                // Add controller exactly once...
-                model.gameObject.AddComponent<CubismMaskController>();
-
-
-                break;
+                    if (model.IsUsingBlendMode)
+                    {
+                        rendererController.TryInitializeRenderers();
+                    }
+                    // Already have a mask controller, no need to add it again.
+                    break;
+                }
             }
 
             // Add original workflow component if is original workflow.

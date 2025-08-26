@@ -58,9 +58,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moc: {fileID: 11400000, guid: 0cd25900b6821d346824476d7529af29, type: 2}
+  _isOverriddenParameterRepeat: 1
+  _isUsingBlendMode: 0
 --- !u!114 &114524724953595766
 MonoBehaviour:
-  m_ObjectHideFlags: 16
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -72,7 +74,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &114777655263784816
 MonoBehaviour:
-  m_ObjectHideFlags: 16
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -109,6 +111,12 @@ MonoBehaviour:
   _multiplyColorHandler: {fileID: 0}
   _screenColorHandler: {fileID: 0}
   _depthOffset: 0.00001
+  _renderers:
+  - {fileID: 114729407753587254}
+  - {fileID: 114971606309151028}
+  - {fileID: 114332409161009052}
+  ModelCanvasRenderer: {fileID: 0}
+  _maskController: {fileID: 114377662660272134}
 --- !u!114 &114377662660272134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,7 +184,7 @@ MonoBehaviour:
   CurrentExpressionIndex: -1
 --- !u!95 &95152701801533134
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -190,6 +198,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -254,6 +263,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
   Value: 0
+  _isOverriddenUserParameterRepeat: 0
+  _isParameterRepeated: 0
 --- !u!1 &1212145916086742
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,9 +340,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4127546177616060}
   - component: {fileID: 114226664196924094}
-  - component: {fileID: 33877105318944324}
   - component: {fileID: 23098029584964350}
   - component: {fileID: 114729407753587254}
+  - component: {fileID: 33877105318944324}
   m_Layer: 0
   m_Name: NoMask
   m_TagString: Untagged
@@ -368,14 +379,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!33 &33877105318944324
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1400628991816822}
-  m_Mesh: {fileID: 0}
 --- !u!23 &23098029584964350
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -393,6 +396,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -432,8 +438,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
-  _isOverriddenDrawableMultiplyColors: 0
-  _isOverriddenDrawableScreenColors: 0
+  isOverriddenDrawObjectMultiplyColors: 0
+  _isOverriddenDrawObjectScreenColors: 0
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
@@ -442,6 +448,19 @@ MonoBehaviour:
   _renderOrder: 2
   _depthOffset: 0.00001
   _opacity: 1
+  _masks: []
+  ColorBlendType: 0
+  AlphaBlendType: 0
+  DrawObjectType: 0
+  OffscreenFrameBuffer: {fileID: 0}
+--- !u!33 &33877105318944324
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1400628991816822}
+  m_Mesh: {fileID: 0}
 --- !u!1 &1567689901014918
 GameObject:
   m_ObjectHideFlags: 0
@@ -452,9 +471,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4185232825676816}
   - component: {fileID: 114449561095163586}
-  - component: {fileID: 33344961922649840}
   - component: {fileID: 23979266845124292}
   - component: {fileID: 114971606309151028}
+  - component: {fileID: 33344961922649840}
   m_Layer: 0
   m_Name: Masked
   m_TagString: Untagged
@@ -491,14 +510,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!33 &33344961922649840
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1567689901014918}
-  m_Mesh: {fileID: 0}
 --- !u!23 &23979266845124292
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -516,6 +527,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -555,8 +569,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
-  _isOverriddenDrawableMultiplyColors: 0
-  _isOverriddenDrawableScreenColors: 0
+  isOverriddenDrawObjectMultiplyColors: 0
+  _isOverriddenDrawObjectScreenColors: 0
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
@@ -565,6 +579,19 @@ MonoBehaviour:
   _renderOrder: 1
   _depthOffset: 0.00001
   _opacity: 1
+  _masks: []
+  ColorBlendType: 0
+  AlphaBlendType: 0
+  DrawObjectType: 0
+  OffscreenFrameBuffer: {fileID: 0}
+--- !u!33 &33344961922649840
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1567689901014918}
+  m_Mesh: {fileID: 0}
 --- !u!1 &1742641724804306
 GameObject:
   m_ObjectHideFlags: 0
@@ -644,6 +671,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
   Value: 0
+  _isOverriddenUserParameterRepeat: 0
+  _isParameterRepeated: 0
 --- !u!1 &1859190643628140
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,9 +683,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4846306906689454}
   - component: {fileID: 114495415851520618}
-  - component: {fileID: 33941089731271070}
   - component: {fileID: 23355969439567624}
   - component: {fileID: 114332409161009052}
+  - component: {fileID: 33941089731271070}
   m_Layer: 0
   m_Name: Masking
   m_TagString: Untagged
@@ -693,14 +722,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 2
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
---- !u!33 &33941089731271070
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859190643628140}
-  m_Mesh: {fileID: 0}
 --- !u!23 &23355969439567624
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -718,6 +739,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -757,8 +781,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
-  _isOverriddenDrawableMultiplyColors: 0
-  _isOverriddenDrawableScreenColors: 0
+  isOverriddenDrawObjectMultiplyColors: 0
+  _isOverriddenDrawObjectScreenColors: 0
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 1}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
@@ -767,3 +791,16 @@ MonoBehaviour:
   _renderOrder: 0
   _depthOffset: 0.00001
   _opacity: 1
+  _masks: []
+  ColorBlendType: 0
+  AlphaBlendType: 0
+  DrawObjectType: 0
+  OffscreenFrameBuffer: {fileID: 0}
+--- !u!33 &33941089731271070
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859190643628140}
+  m_Mesh: {fileID: 0}
