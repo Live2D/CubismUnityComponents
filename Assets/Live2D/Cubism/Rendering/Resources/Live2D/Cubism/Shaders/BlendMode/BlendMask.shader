@@ -60,7 +60,7 @@ Shader "Unlit/BlendMode/BlendMask"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 // setting vertex position and UV coordinates.
-                OUT.vertex = IN.vertex;
+                OUT.vertex = UnityObjectToClipPos(IN.vertex);
                 OUT.uv = IN.uv;
 
                 // If reversed Z is enabled, flip the Y coordinate.

@@ -162,7 +162,8 @@ namespace Live2D.Cubism.Rendering
             get
             {
                 // If it can overwrite multiply color, return it.
-                if (OverrideFlagForDrawObjectMultiplyColors)
+                if (RenderController.OverrideFlagForModelMultiplyColors
+                    || OverrideFlagForDrawObjectMultiplyColors)
                 {
                     return _multiplyColor;
                 }
@@ -170,12 +171,6 @@ namespace Live2D.Cubism.Rendering
                 switch (DrawObjectType)
                 {
                     case CubismModelTypes.DrawObjectType.Drawable:
-                        // If it can overwrite multiply color, return it.
-                        if (RenderController.OverrideFlagForModelMultiplyColors)
-                        {
-                            return _multiplyColor;
-                        }
-
                         return Drawable.MultiplyColor;
                     case CubismModelTypes.DrawObjectType.Offscreen:
                         return Offscreen.MultiplyColor;
@@ -218,7 +213,8 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (OverrideFlagForDrawObjectScreenColors)
+                if (RenderController.OverrideFlagForModelScreenColors
+                    || OverrideFlagForDrawObjectScreenColors)
                 {
                     return _screenColor;
                 }
@@ -226,11 +222,6 @@ namespace Live2D.Cubism.Rendering
                 switch (DrawObjectType)
                 {
                     case CubismModelTypes.DrawObjectType.Drawable:
-                        if (RenderController.OverrideFlagForModelScreenColors)
-                        {
-                            return _screenColor;
-                        }
-
                         return Drawable.ScreenColor;
                     case CubismModelTypes.DrawObjectType.Offscreen:
                         return Offscreen.ScreenColor;

@@ -30,9 +30,17 @@ namespace Live2D.Cubism.Rendering
         private MaterialPropertyBlock _properties;
 
         /// <summary>
-        /// Command buffer for rendering.
+        /// <see cref="CommandBuffer"/>'s backing field.
         /// </summary>
         private CommandBuffer _commandBuffer;
+
+        /// <summary>
+        /// Command buffer for rendering.
+        /// </summary>
+        public CommandBuffer CommandBuffer
+        {
+            get { return _commandBuffer; }
+        }
 
         /// <summary>
         /// Whether the model has a root part offscreen.
@@ -356,11 +364,8 @@ namespace Live2D.Cubism.Rendering
                 // Clear offscreen rendering frame buffer.
                 _commandBuffer.SetRenderTarget(OffscreenRenderingFrameBuffer);
                 _commandBuffer.ClearRenderTarget(true, true, Color.clear);
-                for (var offscreenIndex = 0; offscreenIndex < OffscreenRenderers.Length; offscreenIndex++)
-                {
-                    _commandBuffer.SetRenderTarget(OffscreenRenderers[offscreenIndex].OffscreenFrameBuffer);
-                    _commandBuffer.ClearRenderTarget(true, true, Color.clear);
-                }
+
+                CubismOffscreenRenderTextureManager.GetInstance().ClearRenderTextures(_commandBuffer);
             }
             // Clear the system render texture for each model (used as a temporary buffer).
             _commandBuffer.SetRenderTarget(CubismCommonRenderFrameBuffer.GetInstance().CommonFrameBuffer);
@@ -373,10 +378,22 @@ namespace Live2D.Cubism.Rendering
             CurrentFrameBuffer = ModelFrameBuffer;
             CurrentOffscreenUnmanagedIndex = -1;
 
+            // If the model has an offscreen that serves as the rendering destination for all draw objects.
             if (_hasRootPartOffscreen
-                && OffscreenRenderers != null)
+                && OffscreenRenderers != null
+                && RootFrameBuffer == ModelFrameBuffer)
             {
-                RootFrameBuffer = OffscreenRenderers[0].OffscreenFrameBuffer;
+                for (var i = 0; i < OffscreenRenderers.Length; i++)
+                {
+                    var offscreenRenderer = OffscreenRenderers[i];
+                    if (offscreenRenderer.Offscreen.UnmanagedIndex != 0)
+                    {
+                        continue;
+                    }
+
+                    RootFrameBuffer = OffscreenRenderers[i].OffscreenFrameBuffer;
+                    break;
+                }
             }
 
             if (SortedRenderers == null)
@@ -481,6 +498,11 @@ namespace Live2D.Cubism.Rendering
 
                 // If It can copy the parent offscreen, copy it to the current offscreen renderer.
                 offscreenRenderer?.DrawOffscreen(_commandBuffer, previousOffscreen, offscreenRenderer);
+
+                if (offscreenRenderer != null)
+                {
+                    offscreenRenderer.OffscreenFrameBuffer = null;
+                }
 
                 CurrentFrameBuffer = previousOffscreen;
                 CurrentOffscreenUnmanagedIndex = previousIndex;
@@ -596,30 +618,42 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Destroys the frame buffer <see cref="OnDisable()"/>.
+        /// Called from Unity.
+        /// </summary>
+        private void OnDestroy()
+        {
+            // Release buffers.
+            DestroyFrameBuffer();
+        }
+
+        /// <summary>
+        /// Destroys the frame buffer <see cref="OnDestroy()"/>.
         /// </summary>
         private void DestroyFrameBuffer()
         {
-            if (ModelFrameBuffer != null)
+            if (ModelFrameBuffer)
             {
                 ModelFrameBuffer.Release();
+                ModelFrameBuffer = null;
 #if UNITY_EDITOR
                 DestroyImmediate(ModelFrameBuffer);
-                if (OffscreenRenderingFrameBuffer)
-                {
-                    DestroyImmediate(OffscreenRenderingFrameBuffer);
-                }
 #else
-                Destroy(ModelFrameBuffer);
-                if (OffscreenRenderingFrameBuffer)
-                {
-                    Destroy(OffscreenRenderingFrameBuffer);
-                }
+                Destroy(OffscreenRenderingFrameBuffer);
 #endif
-                ModelFrameBuffer = null;
-                RootFrameBuffer = null;
-                OffscreenRenderingFrameBuffer = null;
             }
+
+            if (OffscreenRenderingFrameBuffer)
+            {
+                OffscreenRenderingFrameBuffer.Release();
+                OffscreenRenderingFrameBuffer = null;
+#if UNITY_EDITOR
+                DestroyImmediate(OffscreenRenderingFrameBuffer);
+#else
+            Destroy(OffscreenRenderingFrameBuffer);
+#endif
+            }
+
+            RootFrameBuffer = null;
         }
     }
 }

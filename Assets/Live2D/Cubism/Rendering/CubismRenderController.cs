@@ -863,8 +863,6 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void OnDisable()
         {
-            DestroyFrameBuffer();
-
             // Fail silently.
             if (Model == null)
             {

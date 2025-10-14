@@ -92,13 +92,13 @@ Shader "Unlit/BlendMode/BlendImage"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 // Setting vertex position.
-                OUT.vertex = IN.vertex;
+                OUT.vertex = UnityObjectToClipPos(IN.vertex);
                 OUT.color = IN.color;
 
                 OUT.texcoord = IN.texcoord;
 
                 // Convert vertex position to UV coordinates.
-                OUT.texcoord2 = IN.vertex.xy * 0.5 + float2(0.5,0.5);
+                OUT.texcoord2 = OUT.vertex.xy * 0.5 + float2(0.5,0.5);
 
                 // If reversed Z is enabled, flip the Y coordinate.
                 #if UNITY_REVERSED_Z

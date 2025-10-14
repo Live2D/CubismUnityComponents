@@ -433,6 +433,82 @@ namespace Live2D.Cubism.Framework.Json
                             // インスタンスのTransformを親に設定
                             instance.transform.SetParent(model.transform, false);
                             instance.name = ModelCanvasName;
+
+                            // Create ModelCanvas
+                            var meshFilter = instance.GetComponent<MeshFilter>();
+                            var quadWidth = model.CanvasInformation.CanvasWidth / model.CanvasInformation.PixelsPerUnit;
+                            var quadHeight = model.CanvasInformation.CanvasHeight / model.CanvasInformation.PixelsPerUnit;
+                            var halfquadWidth = quadWidth * 0.5f;
+                            var halfquadHeight = quadHeight * 0.5f;
+
+                            var vertices = new Vector3[4]
+                            {
+                                new Vector3(-halfquadWidth, -halfquadHeight, 0),
+                                new Vector3(-halfquadWidth, halfquadHeight, 0),
+                                new Vector3(halfquadWidth, -halfquadHeight, 0),
+                                new Vector3(halfquadWidth, halfquadHeight, 0)
+                            };
+
+                            var tris = new int[6]
+                            {
+                                0, 1, 2,
+                                2, 1, 3
+                            };
+
+                            var normals = new Vector3[4]
+                            {
+                                -Vector3.forward,
+                                -Vector3.forward,
+                                -Vector3.forward,
+                                -Vector3.forward
+                            };
+
+                            var uv = new Vector2[4]
+                            {
+                                new Vector2(0, 0),
+                                new Vector2(0, 1),
+                                new Vector2(1, 0),
+                                new Vector2(1, 1)
+                            };
+
+
+                            var fileName = model.name + ModelCanvasName;
+                            var filePath = Path.Join(Path.GetDirectoryName(AssetPath), fileName);
+
+                            Mesh mesh = null;
+#if UNITY_EDITOR
+                            if (!Application.isPlaying)
+                            {
+                                mesh = AssetDatabase.LoadAssetAtPath<Mesh>(filePath + ".mesh");
+                            }
+#endif
+
+                            if (mesh == null)
+                            {
+                                mesh = new Mesh()
+                                {
+                                    vertices = vertices,
+                                    triangles = tris,
+                                    normals = normals,
+                                    uv = uv
+                                };
+#if UNITY_EDITOR
+                                if (!Application.isPlaying)
+                                {
+                                    AssetDatabase.CreateAsset(mesh, filePath + ".mesh");
+                                }
+#endif
+                            }
+                            else
+                            {
+                                mesh.vertices = vertices;
+                                mesh.triangles = tris;
+                                mesh.normals = normals;
+                                mesh.uv = uv;
+                            }
+
+                            instance.transform.rotation = new Quaternion(0, 0, 0, 0);
+                            meshFilter.mesh = mesh;
                         }
                     }
                 }
