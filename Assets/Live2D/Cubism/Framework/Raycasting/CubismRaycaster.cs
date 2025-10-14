@@ -115,7 +115,7 @@ namespace Live2D.Cubism.Framework.Raycasting
             {
                 var raycastable = Raycastables[i];
                 var precision = RaycastablePrecisions[i];
-                if (!raycastable.enabled)
+                if (!raycastable.MeshRenderer.enabled)
                 {
                     continue;
                 }

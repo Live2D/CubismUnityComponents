@@ -92,6 +92,7 @@ namespace Live2D.Cubism.Editor.Inspectors
                         parameter.OverrideValue(parameter.DefaultValue);
                         _elements[i].slider.value = parameter.DefaultValue;
                         _elements[i].field.value = parameter.DefaultValue;
+                        EditorUtility.SetDirty(parameter);
                     }
 
                     Undo.RecordObjects(target.Model.Parameters, "Change Parameter Values");

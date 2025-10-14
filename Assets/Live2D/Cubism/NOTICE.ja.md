@@ -15,17 +15,6 @@ Cubism SDK for UnityのSamplesでは従来の `Input Manager` を利用して入
 1. `Active Input Handling` を `both` へ変更する。
 
 
-## [制限事項] Cubism 5.3で追加された機能を使ったモデルの描画について (2025-08-26)
-
-`Cubism 5 SDK for Unity R5 beta1` 以降、Cubism 5.3で追加されたブレンドモード機能やオフスクリーン機能を利用したモデルを利用する場合、新しい描画方式に切り替わって描画されます。
-この新しい描画方式で描画する場合に以下の不具合を確認しています。
-
-* 当たり判定が見た目と異なる。
-* モデルが見切れて描画されることがある。
-
-これらの制限事項については `Cubism 5 SDK for Unity R5 beta2` 以降で対応予定です。
-
-
 ## [制限事項] WebGL書き出し時のAudioClipからのリップシンク対応について (2024-11-28)
 
 Cubism SDK for Unityの音声からのリップシンクは、波形情報の取得にAudioClipのAPIを利用しています。

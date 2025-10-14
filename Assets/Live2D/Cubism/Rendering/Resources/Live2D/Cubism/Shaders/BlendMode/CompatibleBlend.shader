@@ -94,11 +94,11 @@ Shader "Unlit/BlendMode/CompatibleBlend"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 // Setting vertex position.
-                OUT.vertex = IN.vertex;
+                OUT.vertex = UnityObjectToClipPos(IN.vertex);
 
                 OUT.texcoord = IN.texcoord;
                 OUT.color = IN.color;
-                OUT.texcoord2 = IN.vertex.xy * 0.5 + float2(0.5,0.5);
+                OUT.texcoord2 = OUT.vertex.xy * 0.5 + float2(0.5,0.5);
 
                 #if UNITY_REVERSED_Z
                 OUT.vertex.y = -OUT.vertex.y;
