@@ -15,6 +15,7 @@ Material:
   - ALPHA_BLEND_CONJOINT
   - COLOR_BLEND_COLORBURN
   - CUBISM_INVERT_ON
+  - CUBISM_MASK_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -41,10 +42,15 @@ Material:
     m_Ints: []
     m_Floats:
     - _Cull: 0
+    - _ZOffset: 0
     - cubism_InvertOn: 1
     - cubism_MaskOn: 1
     - cubism_ModelOpacity: 1
     m_Colors:
+    - _OffsetScale: {r: 0, g: 0, b: 1, a: 1}
+    - _RotationQuaternion: {r: 0, g: 0, b: 0, a: 1}
+    - cubism_MaskTile: {r: 0, g: 0, b: 0, a: 0}
+    - cubism_MaskTransform: {r: 0, g: 0, b: 0, a: 0}
     - cubism_MultiplyColor: {r: 1, g: 1, b: 1, a: 1}
     - cubism_ScreenColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

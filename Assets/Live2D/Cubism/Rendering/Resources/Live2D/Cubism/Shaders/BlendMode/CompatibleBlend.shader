@@ -17,6 +17,11 @@ Shader "Unlit/BlendMode/CompatibleBlend"
         [PerRendererData] cubism_MultiplyColor("Multiply Color", Color) = (1.0, 1.0, 1.0, 1.0)
         [PerRendererData] cubism_ScreenColor("Screen Color", Color) = (0.0, 0.0, 0.0, 1.0)
 
+        // Transform settings.
+        [PerRendererData] _OffsetScale ("OffsetScale", Vector) = (0, 0, 1, 1)
+        [PerRendererData] _ZOffset ("Z Offset", Float) = 0
+        [PerRendererData] _RotationQuaternion ("Rotation Quaternion", Vector) = (0, 0, 0, 1)
+
         // Blend settings.
         _SrcColor("Source Color", Int) = 1
         _DstColor("Destination Color", Int) = 10
@@ -30,6 +35,8 @@ Shader "Unlit/BlendMode/CompatibleBlend"
         [Toggle(CUBISM_INVERT_ON)] cubism_InvertOn("Inverted?", Int) = 0
 
         [PerRendererData] cubism_MaskTexture("cubism_Internal", 2D) = "white" {}
+        [PerRendererData] cubism_MaskTile("cubism_Internal", Vector) = (0, 0, 0, 0)
+        [PerRendererData] cubism_MaskTransform("cubism_Internal", Vector) = (0, 0, 0, 0)
     }
     SubShader
     {
@@ -41,24 +48,26 @@ Shader "Unlit/BlendMode/CompatibleBlend"
             "RenderType" = "Transparent"
             "PreviewType" = "Plane"
             "CanUseSpriteAtlas" = "True"
+            "RenderPipeline" = "UniversalPipeline"
         }
 
         Cull     [_Cull]
         Lighting Off
         ZWrite   Off
+        ZTest LEqual
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ CUBISM_INVERT_ON
             #pragma multi_compile _ CUBISM_MASK_ON
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "../CubismCG.cginc"
 
-            struct appdata
+            struct Attributes
             {
                 float4 vertex : POSITION;
                 float4 color    : COLOR;
@@ -66,19 +75,25 @@ Shader "Unlit/BlendMode/CompatibleBlend"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Varyings
             {
                 float2 texcoord : TEXCOORD0;
-                float2 texcoord2 : TEXCOORD1;
                 float4 color    : COLOR;
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_OUTPUT_STEREO
+
+                // Add Cubism specific vertex output data.
+                CUBISM_VERTEX_OUTPUT
             };
 
+            CBUFFER_START(UnityPerMaterial)
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            fixed4 cubism_MultiplyColor;
-            fixed4 cubism_ScreenColor;
+            half4 cubism_MultiplyColor;
+            half4 cubism_ScreenColor;
+            float4 _OffsetScale;
+            float4 _RotationQuaternion;
+            float _ZOffset;
 
             #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
             int cubism_InvertOn;
@@ -87,52 +102,69 @@ Shader "Unlit/BlendMode/CompatibleBlend"
             // Include Cubism specific shader variables.
             CUBISM_SHADER_VARIABLES
 
-            v2f vert (appdata IN)
+            CBUFFER_END
+
+            // Quaternion rotation function.
+            float3 quaternion(float4 quat, float3 vec)
             {
-                v2f OUT;
+                // Normalize quaternion to ensure unit length
+                float4 normalizedQuat = normalize(quat);
+                float3 qv = normalizedQuat.xyz;
+                float qw = normalizedQuat.w;
+
+                // Calculate cross product once.
+                float3 crossVec = cross(qv, vec);
+
+                return vec + 2.0 * (qw * crossVec + cross(qv, crossVec));
+            }
+
+            Varyings vert (Attributes IN)
+            {
+                Varyings OUT;
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
+                // Convert vertex position
+                float4 vertex = IN.vertex;
+                vertex.xy *= _OffsetScale.zw;  // Scale
+
+                // Apply quaternion rotation (3-axis rotation)
+                float3 rotatedPos = quaternion(_RotationQuaternion, vertex.xyz);
+                vertex.xyz = rotatedPos;
+
+                vertex.xy += _OffsetScale.xy * _OffsetScale.zw;  // Offset
+                vertex.z += _ZOffset; // Z Offset
+
                 // Setting vertex position.
-                OUT.vertex = UnityObjectToClipPos(IN.vertex);
+                OUT.vertex = TransformObjectToHClip(vertex.xyz);
 
                 OUT.texcoord = IN.texcoord;
                 OUT.color = IN.color;
-                OUT.texcoord2 = OUT.vertex.xy * 0.5 + float2(0.5,0.5);
 
-                #if UNITY_REVERSED_Z
-                OUT.vertex.y = -OUT.vertex.y;
-                #endif
+                // Initialize Cubism specific vertex output data.
+                CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT);
 
                 return OUT;
             }
 
-            fixed4 frag (v2f IN) : SV_Target
+            half4 frag (Varyings IN) : SV_Target
             {
                 // Sample the texture
-                fixed4 textureColor = tex2D(_MainTex, IN.texcoord);
+                half4 textureColor = tex2D(_MainTex, IN.texcoord);
 
                 // Multiply
                 textureColor.rgb *= cubism_MultiplyColor.rgb;
                 // Screen
                 textureColor.rgb = (textureColor.rgb + cubism_ScreenColor.rgb) - (textureColor.rgb * cubism_ScreenColor.rgb);
 
-                fixed4 OUT = textureColor * IN.color;
+                half4 OUT = textureColor * IN.color;
 
-#if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
-                float clippingMask = 1.0;
-                clippingMask = tex2D(cubism_MaskTexture , IN.texcoord2).r;
-                clippingMask = abs(cubism_InvertOn - clippingMask);
-                OUT *= clippingMask;
-#endif
-
-                // Apply Cubism alpha to color.
-                OUT.rgb *= OUT.a;
-                OUT *= cubism_ModelOpacity;
+                // Apply Cubism mask and alpha.
+                CUBISM_APPLY_ALPHA(IN, OUT);
 
                 return OUT;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

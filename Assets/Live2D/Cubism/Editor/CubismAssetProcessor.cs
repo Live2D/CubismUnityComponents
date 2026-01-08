@@ -9,7 +9,6 @@
 using Live2D.Cubism.Editor.Deleters;
 using Live2D.Cubism.Editor.Importers;
 using Live2D.Cubism.Rendering;
-using Live2D.Cubism.Rendering.Masking;
 using Live2D.Cubism.Rendering.Util;
 using System;
 using System.IO;
@@ -46,8 +45,8 @@ namespace Live2D.Cubism.Editor
         /// </summary>
         /// <param name="importedAssetPaths">Paths of imported assets.</param>
         /// <param name="deletedAssetPaths">Paths of removed assets.</param>
-        /// <param name="movedAssetPaths">Paths of moved assets</param>
-        /// <param name="movedFromAssetPaths">Paths of moved assets before moving</param>
+        /// <param name="movedAssetPaths">Paths of moved assets.</param>
+        /// <param name="movedFromAssetPaths">Paths of moved assets before moving.</param>
         private static void OnPostprocessAllAssets(
             string[] importedAssetPaths,
             string[] deletedAssetPaths,
@@ -252,6 +251,7 @@ namespace Live2D.Cubism.Editor
 
             if (!shaderKeywords.Contains("CUBISM_INVERT_ON"))
             {
+                shaderKeywords.Add("CUBISM_MASK_ON");
                 shaderKeywords.Add("CUBISM_INVERT_ON");
             }
 
@@ -265,8 +265,8 @@ namespace Live2D.Cubism.Editor
         private static void GenerateBuiltinResources()
         {
             var resourcesRoot = AssetDatabase
-                .GetAssetPath(CubismBuiltinShaders.Unlit)
-                .Replace("/Shaders/Unlit.shader", "");
+                .GetAssetPath(CubismBuiltinShaders.Mask)
+                .Replace("/Shaders/Mask.shader", "");
 
             var materialsRoot = resourcesRoot + "/Materials";
 
@@ -286,7 +286,7 @@ namespace Live2D.Cubism.Editor
                 };
 
 
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
+                AssetDatabase.CreateAsset(material, $"{materialsRoot}/{material.name}.mat");
 
 
                 // Create mask material.
@@ -296,200 +296,7 @@ namespace Live2D.Cubism.Editor
                 };
 
                 EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create non-masked materials.
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "Unlit"
-                };
-
-                EnableNormalBlending(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditive"
-                };
-
-                EnableAdditiveBlending(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiply"
-                };
-
-                EnableMultiplicativeBlending(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create masked materials.
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMasked"
-                };
-
-                EnableNormalBlending(material);
-                EnableMasking(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditiveMasked"
-                };
-
-                EnableAdditiveBlending(material);
-                EnableMasking(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiplyMasked"
-                };
-
-                EnableMultiplicativeBlending(material);
-                EnableMasking(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create inverted mask materials.
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMaskedInverted"
-                };
-
-                EnableNormalBlending(material);
-                EnableInvertedMask(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditiveMaskedInverted"
-                };
-
-                EnableAdditiveBlending(material);
-                EnableInvertedMask(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material (CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiplyMaskedInverted"
-                };
-
-                EnableMultiplicativeBlending(material);
-                EnableInvertedMask(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create non-masked materials.
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitCulling"
-                };
-
-                EnableNormalBlending(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditiveCulling"
-                };
-
-                EnableAdditiveBlending(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiplyCulling"
-                };
-
-                EnableMultiplicativeBlending(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create masked materials.
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMaskedCulling"
-                };
-
-                EnableNormalBlending(material);
-                EnableMasking(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditiveMaskedCulling"
-                };
-
-                EnableAdditiveBlending(material);
-                EnableMasking(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiplyMaskedCulling"
-                };
-
-                EnableMultiplicativeBlending(material);
-                EnableMasking(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                // Create inverted mask materials.
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMaskedInvertedCulling"
-                };
-
-                EnableNormalBlending(material);
-                EnableInvertedMask(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitAdditiveMaskedInvertedCulling"
-                };
-
-                EnableAdditiveBlending(material);
-                EnableInvertedMask(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                material = new Material(CubismBuiltinShaders.Unlit)
-                {
-                    name = "UnlitMultiplyMaskedInvertedCulling"
-                };
-
-                EnableMultiplicativeBlending(material);
-                EnableInvertedMask(material);
-                EnableCulling(material);
-                AssetDatabase.CreateAsset(material, string.Format("{0}/{1}.mat", materialsRoot, material.name));
-
-
-                EditorUtility.SetDirty(CubismBuiltinShaders.Unlit);
-                AssetDatabase.SaveAssets();
+                AssetDatabase.CreateAsset(material, $"{materialsRoot}/{material.name}.mat");
             }
 
             #region Cubism 5.3
@@ -502,20 +309,10 @@ namespace Live2D.Cubism.Editor
                 Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), materialsDir));
             }
 
+            // Generate blend mode materials.
             GenerateBlendModeMaterials(materialsDir);
 
             #endregion
-
-            // Create global mask texture.
-            if (CubismMaskTexture.GlobalMaskTexture == null)
-            {
-                var globalMaskTexture = ScriptableObject.CreateInstance<CubismMaskTexture>();
-
-                globalMaskTexture.name = "GlobalMaskTexture";
-
-
-                AssetDatabase.CreateAsset(globalMaskTexture, string.Format("{0}/{1}.asset", resourcesRoot, globalMaskTexture.name));
-            }
         }
 
         #region Cubism 5.3
@@ -523,8 +320,8 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Enable compatible blend mode for Cubism 5.3.
         /// </summary>
-        /// <param name="material">Material</param>
-        /// <param name="colorBlend">Blend mode</param>
+        /// <param name="material">Material to set up.</param>
+        /// <param name="colorBlend">Color blend mode to apply.</param>
         private static void EnableCompatibleBlending(Material material, BlendTypes.ColorBlend colorBlend)
         {
             switch (colorBlend)
@@ -547,9 +344,9 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Enables the variables for a material based on the blend mode indices.
         /// </summary>
-        /// <param name="material">Material</param>
-        /// <param name="colorBlendIndex">ColorBlend index</param>
-        /// <param name="alphaBlendIndex">AlphaBlend index</param>
+        /// <param name="material">Material to set up.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
+        /// <param name="alphaBlendIndex">Alpha blend mode index.</param>
         private static void EnableVariables(Material material, int colorBlendIndex, int alphaBlendIndex)
         {
             // Enable keyword.
@@ -560,8 +357,8 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Loads a material from the given path.
         /// </summary>
-        /// <param name="path">material's path.</param>
-        /// <returns>Material</returns>
+        /// <param name="path">Path to the material resource.</param>
+        /// <returns>Loaded material, or null if not found.</returns>
         private static Material LoadMaterialFromPath(string path)
         {
             return Resources.Load<Material>(path);
@@ -570,16 +367,16 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates material for ModelCanvas.
         /// </summary>
-        /// <param name="materialsDir"></param>
-        public static void GeneratePlaneMaterial(string materialsDir)
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        public static void GenerateBlitMaterial(string materialsDir)
         {
-            var materialName = "UnlitPlane";
+            var materialName = "UnlitBlit";
 
             // Create non-masked materials.
             if (LoadMaterialFromPath("Live2D/Cubism/Materials/BlendMode/" + materialName) == null)
             {
                 // Create non-masked materials.
-                var material = new Material(CubismBuiltinShaders.Plane)
+                var material = new Material(CubismBuiltinShaders.Blit)
                 {
                     name = materialName
                 };
@@ -587,23 +384,23 @@ namespace Live2D.Cubism.Editor
                 AssetDatabase.CreateAsset(material, $"{materialsDir}/{material.name}.mat");
             }
 
-            EditorUtility.SetDirty(CubismBuiltinShaders.Plane);
+            EditorUtility.SetDirty(CubismBuiltinShaders.Blit);
             AssetDatabase.SaveAssets();
         }
 
         /// <summary>
         /// Generates a blend mask material.
         /// </summary>
-        /// <param name="materialsDir"></param>
-        private static void GenerateBlendMaskMaterial(string materialsDir)
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        private static void GenerateOffscreenMaskMaterial(string materialsDir)
         {
-            var materialName = "UnlitBlendMask";
+            var materialName = "OffscreenMask";
 
             // Create non-masked materials.
             if (LoadMaterialFromPath("Live2D/Cubism/Materials/BlendMode/" + materialName) == null)
             {
                 // Create non-masked materials.
-                var material = new Material(CubismBuiltinShaders.BlendMask)
+                var material = new Material(CubismBuiltinShaders.OffscreenMask)
                 {
                     name = materialName
                 };
@@ -616,7 +413,7 @@ namespace Live2D.Cubism.Editor
             if (LoadMaterialFromPath("Live2D/Cubism/Materials/BlendMode/" + materialName) == null)
             {
                 // Create non-masked materials.
-                var material = new Material(CubismBuiltinShaders.BlendMask)
+                var material = new Material(CubismBuiltinShaders.OffscreenMask)
                 {
                     name = materialName
                 };
@@ -624,21 +421,21 @@ namespace Live2D.Cubism.Editor
                 AssetDatabase.CreateAsset(material, $"{materialsDir}/{material.name}.mat");
             }
 
-            EditorUtility.SetDirty(CubismBuiltinShaders.BlendMask);
+            EditorUtility.SetDirty(CubismBuiltinShaders.OffscreenMask);
             AssetDatabase.SaveAssets();
         }
 
         /// <summary>
         /// Generates materials for blend mode.
         /// </summary>
-        /// <param name="materialsDir"></param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
         private static void GenerateBlendModeMaterials(string materialsDir)
         {
-            // Create plane material.
-            GeneratePlaneMaterial(materialsDir);
+            // Create blit material.
+            GenerateBlitMaterial(materialsDir);
 
-            // マスク用シェーダーのマテリアルを作成
-            GenerateBlendMaskMaterial(materialsDir);
+            // Create mask material for offscreen.
+            GenerateOffscreenMaskMaterial(materialsDir);
 
             // Create blend mode materials.
             for (var colorBlendIndex = 0; colorBlendIndex < (int)BlendTypes.ColorBlend.End; colorBlendIndex++)
@@ -679,9 +476,9 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates a blend mode material for compatible blend mode.
         /// </summary>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
         private static void GenerateCompatibleBlendModeMaterial(Shader shader, string materialsDir, int colorBlendIndex)
         {
             var materialName =
@@ -699,9 +496,9 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates offscreen materials for compatible blend mode.
         /// </summary>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
         private static void GenerateOffscreenCompatibleMaterial(Shader shader, string materialsDir, int colorBlendIndex)
         {
             var blendMode =
@@ -721,16 +518,16 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates a material for compatible blend mode.
         /// </summary>
-        /// <param name="materialName"></param>
-        /// <param name="maskedMaterialName"></param>
-        /// <param name="invertMaskedMaterialName"></param>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
+        /// <param name="materialName">Name for the non-masked material.</param>
+        /// <param name="maskedMaterialName">Name for the masked material.</param>
+        /// <param name="invertMaskedMaterialName">Name for the inverted masked material.</param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
         private static void GenerateCompatibleMaterial(string materialName, string maskedMaterialName, string invertMaskedMaterialName,
             Shader shader, string materialsDir, int colorBlendIndex)
         {
-            // 非マスクのシェーダーのマテリアルを作成
+            // Create non-masked material.
             if (LoadMaterialFromPath("Live2D/Cubism/Materials/BlendMode/" + materialName) == null)
             {
                 // Create non-masked materials.
@@ -822,10 +619,10 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates blend mode materials.
         /// </summary>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
-        /// <param name="alphaBlendIndex"></param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
+        /// <param name="alphaBlendIndex">Alpha blend mode index.</param>
         private static void GenerateBlendModeMaterial(Shader shader, string materialsDir, int colorBlendIndex, int alphaBlendIndex)
         {
             var blendMode =
@@ -846,10 +643,10 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates offscreen materials for rendering.
         /// </summary>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
-        /// <param name="alphaBlendIndex"></param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
+        /// <param name="alphaBlendIndex">Alpha blend mode index.</param>
         private static void GenerateOffscreenMaterial(Shader shader, string materialsDir, int colorBlendIndex, int alphaBlendIndex)
         {
             var blendMode =
@@ -869,13 +666,13 @@ namespace Live2D.Cubism.Editor
         /// <summary>
         /// Generates a material for blend mode materials.
         /// </summary>
-        /// <param name="materialName"></param>
-        /// <param name="maskedMaterialName"></param>
-        /// <param name="invertMaskedMaterialName"></param>
-        /// <param name="shader"></param>
-        /// <param name="materialsDir"></param>
-        /// <param name="colorBlendIndex"></param>
-        /// <param name="alphaBlendIndex"></param>
+        /// <param name="materialName">Name for the non-masked material.</param>
+        /// <param name="maskedMaterialName">Name for the masked material.</param>
+        /// <param name="invertMaskedMaterialName">Name for the inverted masked material.</param>
+        /// <param name="shader">Shader to use for the material.</param>
+        /// <param name="materialsDir">Directory path where materials will be created.</param>
+        /// <param name="colorBlendIndex">Color blend mode index.</param>
+        /// <param name="alphaBlendIndex">Alpha blend mode index.</param>
         private static void GenerateMaterialSection(string materialName, string maskedMaterialName, string invertMaskedMaterialName,
             Shader shader, string materialsDir, int colorBlendIndex, int alphaBlendIndex)
         {
@@ -921,7 +718,7 @@ namespace Live2D.Cubism.Editor
                 AssetDatabase.CreateAsset(material, $"{materialsDir}/{material.name}.mat");
             }
 
-            // マスクドシェーダーのカリングマテリアルを作成
+            // Create masked material with culling.
             maskedMaterialName += "Culling";
             if (LoadMaterialFromPath("Live2D/Cubism/Materials/BlendMode/" + maskedMaterialName) == null)
             {

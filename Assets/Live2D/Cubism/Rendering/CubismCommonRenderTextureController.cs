@@ -24,7 +24,6 @@ namespace Live2D.Cubism.Rendering
 
         private void OnDestroy()
         {
-            CubismCommonRenderFrameBuffer.GetInstance().Release();
             CubismOffscreenRenderTextureManager.GetInstance().Release();
         }
     }

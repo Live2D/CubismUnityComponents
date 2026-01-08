@@ -17,17 +17,6 @@ namespace Live2D.Cubism.Rendering
     public static class CubismBuiltinShaders
     {
         /// <summary>
-        /// Default unlit shader.
-        /// </summary>
-        public static Shader Unlit
-        {
-            get
-            {
-                return Shader.Find("Live2D Cubism/Unlit");
-            }
-        }
-
-        /// <summary>
         /// Shader for drawing masks.
         /// </summary>
         public static Shader Mask
@@ -41,11 +30,11 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Shader for drawing planes for blend mode.
         /// </summary>
-        public static Shader Plane
+        public static Shader Blit
         {
             get
             {
-                return Shader.Find("Unlit/BlendMode/Plane");
+                return Shader.Find("Unlit/BlendMode/Blit");
             }
         }
 
@@ -72,13 +61,13 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Blend mode mask shader for versions after Cubism 5.3.
+        /// Mask shader for Offscreen.
         /// </summary>
-        public static Shader BlendMask
+        public static Shader OffscreenMask
         {
             get
             {
-                return Shader.Find("Unlit/BlendMode/BlendMask");
+                return Shader.Find("Unlit/BlendMode/OffscreenMask");
             }
         }
 

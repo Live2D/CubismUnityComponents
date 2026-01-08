@@ -54,15 +54,14 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 | Unity | バージョン |
 | --- | --- |
-| Latest | 6000.2.6f2 |
-| LTS | 6000.0.58f2 |
+| LTS | 6000.0.64f2 |
 
 | ライブラリ / ツール | バージョン |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.14.16 |
+| Visual Studio 2022 | 17.14.23 |
 | Windows SDK | 10.0.26100.6584 |
-| Xcode | 26.1 |
+| Xcode | 26.2 |
 
 *2 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
 
@@ -88,12 +87,12 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | プラットフォーム | バージョン |
 | --- | --- |
 | Android | 16 |
-| iOS | 26.0.1 |
-| iPadOS | 26.0.1 |
+| iOS | 26.2 |
+| iPadOS | 26.2 |
 | Ubuntu | 24.04.3 |
-| macOS | 26.0 |
+| macOS | 26.2 |
 | Windows 11 | 24H2 (*4) |
-| Google Chrome | 141.0.7390.66 |
+| Google Chrome | 143.0.7499.170 |
 | HarmonyOS NEXT | 5.0.0.102 |
 
 *4 UWP向けビルドは動作確認をしておりません。

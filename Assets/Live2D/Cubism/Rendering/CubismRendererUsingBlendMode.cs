@@ -7,9 +7,11 @@
 
 
 using Live2D.Cubism.Core;
+using Live2D.Cubism.Rendering.URP;
 using Live2D.Cubism.Rendering.Util;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.RenderGraphModule;
 
 
 namespace Live2D.Cubism.Rendering
@@ -22,9 +24,19 @@ namespace Live2D.Cubism.Rendering
         #region Values
 
         /// <summary>
+        /// High precision mask tile for mask rendering.
+        /// </summary>
+        private static Vector4 HighPrecisionMaskTile = new Vector4(
+            0, // Channel R
+            0, // Column
+            0, // Row
+            1 // Size
+        );
+
+        /// <summary>
         /// Vertices for offscreen rendering.
         /// </summary>
-        private static Vector3[] OffscreenVertices = new Vector3[]
+        internal static Vector3[] OffscreenVertices = new Vector3[]
         {
             new Vector3(-1, -1, 0),
             new Vector3(1, -1, 0),
@@ -35,7 +47,7 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// UVs for offscreen rendering.
         /// </summary>
-        private static Vector2[] OffscreenUVs = new Vector2[]
+        internal static Vector2[] OffscreenUVs = new Vector2[]
         {
             new Vector2(0, 0),
             new Vector2(1, 0),
@@ -46,7 +58,7 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Triangle indices for offscreen rendering.
         /// </summary>
-        private static int[] OffscreenTriangle = new int[] { 0, 1, 2, 0, 2, 3 };
+        internal static int[] OffscreenTriangle = new int[] { 0, 1, 2, 0, 2, 3 };
 
         /// <summary>
         /// Masks used by this renderer.
@@ -55,15 +67,21 @@ namespace Live2D.Cubism.Rendering
         private CubismRenderer[] _masks;
 
         /// <summary>
-        /// <see cref="UnityEngine.MeshRenderer"/>.
+        /// Transform values for mask rendering.
         /// </summary>
-        public MeshRenderer ModelCanvasRenderer
-        {
-            get
-            {
-                return RenderController.ModelCanvasRenderer;
-            }
-        }
+        private Vector4 _maskTransform;
+
+        /// <summary>
+        /// Bounds that contain all masks.
+        /// </summary>
+        private Bounds _maskBounds;
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Whether <see cref="_masks"/> have null.
+        /// </summary>
+        private bool _haveMasksNull;
+#endif
 
         /// <summary>
         /// Index of the draw object.
@@ -94,6 +112,14 @@ namespace Live2D.Cubism.Rendering
         [SerializeField]
         public CubismModelTypes.DrawObjectType DrawObjectType;
 
+        /// <summary>
+        /// Whether this is the last draw object in the model.
+        /// </summary>
+        internal bool IsLastDrawObjectInModel;
+
+        /// <summary>
+        /// <see cref="OffscreenFrameBuffer"/>'s backing field.
+        /// </summary>
         private RenderTexture _offscreenFrameBuffer;
 
         /// <summary>
@@ -103,11 +129,12 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_offscreenFrameBuffer == null)
+                if (!_offscreenFrameBuffer
+                    && RenderController.CurrentFrameBuffer
+                    && (RenderController.OffscreenRenderers?.Length ?? 0) > 0)
                 {
                     _offscreenFrameBuffer = CubismOffscreenRenderTextureManager.GetInstance().GetOffscreenRenderTexture(
-                        RenderController.CurrentFrameBuffer.width,
-                        RenderController.CurrentFrameBuffer.height);
+                        RenderController.CurrentFrameBuffer);
                 }
 
                 return _offscreenFrameBuffer;
@@ -125,6 +152,24 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// <see cref="OffsetScale"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private Vector4 _offsetScale = new Vector4(0, 0, 1, 1);
+
+        /// <summary>
+        /// <see cref="Quaternion"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private Vector4 _quaternion = Vector4.zero;
+
+        /// <summary>
+        /// <see cref="ZOffset"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private float _zOffset = 0.0f;
+
+        /// <summary>
         /// Offscreen mesh used for rendering.
         /// </summary>
         private Mesh _offscreenMesh;
@@ -133,6 +178,15 @@ namespace Live2D.Cubism.Rendering
         /// Previous offscreen unmanaged index.
         /// </summary>
         private int _previousOffscreenUnmanagedIndex;
+
+        /// <summary>
+        /// Whether to skip rendering for this draw object.
+        /// </summary>
+        public bool SkipRendering
+        {
+            get;
+            set;
+        }
 
         #endregion
 
@@ -152,6 +206,46 @@ namespace Live2D.Cubism.Rendering
         }
 
         #endregion
+
+        /// <summary>
+        /// Sorting direction at the last sorting.
+        /// </summary>
+        internal Vector3 LastDirection;
+
+        /// <summary>
+        /// Whether the direction has been updated since the last sorting.
+        /// </summary>
+        /// <returns>True if the direction has changed, false otherwise.</returns>
+        internal bool DidUpdateDirectionFromLastSorted(Vector3 cameraPosition)
+        {
+            return LastDirection != (transform.position - cameraPosition);
+        }
+
+        /// <summary>
+        /// Distance from the active camera.
+        /// </summary>
+        internal float DistanceToCamera;
+
+        /// <summary>
+        /// Calculates the distance by projecting the vector from camera to renderer onto the camera's forward direction.
+        /// </summary>
+        /// <param name="cameraPosition">Position of the camera.</param>
+        /// <param name="cameraForward">Forward direction of the camera (normalized vector).</param>
+        internal void CalculateDistanceToCamera(Vector3 cameraPosition, Vector3 cameraForward)
+        {
+            // Vector from cameraPosition to transform.position
+            var directionToRenderer = transform.position - cameraPosition;
+
+            LastDirection = directionToRenderer;
+
+            // Project the vector onto the camera's forward direction
+            var projection = Vector3.Project(directionToRenderer, cameraForward);
+
+            // The magnitude of the projected vector is the distance along the camera's forward direction
+            // Formula: projection = dot(directionToRenderer, cameraForward) * cameraForward
+            // Distance = |projection| = |dot(directionToRenderer, cameraForward)|
+            DistanceToCamera = projection.magnitude;
+        }
 
         /// <summary>
         /// <see cref="PropertyBlock"/> backing field.
@@ -177,16 +271,22 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Apply <see cref="CubismCommonRenderFrameBuffer.CommonFrameBuffer"/> to shader.
+        /// Applies common rendering texture for rendering.
         /// </summary>
-        private void ApplyCommonFrameBuffer()
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        private void ApplyBlendedRenderTexture(CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
-            var property = MeshFilter ? SharedPropertyBlock : PropertyBlock;
+            if (!RenderController?.CurrentFrameBuffer)
+            {
+                return;
+            }
+
+            var property = PropertyBlock;
 
             MeshRenderer.GetPropertyBlock(property);
 
             // Write property.
-            property.SetTexture("_RenderTexture", CubismCommonRenderFrameBuffer.GetInstance().CommonFrameBuffer);
+            property.SetTexture(CubismShaderVariables.RenderTexture, passData.CommonTemporaryTextureHandle);
 
             MeshRenderer.SetPropertyBlock(property);
         }
@@ -194,9 +294,11 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Adds this renderer to the command buffer for rendering.
         /// </summary>
-        public void DrawObject(CommandBuffer buffer, RenderTexture frameBuffer)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        public void DrawObject(CommandBuffer buffer, CubismRenderPassFeature.CubismRenderPass.PassData passData)//, RenderTexture frameBuffer)
         {
-            if (MeshRenderer == null)
+            if (!MeshRenderer)
             {
                 return;
             }
@@ -205,91 +307,250 @@ namespace Live2D.Cubism.Rendering
             {
                 case CubismModelTypes.DrawObjectType.Offscreen:
                     // Set offscreen frame buffer.
-                    SetOffscreen(buffer, frameBuffer);
+                    SetOffscreen(buffer, passData);
                     break;
                 case CubismModelTypes.DrawObjectType.Drawable:
                     // Draw a drawable.
-                    DrawDrawable(buffer, frameBuffer);
+                    DrawDrawable(buffer, passData);
                     break;
             }
         }
 
         /// <summary>
+        /// Applies transform properties to the material property block.
+        /// </summary>
+        private void ApplyTransform()
+        {
+            var property = PropertyBlock;
+            MeshRenderer.GetPropertyBlock(property);
+
+            // Set offset and scale from transform.
+            var offsetScale = _offsetScale;
+
+            offsetScale.Set(RenderController.transform.localPosition.x + transform.localPosition.x, RenderController.transform.localPosition.y + transform.localPosition.y,
+                RenderController.transform.localScale.x * transform.localScale.x, RenderController.transform.localScale.y * transform.localScale.y);
+            _offsetScale = offsetScale;
+            // Write property.
+            property.SetVector(CubismShaderVariables.OffsetScale, _offsetScale);
+
+            // Set rotation from transform.
+            var quaternion = _quaternion;
+            quaternion.Set(RenderController.transform.localRotation.x * transform.localRotation.x, RenderController.transform.localRotation.y * transform.localRotation.y,
+                RenderController.transform.localRotation.z * transform.localRotation.z, RenderController.transform.localRotation.w * transform.localRotation.w);
+            _quaternion = quaternion;
+
+            // Write property.
+            property.SetVector(CubismShaderVariables.RotationQuaternion, _quaternion);
+
+            // Set z offset from transform.
+            _zOffset = RenderController.transform.localPosition.z + transform.localPosition.z;
+            // Write property.
+            property.SetFloat(CubismShaderVariables.ZOffset, _zOffset);
+
+            MeshRenderer.SetPropertyBlock(property);
+        }
+
+        /// <summary>
         /// Sets the offscreen frame buffer for rendering.
         /// </summary>
-        /// <param name="frameBuffer">Rendering frame buffer</param>
-        private void SetOffscreen(CommandBuffer buffer, RenderTexture frameBuffer)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        private void SetOffscreen(CommandBuffer buffer, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
             var currentOffscreenUnmanagedIndex = RenderController.CurrentOffscreenUnmanagedIndex;
-            SubmitDrawToParentOffscreen(ref frameBuffer, ref currentOffscreenUnmanagedIndex,
-                buffer, this, RenderController.RootFrameBuffer);
-            RenderController.CurrentOffscreenUnmanagedIndex = currentOffscreenUnmanagedIndex;
+            SubmitDrawToParentOffscreen(ref passData, ref currentOffscreenUnmanagedIndex,
+                buffer, this);
 
             // Ready the render target to the offscreen frame buffer.
-            OffscreenFrameBuffer = CubismOffscreenRenderTextureManager.GetInstance().GetOffscreenRenderTexture(frameBuffer.width, frameBuffer.height);
+            OffscreenFrameBuffer = CubismOffscreenRenderTextureManager.GetInstance().GetOffscreenRenderTexture(passData.CommonRenderingTextureHandle);
+
+            // Set current frame buffer to offscreen frame buffer.
+            buffer.SetRenderTarget(OffscreenFrameBuffer);
+            // Clear the offscreen frame buffer.
+            buffer.ClearRenderTarget(false, true, Color.clear);
+
+            // Set up for drawing to offscreen.
             RenderController.CurrentFrameBuffer = OffscreenFrameBuffer;
             RenderController.CurrentOffscreenUnmanagedIndex = Offscreen.UnmanagedIndex;
         }
 
         /// <summary>
+        /// Gets the bounds that can contain all masks.
+        /// </summary>
+        /// <returns></returns>
+        private Bounds GetMaskBounds()
+        {
+            // If there are no masks, return empty bounds.
+            if (_masks == null
+                || _masks.Length < 1)
+            {
+                return new Bounds();
+            }
+
+            var min = _masks[0]?.Mesh?.bounds.min ?? Vector3.zero;
+            var max = _masks[0]?.Mesh?.bounds.max ?? Vector3.zero;
+
+
+            for (var i = 1; i < _masks.Length; ++i)
+            {
+                // Skip if the mask is null.
+                if (!_masks[i])
+                {
+                    continue;
+                }
+
+                var boundsI = _masks[i].Mesh.bounds;
+
+
+                if (boundsI.min.x < min.x)
+                {
+                    min.x = boundsI.min.x;
+                }
+
+                if (boundsI.max.x > max.x)
+                {
+                    max.x = boundsI.max.x;
+                }
+
+
+                if (boundsI.min.y < min.y)
+                {
+                    min.y = boundsI.min.y;
+                }
+
+                if (boundsI.max.y > max.y)
+                {
+                    max.y = boundsI.max.y;
+                }
+            }
+
+            var bounds = _maskBounds;
+            bounds.SetMinMax(min, max);
+            _maskBounds = bounds;
+
+            return _maskBounds;
+        }
+
+        /// <summary>
+        /// Calculates the transform values for mask rendering based on mask bounds.
+        /// </summary>
+        private void CalcMaskTransform()
+        {
+            // Compute bounds and scale.
+            var bounds = GetMaskBounds();
+            var scale = (bounds.size.x > bounds.size.y)
+                ? bounds.size.x
+                : bounds.size.y;
+
+            // Compute mask transform.
+            var maskTransform = _maskTransform;
+            maskTransform.Set(
+                bounds.center.x, // Offset X
+                bounds.center.y, // Offset Y
+                1.0f / scale, // Scale
+                0 // Dummy, unused.
+                  );
+            _maskTransform = maskTransform;
+        }
+
+        /// <summary>
         /// Draws the mask.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="frameBuffer"></param>
-        internal void DrawMasks(CommandBuffer buffer, RenderTexture frameBuffer)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        internal void DrawMasks(CommandBuffer buffer, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
-            if (RenderController.MaskController != null
-                && _masks?.Length > 0
-                && RenderController.MaskController.MaskTexture?.HighPrecisionRenderTexture != null)
+            // If the model doesn't have masks, return.
+            if (!RenderController.HasMask)
             {
-                var maskTexture = RenderController.MaskController.MaskTexture.HighPrecisionRenderTexture;
+                return;
+            }
 
-                // Check if the mask texture size matches the frame buffer size.
-                if (maskTexture.width != frameBuffer.width
-                    || maskTexture.height != frameBuffer.height)
-                {
-                    maskTexture.Release();
-                    maskTexture.width = frameBuffer.width;
-                    maskTexture.height = frameBuffer.height;
-                    maskTexture.Create();
-                }
+#if UNITY_EDITOR
+            // If the masks have null, try to initialize them.
+            if (_haveMasksNull)
+            {
+                TryInitializeMasks();
+                _haveMasksNull = false;
+            }
+#endif
+
+            if (_masks?.Length > 0)
+            {
+                var maskTexture = passData.MaskTextureHandle;
 
                 buffer.SetRenderTarget(maskTexture);
                 buffer.ClearRenderTarget(true, true, Color.clear);
 
-                // Set VP matrix
-                var cavWidth = RenderController.Model.CanvasInformation.CanvasWidth;
-                var cavHeight = RenderController.Model.CanvasInformation.CanvasHeight;
-                var projHalfWidth = cavWidth / RenderController.Model.CanvasInformation.PixelsPerUnit * 0.5f;
-                var projHalfHeight = cavHeight / RenderController.Model.CanvasInformation.PixelsPerUnit * 0.5f;
-                var projMatrix = Matrix4x4.Ortho(-projHalfWidth, projHalfWidth, -projHalfHeight, projHalfHeight, -1.0f, 1.0f);
-                var viewMatrix = Matrix4x4.identity;
-                buffer.SetProjectionMatrix(projMatrix);
-                buffer.SetViewMatrix(viewMatrix);
+                // Calculate mask transform.
+                CalcMaskTransform();
 
                 // Draw the masks.
                 for (var maskIndex = 0; maskIndex < _masks.Length; maskIndex++)
                 {
-                    buffer.DrawMesh(_masks[maskIndex].Mesh, Matrix4x4.identity, CubismBuiltinMaterials.BlendMask, 0, 0, _masks[maskIndex].PropertyBlock);
+                    var mask = _masks[maskIndex];
+
+                    if (!mask)
+                    {
+#if UNITY_EDITOR
+                        _haveMasksNull = true;
+#endif
+                        continue;
+                    }
+
+                    switch (DrawObjectType)
+                    {
+                        case CubismModelTypes.DrawObjectType.Drawable:
+                            mask.PropertyBlock.SetTexture(CubismShaderVariables.MainTexture, mask.MainTexture);
+                            mask.PropertyBlock.SetVector(CubismShaderVariables.MaskTile, HighPrecisionMaskTile);
+                            mask.PropertyBlock.SetVector(CubismShaderVariables.MaskTransform, _maskTransform);
+
+                            // Draw the mesh with the material.
+                            buffer.DrawMesh(
+                                mask.Mesh,
+                                Matrix4x4.identity,
+                                mask.Drawable.IsDoubleSided
+                                    ? CubismBuiltinMaterials.Mask
+                                    : CubismBuiltinMaterials.MaskCulling,
+                                0,
+                                0,
+                                mask.PropertyBlock);
+                            break;
+                        case CubismModelTypes.DrawObjectType.Offscreen:
+                            mask.PropertyBlock.SetTexture(CubismShaderVariables.MainTexture, mask.MainTexture);
+                            mask.ApplyTransform();
+
+                            // Draw the mesh with the material.
+                            buffer.DrawMesh(
+                                mask.Mesh,
+                                Matrix4x4.identity,
+                                CubismBuiltinMaterials.OffscreenMask,
+                                0,
+                                0,
+                                mask.PropertyBlock);
+                            break;
+                        default:
+                            Debug.LogWarning("Unknown DrawObjectType.");
+                            break;
+                    }
                 }
 
-                ApplyMaskTexture();
+                ApplyMask(maskTexture);
             }
         }
 
         /// <summary>
         /// Submits the offscreen frame buffer and draws to the parent offscreen if necessary.
         /// </summary>
-        /// <param name="frameBuffer">Current RenderTexture</param>
-        /// <param name="currentOffscreenUnmanagedIndex">Current Offscreen's UnmanagedIndex</param>
-        /// <param name="buffer">Command buffer</param>
-        /// <param name="targetRenderer">Current target rendering object</param>
-        /// <param name="rootFrameBuffer">Current root RenderTexture</param>
-        private void SubmitDrawToParentOffscreen(ref RenderTexture frameBuffer, ref int currentOffscreenUnmanagedIndex,
-            CommandBuffer buffer, CubismRenderer targetRenderer, RenderTexture rootFrameBuffer)
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        /// <param name="currentOffscreenUnmanagedIndex">Current offscreen's unmanaged index.</param>
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="targetRenderer">Current target rendering object.</param>
+        private void SubmitDrawToParentOffscreen(ref CubismRenderPassFeature.CubismRenderPass.PassData passData, ref int currentOffscreenUnmanagedIndex,
+            CommandBuffer buffer, CubismRenderer targetRenderer)
         {
-            if (frameBuffer == null
-                || frameBuffer == RenderController.ModelFrameBuffer
+            if (passData == null
+                || RenderController.CurrentFrameBuffer == (RenderTexture)passData.CommonRenderingTextureHandle
                 || currentOffscreenUnmanagedIndex == -1)
             {
                 return;
@@ -316,7 +577,6 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            var parentIndex = -1;
             var targetParentIndex = -1;
             RenderTexture previousOffscreen = null;
             switch (targetRenderer.DrawObjectType)
@@ -344,7 +604,7 @@ namespace Live2D.Cubism.Rendering
 
                 targetParentIndex = RenderController.Model.Parts[targetParentIndex].UnmanagedParentIndex;
             }
-            parentIndex = RenderController.Model.Parts[currentOwnerIndex].UnmanagedParentIndex;
+            var parentIndex = RenderController.Model.Parts[currentOwnerIndex].UnmanagedParentIndex;
 
             // Find the offscreen renderer with the previous offscreen unmanaged index.
             while (parentIndex != -1)
@@ -371,7 +631,7 @@ namespace Live2D.Cubism.Rendering
 
                 parentIndex = RenderController.Model.Parts[parentIndex].UnmanagedParentIndex;
 
-                if (previousOffscreen == null)
+                if (!previousOffscreen)
                 {
                     continue;
                 }
@@ -379,9 +639,27 @@ namespace Live2D.Cubism.Rendering
                 break;
             }
 
-            if (previousOffscreen == null)
+            // Try to get the root part offscreen if there is no parent offscreen.
+            if (!previousOffscreen && RenderController.HasRootPartOffscreen)
             {
-                previousOffscreen = rootFrameBuffer;
+                var offscreenRenderers = RenderController.OffscreenRenderers;
+
+                for (var offscreenIndex = 0; offscreenIndex < offscreenRenderers.Length; offscreenIndex++)
+                {
+                    if (offscreenRenderers[offscreenIndex].Offscreen.UnmanagedIndex != 0)
+                    {
+                        continue;
+                    }
+
+                    previousOffscreen = offscreenRenderers[offscreenIndex].OffscreenFrameBuffer;
+                    break;
+                }
+            }
+
+            // If there is no parent offscreen, use the common rendering texture.
+            if (!previousOffscreen)
+            {
+                previousOffscreen = passData.CommonRenderingTextureHandle;
             }
 
             if (previousOffscreen == offscreenRenderer?.OffscreenFrameBuffer)
@@ -390,53 +668,48 @@ namespace Live2D.Cubism.Rendering
             }
 
             // If It can copy the parent offscreen, copy it to the current offscreen renderer.
-            DrawOffscreen(buffer, previousOffscreen, offscreenRenderer);
+            DrawOffscreen(buffer, previousOffscreen, offscreenRenderer, passData);
 
             offscreenRenderer.OffscreenFrameBuffer = null;
-            frameBuffer = previousOffscreen;
             RenderController.CurrentFrameBuffer = previousOffscreen;
             currentOffscreenUnmanagedIndex = _previousOffscreenUnmanagedIndex;
 
             // If the current offscreen is the parent of the target renderer, draw to the parent offscreen.
-            SubmitDrawToParentOffscreen(ref frameBuffer, ref currentOffscreenUnmanagedIndex,
-                buffer, targetRenderer, rootFrameBuffer);
+            SubmitDrawToParentOffscreen(ref passData, ref currentOffscreenUnmanagedIndex,
+                buffer, targetRenderer);
         }
 
         /// <summary>
         /// Renders a drawable.
         /// </summary>
-        /// <param name="buffer">Command buffer</param>
-        /// <param name="frameBuffer">Rendering frame buffer</param>
-        private void DrawDrawable(CommandBuffer buffer, RenderTexture frameBuffer)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        private void DrawDrawable(CommandBuffer buffer, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
+            if (!RenderController)
+            {
+                return;
+            }
+
             if (RenderController.CurrentOffscreenUnmanagedIndex != -1)
             {
                 var currentOffscreenOwnerUnmanagedIndex = RenderController.CurrentOffscreenUnmanagedIndex;
-                SubmitDrawToParentOffscreen(ref frameBuffer, ref currentOffscreenOwnerUnmanagedIndex,
-                    buffer, this, RenderController.RootFrameBuffer);
+                SubmitDrawToParentOffscreen(ref passData, ref currentOffscreenOwnerUnmanagedIndex,
+                    buffer, this);
 
                 RenderController.CurrentOffscreenUnmanagedIndex = currentOffscreenOwnerUnmanagedIndex;
             }
 
             // Mask rendering.
-            DrawMasks(buffer, frameBuffer);
+            DrawMasks(buffer, passData);
 
             // Set property block.
             ApplyMainTexture();
-            ApplyCommonFrameBuffer();
+            ApplyBlendedRenderTexture(passData);
             ApplyScreenColor();
             ApplyMultiplyColor();
             ApplyVertexColors();
-
-            // Set VP matrix
-            var cavWidth = RenderController.Model.CanvasInformation.CanvasWidth;
-            var cavHeight = RenderController.Model.CanvasInformation.CanvasHeight;
-            var projHalfWidth = cavWidth / RenderController.Model.CanvasInformation.PixelsPerUnit * 0.5f;
-            var projHalfHeight = cavHeight / RenderController.Model.CanvasInformation.PixelsPerUnit * 0.5f;
-            var projMatrix = Matrix4x4.Ortho(-projHalfWidth, projHalfWidth, -projHalfHeight, projHalfHeight, -1.0f, 1.0f);
-            var viewMatrix = Matrix4x4.identity;
-            buffer.SetProjectionMatrix(projMatrix);
-            buffer.SetViewMatrix(viewMatrix);
+            ApplyTransform();
 
             // In the case of color blending before Cubism 5.2.
             if ((ColorBlendType == BlendTypes.ColorBlend.Normal
@@ -444,7 +717,17 @@ namespace Live2D.Cubism.Rendering
                 || ColorBlendType == BlendTypes.ColorBlend.Add
                 || ColorBlendType == BlendTypes.ColorBlend.Multiply)
             {
-                buffer.SetRenderTarget(frameBuffer);
+                // If the current frame buffer is different from the common rendering texture, update it.
+                // HACK: Assumes that the size has already been corrected in the `SetOffscreen()` function for cases where drawing occurs to the offscreen.
+                if (!RenderController.CurrentFrameBuffer
+                    || RenderController.CurrentFrameBuffer.width != ((RenderTexture)passData.CameraDepthTextureHandle).width
+                    || RenderController.CurrentFrameBuffer.height != ((RenderTexture)passData.CameraDepthTextureHandle).height)
+                {
+                    RenderController.CurrentFrameBuffer = passData.CommonRenderingTextureHandle;
+                }
+
+                // Set render target with depth buffer for proper depth testing
+                buffer.SetRenderTarget(RenderController.CurrentFrameBuffer, passData.CameraDepthTextureHandle);
 
                 // Draw the mesh with the material.
                 buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
@@ -452,10 +735,11 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            // Copy the current frame buffer to the common render frame buffer.
-            buffer.Blit(frameBuffer, CubismCommonRenderFrameBuffer.GetInstance().CommonFrameBuffer, Vector2.one, Vector2.zero, 0, 0);
+            // Blit to temporary texture.
+            buffer.Blit(RenderController.CurrentFrameBuffer, passData.CommonTemporaryTextureHandle);
 
-            buffer.SetRenderTarget(frameBuffer);
+            // Set temporary render target.
+            buffer.SetRenderTarget(RenderController.CurrentFrameBuffer, passData.CameraDepthTextureHandle);
 
             // Draw the mesh with the material.
             buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
@@ -464,7 +748,11 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Copies the current drawable to the parent offscreen.
         /// </summary>
-        public void DrawOffscreen(CommandBuffer buffer, RenderTexture previousOffscreen, CubismRenderer currentOffscreenRenderer)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="previousOffscreen">Previous offscreen render texture.</param>
+        /// <param name="currentOffscreenRenderer">Current offscreen renderer.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        internal void DrawOffscreen(CommandBuffer buffer, RenderTexture previousOffscreen, CubismRenderer currentOffscreenRenderer, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
             if (previousOffscreen == null
                 || currentOffscreenRenderer == null)
@@ -473,18 +761,19 @@ namespace Live2D.Cubism.Rendering
             }
 
             // Draw the mesh with the material.
-            currentOffscreenRenderer.DrawOffscreenMesh(buffer, previousOffscreen);
+            currentOffscreenRenderer.DrawOffscreenMesh(buffer, previousOffscreen, passData);
         }
 
         /// <summary>
         /// Draws the mesh for offscreen rendering.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="previousOffscreen"></param>
-        internal void DrawOffscreenMesh(CommandBuffer buffer, RenderTexture previousOffscreen)
+        /// <param name="buffer">Command buffer to record draw commands.</param>
+        /// <param name="previousOffscreen">Previous offscreen render texture.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        internal void DrawOffscreenMesh(CommandBuffer buffer, RenderTexture previousOffscreen, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
             // Mask rendering.
-            DrawMasks(buffer, OffscreenFrameBuffer);
+            DrawMasks(buffer, passData);
 
             ApplyPropertyForOffscreen(previousOffscreen);
 
@@ -494,7 +783,7 @@ namespace Live2D.Cubism.Rendering
                 || ColorBlendType == BlendTypes.ColorBlend.Add
                 || ColorBlendType == BlendTypes.ColorBlend.Multiply)
             {
-                buffer.SetRenderTarget(previousOffscreen);
+                buffer.SetRenderTarget(previousOffscreen, passData.CameraDepthTextureHandle);
 
                 // Draw the mesh with the material.
                 buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
@@ -502,27 +791,33 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            buffer.SetRenderTarget(RenderController.OffscreenRenderingFrameBuffer);
-            buffer.ClearRenderTarget(true, true, Color.clear);
+            // Set temporary render target.
+            buffer.SetRenderTarget(passData.CommonTemporaryTextureHandle, passData.CameraDepthTextureHandle);
+            // Clear the render target.
+            buffer.ClearRenderTarget(false, true, Color.clear);
 
             // Draw the mesh with the material.
             buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
 
-            // Copy the current frame buffer to the previous offscreen frame buffer.
-            buffer.Blit(RenderController.OffscreenRenderingFrameBuffer, previousOffscreen);
+            // Blit to previous offscreen.
+            buffer.Blit(passData.CommonTemporaryTextureHandle, previousOffscreen);
         }
 
+        /// <summary>
+        /// Applies properties for offscreen rendering.
+        /// </summary>
+        /// <param name="previousOffscreen">Previous offscreen render texture.</param>
         private void ApplyPropertyForOffscreen(RenderTexture previousOffscreen)
         {
-            var property = MeshFilter ? SharedPropertyBlock : PropertyBlock;
+            var property = PropertyBlock;
             MeshRenderer.GetPropertyBlock(property);
 
             // Write property.
             property.SetTexture(CubismShaderVariables.MainTexture, OffscreenFrameBuffer);
-            property.SetTexture("_RenderTexture", previousOffscreen);
+            property.SetTexture(CubismShaderVariables.RenderTexture, previousOffscreen);
             property.SetColor(CubismShaderVariables.MultiplyColor, MultiplyColor);
             property.SetColor(CubismShaderVariables.ScreenColor, ScreenColor);
-            property.SetFloat("_OffscreenOpacity", Offscreen.Opacity);
+            property.SetFloat(CubismShaderVariables.OffscreenOpacity, Offscreen.Opacity);
 
             MeshRenderer.SetPropertyBlock(property);
         }
@@ -530,27 +825,20 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Applies mask texture for rendering.
         /// </summary>
-        private void ApplyMaskTexture()
+        /// <param name="maskTextureHandle">Texture handle for the mask texture.</param>
+        private void ApplyMask(TextureHandle maskTextureHandle)
         {
-            if (RenderController.MaskController.MaskTexture?.HighPrecisionRenderTexture == null)
-            {
-                return;
-            }
-
             MeshRenderer.GetPropertyBlock(PropertyBlock);
 
             // Write property.
-            PropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, RenderController.MaskController.MaskTexture.HighPrecisionRenderTexture);
+            PropertyBlock.SetTexture(CubismShaderVariables.MaskTexture, maskTextureHandle);
+            if (DrawObjectType == CubismModelTypes.DrawObjectType.Drawable)
+            {
+                PropertyBlock.SetVector(CubismShaderVariables.MaskTile, HighPrecisionMaskTile);
+                PropertyBlock.SetVector(CubismShaderVariables.MaskTransform, _maskTransform);
+            }
 
             MeshRenderer.SetPropertyBlock(PropertyBlock);
-        }
-
-        /// <summary>
-        /// Initialize screen frame buffer.
-        /// </summary>
-        private void TryInitializeFrameBuffer()
-        {
-            ApplyCommonFrameBuffer();
         }
 
         /// <summary>
@@ -558,7 +846,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void TryInitializeMasks()
         {
-            if (RenderController.MaskController == null)
+            if (!RenderController.HasMask)
             {
                 return;
             }
@@ -579,16 +867,16 @@ namespace Live2D.Cubism.Rendering
                     return;
             }
 
-            for (var i = 0; i < maskDrawables.Length; i++)
+            for (var maskIndex = 0; maskIndex < maskDrawables.Length; maskIndex++)
             {
-                for (var j = 0; j < RenderController.Renderers.Length; j++)
+                for (var drawableRendererIndex = 0; drawableRendererIndex < RenderController.DrawableRenderers.Length; drawableRendererIndex++)
                 {
-                    if (RenderController.Renderers[j].Drawable.UnmanagedIndex != maskDrawables[i].UnmanagedIndex)
+                    if (RenderController.DrawableRenderers[drawableRendererIndex].Drawable.UnmanagedIndex != maskDrawables[maskIndex].UnmanagedIndex)
                     {
                         continue;
                     }
 
-                    _masks[i] = RenderController.Renderers[j];
+                    _masks[maskIndex] = RenderController.DrawableRenderers[drawableRendererIndex];
                     break;
                 }
             }
@@ -609,8 +897,6 @@ namespace Live2D.Cubism.Rendering
                 }
                 case CubismModelTypes.DrawObjectType.Offscreen:
                 {
-                    var frameBuffer = RenderController.CurrentFrameBuffer;
-
                     Offscreen = GetComponent<CubismOffscreen>();
                     DrawObjectUnmanagedIndex = Offscreen.UnmanagedIndex;
                     break;

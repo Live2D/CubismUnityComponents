@@ -9,10 +9,10 @@ Shader "Unlit/BlendMode/OffscreenBlend"
 {
     Properties
     {
-        [PerRendererData] _MainTex ("Texture0", 2D) = "white" {}
-        [PerRendererData] _RenderTexture ("Texture1", 2D) = "white" {}
-        [PerRendererData] _OffscreenOpacity("Offscreen Opacity", Float) = 1
+        [PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
+        [PerRendererData] _RenderTexture ("Render Texture", 2D) = "white" {}
         [PerRendererData] cubism_ModelOpacity("Model Opacity", Float) = 1
+        [PerRendererData] _OffscreenOpacity("Offscreen Opacity", Float) = 1
 
         // Extension Color settings.
         [PerRendererData] cubism_MultiplyColor("Multiply Color", Color) = (1.0, 1.0, 1.0, 1.0)
@@ -34,28 +34,30 @@ Shader "Unlit/BlendMode/OffscreenBlend"
             "RenderType" = "Transparent"
             "PreviewType" = "Plane"
             "CanUseSpriteAtlas" = "True"
+            "RenderPipeline" = "UniversalPipeline"
         }
         Cull     [_Cull]
         Lighting Off
         ZWrite   Off
+        ZTest LEqual
+
+        Blend  One Zero, One Zero
 
         Pass
         {
-            Blend One Zero, One Zero
-
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ CUBISM_INVERT_ON
             #pragma multi_compile _ CUBISM_MASK_ON
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "../CubismCG.cginc"
             #include_with_pragmas "CubismVariants.cginc"
             #include "ColorBlendVariants.cginc"
             #include "AlphaBlendVariants.cginc"
 
-            struct appdata
+            struct Attributes
             {
                 float4 vertex : POSITION;
                 float4 color    : COLOR;
@@ -63,20 +65,24 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Varyings
             {
                 float2 texcoord : TEXCOORD0;
                 float4 color    : COLOR;
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_OUTPUT_STEREO
+
+                // Add Cubism specific vertex output data.
+                CUBISM_VERTEX_OUTPUT
             };
 
+            CBUFFER_START(UnityPerMaterial)
             sampler2D _MainTex; // src (current offscreen)
             sampler2D _RenderTexture; // dest (previous offscreen)
             float4 _MainTex_ST;
             float4 _RenderTexture_ST;
-            fixed4 cubism_MultiplyColor;
-            fixed4 cubism_ScreenColor;
+            half4 cubism_MultiplyColor;
+            half4 cubism_ScreenColor;
             float _OffscreenOpacity;
 
             #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
@@ -85,10 +91,11 @@ Shader "Unlit/BlendMode/OffscreenBlend"
 
             // Include Cubism specific shader variables.
             CUBISM_SHADER_VARIABLES
+            CBUFFER_END
 
-            v2f vert (appdata IN)
+            Varyings vert (Attributes IN)
             {
-                v2f OUT;
+                Varyings OUT;
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
@@ -98,6 +105,9 @@ Shader "Unlit/BlendMode/OffscreenBlend"
 
                 OUT.texcoord = IN.texcoord;
 
+                // Initialize Cubism specific vertex output data.
+                CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT);
+
                 // If reversed Z is enabled, flip the Y coordinate.
                 #if UNITY_REVERSED_Z
                 OUT.vertex.y = -OUT.vertex.y;
@@ -106,17 +116,16 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 return OUT;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half4 frag (Varyings IN) : SV_Target
             {
                 // Cd (Straight)
-                fixed4 _tmp1 = tex2D(_RenderTexture, i.texcoord);
-                float3  Cd = _tmp1.rgb;
-                float Ad = _tmp1.a;
+                half4 renderTextureColor = tex2D(_RenderTexture, IN.texcoord);
+                float3  Cd = renderTextureColor.rgb;
+                float Ad = renderTextureColor.a;
 
-                // Zero division check
                 if (abs(Ad) < 0.00001)
                 {
-                    Cd = float3(0.0, 0.0, 0.0);
+                    Cd = half3(0.0, 0.0, 0.0);
                 }
                 else
                 {
@@ -125,18 +134,18 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 }
 
                 // Cs (Straight)
-                fixed4 _tmp2 = tex2D(_MainTex, i.texcoord);
+                half4 mainTextureColor = tex2D(_MainTex, IN.texcoord);
                 // Multiply
-                _tmp2.rgb *= cubism_MultiplyColor.rgb;
+                mainTextureColor.rgb *= cubism_MultiplyColor.rgb;
                 // Screen
-                _tmp2.rgb = (_tmp2.rgb + cubism_ScreenColor.rgb) - (_tmp2.rgb * cubism_ScreenColor.rgb);
+                mainTextureColor.rgb = (mainTextureColor.rgb + cubism_ScreenColor.rgb) - (mainTextureColor.rgb * cubism_ScreenColor.rgb);
 
-                float3  Cs = _tmp2.rgb;
-                float As = _tmp2.a;
+                float3  Cs = mainTextureColor.rgb;
+                float As = mainTextureColor.a;
 
                 if (abs(As) < 0.00001)
                 {
-                    Cs = fixed3(0.0, 0.0, 0.0);
+                    Cs = half3(0.0, 0.0, 0.0);
                 }
                 else
                 {
@@ -147,22 +156,22 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 // Mask
 #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
                 float clippingMask = 1.0;
-                clippingMask = tex2D(cubism_MaskTexture , i.texcoord);
+                clippingMask = tex2D(cubism_MaskTexture , IN.texcoord);
                 clippingMask = abs(cubism_InvertOn - clippingMask);
                 As *= clippingMask;
 #endif
 
-                As *= i.color.a;
+                As *= IN.color.a;
                 As *= _OffscreenOpacity;
 
-                float4 c = ALPHA_BLEND(COLOR_BLEND(Cs, Cd), Cs, As, Cd, Ad);
+                float4 OUT = clamp(ALPHA_BLEND(COLOR_BLEND(Cs, Cd), Cs, As, Cd, Ad), 0.0, 1.0);
 
                 // Apply Cubism alpha to color.
-                c *= cubism_ModelOpacity;
+                OUT *= cubism_ModelOpacity;
 
-               return c;
+               return OUT;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

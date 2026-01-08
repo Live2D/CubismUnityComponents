@@ -8,9 +8,10 @@
 
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework;
-using Live2D.Cubism.Rendering.Masking;
+using Live2D.Cubism.Rendering.URP;
 using System;
 using System.Collections.Generic;
+using Live2D.Cubism.Rendering.URP.RenderingInterceptor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -30,64 +31,30 @@ namespace Live2D.Cubism.Rendering
         private MaterialPropertyBlock _properties;
 
         /// <summary>
-        /// <see cref="CommandBuffer"/>'s backing field.
-        /// </summary>
-        private CommandBuffer _commandBuffer;
-
-        /// <summary>
-        /// Command buffer for rendering.
-        /// </summary>
-        public CommandBuffer CommandBuffer
-        {
-            get { return _commandBuffer; }
-        }
-
-        /// <summary>
         /// Whether the model has a root part offscreen.
         /// </summary>
-        private bool _hasRootPartOffscreen;
+        internal bool HasRootPartOffscreen = true;
 
         /// <summary>
-        /// Original viewport rect.
-        /// </summary>
-        private Rect _orgViewport;
-
-        /// <summary>
-        /// <see cref="MeshRenderer"/> for draw model.
+        /// <see cref="HasMask"/>'s backing field.
         /// </summary>
         [SerializeField, HideInInspector]
-        public MeshRenderer ModelCanvasRenderer;
+        private bool _hasMask;
 
         /// <summary>
-        /// <see cref="MaskController"/>'s backing field.
+        /// Is the model using masks?
         /// </summary>
-        [SerializeField, HideInInspector]
-        private CubismMaskController _maskController;
-
-        /// <summary>
-        /// Mask controller for this model.
-        /// </summary>
-        public CubismMaskController MaskController
+        public bool HasMask
         {
             get
             {
-                return _maskController;
+                return _hasMask;
             }
             set
             {
-                _maskController = value;
+                _hasMask = value;
             }
         }
-
-        /// <summary>
-        /// Framebuffer for rendering.
-        /// </summary>
-        public RenderTexture ModelFrameBuffer { get; set; }
-
-        /// <summary>
-        /// Framebuffer for rendering.
-        /// </summary>
-        public RenderTexture RootFrameBuffer { get; set; }
 
         /// <summary>
         /// Current frame buffer used for rendering.
@@ -96,27 +63,55 @@ namespace Live2D.Cubism.Rendering
         public RenderTexture CurrentFrameBuffer { get; set; }
 
         /// <summary>
-        /// Offscreen frame buffer used for rendering
-        /// </summary>
-        public RenderTexture OffscreenRenderingFrameBuffer { get; set; }
-
-        /// <summary>
         /// Index of the current offscreen owner in the unmanaged array.
         /// </summary>
         public int CurrentOffscreenUnmanagedIndex { get; set; }
 
-        #region SortedRenderers
+        #region Sorting
+
+        /// <summary>
+        /// <see cref="GroupedSortingIndex"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _groupedSortingIndex;
+
+        /// <summary>
+        /// Sorting index for grouped rendering.
+        /// </summary>
+        public int GroupedSortingIndex
+        {
+            get
+            {
+                return _groupedSortingIndex;
+            }
+
+            set
+            {
+                // Remove from the common rendering controller's groups.
+                CubismRenderControllerGroup.GetInstance().RemoveRenderControllerFromGroups(this, true);
+
+                _groupedSortingIndex = value;
+
+                // Re-add to the common rendering controller's groups.
+                CubismRenderControllerGroup.GetInstance().AddRenderControllerGroups(this);
+            }
+        }
 
         /// <summary>
         /// Whether the render order of the <see cref="CubismDrawable"/>s did change.
         /// </summary>
         internal bool DidChangeDrawableRenderOrder;
 
+        /// <summary>
+        /// Whether the sorting order of the <see cref="CubismRenderer"/>s did change.
+        /// </summary>
+        internal bool DidChangeSorting;
+
         [NonSerialized]
         private CubismRenderer[] _sortedRenderers;
 
         /// <summary>
-        /// Sorted <see cref="Renderers"/>s.
+        /// Sorted <see cref="Renderers"/>s for using <see cref="ICubismRenderingInterceptor"/>.
         /// </summary>
         public CubismRenderer[] SortedRenderers
         {
@@ -161,11 +156,21 @@ namespace Live2D.Cubism.Rendering
             _sortedRenderers = renderers.ToArray();
         }
 
+        /// <summary>
+        /// Sorts the given renderers by their sorting order.
+        /// </summary>
+        /// <param name="renderers"> Renderers to sort. </param>
         private void SortBySortingOrder(List<CubismRenderer> renderers)
         {
             renderers.Sort(CompareBySortingOrder);
         }
 
+        /// <summary>
+        /// Compares two <see cref="CubismRenderer"/>s by their sorting order.
+        /// </summary>
+        /// <param name="a"> First renderer. </param>
+        /// <param name="b"> Second renderer. </param>
+        /// <returns></returns>
         private int CompareBySortingOrder(CubismRenderer a, CubismRenderer b)
         {
             return a.MeshRenderer.sortingOrder - b.MeshRenderer.sortingOrder;
@@ -207,7 +212,7 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (_offscreenRenderers == null && Model.Offscreens != null)
+                if (_offscreenRenderers == null && Model?.Offscreens != null)
                 {
                     _offscreenRenderers = Model.Offscreens.GetComponentsMany<CubismRenderer>();
                 }
@@ -221,8 +226,8 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Initializes the render controller.
         /// </summary>
-        /// <param name="renderers"></param>
-        private void TryInitializeRenderersIsUsingBlendMode(CubismRenderer[] renderers)
+        /// <param name="renderers">Array of renderers to initialize.</param>
+        private void TryInitializeRenderers(CubismRenderer[] renderers)
         {
             // HACK: It doesn't work correctly when placed inside a function.
             if (renderers != null && renderers.Length != 0)
@@ -244,6 +249,13 @@ namespace Live2D.Cubism.Rendering
             {
                 var targetRenderer = renderers[index];
                 targetRenderer.DrawObjectType = CubismModelTypes.DrawObjectType.Drawable;
+                targetRenderer.Drawable = drawables[index];
+
+                if (!HasRootPartOffscreen)
+                {
+                    continue;
+                }
+                HasRootPartOffscreen = CheckHasRootPartOffscreen(targetRenderer);
             }
 
             // Store drawable renderers.
@@ -253,11 +265,6 @@ namespace Live2D.Cubism.Rendering
 
             if (offscreens != null)
             {
-                if (offscreens.Length > 0)
-                {
-                    _hasRootPartOffscreen = offscreens[0].OwnerIndex == 0;
-                }
-
                 var offscreenRenderers = offscreens.AddComponentEach<CubismRenderer>();
                 Array.Resize(ref renderers, renderers.Length + offscreenRenderers.Length);
                 Array.Copy(offscreenRenderers, 0, renderers, renderers.Length - offscreenRenderers.Length, offscreenRenderers.Length);
@@ -266,6 +273,13 @@ namespace Live2D.Cubism.Rendering
                 {
                     var targetRenderer = renderers[index];
                     targetRenderer.DrawObjectType = CubismModelTypes.DrawObjectType.Offscreen;
+                    targetRenderer.Offscreen = offscreens[index - drawableRenderers.Length];
+
+                    if (!HasRootPartOffscreen)
+                    {
+                        continue;
+                    }
+                    HasRootPartOffscreen = CheckHasRootPartOffscreen(targetRenderer);
                 }
 
                 // Store offscreen renderers.
@@ -282,11 +296,6 @@ namespace Live2D.Cubism.Rendering
         /// <param name="renderers"></param>
         private void OnAfterRenderersInitialize(CubismRenderer[] renderers)
         {
-            if (!Model.IsUsingBlendMode)
-            {
-                return;
-            }
-
             // Set the render order and call `OnAfterAllRendererInitialize` method for each renderer.
             for (var i = 0; i < renderers.Length; i++)
             {
@@ -305,8 +314,6 @@ namespace Live2D.Cubism.Rendering
                 }
                 initRenderer.OnAfterAllRendererInitialize();
             }
-
-            SortRenderers();
         }
 
         /// <summary>
@@ -314,7 +321,7 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         /// <param name="targetRenderer">The <see cref="CubismRenderer"/> to check.</param>
         /// <returns>True if it has one, false if it does not.</returns>
-        private bool HasRootPartOffscreen(CubismRenderer targetRenderer)
+        private bool CheckHasRootPartOffscreen(CubismRenderer targetRenderer)
         {
             var parentPartIndex = -1;
             switch (targetRenderer.DrawObjectType)
@@ -323,7 +330,7 @@ namespace Live2D.Cubism.Rendering
                     parentPartIndex = targetRenderer.Drawable.ParentPartIndex;
                     break;
                 case CubismModelTypes.DrawObjectType.Offscreen:
-                    parentPartIndex = targetRenderer.Offscreen.OwnerIndex;
+                    parentPartIndex = Model.Parts[targetRenderer.Offscreen.OwnerIndex].UnmanagedParentIndex;
                     break;
                 default:
                     Debug.LogWarning($"Unknown draw object type: {targetRenderer.DrawObjectType} for renderer: {targetRenderer.name}");
@@ -335,108 +342,65 @@ namespace Live2D.Cubism.Rendering
             {
                 for (var partIndex = 0; partIndex < Model.Parts.Length; partIndex++)
                 {
-                    part = Model.Parts[partIndex];
-                    if (part.UnmanagedIndex == parentPartIndex)
+                    if (Model.Parts[partIndex].UnmanagedIndex != parentPartIndex)
                     {
-                        break;
+                        continue;
                     }
+
+                    // Found the part.
+                    part = Model.Parts[partIndex];
+                    break;
                 }
 
                 parentPartIndex = part?.UnmanagedParentIndex ?? -1;
             }
 
-            return parentPartIndex == 0;
-        }
-
-        /// <summary>
-        /// Draws all draw objects in model for after Cubism 5.3.
-        /// </summary>
-        private void DrawObjects()
-        {
-            // Ready the frame buffer.
-            TryInitializeFrameBuffers();
-
-            // Setting up the command buffer.
-            _commandBuffer.Clear();
-
-            if ((OffscreenRenderers?.Length ?? 0) > 0)
-            {
-                // Clear offscreen rendering frame buffer.
-                _commandBuffer.SetRenderTarget(OffscreenRenderingFrameBuffer);
-                _commandBuffer.ClearRenderTarget(true, true, Color.clear);
-
-                CubismOffscreenRenderTextureManager.GetInstance().ClearRenderTextures(_commandBuffer);
-            }
-            // Clear the system render texture for each model (used as a temporary buffer).
-            _commandBuffer.SetRenderTarget(CubismCommonRenderFrameBuffer.GetInstance().CommonFrameBuffer);
-            _commandBuffer.ClearRenderTarget(true, true, Color.clear);
-            // Set the render target to the model framebuffer.
-            _commandBuffer.SetRenderTarget(ModelFrameBuffer);
-            _commandBuffer.ClearRenderTarget(true, true, Color.clear);
-
-            // Reset the current frame buffer.
-            CurrentFrameBuffer = ModelFrameBuffer;
-            CurrentOffscreenUnmanagedIndex = -1;
-
-            // If the model has an offscreen that serves as the rendering destination for all draw objects.
-            if (_hasRootPartOffscreen
-                && OffscreenRenderers != null
-                && RootFrameBuffer == ModelFrameBuffer)
-            {
-                for (var i = 0; i < OffscreenRenderers.Length; i++)
-                {
-                    var offscreenRenderer = OffscreenRenderers[i];
-                    if (offscreenRenderer.Offscreen.UnmanagedIndex != 0)
-                    {
-                        continue;
-                    }
-
-                    RootFrameBuffer = OffscreenRenderers[i].OffscreenFrameBuffer;
-                    break;
-                }
-            }
-
-            if (SortedRenderers == null)
-            {
-                return;
-            }
-
-            if (DidChangeDrawableRenderOrder)
-            {
-                SortRenderers();
-            }
-
-            // Begin rendering the model.
-            for (var i = 0; i < SortedRenderers.Length; i++)
-            {
-                if (SortedRenderers[i] == null
-                    || !SortedRenderers[i].gameObject.activeSelf
-                    || !SortedRenderers[i].MeshRenderer.enabled)
-                {
-                    continue;
-                }
-
-                SortedRenderers[i].DrawObject(_commandBuffer, CurrentFrameBuffer);
-            }
-
-            SubmitDrawOffscreen();
-
-            // Execute the command buffer.
-            Graphics.ExecuteCommandBuffer(_commandBuffer);
+            return parentPartIndex == 0 && Model.Parts[parentPartIndex].OffscreenIndex > -1;
         }
 
         /// <summary>
         /// Submits drawing offscreen for all offscreen renderers.
         /// </summary>
-        private void SubmitDrawOffscreen()
+        /// <param name="commandBuffer">Command buffer to record draw commands.</param>
+        /// <param name="passData">Pass data containing render controllers and camera data.</param>
+        internal void SubmitDrawOffscreen(CommandBuffer commandBuffer, CubismRenderPassFeature.CubismRenderPass.PassData passData)
         {
-            while (
-                (CurrentOffscreenUnmanagedIndex != -1)
-                 && (CurrentFrameBuffer != ModelFrameBuffer)
-             )
+            if (!IsInitialized
+                || !Model
+                || OffscreenRenderers == null)
             {
+                return;
+            }
 
+            while (CurrentFrameBuffer != (RenderTexture)passData.CommonRenderingTextureHandle)
+            {
                 CubismRenderer offscreenRenderer = null;
+                if (CurrentOffscreenUnmanagedIndex == -1 && HasRootPartOffscreen)
+                {
+                    for (var offscreenIndex = 0; offscreenIndex < OffscreenRenderers.Length; offscreenIndex++)
+                    {
+                        if (OffscreenRenderers[offscreenIndex].Offscreen.UnmanagedIndex != 0)
+                        {
+                            continue;
+                        }
+
+                        offscreenRenderer = OffscreenRenderers[offscreenIndex];
+
+                        break;
+                    }
+
+                    if (!offscreenRenderer)
+                    {
+                        break;
+                    }
+
+                    offscreenRenderer.DrawOffscreen(commandBuffer, passData.CommonRenderingTextureHandle, offscreenRenderer, passData);
+                    offscreenRenderer.OffscreenFrameBuffer = null;
+                    CurrentFrameBuffer = passData.CommonRenderingTextureHandle;
+                    CurrentOffscreenUnmanagedIndex = -1;
+                    break;
+                }
+
                 for (var offscreenRendererIndex = 0; offscreenRendererIndex < OffscreenRenderers.Length; offscreenRendererIndex++)
                 {
                     if (OffscreenRenderers[offscreenRendererIndex].Offscreen.UnmanagedIndex != CurrentOffscreenUnmanagedIndex)
@@ -449,15 +413,20 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 RenderTexture previousOffscreen = null;
-                var currentOwnerIndex = offscreenRenderer?.Offscreen.OwnerIndex ?? -1;
-                var parentIndex = Model.Parts[currentOwnerIndex].UnmanagedParentIndex;
+                var currentOwnerIndex = offscreenRenderer?.Offscreen?.OwnerIndex ?? -1;
+
+                var parentIndex = -1;
+                if (currentOwnerIndex != -1)
+                {
+                    parentIndex = Model.Parts[currentOwnerIndex]?.UnmanagedParentIndex ?? -1;
+                }
 
                 var previousIndex = -1;
                 // Find the offscreen renderer with the previous offscreen unmanaged index.
                 while (parentIndex != -1)
                 {
                     var part = Model.Parts[parentIndex];
-                    if (part.OffscreenIndex != -1)
+                    if (part && part.OffscreenIndex != -1)
                     {
                         for (var offscreenRendererIndex = 0; offscreenRendererIndex < OffscreenRenderers.Length; offscreenRendererIndex++)
                         {
@@ -469,7 +438,7 @@ namespace Live2D.Cubism.Rendering
                                 continue;
                             }
 
-                            if (element.Offscreen.UnmanagedIndex != part.OffscreenIndex)
+                            if (element.Offscreen.UnmanagedIndex != part?.OffscreenIndex)
                             {
                                 continue;
                             }
@@ -479,9 +448,9 @@ namespace Live2D.Cubism.Rendering
                             break;
                         }
                     }
-                    parentIndex = Model.Parts[parentIndex].UnmanagedParentIndex;
+                    parentIndex = Model.Parts[parentIndex]?.UnmanagedParentIndex ?? -1;
 
-                    if (previousOffscreen == null)
+                    if (!previousOffscreen)
                     {
                         continue;
                     }
@@ -489,17 +458,33 @@ namespace Live2D.Cubism.Rendering
                     break;
                 }
 
-                if (previousOffscreen == null)
+                // Try to get the root part offscreen if there is no parent offscreen.
+                if (!previousOffscreen && HasRootPartOffscreen)
                 {
-                    previousOffscreen = RootFrameBuffer != CurrentFrameBuffer
-                        ? RootFrameBuffer
-                        : ModelFrameBuffer;
+                    for (var offscreenIndex = 0; offscreenIndex < OffscreenRenderers.Length; offscreenIndex++)
+                    {
+                        if (OffscreenRenderers[offscreenIndex].Offscreen.UnmanagedIndex != 0)
+                        {
+                            continue;
+                        }
+
+                        previousOffscreen = OffscreenRenderers[offscreenIndex].OffscreenFrameBuffer;
+
+                        break;
+                    }
+                }
+
+                // If there is no previous offscreen, or it is the same as the current offscreen, use the common rendering texture.
+                if (!previousOffscreen
+                    || previousOffscreen == offscreenRenderer?.OffscreenFrameBuffer)
+                {
+                    previousOffscreen = passData.CommonRenderingTextureHandle;
                 }
 
                 // If It can copy the parent offscreen, copy it to the current offscreen renderer.
-                offscreenRenderer?.DrawOffscreen(_commandBuffer, previousOffscreen, offscreenRenderer);
+                offscreenRenderer?.DrawOffscreen(commandBuffer, previousOffscreen, offscreenRenderer, passData);
 
-                if (offscreenRenderer != null)
+                if (offscreenRenderer)
                 {
                     offscreenRenderer.OffscreenFrameBuffer = null;
                 }
@@ -507,153 +492,6 @@ namespace Live2D.Cubism.Rendering
                 CurrentFrameBuffer = previousOffscreen;
                 CurrentOffscreenUnmanagedIndex = previousIndex;
             }
-        }
-
-        /// <summary>
-        /// Try to initialize the frame buffers.
-        /// </summary>
-        public void TryInitializeFrameBuffers(bool forceInit = false)
-        {
-            if (forceInit
-                || (!Mathf.Approximately(CubismCommonRenderFrameBuffer.GetInstance().Size.Width, _orgViewport.width)
-                    || !Mathf.Approximately(CubismCommonRenderFrameBuffer.GetInstance().Size.Height, _orgViewport.height)))
-            {
-                if (!ModelFrameBuffer)
-                {
-                    return;
-                }
-
-                // Initialize model frame buffer.
-                ModelFrameBuffer.Release();
-                ModelFrameBuffer.width = CubismCommonRenderFrameBuffer.GetInstance().Size.Width;
-                ModelFrameBuffer.height = CubismCommonRenderFrameBuffer.GetInstance().Size.Height;
-                ModelFrameBuffer.depth = 24;
-                ModelFrameBuffer.format = RenderTextureFormat.ARGB32;
-                ModelFrameBuffer.filterMode = FilterMode.Point;
-                ModelFrameBuffer.Create();
-
-                // Initialize offscreen frame buffer.
-                if ((Model.Offscreens?.Length ?? 0) > 0)
-                {
-                    if (OffscreenRenderingFrameBuffer)
-                    {
-                        OffscreenRenderingFrameBuffer.Release();
-                        OffscreenRenderingFrameBuffer.width = CubismCommonRenderFrameBuffer.GetInstance().Size.Width;
-                        OffscreenRenderingFrameBuffer.height = CubismCommonRenderFrameBuffer.GetInstance().Size.Height;
-                        OffscreenRenderingFrameBuffer.depth = 24;
-                        OffscreenRenderingFrameBuffer.format = RenderTextureFormat.ARGB32;
-                        OffscreenRenderingFrameBuffer.filterMode = FilterMode.Point;
-                    }
-                    else
-                    {
-                        OffscreenRenderingFrameBuffer = new RenderTexture(Screen.width, Screen.height, 24)
-                        {
-                            name = "OffscreenRenderingFrameBuffer",
-                            filterMode = FilterMode.Point,
-                            wrapMode = TextureWrapMode.Repeat,
-                            format = RenderTextureFormat.ARGB32
-                        };
-                    }
-
-                    OffscreenRenderingFrameBuffer.Create();
-                }
-
-                // Store the current viewport size.
-                _orgViewport = new Rect(0, 0, CubismCommonRenderFrameBuffer.GetInstance().Size.Width, CubismCommonRenderFrameBuffer.GetInstance().Size.Height);
-
-                // Set the frame buffer size.
-                CubismCommonRenderFrameBuffer.GetInstance().SetFrameBufferSize(CubismCommonRenderFrameBuffer.GetInstance().Size.Width, CubismCommonRenderFrameBuffer.GetInstance().Size.Height);
-
-                // Create and set the material property block.
-                _properties = new MaterialPropertyBlock();
-
-                _properties.SetTexture("_MainTex", ModelFrameBuffer);
-                ModelCanvasRenderer?.SetPropertyBlock(_properties);
-                RootFrameBuffer = ModelFrameBuffer;
-            }
-        }
-
-        /// <summary>
-        /// Initializes the frame buffer <see cref="OnEnable()"/>.
-        /// </summary>
-        private void InitializeFrameBufferOnEnable()
-        {
-            if (!Model.IsUsingBlendMode)
-            {
-                return;
-            }
-
-            CurrentOffscreenUnmanagedIndex = -1;
-
-            // Create the command buffer.
-            _commandBuffer = new CommandBuffer();
-
-            // Create the model frame buffer.
-            ModelFrameBuffer = new RenderTexture(Screen.width, Screen.height, 24)
-            {
-                name = "ModelFrameBuffer",
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Repeat,
-                format = RenderTextureFormat.ARGB32
-            };
-            CurrentFrameBuffer = ModelFrameBuffer;
-            RootFrameBuffer = ModelFrameBuffer;
-
-            // Create the offscreen rendering frame buffer if necessary.
-            if ((Model.Offscreens?.Length ?? 0) > 0)
-            {
-                OffscreenRenderingFrameBuffer = new RenderTexture(Screen.width, Screen.height, 24)
-                {
-                    name = "OffscreenRenderingFrameBuffer",
-                    filterMode = FilterMode.Point,
-                    wrapMode = TextureWrapMode.Repeat,
-                    format = RenderTextureFormat.ARGB32
-                };
-            }
-
-            MaskController = GetComponent<CubismMaskController>();
-
-            // Try to initialize the frame buffers.
-            TryInitializeFrameBuffers();
-        }
-
-        /// <summary>
-        /// Called from Unity.
-        /// </summary>
-        private void OnDestroy()
-        {
-            // Release buffers.
-            DestroyFrameBuffer();
-        }
-
-        /// <summary>
-        /// Destroys the frame buffer <see cref="OnDestroy()"/>.
-        /// </summary>
-        private void DestroyFrameBuffer()
-        {
-            if (ModelFrameBuffer)
-            {
-                ModelFrameBuffer.Release();
-                ModelFrameBuffer = null;
-#if UNITY_EDITOR
-                DestroyImmediate(ModelFrameBuffer);
-#else
-                Destroy(OffscreenRenderingFrameBuffer);
-#endif
-            }
-
-            if (OffscreenRenderingFrameBuffer)
-            {
-                OffscreenRenderingFrameBuffer.Release();
-                OffscreenRenderingFrameBuffer = null;
-#if UNITY_EDITOR
-                DestroyImmediate(OffscreenRenderingFrameBuffer);
-#else
-            Destroy(OffscreenRenderingFrameBuffer);
-#endif
-            }
-
-            RootFrameBuffer = null;
         }
     }
 }

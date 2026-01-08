@@ -110,33 +110,42 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Initialize the offscreen render texture manager.
         /// </summary>
-        /// <param name="width">Initialize width.</param>
-        /// <param name="height">Initialize height</param>
-        private void Initialize(int width, int height)
+        /// <param name="baseTexture">Base render texture to use for initialization.</param>
+        private void Initialize(RenderTexture baseTexture)
         {
             if (Application.isPlaying && !_isRenderTextureControllerInstantiated)
             {
                 var prefab = Resources.Load<GameObject>($"Live2D/Cubism/Prefabs/{RenderTextureControllerName}");
 
-                if (prefab != null)
+                var failedLog = string.Empty;
+                if (prefab)
                 {
                     // Instantiate the controller GameObject from the prefab.
                     var instance = GameObject.Instantiate(prefab);
-                    if (instance != null)
+                    if (instance)
                     {
                         instance.name = RenderTextureControllerName;
-                    }
+                        GameObject.DontDestroyOnLoad(instance);
 
-                    GameObject.DontDestroyOnLoad(instance);
+                        _isRenderTextureControllerInstantiated = true;
+                    }
+                    else
+                    {
+                        // Failed to instantiate prefab.
+                        failedLog =
+                            $"{nameof(CubismOffscreenRenderTextureManager)}: Failed to instantiate prefab.";
+                    }
+                }
+                else
+                {
+                    failedLog = $"{nameof(CubismOffscreenRenderTextureManager)}: Prefab not found in Resources/Live2D/Cubism/Prefabs/{RenderTextureControllerName}";
                 }
 
-                _isRenderTextureControllerInstantiated = true;
-            }
-
-            if (width < 1 || height < 1)
-            {
-                width = Screen.width;
-                height = Screen.height;
+                if (!_isRenderTextureControllerInstantiated)
+                {
+                    Debug.LogWarning(failedLog);
+                    return;
+                }
             }
 
             // Release existing render textures.
@@ -154,7 +163,10 @@ namespace Live2D.Cubism.Rendering
             {
                 _offscreenRenderTextureContainers[i] = new RenderTextureContainer
                 {
-                    RenderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32),
+                    RenderTexture = new RenderTexture(baseTexture)
+                    {
+                        name = "OffscreenRenderTexture_" + i
+                    },
                     InUse = false
                 };
                 _offscreenRenderTextureContainers[i].RenderTexture.Create();
@@ -199,22 +211,14 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Get an offscreen render texture.
         /// </summary>
-        /// <param name="width">Require width.</param>
-        /// <param name="height">Require height.</param>
-        /// <returns></returns>
-        public RenderTexture GetOffscreenRenderTexture(int width, int height)
+        /// <param name="baseTexture">Base render texture to use for getting or creating an offscreen render texture.</param>
+        /// <returns>An offscreen render texture.</returns>
+        public RenderTexture GetOffscreenRenderTexture(RenderTexture baseTexture)
         {
-            // If width or height is less than 1, use screen size.
-            if (width < 1 || height < 1)
-            {
-                width = CubismCommonRenderFrameBuffer.GetInstance().Size.Width;
-                height = CubismCommonRenderFrameBuffer.GetInstance().Size.Height;
-            }
-
             // Initialize if not yet.
             if (_offscreenRenderTextureContainers == null)
             {
-                Initialize(width, height);
+                Initialize(baseTexture);
             }
 
             _currentActiveRenderTextureCount++;
@@ -234,12 +238,17 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // Resize if the size is different.
-                if (_offscreenRenderTextureContainers[i].RenderTexture.width != width ||
-                    _offscreenRenderTextureContainers[i].RenderTexture.height != height)
+                if (!_offscreenRenderTextureContainers[i].RenderTexture.IsCreated()
+                    || _offscreenRenderTextureContainers[i].RenderTexture.width != baseTexture.width
+                    || _offscreenRenderTextureContainers[i].RenderTexture.height != baseTexture.height
+                    || _offscreenRenderTextureContainers[i].RenderTexture.format != baseTexture.format
+                    || _offscreenRenderTextureContainers[i].RenderTexture.antiAliasing != baseTexture.antiAliasing)
                 {
                     _offscreenRenderTextureContainers[i].RenderTexture.Release();
-                    _offscreenRenderTextureContainers[i].RenderTexture.width = width;
-                    _offscreenRenderTextureContainers[i].RenderTexture.height = height;
+                    _offscreenRenderTextureContainers[i].RenderTexture.width = baseTexture.width;
+                    _offscreenRenderTextureContainers[i].RenderTexture.height = baseTexture.height;
+                    _offscreenRenderTextureContainers[i].RenderTexture.format = baseTexture.format;
+                    _offscreenRenderTextureContainers[i].RenderTexture.antiAliasing = baseTexture.antiAliasing;
                     _offscreenRenderTextureContainers[i].RenderTexture.Create();
                 }
                 _offscreenRenderTextureContainers[i].InUse = true;
@@ -249,21 +258,50 @@ namespace Live2D.Cubism.Rendering
             }
 
             // If no unused render texture is found, create a new one.
-            return CreateContainer(width, height).RenderTexture;
+            return CreateContainer(baseTexture).RenderTexture;
         }
 
         /// <summary>
         /// Create a new render texture container.
         /// </summary>
-        /// <param name="width">Width of the render texture.</param>
-        /// <param name="height">Height of the render texture.</param>
+        /// <param name="baseTexture">Base render texture to use for creating a new container.</param>
         /// <returns>The new render texture container.</returns>
-        private RenderTextureContainer CreateContainer(int width, int height)
+        private RenderTextureContainer CreateContainer(RenderTexture baseTexture)
         {
+            if (_offscreenRenderTextureContainers == null)
+            {
+                Initialize(baseTexture);
+
+                // If still null.
+                if (_offscreenRenderTextureContainers == null
+                    || _offscreenRenderTextureContainers.Length < 1)
+                {
+                    // Create the first container.
+                    _offscreenRenderTextureContainers = new RenderTextureContainer[1];
+                    _offscreenRenderTextureContainers[0] = new RenderTextureContainer
+                    {
+                        RenderTexture = new RenderTexture(baseTexture)
+                        {
+                            name = "OffscreenRenderTexture_0"
+                        },
+                        InUse = false
+                    };
+                    _offscreenRenderTextureContainers[0].RenderTexture.Create();
+                }
+
+                _offscreenRenderTextureContainers[0].InUse = true;
+
+                // Return the first container.
+                return _offscreenRenderTextureContainers[0];
+            }
+
             Array.Resize(ref _offscreenRenderTextureContainers, _offscreenRenderTextureContainers.Length + 1);
             _offscreenRenderTextureContainers[^1] = new RenderTextureContainer
             {
-                RenderTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32),
+                RenderTexture = new RenderTexture(baseTexture)
+                {
+                    name = "OffscreenRenderTexture_" + (_offscreenRenderTextureContainers.Length - 1)
+                },
                 InUse = true
             };
 
@@ -298,13 +336,6 @@ namespace Live2D.Cubism.Rendering
                 // Mark as not in use.
                 _offscreenRenderTextureContainers[i].InUse = false;
 
-                // Clear the render texture.
-                renderController.CommandBuffer.SetRenderTarget(_offscreenRenderTextureContainers[i].RenderTexture);
-                renderController.CommandBuffer.ClearRenderTarget(true, true, Color.clear);
-
-                // Back to the current frame buffer.
-                renderController.CommandBuffer.SetRenderTarget(renderController.CurrentFrameBuffer);
-
                 _currentActiveRenderTextureCount--;
                 break;
             }
@@ -338,7 +369,8 @@ namespace Live2D.Cubism.Rendering
         {
             // If not initialized, do nothing.
             if (_offscreenRenderTextureContainers == null
-                || _offscreenRenderTextureContainers.Length <= _previousActiveRenderTextureCount)
+                || _offscreenRenderTextureContainers.Length <= _previousActiveRenderTextureCount
+                || HasResetThisFrame)
             {
                 return;
             }

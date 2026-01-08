@@ -39,10 +39,15 @@ Material:
     - _DstColor: 10
     - _SrcAlpha: 0
     - _SrcColor: 2
+    - _ZOffset: 0
     - cubism_InvertOn: 0
     - cubism_MaskOn: 1
     - cubism_ModelOpacity: 1
     m_Colors:
+    - _OffsetScale: {r: 0, g: 0, b: 1, a: 1}
+    - _RotationQuaternion: {r: 0, g: 0, b: 0, a: 1}
+    - cubism_MaskTile: {r: 0, g: 0, b: 0, a: 0}
+    - cubism_MaskTransform: {r: 0, g: 0, b: 0, a: 0}
     - cubism_MultiplyColor: {r: 1, g: 1, b: 1, a: 1}
     - cubism_ScreenColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

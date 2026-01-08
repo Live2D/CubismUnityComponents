@@ -19,16 +19,13 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// <returns>Mouse coordinates.</returns>
         public Vector3 GetPosition()
         {
-            if (!Input.GetMouseButton(0))
-            {
-                return Vector3.zero;
-            }
-
             var targetPosition = Input.mousePosition;
 
-            targetPosition = (Camera.main.ScreenToViewportPoint(targetPosition) * 2) - Vector3.one;
+            var z = Camera.main.WorldToScreenPoint(transform.position).z;
+            targetPosition.z = z;
 
-            return targetPosition;
+            var worldPosition = Camera.main.ScreenToWorldPoint(targetPosition);
+            return worldPosition;
         }
 
         /// <summary>
@@ -37,7 +34,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// <returns><see langword="true"/> if the target is active; <see langword="false"/> otherwise.</returns>
         public bool IsActive()
         {
-            return true;
+            return Input.GetMouseButton(0);
         }
     }
 }

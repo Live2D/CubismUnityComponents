@@ -3,10 +3,15 @@
 	"Meta": {
 		"Duration": 1,
 		"Fps": 30.0,
+		"FadeInTime": 0.5,
+		"FadeOutTime": 0.5,
 		"Loop": true,
-		"CurveCount": 71,
-		"TotalSegmentCount": 73,
-		"TotalPointCount": 79
+		"AreBeziersRestricted": true,
+		"CurveCount": 30,
+		"TotalSegmentCount": 32,
+		"TotalPointCount": 66,
+		"UserDataCount": 0,
+		"TotalUserDataSize": 0
 	},
 	"Curves": [
 		{
@@ -14,10 +19,10 @@
 			"Id": "Opacity",
 			"Segments": [
 				0,
-				100,
+				1,
 				0,
 				1,
-				100
+				1
 			]
 		},
 		{
@@ -122,13 +127,14 @@
 		{
 			"Target": "Parameter",
 			"Id": "PARAM_TEAR_L",
+			"FadeOutTime": 0.0,
 			"Segments": [
 				0,
 				0,
 				1,
-				0.3,
+				0.322,
 				0,
-				0.633,
+				0.644,
 				3,
 				0.967,
 				3,
@@ -140,13 +146,14 @@
 		{
 			"Target": "Parameter",
 			"Id": "PARAM_TEAR_R",
+			"FadeOutTime": 0.0,
 			"Segments": [
 				0,
 				0,
 				1,
-				0.3,
+				0.322,
 				0,
-				0.633,
+				0.644,
 				3,
 				0.967,
 				3,
@@ -300,29 +307,7 @@
 		},
 		{
 			"Target": "PartOpacity",
-			"Id": "PARTS_01_FACE_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_EYE_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_EYE_BALL_001",
+			"Id": "PARTS_01_NOSE_001",
 			"Segments": [
 				0,
 				1,
@@ -344,7 +329,29 @@
 		},
 		{
 			"Target": "PartOpacity",
-			"Id": "PARTS_01_NOSE_001",
+			"Id": "PARTS_01_EYE_BALL_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_EYE_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_FACE_001",
 			"Segments": [
 				0,
 				1,

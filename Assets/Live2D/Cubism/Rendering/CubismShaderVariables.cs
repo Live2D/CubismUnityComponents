@@ -51,5 +51,35 @@ namespace Live2D.Cubism.Rendering
         /// Mask transform shader variable name.
         /// </summary>
         public const string MaskTransform = "cubism_MaskTransform";
+
+        /// <summary>
+        /// Offset scale shader variable name.
+        /// </summary>
+        public const string OffsetScale = "_OffsetScale";
+
+        /// <summary>
+        /// Quaternion of rotation shader variable name.
+        /// </summary>
+        public const string RotationQuaternion = "_RotationQuaternion";
+
+        /// <summary>
+        /// Z offset shader variable name.
+        /// </summary>
+        public const string ZOffset = "_ZOffset";
+
+        /// <summary>
+        /// Render texture shader variable name.
+        /// </summary>
+        public const string RenderTexture = "_RenderTexture";
+
+        /// <summary>
+        /// Offscreen opacity shader variable name.
+        /// </summary>
+        public const string OffscreenOpacity = "_OffscreenOpacity";
+
+        /// <summary>
+        /// Reversed Z shader variable name.
+        /// </summary>
+        public const string ReversedZ = "_ReversedZ";
     }
 }
