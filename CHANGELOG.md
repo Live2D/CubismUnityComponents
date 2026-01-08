@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.5-beta.3] - 2026-01-08
+
+### Added
+
+* Add scripts and assets for using the `Universal Render Pipeline` and custom render passes to `Assets/Live2D/Cubism/Rendering/URP`.
+* Add a feature to allow rendering of arbitrary objects before and after the rendering of model draw objects.
+* Add `CubismLookCenterTransform` and `CubismLookCenterArtMesh` to allow setting the look-at center using either a Transform or an ArtMesh.
+
+### Changed
+
+* Change to work based on the `Universal Render Pipeline`.
+  * `Built-in Render Pipeline` and `High Definition Render Pipeline` are not supported.
+    * `Cubism 5 SDK for Unity R4_1` and its derivative packages will be maintained as `Built-in Render Pipeline` compatible versions.
+      * Models and features from `Cubism 5.3` and later cannot be used.
+  * The use of custom render passes is required.
+
+### Fixed
+
+* Fix an issue where `ReleaseStaleRenderTextures()` could release `RenderTexture` in use depending on the timing of its invocation.
+* Fix an issue where the texture settings were not as intended when imported.
+* Fix an issue where look-at tracking was misaligned when using `CubismLookController`.
+* Fix an issue where the Koharu model's .model3.json was missing references to .motion3.json.
+* Fix Koharu's corrupted .motion3.json files.
+* Fix an issue where Raycast was functional even when `CubismRaycastable` was inactive.
+
+### Removed
+
+* Remove unused shaders and materials.
+* Remove `Assets/Live2D/Cubism/Rendering/CubismCommonRenderFrameBuffer.cs` and `Assets/Live2D/Cubism/Rendering/ArrayExtensionMethods.cs`.
+* Remove `Assets/Live2D/Cubism/Rendering/Resources/Live2D/Cubism/Prefabs/ModelCanvas.prefab`.
+* Remove scripts and related processes under `Assets/Live2D/Cubism/Rendering/Masking` and `Assets/Live2D/Cubism/Samples/Masking`.
+  * Remove `Assets/Live2D/Cubism/Editor/Inspectors/CubismMaskControllerInspector.cs`, `Assets/Live2D/Cubism/Editor/Inspectors/CubismMaskTextureInspector.cs`, and `Assets/Live2D/Cubism/Rendering/Resources/Live2D/Cubism/GlobalMaskTexture.asset` accordingly.
+  * Mask processing has been integrated into `CubismRenderer`.
+
+
 ## [5-r.5-beta.2] - 2025-10-14
 
 ### Changed
@@ -517,6 +552,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.2...5-r.5-beta.3
 [5-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.1...5-r.5-beta.2
 [5-r.5-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4.1...5-r.5-beta.1
 [5-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4...5-r.4.1

@@ -67,7 +67,31 @@ namespace Live2D.Cubism.Framework.LookAt
         /// <summary>
         /// Local center position.
         /// </summary>
-        public Transform Center;
+        [SerializeField, HideInInspector]
+        private Object _center;
+        public Object Center
+        {
+            get { return _center; }
+            set { _center = value.ToNullUnlessImplementsInterface<ICubismLookCenter>(); }
+        }
+
+
+        /// <summary>
+        /// Interface of center.
+        /// </summary>
+        private ICubismLookCenter _centerInterface;
+        private ICubismLookCenter CenterInterface
+        {
+            get
+            {
+                if (_centerInterface == null)
+                {
+                    _centerInterface = Center.GetInterface<ICubismLookCenter>();
+                }
+                return _centerInterface;
+            }
+        }
+
 
         /// <summary>
         /// Damping to apply.
@@ -165,16 +189,30 @@ namespace Live2D.Cubism.Framework.LookAt
             // Return early if no target is available or if target is inactive.
             var target = TargetInterface;
 
+            Vector3 centerPosition;
+            var center = CenterInterface;
+
+            if (center == null)
+            {
+                centerPosition = Vector3.zero;
+            }
+            else
+            {
+                centerPosition = center.GetCenterPosition();
+            }
 
             if (target == null || !target.IsActive())
             {
-                return;
+                GoalPosition = Vector3.zero;
+            }
+            else
+            {
+                GoalPosition = transform.InverseTransformPoint(target.GetPosition()) - centerPosition;
             }
 
 
             // Update position.
             var position = LastPosition;
-            GoalPosition = transform.InverseTransformPoint(target.GetPosition()) - Center.localPosition;
 
 
             if (position != GoalPosition)
@@ -208,7 +246,7 @@ namespace Live2D.Cubism.Framework.LookAt
             // Default center if necessary.
             if (Center == null)
             {
-                Center = transform;
+                Center = GetComponent<ICubismLookCenter>() as Object;
             }
 
 

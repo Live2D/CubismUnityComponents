@@ -44,8 +44,6 @@ namespace Live2D.Cubism.Editor.Inspectors
             // Show settings.
             EditorGUI.BeginChangeCheck();
 
-            controller.ModelCanvasRenderer = EditorGUILayout.ObjectField("ModelCanvasRenderer", controller.ModelCanvasRenderer, typeof(MeshRenderer), true) as MeshRenderer;
-
             controller.Opacity = EditorGUILayout.Slider("Opacity", controller.Opacity, 0f, 1f);
             controller.OverrideFlagForModelMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForModelMultiplyColors", controller.OverrideFlagForModelMultiplyColors);
             controller.OverrideFlagForModelScreenColors = EditorGUILayout.Toggle("OverrideFlagForModelScreenColors", controller.OverrideFlagForModelScreenColors);
@@ -55,8 +53,9 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             if (ShowSorting)
             {
+                controller.GroupedSortingIndex = EditorGUILayout.IntField("Grouped Sorting Index", controller.GroupedSortingIndex);
                 controller.SortingLayer = EditorGUILayout.TextField("Layer", controller.SortingLayer);
-                controller.SortingOrder = EditorGUILayout.IntField("Order In Layer", controller.SortingOrder);
+                controller.SortingOrder = EditorGUILayout.IntField("Order In Group", controller.SortingOrder);
                 controller.SortingMode = (CubismSortingMode)EditorGUILayout.EnumPopup("Mode", (Enum)controller.SortingMode);
             }
 

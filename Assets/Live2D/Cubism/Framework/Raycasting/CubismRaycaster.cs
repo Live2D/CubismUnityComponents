@@ -47,8 +47,10 @@ namespace Live2D.Cubism.Framework.Raycasting
 
             for (var i = 0; i < candidates.Length; i++)
             {
+                var raycastable = candidates[i].GetComponent<CubismRaycastable>();
                 // Skip non-raycastables.
-                if (candidates[i].GetComponent<CubismRaycastable>() == null)
+                if (!raycastable
+                    || !raycastable.isActiveAndEnabled)
                 {
                     continue;
                 }

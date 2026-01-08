@@ -42,24 +42,26 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
             "RenderType" = "Transparent"
             "PreviewType" = "Plane"
             "CanUseSpriteAtlas" = "True"
+            "RenderPipeline" = "UniversalPipeline"
         }
 
         Cull     [_Cull]
         Lighting Off
         ZWrite   Off
+        ZTest LEqual
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ CUBISM_INVERT_ON
             #pragma multi_compile _ CUBISM_MASK_ON
 
-            #include "UnityCG.cginc"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "../CubismCG.cginc"
 
-            struct appdata
+            struct Attributes
             {
                 float4 vertex : POSITION;
                 float4 color    : COLOR;
@@ -67,18 +69,22 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            struct v2f
+            struct Varyings
             {
                 float2 texcoord : TEXCOORD0;
                 float4 color    : COLOR;
                 float4 vertex : SV_POSITION;
                 UNITY_VERTEX_OUTPUT_STEREO
+
+                // Add Cubism specific vertex output data.
+                CUBISM_VERTEX_OUTPUT
             };
 
+            CBUFFER_START(UnityPerMaterial)
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            fixed4 cubism_MultiplyColor;
-            fixed4 cubism_ScreenColor;
+            half4 cubism_MultiplyColor;
+            half4 cubism_ScreenColor;
             float _OffscreenOpacity;
 
             #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
@@ -88,9 +94,11 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
             // Include Cubism specific shader variables.
             CUBISM_SHADER_VARIABLES
 
-            v2f vert (appdata IN)
+            CBUFFER_END
+
+            Varyings vert (Attributes IN)
             {
-                v2f OUT;
+                Varyings OUT;
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
@@ -100,6 +108,9 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
                 OUT.texcoord = IN.texcoord;
                 OUT.color = IN.color;
 
+                // Initialize Cubism specific vertex output data.
+                CUBISM_INITIALIZE_VERTEX_OUTPUT(IN, OUT);
+
                 // If reversed Z is enabled, flip the Y coordinate.
                 #if UNITY_REVERSED_Z
                 OUT.vertex.y = -OUT.vertex.y;
@@ -108,10 +119,10 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
                 return OUT;
             }
 
-            fixed4 frag (v2f IN) : SV_Target
+            half4 frag (Varyings IN) : SV_Target
             {
                 // Sample the texture
-                fixed4 textureColor = tex2D(_MainTex, IN.texcoord);
+                half4 textureColor = tex2D(_MainTex, IN.texcoord);
 
                 if (textureColor.a >= 0.00001)
                 {
@@ -121,7 +132,7 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
                     textureColor.rgb = (textureColor.rgb + cubism_ScreenColor.rgb) - (textureColor.rgb * cubism_ScreenColor.rgb);
                 }
 
-                fixed4 OUT = textureColor * IN.color;
+                half4 OUT = textureColor * IN.color;
 
                 // Mask
 #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
@@ -136,7 +147,7 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
 
                 return OUT;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

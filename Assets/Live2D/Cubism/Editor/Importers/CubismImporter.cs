@@ -224,17 +224,27 @@ namespace Live2D.Cubism.Editor.Importers
         {
             var textureImporter = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(texture)) as TextureImporter;
 
+            if (!textureImporter)
+            {
+                Debug.LogError("[Texture Importer] Could not get TextureImporter for texture used by Cubism model.");
+                return;
+            }
 
             // Return early if texture already seems to be set up.
-            if (textureImporter.alphaIsTransparency)
+            if (!textureImporter.mipmapEnabled
+                && textureImporter.alphaIsTransparency
+                && textureImporter.textureType == TextureImporterType.Default
+                && textureImporter.textureCompression == TextureImporterCompression.Uncompressed)
             {
                 return;
             }
 
 
             // Set up texture importing.
+            textureImporter.mipmapEnabled = false;
             textureImporter.alphaIsTransparency = true;
             textureImporter.textureType = TextureImporterType.Default;
+            textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
 
 
             EditorUtility.SetDirty(texture);

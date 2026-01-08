@@ -4,6 +4,22 @@
 
 # Notices
 
+## [Restrictions] Picking and Selecting Cubism Model GameObjects in the Scene View (2026-01-08)
+
+In the Cubism SDK for Unity, Cubism models are rendered using a custom render pass instead of Unity's default transparent object render pass.
+Due to this, there is a known issue where picking and selecting Cubism model GameObjects in the Scene View is not possible.
+
+The supported version and release schedule will be announced in future updates.
+
+
+## [Restrictions] Drawing Order of Drawables Under Parts Containing Offscreen Rendering When the Drawing Order of Offscreen Rendering Changes (2026-01-08)
+
+In the Cubism SDK for Unity, when the drawing order of offscreen rendering is changed, the drawing order of Drawables under the parts containing the offscreen rendering does not change.
+We are considering adding a feature in the future to synchronize the drawing order of Drawables under the parts containing offscreen rendering with changes to the drawing order of offscreen rendering.
+
+The supported version and release schedule will be announced in future updates.
+
+
 ## [Caution] About Support for Input System Package in Samples (2025-08-26)
 
 The Samples in Cubism SDK for Unity use the traditional `Input Manager` for input handling.

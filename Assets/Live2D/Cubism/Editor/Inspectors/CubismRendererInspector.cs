@@ -42,7 +42,7 @@ namespace Live2D.Cubism.Editor.Inspectors
                 var ctrl = model.GetComponent<CubismRenderController>();
                 if (!ctrl.IsInitialized)
                 {
-                    ctrl.TryInitializeRenderers();
+                    ctrl.TryInitialize();
                 }
             }
 
@@ -180,10 +180,6 @@ namespace Live2D.Cubism.Editor.Inspectors
                 {
                     EditorUtility.SetDirty(cubismRenderer);
                     EditorUtility.SetDirty(cubismRenderer.MeshRenderer);
-                    if (cubismRenderer.MeshFilter)
-                    {
-                        EditorUtility.SetDirty(cubismRenderer.MeshFilter);
-                    }
                 }
             }
 
@@ -197,10 +193,6 @@ namespace Live2D.Cubism.Editor.Inspectors
             {
                 foreach (CubismRenderer cubismRenderer in targets)
                 {
-                    if (cubismRenderer.MeshFilter)
-                    {
-                        cubismRenderer.MeshFilter.hideFlags ^= HideFlags.HideInInspector;
-                    }
                     cubismRenderer.MeshRenderer.hideFlags ^= HideFlags.HideInInspector;
                 }
             }

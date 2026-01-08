@@ -21,7 +21,7 @@ inline float4 AlphaBlendRGBA(float3 C, float3 Cs, float3 Cd, float3 p)
 #if defined(ALPHA_BLEND_OVER) // OVER
 inline float4 AlphaBlend(float3 C, float3 Cs, float As, float3 Cd, float Ad) {
     float3 P = float3(As * Ad, As * (1.0 - Ad), Ad * (1.0 - As));
-    return clamp(AlphaBlendRGBA(C, Cs, Cd, P), 0.0, 1.0);
+    return AlphaBlendRGBA(C, Cs, Cd, P);
 }
 
 #elif defined(ALPHA_BLEND_ATOP) // ATOP

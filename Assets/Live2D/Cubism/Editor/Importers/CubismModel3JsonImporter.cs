@@ -10,11 +10,9 @@ using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework;
 using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.Json;
-using Live2D.Cubism.Framework.Motion;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Pose;
 using Live2D.Cubism.Rendering;
-using Live2D.Cubism.Rendering.Masking;
 using System;
 using System.IO;
 using System.Linq;
@@ -206,26 +204,6 @@ namespace Live2D.Cubism.Editor.Importers
                     CubismImporter.SendModelTextureImportEvent(this, model, texture);
                 }
 
-                var modelMaskTexture = ScriptableObject.CreateInstance<CubismMaskTexture>();
-                modelMaskTexture.name = model.name + "MaskTexture";
-
-                var filePath = string.Format("{0}/{1}.asset", Path.GetDirectoryName(AssetPath), modelMaskTexture.name);
-
-                if (!File.Exists(filePath))
-                {
-                    AssetDatabase.CreateAsset(modelMaskTexture, filePath);
-                }
-
-                if (model.IsUsingBlendMode)
-                {
-                    var renderController = model.GetComponent<CubismRenderController>();
-
-                    if (renderController?.MaskController != null)
-                    {
-                        renderController.MaskController.MaskTexture = AssetDatabase.LoadAssetAtPath<CubismMaskTexture>(filePath);
-                    }
-                }
-
                 // Create prefab and trigger saving of changes.
 #if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, $"{assetPath}.prefab");
@@ -255,17 +233,6 @@ namespace Live2D.Cubism.Editor.Importers
 
                 CopyUserData(source, model);
 
-                // プレハブのインスタンスからマスクテクスチャをコピー
-                if (model.IsUsingBlendMode)
-                {
-                    var renderController = model.GetComponent<CubismRenderController>();
-
-                    if (renderController?.MaskController != null)
-                    {
-                        renderController.MaskController.MaskTexture = source.GetComponent<CubismRenderController>()?.MaskController?.MaskTexture;
-                    }
-                }
-
                 Object.DestroyImmediate(source.gameObject, true);
 
 
@@ -278,6 +245,18 @@ namespace Live2D.Cubism.Editor.Importers
                     CubismImporter.SendModelTextureImportEvent(this, model, texture);
                 }
 
+                var renderController = model.gameObject.GetComponent<CubismRenderController>();
+
+                if (renderController)
+                {
+                    // HACK: Re-assign textures to avoid lost references due to Unity prefab optimization.
+                    foreach (var cubismRenderer in renderController.DrawableRenderers)
+                    {
+                        // Reset texture references.
+                        cubismRenderer.MainTexture =
+                            CubismBuiltinPickers.TexturePicker(Model3Json, cubismRenderer.Drawable);
+                    }
+                }
 
                 // Reset moc reference.
                 CubismModel.ResetMocReference(model, MocAsset);

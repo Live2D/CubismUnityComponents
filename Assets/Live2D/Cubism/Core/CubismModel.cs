@@ -10,7 +10,6 @@ using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
 using System;
 using UnityEngine;
-using Live2D.Cubism.Rendering.Util;
 
 
 #if UNITY_2019_3_OR_NEWER
@@ -310,43 +309,9 @@ namespace Live2D.Cubism.Core
         private int LastTick { get; set; }
 
         /// <summary>
-        /// Is the model's MOC version higher than Cubism 5.0?
-        /// </summary>
-        public bool IsOverMocVersion50
-        {
-            get
-            {
-                return CubismCoreDll.MocVersion_50 < Moc.Version;
-            }
-        }
-
-        /// <summary>
-        /// Is this model using blend mode.
-        /// </summary>
-        [SerializeField, HideInInspector]
-        private bool _isUsingBlendMode;
-
-
-        /// <summary>
-        /// Get Flag is this model using blend mode.
-        /// </summary>
-        /// <returns>True if Is this model using blend mode; otherwise returns false.</returns>
-        public bool IsUsingBlendMode
-        {
-            get
-            {
-                return _isUsingBlendMode;
-            }
-            private set
-            {
-                _isUsingBlendMode = value;
-            }
-        }
-
-        /// <summary>
         /// Revives instance.
         /// </summary>
-        private void Revive()
+        internal void Revive()
         {
             // Return if already revive.
             if (IsRevived)
@@ -423,7 +388,6 @@ namespace Live2D.Cubism.Core
 
             if (0 < CubismCoreDll.GetOffscreenCount(TaskableModel.UnmanagedModel.Ptr))
             {
-                IsUsingBlendMode = true;
                 Offscreens = GetComponentsInChildren<CubismOffscreen>();
                 if (Offscreens.Length < 1 && (transform.Find("Offscreens") == null))
                 {
@@ -435,26 +399,6 @@ namespace Live2D.Cubism.Core
                 else
                 {
                     Offscreens.Revive(TaskableModel.UnmanagedModel);
-                }
-            }
-
-            if (IsOverMocVersion50 && !IsUsingBlendMode)
-            {
-                var drawableCount = Drawables.Length;
-                for (var i = 0; i < drawableCount; ++i)
-                {
-                    var colorBlendType = Drawables[i].ColorBlend;
-                    var alphaBlendType = Drawables[i].AlphaBlend;
-                    if (colorBlendType == BlendTypes.ColorBlend.Normal &&
-                        alphaBlendType == BlendTypes.AlphaBlend.Over ||
-                        colorBlendType == BlendTypes.ColorBlend.Add ||
-                        colorBlendType == BlendTypes.ColorBlend.Multiply)
-                    {
-                        continue;
-                    }
-
-                    IsUsingBlendMode = true;
-                    break;
                 }
             }
 

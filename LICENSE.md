@@ -55,6 +55,7 @@ Assets/Live2D/Cubism/Samples/Models/Koharu
 Assets/Live2D/Cubism/Samples/Models/Mao
 Assets/Live2D/Cubism/Samples/Models/Natori
 Assets/Live2D/Cubism/Samples/Models/Rice
+Assets/Live2D/Cubism/Samples/Models/Ren
 ```
 
 If you use these models, you must agree to the terms of a contract set [here](https://docs.live2d.com/cubism-editor-manual/sample-model/) for each model.

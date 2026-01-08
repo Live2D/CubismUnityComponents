@@ -17,7 +17,6 @@ using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Raycasting;
 using Live2D.Cubism.Rendering;
-using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -51,9 +50,8 @@ namespace Live2D.Cubism.Framework.Json
         /// </summary>
         /// <param name="sender">Event source.</param>
         /// <param name="drawable">Drawable to pick for.</param>
-        /// <param name="isUsingBlendMode">Is model's moc version after Cubism 5.3?</param>
         /// <returns>Picked material.</returns>
-        public delegate Material DrawableMaterialPicker(CubismModel3Json sender, CubismDrawable drawable, bool isUsingBlendMode);
+        public delegate Material DrawableMaterialPicker(CubismModel3Json sender, CubismDrawable drawable);
 
         /// <summary>
         /// Picks a <see cref="Texture2D"/> for a <see cref="CubismDrawable"/>.
@@ -373,7 +371,7 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>The instantiated <see cref="CubismModel">model</see> on success; <see langword="null"/> otherwise.</returns>
         public CubismModel ToModel(bool shouldImportAsOriginalWorkflow = false)
         {
-            return ToModel(CubismBuiltinPickers.DrawableMaterialPicker, CubismBuiltinPickers.TexturePicker, CubismBuiltinPickers.OffscreenMaterialPicker,shouldImportAsOriginalWorkflow);
+            return ToModel(CubismBuiltinPickers.DrawableMaterialPicker, CubismBuiltinPickers.TexturePicker, CubismBuiltinPickers.OffscreenMaterialPicker, shouldImportAsOriginalWorkflow);
         }
 
         /// <summary>
@@ -417,106 +415,6 @@ namespace Live2D.Cubism.Framework.Json
             // Create renderers.
             var rendererController = model.gameObject.AddComponent<CubismRenderController>();
 
-            if (model.IsUsingBlendMode)
-            {
-                if (model.transform.Find(ModelCanvasName) == null)
-                {
-                    // Prefabをロード
-                    var canvasPrefab = Resources.Load<GameObject>($"Live2D/Cubism/Prefabs/{ModelCanvasName}");
-
-                    if (canvasPrefab != null)
-                    {
-                        // Prefabをインスタンス化
-                        var instance = GameObject.Instantiate(canvasPrefab);
-                        if (instance != null)
-                        {
-                            // インスタンスのTransformを親に設定
-                            instance.transform.SetParent(model.transform, false);
-                            instance.name = ModelCanvasName;
-
-                            // Create ModelCanvas
-                            var meshFilter = instance.GetComponent<MeshFilter>();
-                            var quadWidth = model.CanvasInformation.CanvasWidth / model.CanvasInformation.PixelsPerUnit;
-                            var quadHeight = model.CanvasInformation.CanvasHeight / model.CanvasInformation.PixelsPerUnit;
-                            var halfquadWidth = quadWidth * 0.5f;
-                            var halfquadHeight = quadHeight * 0.5f;
-
-                            var vertices = new Vector3[4]
-                            {
-                                new Vector3(-halfquadWidth, -halfquadHeight, 0),
-                                new Vector3(-halfquadWidth, halfquadHeight, 0),
-                                new Vector3(halfquadWidth, -halfquadHeight, 0),
-                                new Vector3(halfquadWidth, halfquadHeight, 0)
-                            };
-
-                            var tris = new int[6]
-                            {
-                                0, 1, 2,
-                                2, 1, 3
-                            };
-
-                            var normals = new Vector3[4]
-                            {
-                                -Vector3.forward,
-                                -Vector3.forward,
-                                -Vector3.forward,
-                                -Vector3.forward
-                            };
-
-                            var uv = new Vector2[4]
-                            {
-                                new Vector2(0, 0),
-                                new Vector2(0, 1),
-                                new Vector2(1, 0),
-                                new Vector2(1, 1)
-                            };
-
-
-                            var fileName = model.name + ModelCanvasName;
-                            var filePath = Path.Join(Path.GetDirectoryName(AssetPath), fileName);
-
-                            Mesh mesh = null;
-#if UNITY_EDITOR
-                            if (!Application.isPlaying)
-                            {
-                                mesh = AssetDatabase.LoadAssetAtPath<Mesh>(filePath + ".mesh");
-                            }
-#endif
-
-                            if (mesh == null)
-                            {
-                                mesh = new Mesh()
-                                {
-                                    vertices = vertices,
-                                    triangles = tris,
-                                    normals = normals,
-                                    uv = uv
-                                };
-#if UNITY_EDITOR
-                                if (!Application.isPlaying)
-                                {
-                                    AssetDatabase.CreateAsset(mesh, filePath + ".mesh");
-                                }
-#endif
-                            }
-                            else
-                            {
-                                mesh.vertices = vertices;
-                                mesh.triangles = tris;
-                                mesh.normals = normals;
-                                mesh.uv = uv;
-                            }
-
-                            instance.transform.rotation = new Quaternion(0, 0, 0, 0);
-                            meshFilter.mesh = mesh;
-                        }
-                    }
-                }
-
-                rendererController.ModelCanvasRenderer = model.transform.Find(ModelCanvasName).GetComponent<MeshRenderer>();
-                rendererController.TryInitializeFrameBuffers(true);
-            }
-
             var renderers = rendererController.Renderers;
 
             var drawables = model.Drawables;
@@ -537,12 +435,9 @@ namespace Live2D.Cubism.Framework.Json
             {
                 var renderer = drawableRenderers[i];
 
-                renderer.Material = pickDrawableMaterial(this, drawables[i], model.IsUsingBlendMode);
-                if (model.IsUsingBlendMode)
-                {
-                    renderer.ColorBlendType = drawables[i].ColorBlend;
-                    renderer.AlphaBlendType = drawables[i].AlphaBlend;
-                }
+                renderer.Material = pickDrawableMaterial(this, drawables[i]);
+                renderer.ColorBlendType = drawables[i].ColorBlend;
+                renderer.AlphaBlendType = drawables[i].AlphaBlend;
             }
 
             for (var i = 0; i < offscreenRenderers?.Length; i++)
@@ -550,11 +445,8 @@ namespace Live2D.Cubism.Framework.Json
                 var renderer = offscreenRenderers[i];
 
                 renderer.Material = pickOffscreenMaterial(this, offscreens[i]);
-                if (model.IsUsingBlendMode)
-                {
-                    renderer.ColorBlendType = offscreens[i].ColorBlend;
-                    renderer.AlphaBlendType = offscreens[i].AlphaBlend;
-                }
+                renderer.ColorBlendType = offscreens[i].ColorBlend;
+                renderer.AlphaBlendType = offscreens[i].AlphaBlend;
             }
 
 
@@ -733,13 +625,9 @@ namespace Live2D.Cubism.Framework.Json
 
                 if (anyMasked)
                 {
-                    // Add controller exactly once...
-                    rendererController.MaskController = model.gameObject.AddComponent<CubismMaskController>();
+                    rendererController.HasMask = true;
 
-                    if (model.IsUsingBlendMode)
-                    {
-                        rendererController.TryInitializeRenderers();
-                    }
+                    rendererController.TryInitialize();
                     // Already have a mask controller, no need to add it again.
                     break;
                 }
