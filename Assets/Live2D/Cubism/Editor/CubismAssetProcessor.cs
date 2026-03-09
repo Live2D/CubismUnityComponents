@@ -63,12 +63,17 @@ namespace Live2D.Cubism.Editor
             {
                 var importer = CubismImporter.GetImporterAtPath(assetPath);
 
-
                 if (importer == null)
                 {
                     continue;
                 }
-
+                
+                if (assetPath.StartsWith("Assets/StreamingAssets/"))
+                {
+                    Debug.LogWarning("CubismAssetProcessor : Skipping import of " + assetPath);
+                    continue;
+                }
+                
                 try
                 {
                     importer.Import();
