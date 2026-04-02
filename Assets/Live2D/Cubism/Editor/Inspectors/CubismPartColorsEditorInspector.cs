@@ -56,30 +56,30 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             EditorGUI.BeginChangeCheck();
 
-            // Display OverrideColorForPartMultiplyColors.
+            // Display PartMultiplyColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideColorForPartMultiplyColors = EditorGUILayout.Toggle("OverrideColorForPartMultiplyColors", blendColorEditor.OverrideColorForPartMultiplyColors);
+                var overrideColorForPartMultiplyColors = EditorGUILayout.Toggle("PartMultiplyColorEnabled", blendColorEditor.PartMultiplyColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismPartColorsEditor partBlendColorEditor in targets)
                     {
-                        partBlendColorEditor.OverrideColorForPartMultiplyColors = overrideColorForPartMultiplyColors;
+                        partBlendColorEditor.PartMultiplyColorEnabled = overrideColorForPartMultiplyColors;
                     }
                 }
             }
 
-            // Display OverrideColorForPartScreenColors.
+            // Display PartScreenColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideColorForPartScreenColors = EditorGUILayout.Toggle("OverrideColorForPartScreenColors", blendColorEditor.OverrideColorForPartScreenColors);
+                var overrideColorForPartScreenColors = EditorGUILayout.Toggle("PartScreenColorEnabled", blendColorEditor.PartScreenColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismPartColorsEditor partBlendColorEditor in targets)
                     {
-                        partBlendColorEditor.OverrideColorForPartScreenColors = overrideColorForPartScreenColors;
+                        partBlendColorEditor.PartScreenColorEnabled = overrideColorForPartScreenColors;
                     }
                 }
             }

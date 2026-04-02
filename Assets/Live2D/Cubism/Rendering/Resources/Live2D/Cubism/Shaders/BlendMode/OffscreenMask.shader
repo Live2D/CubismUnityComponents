@@ -97,7 +97,7 @@ Shader "Unlit/BlendMode/OffscreenMask"
                 float3 rotatedPos = quaternion(_RotationQuaternion, vertex.xyz);
                 vertex.xyz = rotatedPos;
 
-                vertex.xy += _OffsetScale.xy * _OffsetScale.zw;  // Offset
+                vertex.xy += _OffsetScale.xy;  // Offset
                 vertex.z += _ZOffset; // Z Offset
 
                 // Setting vertex position.

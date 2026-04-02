@@ -13,14 +13,14 @@
 | プラットフォーム | アーキテクチャ | パス | 注記 |
 | --- | --- | --- | --- |
 | Android | ARM64 | Android/arm64-v8a |   |
-| Android | x86 | Android/x86 |   |
 | Android | x86_64 | Android/x86_64 |   |
 | Emscripten |  | Experimental/Emscripten/latest | bitcode（upstream LLVM wasmバックエンド） |
 | HarmonyOS | ARM64 | HarmonyOS/arm64-v8a |   |
 | HarmonyOS | ARMv7 | HarmonyOS/armeabi-v7a |  |
 | HarmonyOS | x86_64 | HarmonyOS/x86_64 |   |
 | iOS | ARM64 | iOS/xxx-iphoneos | iOSデバイス |
-| iOS | x86_64 | iOS/xxx-iphonesimulator | iOS Simulator |
+| iOS | ARM64 | iOS/xxx-iphonesimulator-arm64 | iOS Simulator |
+| iOS | x86_64 | iOS/xxx-iphonesimulator-x86_64 | iOS Simulator |
 | Linux | x86_64 | Linux/x86_64 |   |
 | macOS | x86_64 | macOS |   |
 | macOS | ARM64 | macOS |   |

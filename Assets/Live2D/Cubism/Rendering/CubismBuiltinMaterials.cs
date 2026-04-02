@@ -87,6 +87,27 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// <see cref="TransparentPicking"/>'s backing field.
+        /// </summary>
+        private static Material _transparentPicking;
+
+        /// <summary>
+        /// Transparent material for Scene View picking.
+        /// </summary>
+        public static Material TransparentPicking
+        {
+            get
+            {
+                if (_transparentPicking == null)
+                {
+                    _transparentPicking = LoadTransparentPickingMaterial();
+                }
+
+                return _transparentPicking;
+            }
+        }
+
+        /// <summary>
         /// Returns a material for the given BlendMode.
         /// </summary>
         /// <param name="materialName">Name</param>
@@ -155,6 +176,14 @@ namespace Live2D.Cubism.Rendering
                 Debug.LogError($"Could not load material '{name}'");
             }
             return material;
+        }
+
+        /// <summary>
+        /// Loads a material for picking.
+        /// </summary>
+        private static Material LoadTransparentPickingMaterial()
+        {
+            return Resources.Load<Material>(ResourcesDirectory + "/TransparentPicking");
         }
 
         #endregion

@@ -92,5 +92,16 @@ namespace Live2D.Cubism.Rendering
                 return Shader.Find("Unlit/BlendMode/OffscreenCompatibleBlend");
             }
         }
+
+        /// <summary>
+        /// Shader for Scene View picking.
+        /// </summary>
+        public static Shader TransparentPicking
+        {
+            get
+            {
+                return Shader.Find("Live2D Cubism/TransparentPicking");
+            }
+        }
     }
 }

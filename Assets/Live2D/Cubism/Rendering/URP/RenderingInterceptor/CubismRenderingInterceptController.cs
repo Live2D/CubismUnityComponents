@@ -7,9 +7,11 @@
 
 
 using System;
+using System.Collections.Generic;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 {
@@ -89,13 +91,18 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         private struct CameraDrawStatus
         {
             public Camera Camera;
-            public bool HasDrawn;
+            public int LastRenderedPassCount;
         }
 
         /// <summary>
         /// Camera draw status array.
         /// </summary>
         private CameraDrawStatus[] _cameraDrawStatus;
+
+        /// <summary>
+        /// Render pass counter.
+        /// </summary>
+        private int _renderPassCounter = 0;
 
         /// <summary>
         /// Execution order of the interceptor.
@@ -153,6 +160,8 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             _cameraDrawStatus = Array.Empty<CameraDrawStatus>();
 
             CubismRenderingInterceptorsManager.GetInstance().AddInterceptors(this);
+
+            RenderPipelineManager.beginContextRendering += OnBeginContextRendering;
         }
 
         /// <summary>
@@ -169,6 +178,16 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         public void OnDisable()
         {
             CubismRenderingInterceptorsManager.GetInstance().RemoveInterceptors(this);
+
+            RenderPipelineManager.beginContextRendering -= OnBeginContextRendering;
+        }
+
+        /// <summary>
+        /// Called by Unity at the beginning of context rendering.
+        /// </summary>
+        private void OnBeginContextRendering(ScriptableRenderContext context, List<Camera> cameras)
+        {
+            _renderPassCounter++;
         }
 
         /// <summary>
@@ -190,10 +209,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// </summary>
         public virtual void OnLateUpdate()
         {
-            for (var index = 0; index < _cameraDrawStatus.Length; index++)
-            {
-                _cameraDrawStatus[index].HasDrawn = false;
-            }
+
         }
 
         /// <summary>
@@ -266,12 +282,12 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
                 _cameraDrawStatus[statusIndex] = new CameraDrawStatus
                 {
                     Camera = currentCamera,
-                    HasDrawn = false,
+                    LastRenderedPassCount = -1,
                 };
             }
 
-            // Skip if already drawn for this camera.
-            if (_cameraDrawStatus[statusIndex].HasDrawn)
+            // Get the current rendered frame count.
+            if (_cameraDrawStatus[statusIndex].LastRenderedPassCount == _renderPassCounter)
             {
                 return;
             }
@@ -356,7 +372,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             }
 
             // Mark as drawn.
-            _cameraDrawStatus[statusIndex].HasDrawn = true;
+            _cameraDrawStatus[statusIndex].LastRenderedPassCount = _renderPassCounter;
         }
 
         /// <summary>

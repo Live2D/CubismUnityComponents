@@ -29,5 +29,6 @@ public class CubismDisplayInfoCombinedParameterInfo : MonoBehaviour
     /// <summary>
     /// backing field for <see cref="CombinedParameters"/>.
     /// </summary>
+    [SerializeField]
     private CubismDisplayInfo3Json.CombinedParameter[] combinedParameters;
 }

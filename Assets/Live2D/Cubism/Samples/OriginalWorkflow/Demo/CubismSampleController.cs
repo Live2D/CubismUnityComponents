@@ -14,6 +14,7 @@ using Live2D.Cubism.Framework.Raycasting;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 {
@@ -151,7 +152,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
             SpecifiedAnimationCheck();
 
 
-            if(!Input.GetMouseButtonDown(0))
+            if(Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
             {
                 if (!_motionController.IsPlayingAnimation())
                 {
@@ -164,7 +165,8 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 
 
             // Cast ray from pointer position.
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var screenPosition = Pointer.current.position.ReadValue();
+            var ray = Camera.main.ScreenPointToRay(screenPosition);
             var hitCount = _raycaster.Raycast(ray, _raycastResults);
 
 

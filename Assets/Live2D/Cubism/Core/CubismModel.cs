@@ -90,6 +90,30 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// Resets non-serialized fields of a <see cref="CubismModel"/>.
+        /// </summary>
+        /// <remarks>
+        /// Call after <c>PrefabUtility.SaveAsPrefabAsset</c> to clear stale
+        /// component references that may have been cached by <see cref="OnValidate"/>
+        /// during the prefab replacement.
+        /// </remarks>
+        /// <param name="model">Target Cubism model.</param>
+        public static void ResetNonSerializedFields(CubismModel model)
+        {
+            if (model.TaskableModel != null)
+            {
+                model.TaskableModel.ReleaseUnmanaged();
+                model.TaskableModel = null;
+            }
+
+            model._parameters = null;
+            model._parts = null;
+            model._drawables = null;
+            model._offscreens = null;
+            model._canvasInformation = null;
+        }
+
+        /// <summary>
         /// <see cref="Moc"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -355,6 +379,28 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedParameterCount = TaskableModel.UnmanagedModel.Parameters.Count;
+                if (Parameters.Length > unmanagedParameterCount)
+                {
+                    var filtered = new CubismParameter[unmanagedParameterCount];
+                    var n = 0;
+                    for (var i = 0; i < Parameters.Length; i++)
+                    {
+                        if (Parameters[i].UnmanagedIndex < unmanagedParameterCount)
+                        {
+                            filtered[n++] = Parameters[i];
+                        }
+                    }
+
+                    if (n < unmanagedParameterCount)
+                    {
+                        Array.Resize(ref filtered, n);
+                    }
+
+                    Parameters = filtered;
+                }
+
                 Parameters.Revive(TaskableModel.UnmanagedModel);
             }
 
@@ -369,6 +415,27 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedPartCount = TaskableModel.UnmanagedModel.Parts.Count;
+                if (Parts.Length > unmanagedPartCount)
+                {
+                    var filtered = new CubismPart[unmanagedPartCount];
+                    var n = 0;
+                    for (var i = 0; i < Parts.Length; i++)
+                    {
+                        if (Parts[i].UnmanagedIndex < unmanagedPartCount)
+                        {
+                            filtered[n++] = Parts[i];
+                        }
+                    }
+
+                    if (n < unmanagedPartCount)
+                    {
+                         Array.Resize(ref filtered, n);
+                    }
+
+                    Parts = filtered;
+                }
                 Parts.Revive(TaskableModel.UnmanagedModel);
             }
 
@@ -383,6 +450,28 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedDrawableCount = TaskableModel.UnmanagedModel.Drawables.Count;
+                if (Drawables.Length > unmanagedDrawableCount)
+                {
+                    var filtered = new CubismDrawable[unmanagedDrawableCount];
+                    var n = 0;
+                    for (var i = 0; i < Drawables.Length; i++)
+                    {
+                        if (Drawables[i].UnmanagedIndex < unmanagedDrawableCount)
+                        {
+                            filtered[n++] = Drawables[i];
+                        }
+                    }
+
+                    if (n < unmanagedDrawableCount)
+                    {
+                        Array.Resize(ref filtered, n);
+                    }
+
+                    Drawables = filtered;
+                }
+
                 Drawables.Revive(TaskableModel.UnmanagedModel);
             }
 
@@ -398,6 +487,28 @@ namespace Live2D.Cubism.Core
                 }
                 else
                 {
+                    // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                    var unmanagedOffscreenCount = TaskableModel.UnmanagedModel.Offscreens.Count;
+                    if (Offscreens.Length > unmanagedOffscreenCount)
+                    {
+                        var filtered = new CubismOffscreen[unmanagedOffscreenCount];
+                        var n = 0;
+                        for (var i = 0; i < Offscreens.Length; i++)
+                        {
+                            if (Offscreens[i].UnmanagedIndex < unmanagedOffscreenCount)
+                            {
+                                filtered[n++] = Offscreens[i];
+                            }
+                        }
+
+                        if (n < unmanagedOffscreenCount)
+                        {
+                            Array.Resize(ref filtered, n);
+                        }
+
+                        Offscreens = filtered;
+                    }
+
                     Offscreens.Revive(TaskableModel.UnmanagedModel);
                 }
             }

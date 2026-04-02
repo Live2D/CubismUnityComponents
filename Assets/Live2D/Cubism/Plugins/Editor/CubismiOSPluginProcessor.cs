@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 
 namespace Live2D.Cubism.Plugins.Editor
@@ -51,13 +52,23 @@ namespace Live2D.Cubism.Plugins.Editor
             {
                 targetPlugin = PlayerSettings.iOS.sdkVersion == iOSSdkVersion.DeviceSDK
                     ? CubismiOSPlugin.DebugIphoneos
-                    : CubismiOSPlugin.DebugIphoneSimulator;
+                    : PlayerSettings.iOS.simulatorSdkArchitecture == AppleMobileArchitectureSimulator.X86_64
+                        ? CubismiOSPlugin.DebugIphoneSimulatorX64
+                        : CubismiOSPlugin.DebugIphoneSimulatorArm64;
             }
             else
             {
                 targetPlugin = PlayerSettings.iOS.sdkVersion == iOSSdkVersion.DeviceSDK
                     ? CubismiOSPlugin.ReleaseIphoneos
-                    : CubismiOSPlugin.ReleaseIphoneSimulator;
+                    : PlayerSettings.iOS.simulatorSdkArchitecture == AppleMobileArchitectureSimulator.X86_64
+                        ? CubismiOSPlugin.ReleaseIphoneSimulatorX64
+                        : CubismiOSPlugin.ReleaseIphoneSimulatorArm64;
+            }
+
+            if (PlayerSettings.iOS.sdkVersion ==iOSSdkVersion.SimulatorSDK
+                && PlayerSettings.iOS.simulatorSdkArchitecture == AppleMobileArchitectureSimulator.Universal)
+            {
+                Debug.LogWarning("Arm64 Core will be used for `Universal`. If you want to check on x86_64 devices(Rosetta 2), please build for `x86_64`.");
             }
 
 
@@ -94,17 +105,25 @@ namespace Live2D.Cubism.Plugins.Editor
             {
                 get { return new CubismiOSPlugin("Debug-iphoneos"); }
             }
-            public static CubismiOSPlugin DebugIphoneSimulator
+            public static CubismiOSPlugin DebugIphoneSimulatorArm64
             {
-                get { return new CubismiOSPlugin("Debug-iphonesimulator"); }
+                get { return new CubismiOSPlugin("Debug-iphonesimulator-arm64"); }
+            }
+            public static CubismiOSPlugin DebugIphoneSimulatorX64
+            {
+                get { return new CubismiOSPlugin("Debug-iphonesimulator-x86_64"); }
             }
             public static CubismiOSPlugin ReleaseIphoneos
             {
                 get { return new CubismiOSPlugin("Release-iphoneos"); }
             }
-            public static CubismiOSPlugin ReleaseIphoneSimulator
+            public static CubismiOSPlugin ReleaseIphoneSimulatorArm64
             {
-                get { return new CubismiOSPlugin("Release-iphonesimulator"); }
+                get { return new CubismiOSPlugin("Release-iphonesimulator-arm64"); }
+            }
+            public static CubismiOSPlugin ReleaseIphoneSimulatorX64
+            {
+                get { return new CubismiOSPlugin("Release-iphonesimulator-x86_64"); }
             }
 
             private CubismiOSPlugin(string directoryName)

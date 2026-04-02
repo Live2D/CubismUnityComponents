@@ -4,12 +4,11 @@
 
 # お知らせ
 
-## [制限事項] Scene ViewにおけるCubismモデルのゲームオブジェクトのピックと選択について (2026-01-08)
+## [制限事項] HarmonyOS NEXT及びTuanjieへの対応について (2026-04-02)
 
-Cubism SDK for Unityでは、Unityデフォルトの透過オブジェクトのレンダーパスではなくカスタムレンダーパスでCubismモデルの描画を行っています。
-この影響で、Scene View上にてCubismモデルのゲームオブジェクトのピックと選択が出来ない問題を確認しております。
+Cubism SDK for Unity R5 beta3以降ではRender Graph Moduleを利用しているため、HarmonyOS NEXT及びTuanjieに対応しておりません。
 
-対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
+本製品での対応時期につきましては、TuanjieがRender Graph Moduleをサポート次第、今後のリリースを持ってお知らせいたします。
 
 
 ## [制限事項] オフスクリーン描画の描画順が変更されたときの、オフスクリーン描画が属するパーツ以下のDrawableの描画順について (2026-01-08)
@@ -18,17 +17,6 @@ Cubism SDK for Unity上でオフスクリーン描画の描画順が変更され
 今後、オフスクリーン描画の描画順の変更と連動してオフスクリーン描画が属するパーツに含まれるDrawableやオフスクリーン描画の描画順が変更される機能の追加を検討しております。
 
 対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
-
-
-## [注意事項] SamplesにおけるInput System Packageへの対応について (2025-08-26)
-
-Cubism SDK for UnityのSamplesでは従来の `Input Manager` を利用して入力を管理しております。
-そのため、`Input System Package` のみを利用する方式が有効になっている場合、シーン再生時にエラーが発生する可能性があります。
-
-必要に応じて以下の手順で `Input Manager` を利用するようにプロジェクト設定を変更してください。
-
-1. `Project Settings` -> `Player` を開く。
-1. `Active Input Handling` を `both` へ変更する。
 
 
 ## [制限事項] WebGL書き出し時のAudioClipからのリップシンク対応について (2024-11-28)
@@ -43,7 +31,7 @@ Cubism SDK for Unityの音声からのリップシンクは、波形情報の取
 
 ## [制限事項] Windows ARM64向けの対応状況について (2024-01-18)
 
-Unity 2023.1以降にて指定可能となったWindows ARM64向けビルドにつきまして、Cubim SDK for Unityは現在対応しておりません。
+Unity 2023.1以降にて指定可能となったWindows ARM64向けビルドにつきまして、Cubism SDK for Unityは現在対応しておりません。
 対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
 
 
