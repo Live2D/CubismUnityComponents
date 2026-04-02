@@ -85,12 +85,12 @@ namespace Live2D.Cubism.Rendering.URP
         /// <summary>
         /// Greater than or equal to comparison value on Z Test.
         /// </summary>
-        private static readonly int GEqual = 7;
+        internal static readonly int GEqual = 7;
 
         /// <summary>
         /// Less than or equal to comparison value on Z Test.
         /// </summary>
-        private static readonly int LEqual = 4;
+        internal static readonly int LEqual = 4;
 
         /// <summary>
         /// Scriptable render pass for rendering Cubism models.
@@ -804,6 +804,8 @@ namespace Live2D.Cubism.Rendering.URP
                     passData.ResourceData = resourceData;
 
                     var descriptor = resourceData.activeColorTexture.GetDescriptor(renderGraph);
+                    descriptor.wrapMode = TextureWrapMode.Repeat;
+                    descriptor.filterMode = FilterMode.Point;
 
                     descriptor.name = "CommonTexture";
                     passData.CommonRenderingTextureHandle = renderGraph.CreateTexture(descriptor);

@@ -45,8 +45,8 @@ namespace Live2D.Cubism.Editor.Inspectors
             EditorGUI.BeginChangeCheck();
 
             controller.Opacity = EditorGUILayout.Slider("Opacity", controller.Opacity, 0f, 1f);
-            controller.OverrideFlagForModelMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForModelMultiplyColors", controller.OverrideFlagForModelMultiplyColors);
-            controller.OverrideFlagForModelScreenColors = EditorGUILayout.Toggle("OverrideFlagForModelScreenColors", controller.OverrideFlagForModelScreenColors);
+            controller.MultiplyColorEnabled = EditorGUILayout.Toggle("MultiplyColorEnabled", controller.MultiplyColorEnabled);
+            controller.ScreenColorEnabled = EditorGUILayout.Toggle("ScreenColorEnabled", controller.ScreenColorEnabled);
 
 
             ShowSorting = EditorGUILayout.Foldout(ShowSorting, "Sorting", EditorStyles.boldFont);

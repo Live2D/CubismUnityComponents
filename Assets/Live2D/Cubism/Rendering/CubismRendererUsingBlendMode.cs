@@ -334,10 +334,8 @@ namespace Live2D.Cubism.Rendering
             property.SetVector(CubismShaderVariables.OffsetScale, _offsetScale);
 
             // Set rotation from transform.
-            var quaternion = _quaternion;
-            quaternion.Set(RenderController.transform.localRotation.x * transform.localRotation.x, RenderController.transform.localRotation.y * transform.localRotation.y,
-                RenderController.transform.localRotation.z * transform.localRotation.z, RenderController.transform.localRotation.w * transform.localRotation.w);
-            _quaternion = quaternion;
+            var combinedRotation = RenderController.transform.localRotation * transform.localRotation;
+            _quaternion.Set(combinedRotation.x, combinedRotation.y, combinedRotation.z, combinedRotation.w);
 
             // Write property.
             property.SetVector(CubismShaderVariables.RotationQuaternion, _quaternion);
@@ -730,7 +728,7 @@ namespace Live2D.Cubism.Rendering
                 buffer.SetRenderTarget(RenderController.CurrentFrameBuffer, passData.CameraDepthTextureHandle);
 
                 // Draw the mesh with the material.
-                buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
+                buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
 
                 return;
             }
@@ -742,7 +740,7 @@ namespace Live2D.Cubism.Rendering
             buffer.SetRenderTarget(RenderController.CurrentFrameBuffer, passData.CameraDepthTextureHandle);
 
             // Draw the mesh with the material.
-            buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
+            buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
         }
 
         /// <summary>
@@ -786,7 +784,7 @@ namespace Live2D.Cubism.Rendering
                 buffer.SetRenderTarget(previousOffscreen, passData.CameraDepthTextureHandle);
 
                 // Draw the mesh with the material.
-                buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
+                buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
 
                 return;
             }
@@ -797,7 +795,7 @@ namespace Live2D.Cubism.Rendering
             buffer.ClearRenderTarget(false, true, Color.clear);
 
             // Draw the mesh with the material.
-            buffer.DrawMesh(Mesh, Matrix4x4.identity, Material, 0, 0, PropertyBlock);
+            buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
 
             // Blit to previous offscreen.
             buffer.Blit(passData.CommonTemporaryTextureHandle, previousOffscreen);
@@ -818,6 +816,9 @@ namespace Live2D.Cubism.Rendering
             property.SetColor(CubismShaderVariables.MultiplyColor, MultiplyColor);
             property.SetColor(CubismShaderVariables.ScreenColor, ScreenColor);
             property.SetFloat(CubismShaderVariables.OffscreenOpacity, Offscreen.Opacity);
+
+            var reversedZ = SystemInfo.usesReversedZBuffer ? CubismRenderPassFeature.GEqual : CubismRenderPassFeature.LEqual;
+            property.SetInt(CubismShaderVariables.ReversedZ, reversedZ);
 
             MeshRenderer.SetPropertyBlock(property);
         }

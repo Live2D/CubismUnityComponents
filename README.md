@@ -18,12 +18,18 @@ Please read the [license](LICENSE.md) before use.
 
 Please read the [notices](NOTICE.md) before use.
 
-## Compatibility with Cubism 5 new features and previous Cubism SDK versions
+## Compatibility with Cubism 5.3 new features and previous Cubism SDK versions
 
-This SDK is compatible with Cubism 5.  
-For SDK compatibility with new features in Cubism 5 Editor, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/cubism-5-new-functions/).  
-For compatibility with previous versions of Cubism SDK, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/compatibility-with-cubism-5/).
+This SDK is compatible with Cubism 5.3.  
+For SDK compatibility with new features in Cubism 5.3 Editor, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/cubism-5-3-new-functions/).  
+For compatibility with previous versions of Cubism SDK, please refer to [here](https://docs.live2d.com/en/cubism-sdk-manual/compatibility-with-cubism-5-3/).
 
+## Runtime requirements
+
+This SDK targets the **Universal Render Pipeline (URP)** and requires custom render passes for drawing models. Please check [Differences from Cubism 5 SDK for Unity R4_1 and earlier](https://docs.live2d.com/en/cubism-sdk-manual/differences-from-before-unity-r4_1/) and [Migration from Built-in Render Pipeline to URP](https://docs.live2d.com/en/cubism-sdk-manual/migration-from-birp-to-urp/).
+The **Built-in Render Pipeline** and **High Definition Render Pipeline (HDRP)** are not supported. 
+
+Use with the **Input System** package (`com.unity.inputsystem`) is expected. Projects that rely only on the legacy Input Manager may need to add the package or adjust project settings following Unity’s documentation.
 
 ## Structure
 
@@ -55,23 +61,17 @@ Resources like shaders and other assets are located in `./Assets/Live2D/Cubism/R
 
 | Unity | Version |
 | --- | --- |
-| LTS | 6000.0.64f2 |
+| LTS | 6000.3.11f1 |
+| LTS | 6000.0.71f1 |
 
 | Library / Tool | Version |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.14.23 |
-| Windows SDK | 10.0.26100.6584 |
-| Xcode | 26.2 |
+| Visual Studio 2022 | 17.14.29 |
+| Windows SDK | 10.0.26100.7705 |
+| Xcode | 26.3 |
 
 *2 Use libraries embedded with Unity or recommended.
-
-| HarmonyOS NEXT Supported Tools | Version |
-| --- | --- |
-| Tuanjie | 1.5.2 |
-| DevEco Studio *3 | 5.0.13.200 |
-
-*3 Builds for HarmonyOS NEXT outside of China must be built through DevEco.
 
 ### C# compiler
 
@@ -88,13 +88,12 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Platform | Version |
 | --- | --- |
 | Android | 16 |
-| iOS | 26.2 |
-| iPadOS | 26.2 |
+| iOS | 26.4 |
+| iPadOS | 26.4 |
 | Ubuntu | 24.04.3 |
-| macOS | 26.2 |
-| Windows 11 | 24H2 (*4) |
-| Google Chrome | 143.0.7499.170 |
-| HarmonyOS NEXT | 5.0.0.102 |
+| macOS | 26.4 |
+| Windows 11 | 25H2 (*4) |
+| Google Chrome | 146.0.7680.165 |
 
 *4 We have not verified the operation of builds for UWP.
 

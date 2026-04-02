@@ -47,52 +47,30 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// <see cref="OverrideFlagForModelMultiplyColors"/> backing field.
+        /// <see cref="MultiplyColorEnabled"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
         private bool _isOverriddenModelMultiplyColors;
 
         /// <summary>
         /// Whether to override with multiply color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForModelMultiplyColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForModelMultiplyColors
-        {
-            get { return OverrideFlagForModelMultiplyColors; }
-            set { OverrideFlagForModelMultiplyColors = value; }
-        }
-
-        /// <summary>
-        /// Whether to override with multiply color from the model.
-        /// </summary>
-        public bool OverrideFlagForModelMultiplyColors
+        public bool MultiplyColorEnabled
         {
             get { return _isOverriddenModelMultiplyColors; }
             set { _isOverriddenModelMultiplyColors = value; }
         }
 
         /// <summary>
-        /// <see cref="OverrideFlagForModelScreenColors"/> backing field.
+        /// <see cref="ScreenColorEnabled"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
         private bool _isOverriddenModelScreenColors;
 
         /// <summary>
         /// Whether to override with screen color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForModelScreenColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForModelScreenColors
-        {
-            get { return OverrideFlagForModelScreenColors; }
-            set { OverrideFlagForModelScreenColors = value; }
-        }
-
-        /// <summary>
-        /// Whether to override with screen color from the model.
-        /// </summary>
-        public bool OverrideFlagForModelScreenColors
+        public bool ScreenColorEnabled
         {
             get { return _isOverriddenModelScreenColors; }
             set { _isOverriddenModelScreenColors = value; }
@@ -579,6 +557,23 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         public void TryInitialize()
         {
+            // If the number of drawables has changed,
+            // discard the cached renderers so they are rebuilt to match the new drawable count.
+            if (_renderers != null && Model && Model.Drawables != null)
+            {
+                var newCount = Model.Drawables.Length;
+
+                if (Model.Offscreens != null)
+                {
+                    newCount += Model.Offscreens.Length;
+                }
+
+                if (_renderers.Length != newCount)
+                {
+                    _renderers = null;
+                }
+            }
+
             // Try to get renderers.
             var renderers = _renderers;
             TryInitializeRenderers(renderers);
@@ -684,8 +679,8 @@ namespace Live2D.Cubism.Rendering
                     continue;
                 }
 
-                var isUseUserMultiplyColor = (Renderers[i].OverrideFlagForDrawObjectMultiplyColors ||
-                                              OverrideFlagForModelMultiplyColors);
+                var isUseUserMultiplyColor = (Renderers[i].DrawObjectMultiplyColorEnabled ||
+                                              MultiplyColorEnabled);
 
                 if (isUseUserMultiplyColor)
                 {
@@ -714,8 +709,8 @@ namespace Live2D.Cubism.Rendering
                 _newMultiplyColors[i] = Renderers[i].MultiplyColor;
                 Renderers[i].LastIsUseUserMultiplyColor = isUseUserMultiplyColor;
 
-                var isUseUserScreenColor = (Renderers[i].OverrideFlagForDrawObjectScreenColors ||
-                                            OverrideFlagForModelScreenColors);
+                var isUseUserScreenColor = (Renderers[i].DrawObjectScreenColorEnabled ||
+                                            ScreenColorEnabled);
 
                 if (isUseUserScreenColor)
                 {
@@ -1031,8 +1026,8 @@ namespace Live2D.Cubism.Rendering
                     continue;
                 }
 
-                var isUseModelMultiplyColor = !(renderers[rendererIndex].OverrideFlagForDrawObjectMultiplyColors ||
-                                                OverrideFlagForModelMultiplyColors);
+                var isUseModelMultiplyColor = !(renderers[rendererIndex].DrawObjectMultiplyColorEnabled ||
+                                                MultiplyColorEnabled);
 
                 // Skip processing when not using model colors.
                 if (data[dataIndex].IsBlendColorDirty && isUseModelMultiplyColor)
@@ -1054,8 +1049,8 @@ namespace Live2D.Cubism.Rendering
                     continue;
                 }
 
-                var isUseModelScreenColor = !(renderers[rendererIndex].OverrideFlagForDrawObjectScreenColors ||
-                                              OverrideFlagForModelScreenColors);
+                var isUseModelScreenColor = !(renderers[rendererIndex].DrawObjectScreenColorEnabled ||
+                                              ScreenColorEnabled);
 
                 // Skip processing when not using model colors.
                 if (data[dataIndex].IsBlendColorDirty && isUseModelScreenColor)

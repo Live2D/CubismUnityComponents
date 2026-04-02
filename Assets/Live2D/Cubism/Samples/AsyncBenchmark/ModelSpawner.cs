@@ -28,6 +28,11 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         [SerializeField]
         public GameObject ModelPrefab;
 
+        /// <summary>
+        /// Attaches to instantiate object from <see cref="ModelPrefab"/>.
+        /// </summary>
+        [SerializeField]
+        public RuntimeAnimatorController AnimatorController;
 
         /// <summary>
         /// UI component representing current model count.
@@ -65,6 +70,10 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
             // Spawn new instance.
             var instance = Instantiate(ModelPrefab);
 
+            if (AnimatorController)
+            {
+                instance.GetComponent<Animator>().runtimeAnimatorController = AnimatorController;
+            }
 
             var random = new Random();
             var offsetX = (float)random.Next(-1000, 1000) / 1000f;

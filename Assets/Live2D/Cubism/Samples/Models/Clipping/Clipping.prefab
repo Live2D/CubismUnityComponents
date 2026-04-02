@@ -296,6 +296,7 @@ GameObject:
   - component: {fileID: 688237805033942325}
   - component: {fileID: 9073448813080312448}
   - component: {fileID: 3341142940415704182}
+  - component: {fileID: 2312322926896395518}
   m_Layer: 0
   m_Name: NoMask
   m_TagString: Untagged
@@ -355,7 +356,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 11f7a4e040e84f943b8c957b35ae3da6, type: 2}
+  - {fileID: 2100000, guid: 4ad202546e964ac4cae73f781ea136b4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -396,6 +397,7 @@ MonoBehaviour:
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 0}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
+  _drawMaterial: {fileID: 2100000, guid: 11f7a4e040e84f943b8c957b35ae3da6, type: 2}
   _sortingMode: 0
   _sortingOrder: 0
   _renderOrder: 2
@@ -408,6 +410,14 @@ MonoBehaviour:
   _offsetScale: {x: 0, y: 0, z: 1, w: 1}
   _quaternion: {x: 0, y: 0, z: 0, w: 0}
   _zOffset: 0
+--- !u!33 &2312322926896395518
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2749779893314880763}
+  m_Mesh: {fileID: 0}
 --- !u!1 &4565447098960129936
 GameObject:
   m_ObjectHideFlags: 0
@@ -484,6 +494,7 @@ GameObject:
   - component: {fileID: 3954799369145485136}
   - component: {fileID: 2168625042298388213}
   - component: {fileID: 6185745851915322232}
+  - component: {fileID: 5572234624107004366}
   m_Layer: 0
   m_Name: Masking
   m_TagString: Untagged
@@ -543,7 +554,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 11f7a4e040e84f943b8c957b35ae3da6, type: 2}
+  - {fileID: 2100000, guid: 4ad202546e964ac4cae73f781ea136b4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -584,6 +595,7 @@ MonoBehaviour:
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 0}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
+  _drawMaterial: {fileID: 2100000, guid: 11f7a4e040e84f943b8c957b35ae3da6, type: 2}
   _sortingMode: 0
   _sortingOrder: 0
   _renderOrder: 0
@@ -596,6 +608,14 @@ MonoBehaviour:
   _offsetScale: {x: 0, y: 0, z: 1, w: 1}
   _quaternion: {x: 0, y: 0, z: 0, w: 0}
   _zOffset: 0
+--- !u!33 &5572234624107004366
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6454877821707704438}
+  m_Mesh: {fileID: 0}
 --- !u!1 &7159101757324966218
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,6 +676,7 @@ GameObject:
   - component: {fileID: 8406388578466076011}
   - component: {fileID: 6650187817984219938}
   - component: {fileID: 3165076068875315121}
+  - component: {fileID: 2203778988372928158}
   m_Layer: 0
   m_Name: Masked
   m_TagString: Untagged
@@ -715,7 +736,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d0f79d6291dcf9a4bb11366a9dd08387, type: 2}
+  - {fileID: 2100000, guid: 4ad202546e964ac4cae73f781ea136b4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -756,6 +777,7 @@ MonoBehaviour:
   _multiplyColor: {r: 1, g: 1, b: 1, a: 1}
   _screenColor: {r: 0, g: 0, b: 0, a: 0}
   _mainTexture: {fileID: 2800000, guid: b6eee2f53dbd5ef44b673113e84be2e3, type: 3}
+  _drawMaterial: {fileID: 2100000, guid: d0f79d6291dcf9a4bb11366a9dd08387, type: 2}
   _sortingMode: 0
   _sortingOrder: 0
   _renderOrder: 1
@@ -769,3 +791,11 @@ MonoBehaviour:
   _offsetScale: {x: 0, y: 0, z: 1, w: 1}
   _quaternion: {x: 0, y: 0, z: 0, w: 0}
   _zOffset: 0
+--- !u!33 &2203778988372928158
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9000607841590932290}
+  m_Mesh: {fileID: 0}

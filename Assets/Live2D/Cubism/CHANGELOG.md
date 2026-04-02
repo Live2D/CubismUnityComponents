@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.5] - 2026-04-02
+
+### Added
+
+* Added Cubism Core for ARM64 iOS Simulator.
+  * See `CHANGELOG.md` in Core.
+
+### Changed
+
+* Update each model's prefab to match environment updates.
+* Change to allow specifying `AnimatorController` in scenes under `Assets/Live2D/Cubism/Samples/AsyncBenchmark`.
+* Change to explicitly set texture sampler settings.
+* Change the version of the development project to `6000.0.68f1`.
+* Change to work with the `Input System` package.
+* Change property names related to multiply color and screen color.
+
+### Fixed
+
+* Fix an issue in URP where Cubism models could not be picked in the Scene View.
+* Fix an issue in URP where selected Cubism models were not highlighted with an outline in the Scene View.
+* Fix an issue where the scaling reference position was set to the center of the rendering area.
+* Fix incorrect quaternion composition in `CubismRenderer`.
+* Fix an issue where the model would disappear when regaining Editor focus if `Run In Background` was disabled.
+* Fix an issue where the import process would run for models imported under the `StreamingAssets` folder. by [@redwyre](https://github.com/Live2D/CubismUnityComponents/pull/90)
+* Fix an issue where the `Koharu` model used in scenes under `Assets/Live2D/Cubism/Samples` was outdated.
+* Fix an issue where `CubismPartColorsEditor` was using incorrect flags for determination.
+* Fix an issue where the re-import process for a model did not support increasing or decreasing parameters and other elements.
+* Fix CubismImporterBase.Save so that it no longer performs a reimport when saving.
+* Fix the importer to import motion3.json first, followed by model3.json, and then all other assets.
+* Fix PoseMotionImporter processing to accommodate the new import order.
+* Fix an issue where specifying an override in `CubismParameterExtensionMethods.BlendToValue()` caused the applied value to be the current value of that parameter. by [@LoS-Light](https://github.com/Live2D/CubismUnityComponents/pull/89)
+* Fix an issue where offscreen rendering of models was not functioning correctly with Z Buffer in Reversed Z environments.
+
+
 ## [5-r.5-beta.3] - 2026-01-08
 
 ### Added
@@ -165,7 +199,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-* Add `CubimMath` class in namespace `Live2D.Cubism.Framework.Utils`.
+* Add `CubismMath` class in namespace `Live2D.Cubism.Framework.Utils`.
 * Add function `ModF()` to compute floating-point remainder in `CubismMath` class.
 
 ### Changed
@@ -552,6 +586,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.3...5-r.5
 [5-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.2...5-r.5-beta.3
 [5-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.1...5-r.5-beta.2
 [5-r.5-beta.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4.1...5-r.5-beta.1

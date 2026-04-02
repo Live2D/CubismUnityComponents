@@ -234,7 +234,9 @@ namespace Live2D.Cubism.Editor.Importers
             if (!textureImporter.mipmapEnabled
                 && textureImporter.alphaIsTransparency
                 && textureImporter.textureType == TextureImporterType.Default
-                && textureImporter.textureCompression == TextureImporterCompression.Uncompressed)
+                && textureImporter.textureCompression == TextureImporterCompression.Uncompressed
+                && textureImporter.wrapMode == TextureWrapMode.Repeat
+                && textureImporter.filterMode == FilterMode.Bilinear)
             {
                 return;
             }
@@ -245,7 +247,8 @@ namespace Live2D.Cubism.Editor.Importers
             textureImporter.alphaIsTransparency = true;
             textureImporter.textureType = TextureImporterType.Default;
             textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
-
+            textureImporter.wrapMode = TextureWrapMode.Repeat;
+            textureImporter.filterMode = FilterMode.Bilinear;
 
             EditorUtility.SetDirty(texture);
             textureImporter.SaveAndReimport();

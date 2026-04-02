@@ -108,6 +108,42 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Check if the render texture needs to be resized or recreated to match the base texture.
+        /// </summary>
+        /// <param name="renderTexture">The render texture to check.</param>
+        /// <param name="baseTexture">Base render texture to compare against.</param>
+        /// <returns>True if the render texture needs to be resized or recreated.</returns>
+        private static bool NeedsResizeOrRecreate(RenderTexture renderTexture, RenderTexture baseTexture)
+        {
+            return !renderTexture.IsCreated()
+                || renderTexture.width != baseTexture.width
+                || renderTexture.height != baseTexture.height
+                || renderTexture.format != baseTexture.format
+                || renderTexture.antiAliasing != baseTexture.antiAliasing
+                || renderTexture.wrapMode != TextureWrapMode.Repeat
+                || renderTexture.filterMode != FilterMode.Point;
+        }
+
+        /// <summary>
+        /// Create a new render texture for the offscreen render.
+        /// </summary>
+        /// <param name="name">Name of the render texture.</param>
+        /// <param name="baseTexture">Base render texture to use for creating a new render texture.</param>
+        /// <returns>The new render texture.</returns>
+        private RenderTexture CreateOffscreenRenderTexture(string name, RenderTexture baseTexture)
+        {
+            var renderTexture = new RenderTexture(baseTexture)
+            {
+                name = name,
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Point
+            };
+
+            renderTexture.Create();
+            return renderTexture;
+        }
+
+        /// <summary>
         /// Initialize the offscreen render texture manager.
         /// </summary>
         /// <param name="baseTexture">Base render texture to use for initialization.</param>
@@ -163,13 +199,9 @@ namespace Live2D.Cubism.Rendering
             {
                 _offscreenRenderTextureContainers[i] = new RenderTextureContainer
                 {
-                    RenderTexture = new RenderTexture(baseTexture)
-                    {
-                        name = "OffscreenRenderTexture_" + i
-                    },
+                    RenderTexture = CreateOffscreenRenderTexture("OffscreenRenderTexture_" + i, baseTexture),
                     InUse = false
                 };
-                _offscreenRenderTextureContainers[i].RenderTexture.Create();
             }
 
             _previousActiveRenderTextureCount = 0;
@@ -238,17 +270,15 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // Resize if the size is different.
-                if (!_offscreenRenderTextureContainers[i].RenderTexture.IsCreated()
-                    || _offscreenRenderTextureContainers[i].RenderTexture.width != baseTexture.width
-                    || _offscreenRenderTextureContainers[i].RenderTexture.height != baseTexture.height
-                    || _offscreenRenderTextureContainers[i].RenderTexture.format != baseTexture.format
-                    || _offscreenRenderTextureContainers[i].RenderTexture.antiAliasing != baseTexture.antiAliasing)
+                if (NeedsResizeOrRecreate(_offscreenRenderTextureContainers[i].RenderTexture, baseTexture))
                 {
                     _offscreenRenderTextureContainers[i].RenderTexture.Release();
                     _offscreenRenderTextureContainers[i].RenderTexture.width = baseTexture.width;
                     _offscreenRenderTextureContainers[i].RenderTexture.height = baseTexture.height;
                     _offscreenRenderTextureContainers[i].RenderTexture.format = baseTexture.format;
                     _offscreenRenderTextureContainers[i].RenderTexture.antiAliasing = baseTexture.antiAliasing;
+                    _offscreenRenderTextureContainers[i].RenderTexture.wrapMode = TextureWrapMode.Repeat;
+                    _offscreenRenderTextureContainers[i].RenderTexture.filterMode = FilterMode.Point;
                     _offscreenRenderTextureContainers[i].RenderTexture.Create();
                 }
                 _offscreenRenderTextureContainers[i].InUse = true;
@@ -280,13 +310,9 @@ namespace Live2D.Cubism.Rendering
                     _offscreenRenderTextureContainers = new RenderTextureContainer[1];
                     _offscreenRenderTextureContainers[0] = new RenderTextureContainer
                     {
-                        RenderTexture = new RenderTexture(baseTexture)
-                        {
-                            name = "OffscreenRenderTexture_0"
-                        },
+                        RenderTexture = CreateOffscreenRenderTexture("OffscreenRenderTexture_0", baseTexture),
                         InUse = false
                     };
-                    _offscreenRenderTextureContainers[0].RenderTexture.Create();
                 }
 
                 _offscreenRenderTextureContainers[0].InUse = true;
@@ -298,14 +324,9 @@ namespace Live2D.Cubism.Rendering
             Array.Resize(ref _offscreenRenderTextureContainers, _offscreenRenderTextureContainers.Length + 1);
             _offscreenRenderTextureContainers[^1] = new RenderTextureContainer
             {
-                RenderTexture = new RenderTexture(baseTexture)
-                {
-                    name = "OffscreenRenderTexture_" + (_offscreenRenderTextureContainers.Length - 1)
-                },
+                RenderTexture = CreateOffscreenRenderTexture("OffscreenRenderTexture_" + (_offscreenRenderTextureContainers.Length - 1), baseTexture),
                 InUse = true
             };
-
-            _offscreenRenderTextureContainers[^1].RenderTexture.Create();
 
             return _offscreenRenderTextureContainers[^1];
         }

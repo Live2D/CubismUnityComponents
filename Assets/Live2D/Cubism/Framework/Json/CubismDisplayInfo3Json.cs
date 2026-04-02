@@ -170,6 +170,7 @@ namespace Live2D.Cubism.Framework.Json
             public string[] Ids;
         }
 
+        [Serializable]
         public struct CombinedParameter
         {
             /// <summary>

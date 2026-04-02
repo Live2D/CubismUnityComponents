@@ -13,6 +13,7 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
         [PerRendererData] _MainTex ("Texture", 2D) = "white" {}
         [PerRendererData] _OffscreenOpacity("Offscreen Opacity", Float) = 1
         [PerRendererData] cubism_ModelOpacity("Model Opacity", Float) = 1
+        [PerRendererData] _ReversedZ("_Reversed_Z", Int) = 0
 
         // Extension Color settings.
         [PerRendererData] cubism_MultiplyColor("Multiply Color", Color) = (1.0, 1.0, 1.0, 1.0)
@@ -48,7 +49,7 @@ Shader "Unlit/BlendMode/OffscreenCompatibleBlend"
         Cull     [_Cull]
         Lighting Off
         ZWrite   Off
-        ZTest LEqual
+        ZTest [_ReversedZ]
 
         Pass
         {

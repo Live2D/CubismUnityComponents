@@ -58,7 +58,7 @@ Assets/Live2D/Cubism/Samples/Models/Rice
 Assets/Live2D/Cubism/Samples/Models/Ren
 ```
 
-If you use these models, you must agree to the terms of a contract set [here](https://docs.live2d.com/cubism-editor-manual/sample-model/) for each model.
+If you use these models, you must agree to the terms of a contract set [here](https://www.live2d.com/eula/live2d-sample-model-terms_en.html) for each model.
 
 
 ---

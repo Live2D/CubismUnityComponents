@@ -4,12 +4,11 @@
 
 # Notices
 
-## [Restrictions] Picking and Selecting Cubism Model GameObjects in the Scene View (2026-01-08)
+## [Restrictions] Support for HarmonyOS NEXT and Tuanjie (2026-04-02)
 
-In the Cubism SDK for Unity, Cubism models are rendered using a custom render pass instead of Unity's default transparent object render pass.
-Due to this, there is a known issue where picking and selecting Cubism model GameObjects in the Scene View is not possible.
+Cubism SDK for Unity R5 beta3 and later uses the Render Graph Module, and therefore does not support HarmonyOS NEXT or Tuanjie.
 
-The supported version and release schedule will be announced in future updates.
+We will announce support availability for this product in a future release once Tuanjie supports the Render Graph Module.
 
 
 ## [Restrictions] Drawing Order of Drawables Under Parts Containing Offscreen Rendering When the Drawing Order of Offscreen Rendering Changes (2026-01-08)
@@ -18,17 +17,6 @@ In the Cubism SDK for Unity, when the drawing order of offscreen rendering is ch
 We are considering adding a feature in the future to synchronize the drawing order of Drawables under the parts containing offscreen rendering with changes to the drawing order of offscreen rendering.
 
 The supported version and release schedule will be announced in future updates.
-
-
-## [Caution] About Support for Input System Package in Samples (2025-08-26)
-
-The Samples in Cubism SDK for Unity use the traditional `Input Manager` for input handling.
-Therefore, if your project is set to use only the `Input System Package`, errors may occur when running scenes.
-
-If necessary, please change your project settings to use the `Input Manager` by following these steps:
-
-1. Open `Project Settings` -> `Player`.
-2. Set `Active Input Handling` to `both`.
 
 
 ## [Restrictions] Regarding lip-sync support from AudioClips when exporting to WebGL. (2024-11-28)

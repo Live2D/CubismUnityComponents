@@ -87,64 +87,42 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// <see cref="OverrideFlagForDrawObjectMultiplyColors"/> backing field.
+        /// <see cref="DrawObjectMultiplyColorEnabled"/> backing field.
         /// </summary>
         [FormerlySerializedAs("_isOverriddenDrawableMultiplyColors")] [SerializeField, HideInInspector]
         private bool isOverriddenDrawObjectMultiplyColors;
 
         /// <summary>
         /// Whether to override with multiply color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForDrawObjectMultiplyColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForDrawableMultiplyColors
-        {
-            get { return OverrideFlagForDrawObjectMultiplyColors; }
-            set { OverrideFlagForDrawObjectMultiplyColors = value; }
-        }
-
-        /// <summary>
-        /// Whether to override with multiply color from the model.
-        /// </summary>
-        public bool OverrideFlagForDrawObjectMultiplyColors
+        public bool DrawObjectMultiplyColorEnabled
         {
             get { return isOverriddenDrawObjectMultiplyColors; }
             set { isOverriddenDrawObjectMultiplyColors = value; }
         }
 
         /// <summary>
-        /// Last <see cref="OverrideFlagForDrawObjectMultiplyColors"/>.
+        /// Last <see cref="DrawObjectMultiplyColorEnabled"/>.
         /// </summary>
         public bool LastIsUseUserMultiplyColor { get; set; }
 
         /// <summary>
-        /// <see cref="OverrideFlagForDrawObjectScreenColors"/> backing field.
+        /// <see cref="DrawObjectScreenColorEnabled"/> backing field.
         /// </summary>
         [FormerlySerializedAs("_isOverriddenDrawableScreenColors")] [SerializeField, HideInInspector]
         private bool _isOverriddenDrawObjectScreenColors;
 
         /// <summary>
         /// Whether to override with screen color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForDrawObjectScreenColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForDrawableScreenColors
-        {
-            get { return OverrideFlagForDrawObjectScreenColors; }
-            set { OverrideFlagForDrawObjectScreenColors = value; }
-        }
-
-        /// <summary>
-        /// Whether to override with screen color from the model.
-        /// </summary>
-        public bool OverrideFlagForDrawObjectScreenColors
+        public bool DrawObjectScreenColorEnabled
         {
             get { return _isOverriddenDrawObjectScreenColors; }
             set { _isOverriddenDrawObjectScreenColors = value; }
         }
 
         /// <summary>
-        /// Last <see cref="OverrideFlagForDrawObjectScreenColors"/>.
+        /// Last <see cref="DrawObjectScreenColorEnabled"/>.
         /// </summary>
         public bool LastIsUseUserScreenColors { get; set; }
 
@@ -162,8 +140,8 @@ namespace Live2D.Cubism.Rendering
             get
             {
                 // If it can overwrite multiply color, return it.
-                if (RenderController.OverrideFlagForModelMultiplyColors
-                    || OverrideFlagForDrawObjectMultiplyColors)
+                if (RenderController.MultiplyColorEnabled
+                    || DrawObjectMultiplyColorEnabled)
                 {
                     return _multiplyColor;
                 }
@@ -213,8 +191,8 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (RenderController.OverrideFlagForModelScreenColors
-                    || OverrideFlagForDrawObjectScreenColors)
+                if (RenderController.ScreenColorEnabled
+                    || DrawObjectScreenColorEnabled)
                 {
                     return _screenColor;
                 }
@@ -399,6 +377,58 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// <see cref="MeshFilter"/>'s backing field.
+        /// </summary>
+        [NonSerialized]
+        private MeshFilter _meshFilter;
+
+        /// <summary>
+        /// <see cref="UnityEngine.MeshFilter"/> for Scene View picking support.
+        /// </summary>
+        public MeshFilter MeshFilter
+        {
+            get
+            {
+                TryInitializeMeshFilter();
+                return _meshFilter;
+            }
+
+            set
+            {
+                if (value == _meshFilter || value == null)
+                {
+                    return;
+                }
+
+                _meshFilter = value;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="DrawMaterial"/>'s backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private Material _drawMaterial;
+
+        /// <summary>
+        /// Material used for CommandBuffer rendering (the actual rendering material).
+        /// </summary>
+        public Material DrawMaterial
+        {
+            get
+            {
+                // Only return _drawMaterial for Drawable type (picking is only for Drawable).
+                if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+                {
+                    return null;
+                }
+                return _drawMaterial;
+            }
+            set { _drawMaterial = value; }
+        }
+
+
+        /// <summary>
         /// <see cref="CubismDrawable"/>.
         /// </summary>
         public CubismDrawable Drawable { get; set; }
@@ -532,6 +562,9 @@ namespace Live2D.Cubism.Rendering
 
 
             ResetSwapInfoFlags();
+#if UNITY_EDITOR
+            SyncMeshFilterForPicking();
+#endif
         }
 
 
@@ -922,6 +955,93 @@ namespace Live2D.Cubism.Rendering
             }
         }
 
+        /// <summary>
+        /// Initializes the mesh filter for Scene View picking.
+        /// </summary>
+        private void TryInitializeMeshFilter()
+        {
+#if UNITY_EDITOR
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable
+                || Application.isPlaying)
+            {
+                return;
+            }
+
+            if (_meshFilter != null)
+            {
+                return;
+            }
+
+            _meshFilter = GetComponent<MeshFilter>();
+
+            // Lazily add component if missing.
+            if (_meshFilter == null)
+            {
+                _meshFilter = gameObject.AddComponent<MeshFilter>();
+                _meshFilter.hideFlags = HideFlags.HideInInspector;
+            }
+
+            _meshFilter.sharedMesh = Mesh;
+             SetupPickingMaterial();
+#endif
+        }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Sets up materials for Scene View picking.
+        /// </summary>
+        private void SetupPickingMaterial()
+        {
+            if (_meshRenderer == null)
+            {
+                return;
+            }
+
+            var currentMaterial = _meshRenderer.sharedMaterial;
+
+            if (_drawMaterial == null)
+            {
+                // If current material is TransparentPicking or null, get the correct material via picker.
+                if (currentMaterial == null
+                    || currentMaterial == CubismBuiltinMaterials.TransparentPicking
+                    || (currentMaterial.shader != null && currentMaterial.shader.name == "Live2D Cubism/TransparentPicking"))
+                {
+                    _drawMaterial = SetMaterialFromPicker();
+                }
+                else
+                {
+                    _drawMaterial = currentMaterial;
+                }
+            }
+
+            _meshRenderer.sharedMaterial = CubismBuiltinMaterials.TransparentPicking;
+
+            // Set MainTexture for alpha test in picking shader.
+            if (MainTexture != null)
+            {
+                ApplyMainTexture();
+            }
+        }
+
+        /// <summary>
+        /// Syncs the current mesh to the MeshFilter for Scene View picking.
+        /// </summary>
+        private void SyncMeshFilterForPicking()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return;
+            }
+
+            if (_meshFilter == null || Mesh == null)
+            {
+                return;
+            }
+
+            _meshFilter.sharedMesh = Mesh;
+        }
+#endif
+
 
         /// <summary>
         /// Initializes the mesh if necessary.
@@ -932,7 +1052,8 @@ namespace Live2D.Cubism.Rendering
             // HACK: 'Mesh != null' is individually implemented to avoid errors caused by the absence of a backing field.
             // HACK: 'Mesh.vertex > 0' makes sure mesh is recreated in case of runtime instantiation.
             if ((Meshes != null && Meshes.Length == 2
-                && Mesh != null && Mesh.vertexCount > 0)
+                && Mesh != null && Mesh.vertexCount > 0
+                && Drawable?.VertexPositions != null && Mesh.vertexCount == Drawable?.VertexPositions.Length)
                 || (DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen && _offscreenMesh))
             {
                 return;
@@ -1034,6 +1155,7 @@ namespace Live2D.Cubism.Rendering
             TryInitializeMeshRenderer();
 
             TryInitializeMesh();
+            TryInitializeMeshFilter();
             TryInitializeVertexColor();
             TryInitializeMainTexture();
             TryInitializeMultiplyColor();
@@ -1041,6 +1163,9 @@ namespace Live2D.Cubism.Rendering
             _previousOffscreenUnmanagedIndex = -1;
 
             ApplySorting();
+#if UNITY_EDITOR
+            SyncMeshFilterForPicking();
+#endif
         }
 
         #region Swap Info

@@ -52,30 +52,30 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             EditorGUI.BeginChangeCheck();
 
-            // Display OverrideFlagForDrawObjectMultiplyColors.
+            // Display DrawObjectMultiplyColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawObjectMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForDrawObjectMultiplyColors", renderer.OverrideFlagForDrawObjectMultiplyColors);
+                var overrideFlagForDrawObjectMultiplyColors = EditorGUILayout.Toggle("DrawObjectMultiplyColorEnabled", renderer.DrawObjectMultiplyColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawObjectMultiplyColors = overrideFlagForDrawObjectMultiplyColors;
+                        cubismRenderer.DrawObjectMultiplyColorEnabled = overrideFlagForDrawObjectMultiplyColors;
                     }
                 }
             }
 
-            // Display OverrideFlagForDrawObjectScreenColors.
+            // Display DrawObjectScreenColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawObjectScreenColors = EditorGUILayout.Toggle("OverrideFlagForDrawObjectScreenColors", renderer.OverrideFlagForDrawObjectScreenColors);
+                var overrideFlagForDrawObjectScreenColors = EditorGUILayout.Toggle("DrawObjectScreenColorEnabled", renderer.DrawObjectScreenColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawObjectScreenColors = overrideFlagForDrawObjectScreenColors;
+                        cubismRenderer.DrawObjectScreenColorEnabled = overrideFlagForDrawObjectScreenColors;
                     }
                 }
             }
@@ -130,16 +130,16 @@ namespace Live2D.Cubism.Editor.Inspectors
                 }
             }
 
-            // Display material.
+            // Display material (DrawMaterial is the actual rendering material).
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var material = EditorGUILayout.ObjectField("Material", renderer.Material, typeof(Material), true) as Material;
+                var material = EditorGUILayout.ObjectField("Material", renderer.DrawMaterial, typeof(Material), true) as Material;
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.Material = material;
+                        cubismRenderer.DrawMaterial = material;
                     }
                 }
             }

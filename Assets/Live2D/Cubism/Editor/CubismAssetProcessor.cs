@@ -26,6 +26,9 @@ namespace Live2D.Cubism.Editor
     /// </summary>
     public class CubismAssetProcessor : AssetPostprocessor
     {
+        private const string Motion3JsonExtension = ".motion3.json";
+        private const string Model3JsonExtension = ".model3.json";
+
         #region Unity Event Handling
 
 #if !UNITY_2017_3_OR_NEWER
@@ -58,8 +61,26 @@ namespace Live2D.Cubism.Editor
 
             var assetList = CubismCreatedAssetList.GetInstance();
 
+            // Import motion3.json first to create AnimationClip
+            var orderedAssetPaths = importedAssetPaths
+                .OrderBy(path =>
+                {
+                    if (path.EndsWith(Motion3JsonExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return 0;
+                    }
+
+                    if (path.EndsWith(Model3JsonExtension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return 1;
+                    }
+
+                    return 2;
+                })
+                .ToArray();
+
             // Handle any imported Cubism assets.
-            foreach (var assetPath in importedAssetPaths)
+            foreach (var assetPath in orderedAssetPaths)
             {
                 var importer = CubismImporter.GetImporterAtPath(assetPath);
 
@@ -69,11 +90,17 @@ namespace Live2D.Cubism.Editor
                     continue;
                 }
 
+                if (assetPath.StartsWith("Assets/StreamingAssets/"))
+                {
+                    Debug.LogWarning("CubismAssetProcessor : Skipping import of " + assetPath);
+                    continue;
+                }
+
                 try
                 {
                     importer.Import();
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Debug.LogError("CubismAssetProcessor : Following error occurred while importing " + assetPath);
                     Debug.LogError(e);
@@ -296,6 +323,17 @@ namespace Live2D.Cubism.Editor
                 };
 
                 EnableCulling(material);
+                AssetDatabase.CreateAsset(material, $"{materialsRoot}/{material.name}.mat");
+            }
+
+            if (CubismBuiltinMaterials.TransparentPicking == null)
+            {
+                // Create transparent material for Scene View picking.
+                var material = new Material (CubismBuiltinShaders.TransparentPicking)
+                {
+                    name = "TransparentPicking"
+                };
+
                 AssetDatabase.CreateAsset(material, $"{materialsRoot}/{material.name}.mat");
             }
 
