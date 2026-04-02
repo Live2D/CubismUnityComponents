@@ -221,7 +221,8 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Buffer to write to.</param>
         /// <param name="unmanagedModel">Unmanaged model to read from.</param>
-        internal static unsafe void ReadFrom(this CubismDynamicDrawableData[] self, CubismUnmanagedModel unmanagedModel)
+        /// <param name="force">force DidChange</param>
+        internal static unsafe void ReadFrom(this CubismDynamicDrawableData[] self, CubismUnmanagedModel unmanagedModel, bool force)
         {
             // Get addresses.
             var drawables = unmanagedModel.Drawables;
@@ -239,7 +240,8 @@ namespace Live2D.Cubism.Core
                 var data = self[i];
 
 
-                data.Flags = flags[i];
+                var newFlags = force ? (byte)(data.Flags.MaskDidChangeFlag() | flags[i]) : flags[i];
+                data.Flags = newFlags;
                 data.Opacity = opacities[i];
                 data.DrawOrder = drawOrders[i];
                 data.RenderOrder = renderOrders[i];
