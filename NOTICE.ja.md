@@ -14,12 +14,6 @@ Cubism SDK for Unityの音声からのリップシンクは、波形情報の取
 * [WebGL のオーディオ](https://docs.unity3d.com/ja/current/Manual/webgl-audio.html)
 
 
-## [制限事項] 実行中のマスク用テクスチャの `RenderTextureCount` の値操作について (2024-03-26)
-
-シーン実行中に `CubismMaskTexture.RenderTextureCount` を実行開始時よりも大きい値に変更すると、マスクが正常に再生成されない不具合を確認しています。
-対応バージョンや時期につきましては今後のリリースをもってお知らせいたします。
-
-
 ## [制限事項] Windows ARM64向けの対応状況について (2024-01-18)
 
 Unity 2023.1以降にて指定可能となったWindows ARM64向けビルドにつきまして、Cubim SDK for Unityは現在対応しておりません。

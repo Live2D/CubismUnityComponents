@@ -3,10 +3,15 @@
 	"Meta": {
 		"Duration": 1,
 		"Fps": 30.0,
+		"FadeInTime": 0.5,
+		"FadeOutTime": 0.5,
 		"Loop": true,
-		"CurveCount": 71,
-		"TotalSegmentCount": 75,
-		"TotalPointCount": 87
+		"AreBeziersRestricted": true,
+		"CurveCount": 34,
+		"TotalSegmentCount": 38,
+		"TotalPointCount": 80,
+		"UserDataCount": 0,
+		"TotalUserDataSize": 0
 	},
 	"Curves": [
 		{
@@ -14,10 +19,10 @@
 			"Id": "Opacity",
 			"Segments": [
 				0,
-				100,
+				1,
 				0,
 				1,
-				100
+				1
 			]
 		},
 		{
@@ -122,23 +127,23 @@
 				0.2,
 				0.7,
 				1,
-				0.267,
+				0.289,
 				0.7,
-				0.367,
+				0.378,
 				2,
 				0.467,
 				2,
 				1,
-				0.533,
+				0.544,
 				2,
-				0.6,
+				0.622,
 				0.7,
 				0.7,
 				0.7,
 				1,
-				0.767,
+				0.789,
 				0.7,
-				0.867,
+				0.878,
 				2,
 				0.967,
 				2,
@@ -303,84 +308,7 @@
 		},
 		{
 			"Target": "PartOpacity",
-			"Id": "PARTS_01_FACE_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_EYE_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_EYE_BALL_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_BROW_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_MOUTH_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_NOSE_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_EAR_001",
-			"Segments": [
-				0,
-				1,
-				0,
-				1,
-				1
-			]
-		},
-		{
-			"Target": "PartOpacity",
-			"Id": "PARTS_01_ARM",
+			"Id": "PARTS_01_BACKGROUND",
 			"Segments": [
 				0,
 				1,
@@ -402,7 +330,84 @@
 		},
 		{
 			"Target": "PartOpacity",
-			"Id": "PARTS_01_BACKGROUND",
+			"Id": "PARTS_01_ARM",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_EAR_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_NOSE_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_MOUTH_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_BROW_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_EYE_BALL_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_EYE_001",
+			"Segments": [
+				0,
+				1,
+				0,
+				1,
+				1
+			]
+		},
+		{
+			"Target": "PartOpacity",
+			"Id": "PARTS_01_FACE_001",
 			"Segments": [
 				0,
 				1,

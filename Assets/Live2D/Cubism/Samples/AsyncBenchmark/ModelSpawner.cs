@@ -9,7 +9,6 @@
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
 using System.Collections.Generic;
-using Live2D.Cubism.Framework.Tasking;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = System.Random;
@@ -27,6 +26,12 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         /// </summary>
         [SerializeField]
         public GameObject ModelPrefab;
+
+        /// <summary>
+        /// Controller assigned to the Animator of instances created from <see cref="ModelPrefab"/>.
+        /// </summary>
+        [SerializeField]
+        public RuntimeAnimatorController AnimatorController;
 
 
         /// <summary>
@@ -57,7 +62,7 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         /// </summary>
         public void IncreaseInstances()
         {
-            if (ModelPrefab == null)
+            if (ModelPrefab == null || ModelPrefab.GetComponent<Animator>()==null)
             {
                 return;
             }
@@ -65,6 +70,10 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
             // Spawn new instance.
             var instance = Instantiate(ModelPrefab);
 
+            if (AnimatorController)
+            {
+                instance.GetComponent<Animator>().runtimeAnimatorController = AnimatorController;
+            }
 
             var random = new Random();
             var offsetX = (float)random.Next(-1000, 1000) / 1000f;

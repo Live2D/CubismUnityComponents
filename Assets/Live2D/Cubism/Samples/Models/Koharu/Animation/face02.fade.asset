@@ -15,8 +15,8 @@ MonoBehaviour:
   MotionName: Assets/Live2D/Cubism/Samples/Models/Koharu/Animation/face02.motion3.json
   ModelFadeInTime: -1
   ModelFadeOutTime: -1
-  FadeInTime: 1
-  FadeOutTime: 1
+  FadeInTime: 0.5
+  FadeOutTime: 0.5
   ParameterIds:
   - Opacity
   - PARAM_EYE_L_OPEN
@@ -53,7 +53,7 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 100
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 100
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -799,8 +799,8 @@ MonoBehaviour:
   - -1
   - -1
   - -1
-  - -1
-  - -1
+  - 0
+  - 0
   - -1
   - -1
   - -1

@@ -42,7 +42,7 @@ namespace Live2D.Cubism.Editor.Importers
             assetImporter.userData = JsonUtility.ToJson(this);
 
 
-            assetImporter.SaveAndReimport();
+            AssetDatabase.WriteImportSettingsIfDirty(AssetPath);
         }
 
 #region ICubismImporter

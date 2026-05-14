@@ -4,7 +4,20 @@
 		"Moc": "Koharu.moc3",
 		"Textures": [
 			"Koharu.2048/texture_00.png"
-		]
+		],
+		"Motions": {
+			"": [
+				{
+					"File": "Animation/body.motion3.json"
+				},
+				{
+					"File": "Animation/face01.motion3.json"
+				},
+				{
+					"File": "Animation/face02.motion3.json"
+				}
+			]
+		}
 	},
 	"Groups": [
 		{
@@ -15,5 +28,6 @@
 				"PARAM_EYE_R_OPEN"
 			]
 		}
-	] 
+	],
+	"HitAreas": []
 }

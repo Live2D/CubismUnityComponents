@@ -74,6 +74,11 @@ namespace Live2D.Cubism.Samples.AsyncBenchmark
         /// </summary>
         private void Awake()
         {
+            if (Application.isMobilePlatform)
+            {
+                TargetFrameRate = TargetFrameRate > 30 ? 30 : TargetFrameRate;
+            }
+
             // Setting vsync and targetFrameRate.
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = TargetFrameRate + 1;

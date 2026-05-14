@@ -1,7 +1,9 @@
 {
     "name": "Live2D.Cubism",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": true,

@@ -14,6 +14,7 @@ using Live2D.Cubism.Framework.Raycasting;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 {
@@ -151,7 +152,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
             SpecifiedAnimationCheck();
 
 
-            if(!Input.GetMouseButtonDown(0))
+            if(Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
             {
                 if (!_motionController.IsPlayingAnimation())
                 {
@@ -164,7 +165,8 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 
 
             // Cast ray from pointer position.
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var screenPosition = Pointer.current.position.ReadValue();
+            var ray = Camera.main.ScreenPointToRay(screenPosition);
             var hitCount = _raycaster.Raycast(ray, _raycastResults);
 
 
@@ -188,7 +190,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 
                             Debug.Log("Tap body : Play : " + _tapBodyMotions[motionIndex].name);
 
-                            _motionController.PlayAnimation(_tapBodyMotions[motionIndex], isLoop: false, priority:CubismMotionPriority.PriorityNormal);
+                            _motionController.PlayAnimation(_tapBodyMotions[motionIndex], isLoop: false, priority: CubismMotionPriority.PriorityNormal);
                         }
                         // Tap head.
                         else if (hitArea == HitArea.Head)
@@ -214,13 +216,13 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// </summary>
         private void SpecifiedAnimationCheck()
         {
-            if(_bodyAnimation != _loopMotion)
+            if (_bodyAnimation != _loopMotion)
             {
                 _loopMotion = _bodyAnimation;
 
                 Debug.Log("Body animation : Play : " + _loopMotion.name);
 
-                _motionController.PlayAnimation(_loopMotion, priority:CubismMotionPriority.PriorityIdle);
+                _motionController.PlayAnimation(_loopMotion, priority: CubismMotionPriority.PriorityIdle);
             }
         }
 

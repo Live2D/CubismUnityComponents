@@ -107,7 +107,7 @@ namespace Live2D.Cubism.Framework
 
 
 
-            self.OverrideValue(self.Value * (1 - weight) + value * weight);
+            self.OverrideValue(value, weight);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Live2D.Cubism.Framework
 
             for (var i = 0; i < self.Length; ++i)
             {
-                self[i].OverrideValue(self[i].Value, weight);
+                self[i].OverrideValue(value, weight);
             }
         }
     }
