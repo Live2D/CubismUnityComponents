@@ -87,6 +87,28 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// Resets non-serialized fields of a <see cref="CubismModel"/>.
+        /// </summary>
+        /// <remarks>
+        /// Call after <c>PrefabUtility.SaveAsPrefabAsset</c> to clear stale
+        /// component references that may have been cached by <see cref="OnValidate"/>
+        /// during the prefab replacement.
+        /// </remarks>
+        /// <param name="model">Target Cubism model.</param>
+        public static void ResetNonSerializedFields(CubismModel model)
+        {
+            if (model.TaskableModel != null)
+            {
+                model.TaskableModel.ReleaseUnmanaged();
+                model.TaskableModel = null;
+            }
+
+            model._parameters = null;
+            model._parts = null;
+            model._drawables = null;
+            model._canvasInformation = null;
+        }
+        /// <summary>
         /// <see cref="Moc"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -275,7 +297,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Revives instance.
         /// </summary>
-        private void Revive()
+        internal void Revive()
         {
             // Return if already revive.
             if (IsRevived)
@@ -320,6 +342,28 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedParamerterCount = TaskableModel.UnmanagedModel.Parameters.Count;
+                if (Parameters.Length > unmanagedParamerterCount)
+                {
+                    var filtered = new CubismParameter[unmanagedParamerterCount];
+                    var n = 0;
+
+                    for (var i = 0; i < Parameters.Length; i++)
+                    {
+                        if (Parameters[i].UnmanagedIndex < unmanagedParamerterCount)
+                        {
+                            filtered[n++] = Parameters[i];
+                        }
+                    }
+
+                    if (n < unmanagedParamerterCount)
+                    {
+                        Array.Resize(ref filtered, n);
+                    }
+
+                    Parameters = filtered;
+                }
                 Parameters.Revive(TaskableModel.UnmanagedModel);
             }
 
@@ -334,6 +378,28 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedPartCount = TaskableModel.UnmanagedModel.Parts.Count;
+                if (Parts.Length > unmanagedPartCount)
+                {
+                    var filtered = new CubismPart[unmanagedPartCount];
+                    var n = 0;
+
+                    for (var i = 0; i < Parts.Length; i++)
+                    {
+                        if (Parts[i].UnmanagedIndex < unmanagedPartCount)
+                        {
+                            filtered[n++] = Parts[i];
+                        }
+                    }
+
+                    if (n < unmanagedPartCount)
+                    {
+                        Array.Resize(ref filtered, n);
+                    }
+
+                    Parts = filtered;
+                }
                 Parts.Revive(TaskableModel.UnmanagedModel);
             }
 
@@ -348,6 +414,28 @@ namespace Live2D.Cubism.Core
             }
             else
             {
+                // Filter stale entries whose UnmanagedIndex exceeds the new Moc count.
+                var unmanagedDrawableCount = TaskableModel.UnmanagedModel.Drawables.Count;
+                if (Drawables.Length > unmanagedDrawableCount)
+                {
+                    var filtered = new CubismDrawable[unmanagedDrawableCount];
+                    var n = 0;
+
+                    for (var i = 0; i < Drawables.Length; i++)
+                    {
+                        if (Drawables[i].UnmanagedIndex < unmanagedDrawableCount)
+                        {
+                            filtered[n++] = Drawables[i];
+                        }
+                    }
+
+                    if (n < unmanagedDrawableCount)
+                    {
+                        Array.Resize(ref filtered, n);
+                    }
+
+                    Drawables = filtered;
+                }
                 Drawables.Revive(TaskableModel.UnmanagedModel);
             }
 

@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.4.2] - 2026-05-14
+
+### Added
+
+* Add `CubismLookCenterTransform` and `CubismLookCenterArtMesh` to allow setting the look-at center using either a Transform or an ArtMesh.
+
+### Changed
+
+* Change property names related to multiply color and screen color.
+* Change to work with the `Input System` package.
+* Update each model's prefab to match environment updates.
+* Change to allow specifying `AnimatorController` in scenes under `Assets/Live2D/Cubism/Samples/AsyncBenchmark`.
+* Change to explicitly set texture sampler settings.
+* Change the `Assets/Live2D/Cubism/Samples/AsyncBenchmark/AutomaticAsyncBenchmark.unity` scene.
+  * Add background to text UI.
+  * Change target fps to 30fps on mobile environments.
+  * Change `Enable Async` to be disabled by default.
+* Change the `Assets/Live2D/Cubism/Samples/OriginalWorkflow/Pose.unity` scene.
+* Change the `Assets/Live2D/Cubism/Samlpes/OriginalWorkflow/Motion.unity` scene.
+* Change the version of the development project to `6000.0.68f1`.
+
+### Fixed
+
+* Fix an issue where look-at tracking was misaligned when using `CubismLookController`.
+* Fix an issue where collision detection remained active even when the collision detection Drawable was hidden.
+* Fix an issue where pressing the reset button in the `CubismParametersInspector` would revert to the state before the reset when running the scene.
+* Fix an issue where `CubismPartColorsEditor` was using incorrect flags for determination.
+* Fix an issue where the re-import process for a model did not support increasing or decreasing parameters and other elements.
+* Fix CubismImporterBase.Save so that it no longer performs a reimport when saving.
+* Fix the importer to import motion3.json first, followed by model3.json, and then all other assets.
+* Fix PoseMotionImporter processing to accommodate the new import order.
+* Fix an issue where the texture settings were not as intended when imported.
+* Fix an issue where the Koharu model's .model3.json was missing references to .motion3.json.
+* Fix Koharu's corrupted .motion3.json files.
+* Fix an issue where specifying an override in `CubismParameterExtensionMethods.BlendToValue()` caused the applied value to be the current value of that parameter. by [@LoS-Light](https://github.com/Live2D/CubismUnityComponents/pull/89)
+* Fix an issue where arrays accessed in `OnDynamicDrawableData()` were processed with invalid indexes.
+* Fix an issue where the `Koharu` model used in scenes under `Assets/Live2D/Cubism/Samples/AsyncBenchmark` was outdated.
+* Fix an issue where reimporting a model prefab containing deleted components caused an error and prevented the prefab from being regenerated correctly.
+* Fix a duplicate blend calculation in `CubismParameterExtensionMethods.BlendToValue()`.
+* Fix an issue where the import process would run for models imported under the `StreamingAssets` folder. by [@redwyre](https://github.com/Live2D/CubismUnityComponents/pull/90)
+* Fix an issue where Raycast was functional even when `CubismRaycastable` was inactive.
+
+
 ## [5-r.4.1] - 2025-07-17
 
 ### Changed
@@ -474,6 +517,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.4.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4.1...5-r.4.2
 [5-r.4.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.4...5-r.4.1
 [5-r.4]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.3...5-r.4
 [5-r.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.2...5-r.3

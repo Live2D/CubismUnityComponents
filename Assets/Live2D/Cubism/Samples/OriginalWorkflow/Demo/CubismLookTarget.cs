@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Framework.LookAt;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
 {
@@ -19,16 +20,13 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// <returns>Mouse coordinates.</returns>
         public Vector3 GetPosition()
         {
-            if (!Input.GetMouseButton(0))
-            {
-                return Vector3.zero;
-            }
+            var targetPosition = (Pointer.current != null) ? (Vector3)Pointer.current.position.ReadValue() : Vector3.zero;
 
-            var targetPosition = Input.mousePosition;
+            var z = Camera.main.WorldToScreenPoint(transform.position).z;
+            targetPosition.z = z;
 
-            targetPosition = (Camera.main.ScreenToViewportPoint(targetPosition) * 2) - Vector3.one;
-
-            return targetPosition;
+            var worldPosition = Camera.main.ScreenToWorldPoint(targetPosition);
+            return worldPosition;
         }
 
         /// <summary>
@@ -37,7 +35,7 @@ namespace Live2D.Cubism.Samples.OriginalWorkflow.Demo
         /// <returns><see langword="true"/> if the target is active; <see langword="false"/> otherwise.</returns>
         public bool IsActive()
         {
-            return true;
+            return Pointer.current != null && Pointer.current.press.isPressed;
         }
     }
 }

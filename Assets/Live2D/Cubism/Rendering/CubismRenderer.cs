@@ -11,6 +11,7 @@ using Live2D.Cubism.Rendering.Masking;
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 
 namespace Live2D.Cubism.Rendering
@@ -85,20 +86,18 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// <see cref="OverrideFlagForDrawableMultiplyColors"/> backing field.
+        /// <see cref="DrawObjectMultiplyColorEnabled"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
         private bool _isOverriddenDrawableMultiplyColors;
 
         /// <summary>
         /// Whether to override with multiply color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForDrawableMultiplyColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForDrawableMultiplyColors
+        public bool DrawObjectMultiplyColorEnabled
         {
-            get { return OverrideFlagForDrawableMultiplyColors; }
-            set { OverrideFlagForDrawableMultiplyColors = value; }
+            get { return _isOverriddenDrawableMultiplyColors; }
+            set { _isOverriddenDrawableMultiplyColors = value; }
         }
 
         /// <summary>
@@ -116,20 +115,19 @@ namespace Live2D.Cubism.Rendering
         public bool LastIsUseUserMultiplyColor { get; set; }
 
         /// <summary>
-        /// <see cref="OverrideFlagForDrawableScreenColors"/> backing field.
+        /// <see cref="DrawObjectScreenColorEnabled"/> backing field.
         /// </summary>
+        [FormerlySerializedAs("_isOverriddenDrawableScreenColors")]
         [SerializeField, HideInInspector]
         private bool _isOverriddenDrawableScreenColors;
 
         /// <summary>
         /// Whether to override with screen color from the model.
-        ///
-        /// This property is deprecated due to a naming change. Use <see cref="OverrideFlagForDrawableScreenColors"/> instead.
         /// </summary>
-        public bool OverwriteFlagForDrawableScreenColors
+        public bool DrawObjectScreenColorEnabled
         {
-            get { return OverrideFlagForDrawableScreenColors; }
-            set { OverrideFlagForDrawableScreenColors = value; }
+            get { return _isOverriddenDrawableScreenColors; }
+            set { _isOverriddenDrawableScreenColors = value; }
         }
 
         /// <summary>
@@ -159,7 +157,7 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (OverrideFlagForDrawableMultiplyColors || RenderController.OverrideFlagForModelMultiplyColors)
+                if (DrawObjectMultiplyColorEnabled || RenderController.MultiplyColorEnabled)
                 {
                     return _multiplyColor;
                 }
@@ -200,7 +198,7 @@ namespace Live2D.Cubism.Rendering
         {
             get
             {
-                if (OverrideFlagForDrawableScreenColors || RenderController.OverrideFlagForModelScreenColors)
+                if (DrawObjectScreenColorEnabled || RenderController.ScreenColorEnabled)
                 {
                     return _screenColor;
                 }
@@ -365,7 +363,7 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// <see cref="CubismDrawable"/>.
         /// </summary>
-        private CubismDrawable Drawable { get; set; }
+        public CubismDrawable Drawable { get; set; }
 
         /// <summary>
         /// <see cref="CubismRenderController"/>.
@@ -898,8 +896,11 @@ namespace Live2D.Cubism.Rendering
         private void TryInitializeMesh()
         {
             // Only create mesh if necessary.
-            // HACK 'Mesh.vertex > 0' makes sure mesh is recreated in case of runtime instantiation.
-            if (Meshes != null && Mesh.vertexCount > 0)
+            // HACK: 'Mesh != null' is individually implemented to avoid errors caused by the absence of a backing field.
+            // HACK: 'Mesh.vertex > 0' makes sure mesh is recreated in case of runtime instantiation.
+            if (Meshes != null && Meshes.Length == 2
+            && Mesh != null && Mesh.vertexCount > 0
+            && Drawable.VertexPositions != null && Mesh.vertexCount == Drawable.VertexPositions.Length)
             {
                 return;
             }

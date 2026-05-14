@@ -58,6 +58,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moc: {fileID: 11400000, guid: 0cd25900b6821d346824476d7529af29, type: 2}
+  _isOverriddenParameterRepeat: 1
 --- !u!114 &114524724953595766
 MonoBehaviour:
   m_ObjectHideFlags: 16
@@ -176,7 +177,7 @@ MonoBehaviour:
   CurrentExpressionIndex: -1
 --- !u!95 &95152701801533134
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -190,6 +191,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -254,6 +256,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
   Value: 0
+  _isOverriddenUserParameterRepeat: 0
+  _isParameterRepeated: 0
 --- !u!1 &1212145916086742
 GameObject:
   m_ObjectHideFlags: 0
@@ -393,6 +397,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -516,6 +523,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -644,6 +654,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
   Value: 0
+  _isOverriddenUserParameterRepeat: 0
+  _isParameterRepeated: 0
 --- !u!1 &1859190643628140
 GameObject:
   m_ObjectHideFlags: 0
@@ -718,6 +730,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

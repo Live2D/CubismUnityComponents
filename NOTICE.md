@@ -14,12 +14,6 @@ For details, please check　the official Unity documentation.
 * [Audio in WebGL](https://docs.unity3d.com/Manual/webgl-audio.html)
 
 
-## [Restrictions] Manipulation of `RenderTextureCount` value for mask textures during execution (2024-03-26)
-
-If `CubismMaskTexture.RenderTextureCount` is changed during scene execution to a value greater than that at the start of execution, the mask will not be regenerated correctly.
-A supported version will be announced in a future release.
-
-
 ## [Restrictions] Support for Windows ARM64 (2024-01-18)
 
 Cubism SDK for Unity currently does not support Windows ARM64 builds for Unity 2023.1 or later.

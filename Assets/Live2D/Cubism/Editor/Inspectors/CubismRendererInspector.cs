@@ -52,30 +52,30 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             EditorGUI.BeginChangeCheck();
 
-            // Display OverrideFlagForDrawableMultiplyColors.
+            // Display DrawObjectMultiplyColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawableMultiplyColors = EditorGUILayout.Toggle("OverrideFlagForDrawableMultiplyColors", renderer.OverrideFlagForDrawableMultiplyColors);
+                var overrideFlagForDrawObjectMultiplyColors = EditorGUILayout.Toggle("DrawObjectMultiplyColorEnabled", renderer.DrawObjectMultiplyColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawableMultiplyColors = overrideFlagForDrawableMultiplyColors;
+                        cubismRenderer.DrawObjectMultiplyColorEnabled = overrideFlagForDrawObjectMultiplyColors;
                     }
                 }
             }
 
-            // Display OverrideFlagForDrawableScreenColors.
+            // Display DrawObjectScreenColorEnabled.
             using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                var overrideFlagForDrawableScreenColors = EditorGUILayout.Toggle("OverrideFlagForDrawableScreenColors", renderer.OverrideFlagForDrawableScreenColors);
+                var overrideFlagForDrawObjectScreenColors = EditorGUILayout.Toggle("DrawObjectScreenColorEnabled", renderer.DrawObjectScreenColorEnabled);
 
                 if (scope.changed)
                 {
                     foreach (CubismRenderer cubismRenderer in targets)
                     {
-                        cubismRenderer.OverrideFlagForDrawableScreenColors = overrideFlagForDrawableScreenColors;
+                        cubismRenderer.DrawObjectScreenColorEnabled = overrideFlagForDrawObjectScreenColors;
                     }
                 }
             }

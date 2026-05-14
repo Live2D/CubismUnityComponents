@@ -359,7 +359,11 @@ namespace Live2D.Cubism.Rendering.Masking
         private void RefreshRenderTexture()
         {
             // Recreate render texture.
-            RenderTexture = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
+            RenderTexture = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32)
+            {
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Point
+            };
 
             // return early.
             if (RenderTextureCount > 0)
@@ -404,7 +408,11 @@ namespace Live2D.Cubism.Rendering.Masking
 
             for (var renderTextureIndex = 0; renderTextureIndex < RenderTextureCount; renderTextureIndex++)
             {
-                RenderTextures[renderTextureIndex] = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32);
+                RenderTextures[renderTextureIndex] = new RenderTexture(Size, Size, 0, RenderTextureFormat.ARGB32)
+                {
+                    wrapMode = TextureWrapMode.Repeat,
+                    filterMode = FilterMode.Point
+                };
             }
 
             CubismMaskCommandBuffer.AddSource(this);
