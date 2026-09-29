@@ -340,8 +340,14 @@ namespace Live2D.Cubism.Framework.Motion
             }
 
             var playingMotionData = _playingMotions[index];
+            var previousSpeed = playingMotionData.Speed;
             playingMotionData.Speed = speed;
-            playingMotionData.EndTime = (playingMotionData.EndTime - Time.time) / speed;
+
+            if (playingMotionData.EndTime >= 0.0f && previousSpeed > 0.0f)
+            {
+                playingMotionData.EndTime = Time.time + (playingMotionData.EndTime - Time.time) * previousSpeed / speed;
+            }
+
             _playingMotions[index] = playingMotionData;
 
             _motionState.ClipMixer.SetSpeed(speed);
