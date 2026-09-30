@@ -266,7 +266,7 @@ namespace Live2D.Cubism.Core
 
 
             // Run execution directly.
-            Execute();
+            Execute(true);
 
 
             return true;
@@ -301,7 +301,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Runs the task.
         /// </summary>
-        private void Execute()
+        private void Execute(bool force)
         {
             // Validate state.
             lock (Lock)
@@ -315,7 +315,7 @@ namespace Live2D.Cubism.Core
 
 
             // Get results.
-            DynamicDrawableData.ReadFrom(UnmanagedModel);
+            DynamicDrawableData.ReadFrom(UnmanagedModel, force);
 
 
             // Update state.
@@ -349,7 +349,7 @@ namespace Live2D.Cubism.Core
 
         void ICubismTask.Execute()
         {
-            Execute();
+            Execute(false);
         }
 
         #endregion
