@@ -58,6 +58,48 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
+        /// <see cref="ParentLocalSortingOrder"/> backing field.
+        /// </summary>
+        [SerializeField, HideInInspector]
+        private int _parentLocalSortingOrder;
+
+        /// <summary>
+        /// Local sorting order from parent <see cref="CubismRenderer"/>.
+        /// </summary>
+        internal int ParentLocalSortingOrder
+        {
+            get
+            {
+                return _parentLocalSortingOrder;
+            }
+            set
+            {
+                // Return early if same value given.
+                if (value == _parentLocalSortingOrder)
+                {
+                    return;
+                }
+
+
+                // Store value.
+                _parentLocalSortingOrder = value;
+            }
+        }
+
+
+        /// <summary>
+        /// Last <see cref="LocalSortingOrder"/> + <see cref="ParentLocalSortingOrder"/> value
+        /// propagated to child draw objects. Used to skip redundant tree walks.
+        /// </summary>
+        private int _lastPropagatedCombinedLocalSortingOrder;
+
+
+        /// <summary>
+        /// Whether <see cref="_lastPropagatedCombinedLocalSortingOrder"/> has been set at least once.
+        /// </summary>
+        private bool _hasPropagatedCombinedLocalSortingOrder;
+
+        /// <summary>
         /// <see cref="Color"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -523,12 +565,123 @@ namespace Live2D.Cubism.Rendering
             set { _opacity = value; }
         }
 
+        /// <summary>
+        /// Opacity currently used for rendering.
+        /// </summary>
+        internal float DisplayedOpacity
+        {
+            get { return DisplayedDrawState.Opacity; }
+        }
+
+        /// <summary>
+        /// MultiplyColor currently used for rendering.
+        /// </summary>
+        internal Color DisplayedMultiplyColor
+        {
+            get
+            {
+#if UNITY_EDITOR
+                // Outside of play mode the model is not updated every frame, so the draw state is not
+                // guaranteed to catch up with color changes. Use the selected color directly instead.
+                if (!Application.isPlaying)
+                {
+                    return MultiplyColor;
+                }
+#endif
+
+                return DisplayedDrawState.MultiplyColor;
+            }
+        }
+
+        /// <summary>
+        /// ScreenColor currently used for rendering.
+        /// </summary>
+        internal Color DisplayedScreenColor
+        {
+            get
+            {
+#if UNITY_EDITOR
+                // See DisplayedMultiplyColor.
+                if (!Application.isPlaying)
+                {
+                    return ScreenColor;
+                }
+#endif
+
+                return DisplayedDrawState.ScreenColor;
+            }
+        }
+
+        /// <summary>
+        /// Offscreen opacity currently used for rendering.
+        /// </summary>
+        internal float DisplayedOffscreenOpacity
+        {
+            get { return DisplayedOffscreenDrawState.Opacity; }
+        }
+
+        /// <summary>
+        /// Offscreen multiply currently used for rendering.
+        /// </summary>
+        internal Color DisplayedOffscreenMultiplyColor
+        {
+            get
+            {
+#if UNITY_EDITOR
+                // See DisplayedMultiplyColor.
+                if (!Application.isPlaying)
+                {
+                    return MultiplyColor;
+                }
+#endif
+
+                return DisplayedOffscreenDrawState.MultiplyColor;
+            }
+        }
+
+        /// <summary>
+        /// Offscreen screen currently used for rendering.
+        /// </summary>
+        internal Color DisplayedOffscreenScreenColor
+        {
+            get
+            {
+#if UNITY_EDITOR
+                // See DisplayedMultiplyColor.
+                if (!Application.isPlaying)
+                {
+                    return ScreenColor;
+                }
+#endif
+
+                return DisplayedOffscreenDrawState.ScreenColor;
+            }
+        }
 
         /// <summary>
         /// Buffer for vertex colors.
         /// </summary>
         private Color[] VertexColors { get; set; }
 
+        /// <summary>
+        /// Draw state currently used for rendering.
+        /// </summary>
+        private DrawState DisplayedDrawState { get; set; }
+
+        /// <summary>
+        /// Draw state to use affter the next mesh swap.
+        /// </summary>
+        private DrawState PendingDrawState { get; set; }
+
+        /// <summary>
+        /// Offscreen draw state currently used for rendering.
+        /// </summary>
+        private OffscreenDrawState DisplayedOffscreenDrawState { get; set; }
+
+        /// <summary>
+        /// Offscreen draw state to use affter the next mesh swap.
+        /// </summary>
+        private OffscreenDrawState PendingOffscrennDrawState { get; set; }
 
         /// <summary>
         /// Allows tracking of what vertex data was updated last swap.
@@ -549,6 +702,12 @@ namespace Live2D.Cubism.Rendering
         /// </remarks>
         public void SwapMeshes()
         {
+            // Return early if meshes are unavailable.
+            if (Meshes == null || Meshes.Length != 2)
+            {
+                return;
+            }
+
             // Perform internal swap.
             BackMesh = FrontMesh;
             FrontMesh = (FrontMesh == 0) ? 1 : 0;
@@ -599,6 +758,33 @@ namespace Live2D.Cubism.Rendering
 
 
             ResetRenderOrderFlag();
+        }
+
+        /// <summary>
+        /// Updates draw state.
+        /// </summary>
+        public void UpdateDisplayedDrawState()
+        {
+            if (LastSwap.NewDrawState)
+            {
+                DisplayedDrawState = LastSwap.DrawState;
+            }
+
+            ResetDrawStateFlag();
+        }
+
+        /// <summary>
+        /// Updates offscreen draw state.
+        /// </summary>
+        public void UpdateOffscreenDrawState()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Offscreen || !Offscreen)
+            {
+                return;
+            }
+
+            DisplayedOffscreenDrawState = PendingOffscrennDrawState;
+            PendingOffscrennDrawState = GetCurrentOffscreenDrawState();
         }
 
         /// <summary>
@@ -655,8 +841,39 @@ namespace Live2D.Cubism.Rendering
         {
             Opacity = newOpacity;
 
+            SetPendingOpacity(newOpacity);
 
             ApplyVertexColors();
+        }
+
+        /// <summary>
+        /// Updates pending blend colors from the currently selected color.
+        /// </summary>
+        internal bool UpdatePendingBlendColors()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return false;
+            }
+
+            var drawState = PendingDrawState;
+            var multiplyColor = MultiplyColor;
+            var screenColor = ScreenColor;
+
+            if (drawState.MultiplyColor == multiplyColor
+                && drawState.ScreenColor == screenColor)
+            {
+                return false;
+            }
+
+
+            drawState.MultiplyColor = multiplyColor;
+            drawState.ScreenColor = screenColor;
+            PendingDrawState = drawState;
+
+            SetNewDrawState();
+
+            return true;
         }
 
         /// <summary>
@@ -718,14 +935,12 @@ namespace Live2D.Cubism.Rendering
         /// <param name="newModelOpacity">Opacity to set.</param>
         internal void OnModelOpacityDidChange(float newModelOpacity)
         {
-            var property = PropertyBlock;
-            _meshRenderer.GetPropertyBlock(property);
-
+            var property = FetchPropertyBlock();
 
             // Write property.
             property.SetFloat(CubismShaderVariables.ModelOpacity, newModelOpacity);
 
-            MeshRenderer.SetPropertyBlock(property);
+            CommitPropertyBlock();
         }
 
         #endregion
@@ -735,13 +950,20 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void ApplyMainTexture()
         {
-            var property = PropertyBlock;
-            MeshRenderer.GetPropertyBlock(property);
+            var property = FetchPropertyBlock();
 
-            // Write property.
+            WriteMainTexture(property);
+
+            CommitPropertyBlock();
+        }
+
+        /// <summary>
+        /// Writes the main texture to the given property block without committing it.
+        /// </summary>
+        /// <param name="property">Property block to write to.</param>
+        private void WriteMainTexture(MaterialPropertyBlock property)
+        {
             property.SetTexture(CubismShaderVariables.MainTexture, MainTexture);
-
-            MeshRenderer.SetPropertyBlock(property);
         }
 
         /// <summary>
@@ -758,12 +980,32 @@ namespace Live2D.Cubism.Rendering
 
             RenderController.DidChangeSorting = true;
 
+            if (DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen)
+            {
+                // Only walk the child tree when the combined local order that children inherit changed.
+                // RenderOrder-only updates must not re-propagate (avoids per-frame cost on offscreen-heavy models).
+                var combinedLocalSortingOrder = LocalSortingOrder + ParentLocalSortingOrder;
+
+                if (!_hasPropagatedCombinedLocalSortingOrder
+                    || combinedLocalSortingOrder != _lastPropagatedCombinedLocalSortingOrder)
+                {
+                    _hasPropagatedCombinedLocalSortingOrder = true;
+                    _lastPropagatedCombinedLocalSortingOrder = combinedLocalSortingOrder;
+
+                    var part = RenderController.Model.Parts[Offscreen.OwnerIndex];
+
+                    // Propagate through descendants, including drawables under intermediate parts without offscreens.
+                    ApplyParentLocalSortingOrderToChildren(part, combinedLocalSortingOrder);
+                }
+            }
+
             // Sort by order.
             if (SortingMode.SortByOrder())
             {
+                var sortingOrder = RenderOrder + LocalSortingOrder + ParentLocalSortingOrder;
                 MeshRenderer.sortingOrder = SortingOrder + ((SortingMode == CubismSortingMode.BackToFrontOrder)
-                    ? (RenderOrder + LocalSortingOrder)
-                    : -(RenderOrder + LocalSortingOrder));
+                    ? sortingOrder
+                    : -sortingOrder);
 
 
                 transform.localPosition = Vector3.zero;
@@ -779,14 +1021,87 @@ namespace Live2D.Cubism.Rendering
                     : DepthOffset;
 
 
-            MeshRenderer.sortingOrder = SortingOrder + LocalSortingOrder;
+            MeshRenderer.sortingOrder = SortingOrder + LocalSortingOrder + ParentLocalSortingOrder;
 
             transform.localPosition = new Vector3(0f, 0f, RenderOrder * offset);
         }
 
         /// <summary>
-        /// Uploads mesh vertex colors.
+        /// Propagates <paramref name="parentLocalSortingOrder"/> to child draw objects.
         /// </summary>
+        /// <param name="part">Part whose direct and nested children are updated.</param>
+        /// <param name="parentLocalSortingOrder">Combined local sorting order from ancestor offscreens.</param>
+        private void ApplyParentLocalSortingOrderToChildren(CubismPart part, int parentLocalSortingOrder)
+        {
+            // Apply to children offscreens.
+            for (var index = 0; index < part.ChildOffscreens?.Length; index++)
+            {
+                var offscreen = part.ChildOffscreens[index];
+                for (var offscreenRendererIndex = 0; offscreenRendererIndex < RenderController.OffscreenRenderers.Length; offscreenRendererIndex++)
+                {
+                    var offscreenRenderer = RenderController.OffscreenRenderers[offscreenRendererIndex];
+                    if (!offscreenRenderer || offscreenRenderer.Offscreen != offscreen)
+                    {
+                        continue;
+                    }
+
+                    // Apply sorting only when the inherited order actually changes.
+                    if (offscreenRenderer.ParentLocalSortingOrder == parentLocalSortingOrder)
+                    {
+                        break;
+                    }
+
+                    offscreenRenderer.ParentLocalSortingOrder = parentLocalSortingOrder;
+                    offscreenRenderer.ApplySorting();
+                    break;
+                }
+            }
+
+            // Apply to children drawables.
+            for (var index = 0; index < part.ChildDrawables?.Length; index++)
+            {
+                var drawable = part.ChildDrawables[index];
+                for (var drawableRendererIndex = 0; drawableRendererIndex < RenderController.DrawableRenderers.Length; drawableRendererIndex++)
+                {
+                    var drawableRenderer = RenderController.DrawableRenderers[drawableRendererIndex];
+                    if (drawableRenderer.Drawable != drawable)
+                    {
+                        continue;
+                    }
+
+                    // Apply sorting only when the inherited order actually changes.
+                    if (drawableRenderer.ParentLocalSortingOrder == parentLocalSortingOrder)
+                    {
+                        break;
+                    }
+
+                    drawableRenderer.ParentLocalSortingOrder = parentLocalSortingOrder;
+                    drawableRenderer.ApplySorting();
+                    break;
+                }
+            }
+
+            // Parts with an offscreen are covered by ChildOffscreens above.
+            for (var index = 0; index < part.ChildParts?.Length; index++)
+            {
+                var childPart = part.ChildParts[index];
+                if (childPart == null || childPart.OffscreenIndex != -1)
+                {
+                    continue;
+                }
+
+                ApplyParentLocalSortingOrderToChildren(childPart, parentLocalSortingOrder);
+            }
+        }
+
+        /// <summary>
+        /// Recomputes the cached <see cref="VertexColors"/> buffer as Color * Opacity.
+        /// </summary>
+        /// <remarks>
+        /// This does not touch the live mesh. The buffer is committed to the mesh only by
+        /// <see cref="SwapMeshes"/>, so calling this at draw time does not change the colors
+        /// used by the current frame's draw (per-drawable or batched).
+        /// </remarks>
         public void ApplyVertexColors()
         {
 
@@ -795,7 +1110,7 @@ namespace Live2D.Cubism.Rendering
             var color = Color;
 
 
-            color.a *= Opacity;
+            color.a *= PendingDrawState.Opacity;
 
 
             for (var i = 0; i < vertexColors.Length; ++i)
@@ -818,14 +1133,46 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            var property = PropertyBlock;
-            MeshRenderer.GetPropertyBlock(property);
+            var property = FetchPropertyBlock();
 
+            WriteMultiplyColor(property);
 
-            // Write property.
+            CommitPropertyBlock();
+        }
+
+        /// <summary>
+        /// Writes the multiply color to the given property block without committing it.
+        /// </summary>
+        /// <param name="property">Property block to write to.</param>
+        private void WriteMultiplyColor(MaterialPropertyBlock property)
+        {
             property.SetColor(CubismShaderVariables.MultiplyColor, MultiplyColor);
+        }
 
-            MeshRenderer.SetPropertyBlock(property);
+        /// <summary>
+        /// Uploads displayed diffuse colors.
+        /// </summary>
+        private void ApplyDisplayedMultiplyColor()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return;
+            }
+
+            var property = FetchPropertyBlock();
+
+            WriteDisplayedMultiplyColor(property);
+
+            CommitPropertyBlock();
+        }
+
+        /// <summary>
+        /// Writes the displayed multiply color to the given property block without committing it.
+        /// </summary>
+        /// <param name="property">Property block to write to.</param>
+        private void WriteDisplayedMultiplyColor(MaterialPropertyBlock property)
+        {
+            property.SetColor(CubismShaderVariables.MultiplyColor, DisplayedMultiplyColor);
         }
 
         /// <summary>
@@ -855,14 +1202,46 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            var property = PropertyBlock;
-            MeshRenderer.GetPropertyBlock(property);
+            var property = FetchPropertyBlock();
 
+            WriteScreenColor(property);
 
-            // Write property.
+            CommitPropertyBlock();
+        }
+
+        /// <summary>
+        /// Writes the screen color to the given property block without committing it.
+        /// </summary>
+        /// <param name="property">Property block to write to.</param>
+        private void WriteScreenColor(MaterialPropertyBlock property)
+        {
             property.SetColor(CubismShaderVariables.ScreenColor, ScreenColor);
+        }
 
-            MeshRenderer.SetPropertyBlock(property);
+        /// <summary>
+        /// Uploads displayed tint colors.
+        /// </summary>
+        public void ApplyDisplayedScreenColor()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return;
+            }
+
+            var property = FetchPropertyBlock();
+
+            WriteDisplayedScreenColor(property);
+
+            CommitPropertyBlock();
+        }
+
+        /// <summary>
+        /// Writes the displayed screen color to the given property block without committing it.
+        /// </summary>
+        /// <param name="property">Property block to write to.</param>
+        private void WriteDisplayedScreenColor(MaterialPropertyBlock property)
+        {
+            property.SetColor(CubismShaderVariables.ScreenColor, DisplayedScreenColor);
         }
 
         /// <summary>
@@ -956,13 +1335,12 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Initializes the mesh filter for Scene View picking.
+        /// Initializes the mesh filter for Scene View picking in the Editor,
+        /// or removes it in builds where it is unnecessary.
         /// </summary>
         private void TryInitializeMeshFilter()
         {
-#if UNITY_EDITOR
-            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable
-                || Application.isPlaying)
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
             {
                 return;
             }
@@ -982,7 +1360,20 @@ namespace Live2D.Cubism.Rendering
             }
 
             _meshFilter.sharedMesh = Mesh;
+
+#if UNITY_EDITOR
              SetupPickingMaterial();
+#else
+            // The MeshFilter is only required for Scene View picking in the Editor.
+            // In builds, rendering is performed via CommandBuffer, so a MeshFilter left over
+            // from serialization into prefabs/scenes would only cause unnecessary draw calls.
+            // Remove it on initialization to prevent that.
+            var meshFilter = GetComponent<MeshFilter>();
+
+            if (meshFilter != null)
+            {
+                Destroy(meshFilter);
+            }
 #endif
         }
 
@@ -1120,8 +1511,118 @@ namespace Live2D.Cubism.Rendering
             for (var i = 0; i < VertexColors.Length; ++i)
             {
                 VertexColors[i] = Color;
-                VertexColors[i].a *= Opacity;
+                VertexColors[i].a *= PendingDrawState.Opacity;
             }
+
+
+            // Commit the initial colors to both mesh buffers.
+            // SwapMeshes() only writes colors to the buffer that just left the front, so without this
+            // the first frames are drawn with Unity's default vertex color (opaque white) instead of
+            // the initial opacity.
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return;
+            }
+
+            for (var i = 0; i < Meshes.Length; ++i)
+            {
+                if (Meshes[i] == null || Meshes[i].vertexCount != VertexColors.Length)
+                {
+                    continue;
+                }
+
+                Meshes[i].colors = VertexColors;
+            }
+        }
+
+        /// <summary>
+        /// Initializes draw state.
+        /// </summary>
+        private void TryInitializeDrawState()
+        {
+            var drawState = new DrawState
+            {
+                Opacity = Opacity,
+                MultiplyColor = MultiplyColor,
+                ScreenColor = ScreenColor
+            };
+
+            DisplayedDrawState = drawState;
+            PendingDrawState = drawState;
+        }
+
+
+        /// <summary>
+        /// Initializes offscreen draw state.
+        /// </summary>
+        private void TryInitializeOffscreenDrawState()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Offscreen || !Offscreen)
+            {
+                return;
+            }
+
+            var drawState = GetCurrentOffscreenDrawState();
+
+            DisplayedOffscreenDrawState = drawState;
+            PendingOffscrennDrawState = drawState;
+        }
+
+        /// <summary>
+        /// Gets the current Offscreen draw state from the selected color.
+        /// </summary>
+        private OffscreenDrawState GetCurrentOffscreenDrawState()
+        {
+            return new OffscreenDrawState
+            {
+                Opacity = Offscreen.Opacity,
+                MultiplyColor = MultiplyColor,
+                ScreenColor = ScreenColor
+            };
+        }
+
+        /// <summary>
+        /// Sets pending opacity.
+        /// </summary>
+        private void SetPendingOpacity(float newOpacity)
+        {
+            var drawState = PendingDrawState;
+            drawState.Opacity = newOpacity;
+            PendingDrawState = drawState;
+
+            SetNewDrawState();
+        }
+
+        /// <summary>
+        /// Gets multiply color for rendering.
+        /// </summary>
+        private Color GetDisplayedMultiplyColor()
+        {
+            return DisplayedMultiplyColor;
+        }
+
+        /// <summary>
+        /// Gets screen color for rendering.
+        /// </summary>
+        private Color GetDisplayedScreenColor()
+        {
+            return DisplayedScreenColor;
+        }
+
+        /// <summary>
+        /// Gets offscreen multiply color for rendering.
+        /// </summary>
+        private Color GetDisplayedOffscreenMultiplyColor()
+        {
+            return DisplayedOffscreenMultiplyColor;
+        }
+
+        /// <summary>
+        /// Gets offscreen screen color for rendering.
+        /// </summary>
+        private Color GetDisplayedOffscreenScreenColor()
+        {
+            return DisplayedOffscreenScreenColor;
         }
 
         /// <summary>
@@ -1156,13 +1657,12 @@ namespace Live2D.Cubism.Rendering
 
             TryInitializeMesh();
             TryInitializeMeshFilter();
+            TryInitializeDrawState();
+            TryInitializeOffscreenDrawState();
             TryInitializeVertexColor();
             TryInitializeMainTexture();
             TryInitializeMultiplyColor();
             TryInitializeScreenColor();
-            _previousOffscreenUnmanagedIndex = -1;
-
-            ApplySorting();
 #if UNITY_EDITOR
             SyncMeshFilterForPicking();
 #endif
@@ -1215,12 +1715,24 @@ namespace Live2D.Cubism.Rendering
 
 
         /// <summary>
-        /// Sets <see cref="SetNewRenderOrder"/>.
+        /// Sets <see cref="NewRenderOrder"/>.
         /// </summary>
         private void SetNewRenderOrder()
         {
             var swapInfo = ThisSwap;
             swapInfo.NewRenderOrder = true;
+            ThisSwap = swapInfo;
+        }
+
+
+        /// <summary>
+        /// Sets <see cref="DrawState"/>.
+        /// </summary>
+        private void SetNewDrawState()
+        {
+            var swapInfo = ThisSwap;
+            swapInfo.NewDrawState = true;
+            swapInfo.DrawState = PendingDrawState;
             ThisSwap = swapInfo;
         }
 
@@ -1256,6 +1768,16 @@ namespace Live2D.Cubism.Rendering
             LastSwap = swapInfo;
         }
 
+        /// <summary>
+        /// Reset draw state flag.
+        /// </summary>
+        private void ResetDrawStateFlag()
+        {
+            var swapInfo = LastSwap;
+            swapInfo.NewDrawState = false;
+            LastSwap = swapInfo;
+        }
+
 
         /// <summary>
         /// Allows tracking of <see cref="Mesh"/> data changed on a swap.
@@ -1286,6 +1808,58 @@ namespace Live2D.Cubism.Rendering
             /// Render order were changed.
             /// </summary>
             public bool NewRenderOrder { get; set; }
+
+            /// <summary>
+            /// Draw state were changed.
+            /// </summary>
+            public bool NewDrawState { get; set; }
+
+            /// <summary>
+            /// Draw state to display.
+            /// </summary>
+            public DrawState DrawState { get; set; }
+        }
+
+        /// <summary>
+        /// Draw state
+        /// </summary>
+        private struct DrawState
+        {
+            /// <summary>
+            /// Opacity
+            /// </summary>
+            public float Opacity { get; set; }
+
+            /// <summary>
+            /// Multiply color
+            /// </summary>
+            public Color MultiplyColor { get; set; }
+
+            /// <summary>
+            /// Screen color
+            /// </summary>
+            public Color ScreenColor { get; set; }
+        }
+
+        /// <summary>
+        /// Offscreen draw state
+        /// </summary>
+        private struct OffscreenDrawState
+        {
+            /// <summary>
+            /// Opacity
+            /// </summary>
+            public float Opacity { get; set; }
+
+            /// <summary>
+            /// Multiply color
+            /// </summary>
+            public Color MultiplyColor { get; set; }
+
+            /// <summary>
+            /// Screen color
+            /// </summary>
+            public Color ScreenColor { get; set; }
         }
 
         #endregion

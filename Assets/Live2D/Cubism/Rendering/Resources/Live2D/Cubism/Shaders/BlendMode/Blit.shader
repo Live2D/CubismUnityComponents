@@ -37,6 +37,7 @@ Shader "Unlit/BlendMode/Blit"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "../CubismCG.cginc"
 
             struct Attributes
             {
@@ -54,8 +55,10 @@ Shader "Unlit/BlendMode/Blit"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            CBUFFER_START(UnityPerMaterial)
+            CUBISM_MATERIAL_TEXTURES_BEGIN
             sampler2D _MainTex;
+
+            CUBISM_MATERIAL_VARIABLES_BEGIN
             float4 _MainTex_ST;
 
             CBUFFER_END

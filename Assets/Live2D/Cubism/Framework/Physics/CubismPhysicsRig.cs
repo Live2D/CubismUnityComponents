@@ -97,7 +97,8 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         public void Stabilization()
         {
-            if (Controller == null)
+            // Skip if the rig is not initialized.
+            if (Controller == null || SubRigs == null)
             {
                 return;
             }
@@ -135,9 +136,6 @@ namespace Live2D.Cubism.Framework.Physics
             {
                 SubRigs[i].Stabilization();
             }
-
-            var model = Controller.gameObject.FindCubismModel();
-            model.ForceUpdateNow();
         }
 
         /// <summary>
@@ -175,6 +173,12 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="deltaTime"></param>
         public void Evaluate(float deltaTime)
         {
+            // Skip if the rig is not initialized.
+            if (Controller == null || SubRigs == null)
+            {
+                return;
+            }
+
             if (0.0f >= deltaTime)
             {
                 return;

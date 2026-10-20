@@ -17,6 +17,7 @@ using Live2D.Cubism.Framework.Expression;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.Raycasting;
 using Live2D.Cubism.Rendering;
+using Live2D.Cubism.Rendering.Masking;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -435,7 +436,7 @@ namespace Live2D.Cubism.Framework.Json
             {
                 var renderer = drawableRenderers[i];
 
-                renderer.Material = pickDrawableMaterial(this, drawables[i]);
+                renderer.DrawMaterial = pickDrawableMaterial(this, drawables[i]);
                 renderer.ColorBlendType = drawables[i].ColorBlend;
                 renderer.AlphaBlendType = drawables[i].AlphaBlend;
             }
@@ -533,12 +534,16 @@ namespace Live2D.Cubism.Framework.Json
                 {
                     var cubismDisplayInfoParameterName = parameters[i].gameObject.AddComponent<CubismDisplayInfoParameterName>();
                     cubismDisplayInfoParameterName.Name = parameters[i].Id;
-                    for (int j = 0; j < cdi3Json.Parameters.Length; j++)
+                    // Skip if Parameters is null
+                    if (cdi3Json.Parameters != null)
                     {
-                        if (cdi3Json.Parameters[j].Id == parameters[i].Id)
+                        for (var j = 0; j < cdi3Json.Parameters.Length; j++)
                         {
-                            cubismDisplayInfoParameterName.Name = cdi3Json.Parameters[j].Name;
-                            break;
+                            if (cdi3Json.Parameters[j].Id == parameters[i].Id)
+                            {
+                                cubismDisplayInfoParameterName.Name = cdi3Json.Parameters[j].Name;
+                                break;
+                            }
                         }
                     }
                     cubismDisplayInfoParameterName.DisplayName = string.Empty;
@@ -555,12 +560,16 @@ namespace Live2D.Cubism.Framework.Json
                 {
                     var cubismDisplayInfoPartNames = parts[i].gameObject.AddComponent<CubismDisplayInfoPartName>();
                     cubismDisplayInfoPartNames.Name = parts[i].Id;
-                    for (int j = 0; j < cdi3Json.Parts.Length; j++)
+                    // Skip if Parts is null
+                    if (cdi3Json.Parts != null)
                     {
-                        if (cdi3Json.Parts[j].Id == parts[i].Id)
+                        for (var j = 0; j < cdi3Json.Parts.Length; j++)
                         {
-                            cubismDisplayInfoPartNames.Name = cdi3Json.Parts[j].Name;
-                            break;
+                            if (cdi3Json.Parts[j].Id == parts[i].Id)
+                            {
+                                cubismDisplayInfoPartNames.Name = cdi3Json.Parts[j].Name;
+                                break;
+                            }
                         }
                     }
                     cubismDisplayInfoPartNames.DisplayName = string.Empty;
@@ -626,6 +635,7 @@ namespace Live2D.Cubism.Framework.Json
                 if (anyMasked)
                 {
                     rendererController.HasMask = true;
+                    rendererController.MaskTextureController = rendererController.gameObject.AddComponent<CubismMaskTextureController>();
 
                     rendererController.TryInitialize();
                     // Already have a mask controller, no need to add it again.
@@ -687,15 +697,17 @@ namespace Live2D.Cubism.Framework.Json
             if (!string.IsNullOrEmpty(physics3JsonAsString))
             {
                 var physics3Json = CubismPhysics3Json.LoadFrom(physics3JsonAsString);
-                var physicsController = model.gameObject.GetComponent<CubismPhysicsController>();
-
-                if (physicsController == null)
+                if (physics3Json != null)
                 {
-                    physicsController = model.gameObject.AddComponent<CubismPhysicsController>();
+                    var physicsController = model.gameObject.GetComponent<CubismPhysicsController>();
 
+                    if (physicsController == null)
+                    {
+                        physicsController = model.gameObject.AddComponent<CubismPhysicsController>();
+
+                    }
+                    physicsController.Initialize(physics3Json.ToRig());
                 }
-
-                physicsController.Initialize(physics3Json.ToRig());
             }
 
 
@@ -706,25 +718,27 @@ namespace Live2D.Cubism.Framework.Json
             {
                 var userData3Json = CubismUserData3Json.LoadFrom(userData3JsonAsString);
 
-
-                var drawableBodies = userData3Json.ToBodyArray(CubismUserDataTargetType.ArtMesh);
-
-                for (var i = 0; i < drawables.Length; ++i)
+                if (userData3Json != null)
                 {
-                    var index = GetBodyIndexById(drawableBodies, drawables[i].Id);
+                    var drawableBodies = userData3Json.ToBodyArray(CubismUserDataTargetType.ArtMesh);
 
-                    if (index >= 0)
+                    for (var i = 0; i < drawables.Length; ++i)
                     {
-                        var tag = drawables[i].gameObject.GetComponent<CubismUserDataTag>();
+                        var index = GetBodyIndexById(drawableBodies, drawables[i].Id);
 
-
-                        if (tag == null)
+                        if (index >= 0)
                         {
-                            tag = drawables[i].gameObject.AddComponent<CubismUserDataTag>();
+                            var tag = drawables[i].gameObject.GetComponent<CubismUserDataTag>();
+
+
+                            if (tag == null)
+                            {
+                                tag = drawables[i].gameObject.AddComponent<CubismUserDataTag>();
+                            }
+
+
+                            tag.Initialize(drawableBodies[index]);
                         }
-
-
-                        tag.Initialize(drawableBodies[index]);
                     }
                 }
             }

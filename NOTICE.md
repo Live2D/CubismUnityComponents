@@ -4,21 +4,6 @@
 
 # Notices
 
-## [Restrictions] Support for HarmonyOS NEXT and Tuanjie (2026-04-02)
-
-Cubism SDK for Unity R5 beta3 and later uses the Render Graph Module, and therefore does not support HarmonyOS NEXT or Tuanjie.
-
-We will announce support availability for this product in a future release once Tuanjie supports the Render Graph Module.
-
-
-## [Restrictions] Drawing Order of Drawables Under Parts Containing Offscreen Rendering When the Drawing Order of Offscreen Rendering Changes (2026-01-08)
-
-In the Cubism SDK for Unity, when the drawing order of offscreen rendering is changed, the drawing order of Drawables under the parts containing the offscreen rendering does not change.
-We are considering adding a feature in the future to synchronize the drawing order of Drawables under the parts containing offscreen rendering with changes to the drawing order of offscreen rendering.
-
-The supported version and release schedule will be announced in future updates.
-
-
 ## [Restrictions] Regarding lip-sync support from AudioClips when exporting to WebGL. (2024-11-28)
 
 The lip-sync from audio feature in the Cubism SDK for Unity uses the AudioClip API to obtain waveform information.
@@ -33,6 +18,14 @@ For details, please check　the official Unity documentation.
 
 Cubism SDK for Unity currently does not support Windows ARM64 builds for Unity 2023.1 or later.
 A supported version will be announced in a future release.
+
+
+## [Caution] Regarding .meta file handling in Tuanjie
+
+Due to development version constraints, the Cubism SDK for Unity's `.meta` file format is not compatible with Tuanjie.
+Building while retaining the `.meta` files immediately after import may result in errors.
+
+After importing the Unity Package, you can resolve this by running `Reimport All` to re-import the files and regenerate the `.meta` files.
 
 
 ## [Caution] Support for Apple's Privacy Manifest Policy

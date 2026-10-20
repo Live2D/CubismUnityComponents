@@ -7,6 +7,7 @@
 
 
 using UnityEngine;
+using Live2D.Cubism.Framework.Utils;
 
 
 namespace Live2D.Cubism.Framework.MouthMovement
@@ -70,7 +71,7 @@ namespace Live2D.Cubism.Framework.MouthMovement
 
 
             // Progress time.
-            T += (Time.deltaTime * Timescale);
+            T += (CubismTime.DeltaTime * Timescale);
 
 
             // Evaluate.

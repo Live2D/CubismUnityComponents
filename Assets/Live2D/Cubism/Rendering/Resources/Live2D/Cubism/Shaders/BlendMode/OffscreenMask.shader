@@ -34,7 +34,7 @@ Shader "Unlit/BlendMode/OffscreenMask"
         ZWrite   Off
         Lighting Off
         Cull     [_Cull]
-        Blend    One One
+        Blend    Zero OneMinusSrcColor, Zero OneMinusSrcAlpha
 
         Pass
         {
@@ -43,6 +43,7 @@ Shader "Unlit/BlendMode/OffscreenMask"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "../CubismCG.cginc"
 
             struct Attributes
             {
@@ -60,8 +61,10 @@ Shader "Unlit/BlendMode/OffscreenMask"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            CBUFFER_START(UnityPerMaterial)
+            CUBISM_MATERIAL_TEXTURES_BEGIN
             sampler2D _MainTex;
+
+            CUBISM_MATERIAL_VARIABLES_BEGIN
             float4 _MainTex_ST;
             float4 _OffsetScale;
             float4 _RotationQuaternion;

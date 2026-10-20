@@ -46,7 +46,7 @@ namespace Live2D.Cubism.Framework
             OverrideFlags ??= new bool[Model.Parameters.Length];
             if (OverrideFlags.Length != Model.Parameters.Length)
             {
-                Array.Resize(ref OverrideValues, Model.Parameters.Length);
+                Array.Resize(ref OverrideFlags, Model.Parameters.Length);
             }
             OverrideValues ??= new float[Model.Parameters.Length];
             if (OverrideValues.Length != Model.Parameters.Length)

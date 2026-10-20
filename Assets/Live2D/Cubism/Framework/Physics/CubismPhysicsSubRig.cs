@@ -187,6 +187,10 @@ namespace Live2D.Cubism.Framework.Physics
             float deltaTime
             )
         {
+            if (strand == null || strand.Length == 0)
+            {
+                return;
+            }
             strand[0].Position = totalTranslation;
 
             var totalRadian = CubismPhysicsMath.DegreesToRadian(totalAngle);
@@ -261,6 +265,10 @@ namespace Live2D.Cubism.Framework.Physics
             float thresholdValue
             )
         {
+            if (strand == null || strand.Length == 0)
+            {
+                return;
+            }
             strand[0].Position = totalTranslation;
 
             var totalRadian = CubismPhysicsMath.DegreesToRadian(totalAngle);
@@ -294,48 +302,57 @@ namespace Live2D.Cubism.Framework.Physics
         /// </summary>
         public void Initialize()
         {
-            var strand = Particles;
-
-            // Initialize the top of particle.
-            strand[0].InitialPosition = Vector2.zero;
-            strand[0].LastPosition = strand[0].InitialPosition;
-            strand[0].LastGravity = Rig.Gravity;
-            strand[0].LastGravity.y *= -1.0f;
-
-
-            // Initialize particles.
-            for (var i = 1; i < strand.Length; ++i)
+            if (Particles != null && Particles.Length != 0)
             {
-                var radius = Vector2.zero;
-                radius.y = strand[i].Radius;
-                strand[i].InitialPosition = strand[i - 1].InitialPosition + radius;
-                strand[i].Position = strand[i].InitialPosition;
-                strand[i].LastPosition = strand[i].InitialPosition;
-                strand[i].LastGravity = Rig.Gravity;
-                strand[i].LastGravity.y *= -1.0f;
+                var strand = Particles;
+
+                // Initialize the top of particle.
+                strand[0].InitialPosition = Vector2.zero;
+                strand[0].LastPosition = strand[0].InitialPosition;
+                strand[0].LastGravity = Rig.Gravity;
+                strand[0].LastGravity.y *= -1.0f;
+
+
+                // Initialize particles.
+                for (var i = 1; i < strand.Length; ++i)
+                {
+                    var radius = Vector2.zero;
+                    radius.y = strand[i].Radius;
+                    strand[i].InitialPosition = strand[i - 1].InitialPosition + radius;
+                    strand[i].Position = strand[i].InitialPosition;
+                    strand[i].LastPosition = strand[i].InitialPosition;
+                    strand[i].LastGravity = Rig.Gravity;
+                    strand[i].LastGravity.y *= -1.0f;
+                }
             }
 
 
             // Initialize inputs.
-            OriginalInput = new CubismPhysicsInput[Input.Length];
-            for (var i = 0; i < Input.Length; ++i)
+            if (Input != null && Input.Length != 0)
             {
-                OriginalInput[i] = Input[i];
-                Input[i].InitializeGetter();
+                OriginalInput = new CubismPhysicsInput[Input.Length];
+                for (var i = 0; i < Input.Length; ++i)
+                {
+                    OriginalInput[i] = Input[i];
+                    Input[i].InitializeGetter();
+                }
             }
 
-            _previousRigOutput = new SubRigPhysicsOutput();
-            _currentRigOutput = new SubRigPhysicsOutput();
-
-            Array.Resize(ref _previousRigOutput.Output, Output.Length);
-            Array.Resize(ref _currentRigOutput.Output, Output.Length);
-
             // Initialize outputs.
-            OriginalOutput = new CubismPhysicsOutput[Output.Length];
-            for (var i = 0; i < Output.Length; ++i)
+            if (Output != null && Output.Length != 0)
             {
-                OriginalOutput[i] = Output[i];
-                Output[i].InitializeGetter();
+                _previousRigOutput = new SubRigPhysicsOutput();
+                _currentRigOutput = new SubRigPhysicsOutput();
+
+                Array.Resize(ref _previousRigOutput.Output, Output.Length);
+                Array.Resize(ref _currentRigOutput.Output, Output.Length);
+
+                OriginalOutput = new CubismPhysicsOutput[Output.Length];
+                for (var i = 0; i < Output.Length; ++i)
+                {
+                    OriginalOutput[i] = Output[i];
+                    Output[i].InitializeGetter();
+                }
             }
         }
 
@@ -365,7 +382,7 @@ namespace Live2D.Cubism.Framework.Physics
                     ref totalTranslation,
                     ref totalAngle,
                     parameter,
-                    ref Rig.ParametersCache[input.SourceIndex],
+                    Rig.ParametersCache[input.SourceIndex],
                     Normalization,
                     weight
                     );
@@ -448,19 +465,19 @@ namespace Live2D.Cubism.Framework.Physics
                 if (Input[i].Source == null)
                 {
                     Input[i].Source = Rig.Controller.Parameters.FindById(Input[i].SourceId);
+                    Input[i].SourceIndex = Array.IndexOf(Rig.Controller.Parameters, Input[i].Source);
                 }
-                var index = Array.IndexOf(Rig.Controller.Parameters, Input[i].Source);
 
                 var parameter = Input[i].Source;
                 Input[i].GetNormalizedParameterValue(
                     ref totalTranslation,
                     ref totalAngle,
                     parameter,
-                    ref Input[i].Source.Value,
+                    Input[i].Source.Value,
                     Normalization,
                     weight
                     );
-                Rig.ParametersCache[index] = Input[i].Source.Value;
+                Rig.ParametersCache[Input[i].SourceIndex] = Input[i].Source.Value;
             }
 
 
@@ -482,8 +499,6 @@ namespace Live2D.Cubism.Framework.Physics
 
             for (var i = 0; i < Output.Length; ++i)
             {
-                _previousRigOutput.Output[i] = _currentRigOutput.Output[i];
-
                 if (Output[i].Destination == null)
                 {
                     var destination = Rig.Controller.Parameters.FindById(Output[i].DestinationId);
@@ -495,14 +510,14 @@ namespace Live2D.Cubism.Framework.Physics
                     Output[i].Destination = destination;
                 }
 
+                Output[i].DestinationIndex = Array.IndexOf(Rig.Controller.Parameters, Output[i].Destination);
+
                 var particleIndex = Output[i].ParticleIndex;
 
                 if (particleIndex < 1 || particleIndex >= Particles.Length)
                 {
                     continue;
                 }
-
-                var index = Array.IndexOf(Rig.Controller.Parameters, Output[i].Destination);
 
                 var translation = Particles[particleIndex].Position -
                                         Particles[particleIndex - 1].Position;
@@ -519,7 +534,7 @@ namespace Live2D.Cubism.Framework.Physics
                 _previousRigOutput.Output[i] = outputValue;
                 UpdateOutputParameterValue(parameter, ref Output[i].Destination.Value, outputValue, Output[i]);
 
-                Rig.ParametersCache[index] = Output[i].Destination.Value;
+                Rig.ParametersCache[Output[i].DestinationIndex] = Output[i].Destination.Value;
             }
         }
     }

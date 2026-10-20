@@ -104,6 +104,8 @@ namespace Live2D.Cubism.Core
             {
                 model.TaskableModel.ReleaseUnmanaged();
                 model.TaskableModel = null;
+
+                ++model._nativeModelRevision;
             }
 
             model._parameters = null;
@@ -133,6 +135,24 @@ namespace Live2D.Cubism.Core
         /// TaskableModel for unmanaged backend.
         /// </summary>
         private CubismTaskableModel TaskableModel { get; set; }
+
+        /// <summary>
+        /// <see cref="NativeModelRevision"/> backing field.
+        /// </summary>
+        [NonSerialized]
+        private int _nativeModelRevision;
+
+        /// <summary>
+        /// Counts how often the backend model was released or recreated.
+        /// </summary>
+        /// <remarks>
+        /// Lets a caller notice that data it received earlier belongs to a model that no longer exists, which
+        /// happens when an editor reimport rebuilds the backend while that data is still being processed.
+        /// </remarks>
+        internal int NativeModelRevision
+        {
+            get { return _nativeModelRevision; }
+        }
 
 
         /// <summary>
@@ -206,6 +226,83 @@ namespace Live2D.Cubism.Core
             }
             private set { _drawables = value; }
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Checks whether the drawable cache matches the current unmanaged model.
+        /// </summary>
+        internal bool HasValidDrawableCache()
+        {
+            if (TaskableModel == null || TaskableModel.UnmanagedModel == null || _drawables == null)
+            {
+                return false;
+            }
+
+            var unmanagedModel = TaskableModel.UnmanagedModel;
+
+            if (_drawables.Length != unmanagedModel.Drawables.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < _drawables.Length; ++i)
+            {
+                if (_drawables[i] == null || _drawables[i].UnmanagedIndex != i || !_drawables[i].IsBoundToUnmanagedModel(unmanagedModel))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks whether the draw object cache is stale in a way that rebuilding the native model can fix, i.e.
+        /// the native model is missing, a cached drawable/offscreen was destroyed, or a cached drawable still
+        /// references a previously released unmanaged model (as a reimport produces).
+        /// </summary>
+        /// <remarks>
+        /// A count or index mismatch against the <em>current</em> unmanaged model is not reported here: another
+        /// native rebuild would reproduce the same result, so releasing and recreating the native model would
+        /// only churn without changing the outcome.
+        /// </remarks>
+        internal bool IsDrawableCacheStale()
+        {
+            if (TaskableModel == null || TaskableModel.UnmanagedModel == null || _drawables == null)
+            {
+                return true;
+            }
+
+            var unmanagedModel = TaskableModel.UnmanagedModel;
+
+            for (var i = 0; i < _drawables.Length; ++i)
+            {
+                // A destroyed drawable (Unity's overloaded equality reports it as null), or one still bound to a
+                // previously released unmanaged model, means the cache must be rebuilt. A reimport that removes
+                // drawables produces destroyed references that would otherwise be dereferenced while (re)building
+                // renderers. The short-circuit keeps a destroyed entry from being accessed.
+                if (_drawables[i] == null || !_drawables[i].IsBoundToUnmanagedModel(unmanagedModel))
+                {
+                    return true;
+                }
+            }
+
+            // Offscreen renderers are built from this cache the same way, so a destroyed offscreen reference
+            // (produced by a reimport that removed offscreens) must also trigger a rebuild.
+            if (_offscreens != null)
+            {
+                for (var i = 0; i < _offscreens.Length; ++i)
+                {
+                    if (_offscreens[i] == null)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+#endif
 
         /// <summary>
         /// <see cref="CanvasInformation"/> backing field.
@@ -363,6 +460,8 @@ namespace Live2D.Cubism.Core
             Moc = moc;
             name = moc.name;
             TaskableModel = new CubismTaskableModel(moc);
+
+            ++_nativeModelRevision;
 
             if (TaskableModel == null || TaskableModel.UnmanagedModel == null)
             {

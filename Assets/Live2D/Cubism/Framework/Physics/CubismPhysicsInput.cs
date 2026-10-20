@@ -32,7 +32,7 @@ namespace Live2D.Cubism.Framework.Physics
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
-            ref float parameterValue,
+            float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         );
@@ -50,14 +50,14 @@ namespace Live2D.Cubism.Framework.Physics
              ref Vector2 targetTranslation,
              ref float targetAngle,
              CubismParameter parameter,
-             ref float parameterValue,
+             float parameterValue,
              CubismPhysicsNormalization normalization,
              float weight
         )
         {
             targetTranslation.x += CubismPhysicsMath.Normalize(
                                     parameter,
-                                    ref parameterValue,
+                                    parameterValue,
                                     normalization.Position.Minimum,
                                     normalization.Position.Maximum,
                                     normalization.Position.Default,
@@ -78,14 +78,14 @@ namespace Live2D.Cubism.Framework.Physics
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
-            ref float parameterValue,
+            float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         )
         {
             targetTranslation.y += CubismPhysicsMath.Normalize(
                         parameter,
-                        ref parameterValue,
+                        parameterValue,
                         normalization.Position.Minimum,
                         normalization.Position.Maximum,
                         normalization.Position.Default,
@@ -106,14 +106,14 @@ namespace Live2D.Cubism.Framework.Physics
             ref Vector2 targetTranslation,
             ref float targetAngle,
             CubismParameter parameter,
-            ref float parameterValue,
+            float parameterValue,
             CubismPhysicsNormalization normalization,
             float weight
         )
         {
             targetAngle += CubismPhysicsMath.Normalize(
                               parameter,
-                              ref parameterValue,
+                              parameterValue,
                               normalization.Angle.Minimum,
                               normalization.Angle.Maximum,
                               normalization.Angle.Default,

@@ -7,6 +7,7 @@
 
 
 using UnityEngine;
+using Live2D.Cubism.Framework.Utils;
 
 
 namespace Live2D.Cubism.Framework
@@ -152,7 +153,7 @@ namespace Live2D.Cubism.Framework
         /// <returns>Eye opened value.</returns>
         private float UpdateEyeBlinkIdling()
         {
-            NextBlinkingTime -= Time.deltaTime;
+            NextBlinkingTime -= CubismTime.DeltaTime;
 
             if (NextBlinkingTime < 0.0f)
             {
@@ -172,7 +173,7 @@ namespace Live2D.Cubism.Framework
         /// </summary>
         private void UpdateEyeBlink()
         {
-            UserTimeSeconds += (Time.deltaTime * Timescale);
+            UserTimeSeconds += (CubismTime.DeltaTime * Timescale);
             var value = 0.0f;
 
             switch (CurrentPhase)

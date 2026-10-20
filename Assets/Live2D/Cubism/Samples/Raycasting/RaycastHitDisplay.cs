@@ -7,6 +7,7 @@
 
 
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework.Raycasting;
 
@@ -49,7 +50,8 @@ namespace Live2D.Cubism.Samples.Raycasting
         private void DoRaycast()
         {
             // Cast ray from pointer position.
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            var screenPosition = Pointer.current.position.ReadValue();
+            var ray = Camera.main.ScreenPointToRay(screenPosition);
             var hitCount = Raycaster.Raycast(ray, Results);
 
 
@@ -90,7 +92,7 @@ namespace Live2D.Cubism.Samples.Raycasting
         private void Update()
         {
             // Return early in case of no user interaction.
-            if (!Input.GetMouseButtonDown(0))
+            if (Pointer.current == null || !Pointer.current.press.wasPressedThisFrame)
             {
                 return;
             }

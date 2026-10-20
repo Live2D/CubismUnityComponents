@@ -86,8 +86,13 @@ Shader "Unlit/BlendMode/CompatibleBlend"
                 CUBISM_VERTEX_OUTPUT
             };
 
-            CBUFFER_START(UnityPerMaterial)
+            CUBISM_MATERIAL_TEXTURES_BEGIN
             sampler2D _MainTex;
+
+            // Include Cubism specific shader textures.
+            CUBISM_SHADER_TEXTURES
+
+            CUBISM_MATERIAL_VARIABLES_BEGIN
             float4 _MainTex_ST;
             half4 cubism_MultiplyColor;
             half4 cubism_ScreenColor;
@@ -99,8 +104,8 @@ Shader "Unlit/BlendMode/CompatibleBlend"
             int cubism_InvertOn;
             #endif
 
-            // Include Cubism specific shader variables.
-            CUBISM_SHADER_VARIABLES
+            // Include Cubism specific shader uniforms.
+            CUBISM_SHADER_UNIFORMS
 
             CBUFFER_END
 

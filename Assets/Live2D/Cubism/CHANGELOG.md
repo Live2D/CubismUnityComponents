@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.6] - 2026-10-20
+
+### Added
+
+* Add a window to configure settings when importing texture atlases.
+* Add a mask render cache that reuses the mask texture when consecutive drawables share the same mask set within a single frame. Controlled by `CubismRenderController.EnableMaskCache` (defaults to on, Drawable-only). Hit/miss are exposed via the `CubismMaskCache` profiler markers.
+* Add a direct rendering mode that draws eligible models straight to the camera color target, skipping the intermediate `RenderTexture` blit to save fill rate and VRAM.
+  * Controlled by `CubismRenderPassFeature.EnableDirectRendering` (defaults to off). Models that use blend modes or offscreen drawing automatically fall back to the conventional `RenderTexture` path. The setting is evaluated at initialization and is not intended to be toggled at runtime.
+* Add `CubismTime` class to allow simulating fixed frame rates for verification against Native environments, and update related components to use `CubismTime.DeltaTime` instead of `Time.deltaTime`.
+* Add breathing component to match the behavior of `Cubism SDK for Native`.
+  * Add `CubismBreathController` and `CubismBreathParameter`.
+* Add an inspector to `CubismRenderController` to check the current render order.
+* Add preprocessing mask method.
+  * Add `CubismMaskTextureController` component.
+    * Attached when importing models that use masks.
+    * Manages the resolution, size, and number of mask textures per model.
+  * Implement explicit switching between high-precision mask methods.
+* Add a feature that enables rendering in environments where `RenderGraph` cannot be used.
+  * This feature can be used in `Tuanjie` or `Unity 2022`.
+
+### Changed
+
+* Change the initial settings when importing texture atlases as follows:
+  * Enable mipmaps.
+  * Set FilterMode to Trilinear.
+* Change to update the render order of child draw objects when the parent's offscreen render order is modified.
+* Consolidate usage of `MeshRenderer.GetPropertyBlock()` and `MeshRenderer.SetPropertyBlock()` calls.
+* Change the `Assets/Live2D/Cubism/Samples/AsyncBenchmark/AutomaticAsyncBenchmark.unity` scene.
+  * Add background to text UI.
+  * Change target fps to 30fps on mobile environments.
+  * Change `Enable Async` to be disabled by default.
+* Change blit operation in blend mode for ArtMesh to perform only with necessary area.
+* Change the `Assets/Live2D/Cubism/Samples/OriginalWorkflow/Pose.unity` scene.
+* Change the `Assets/Live2D/Cubism/Samples/OriginalWorkflow/Motion.unity` scene.
+* Change to omit unnecessary frame buffer clears.
+* Change to replace render texture reference rather than redrawing original render texture after offscreen rendering.
+* Change to skip offscreen rendering when no rendering is necessary.
+* Change clear and draw operation in offscreen rendering to perform only with necessary area.
+* Change mask rectangle calculation to be based on the mask Drawable when HighPrecisionMask is enabled.
+  * Change the masked drawing shaders to clip fragments outside the mask rectangle.
+* Change to generate common textures only when necessary.
+* Change visibility determination based on opacity and component enabled state to run once per frame instead of once per camera.
+* Change the description of the `Assets/Live2D/Cubism/Samples/MultipleModels` sample to cover the drawing order settings for multiple models.
+
+### Fixed
+
+* Fix an issue where the same array search process in `CubismRenderController.OnDynamicDrawableData()` was being called multiple times in the same frame.
+* Fix an issue where a `MeshFilter` used only for Scene View picking in the Editor remained in builds and caused unnecessary draw calls.
+* Fix an issue where enable the creation of prefabs even when required keys are missing from the JSON files for cdi3, physic3 and userdata3.
+* Fix an issue where the rendering interception order set by `CubismRenderingInterceptController` was not applied before entering Play Mode.
+* Fix an issue where multiple rendering interceptors invoked at the same rendering timing were rendered in registration order instead of `SortingOrder` order.
+* Fix an issue where models are not affected by changes to the Transform of their parent GameObject.
+* Fix an issue where using the frame debugger in GameView would cause Cubism models to flicker or fail to render.
+* Fix an issue where expressions are applied one frame faster than in other `ICubismUpdatable` component.
+* Fix an issue where the reference to the Animator Controller is removed when reimport the model.
+* Fix to avoid delegate assignment per frame in render-data lookups. by [@FMsongX2](https://github.com/Live2D/CubismUnityComponents/pull/94)
+* Fix an issue where model prefabs in the Editor did not correctly reflect initial drawable visibility and render order.
+* Fix an issue where reimporting a model prefab containing deleted components caused an error and prevented the prefab from being regenerated correctly.
+* Fix an issue where Cubism model GameObjects added to the scene during Play Mode could not be picked in the Scene View.
+* Fix an issue where physics calculations behaved differently from `Original Workflow` environments.
+* Fix an issue where fade processing does not work properly on certain platforms due to `float.Epsilon` being rounded to zero.
+* Fix an issue where blending between transparent elements was not supported during mask generation.
+* Fix an issue where changes to opacity, multiply color, and screen color for Drawables and Offscreens were applied out of sync with mesh updates delayed by double buffering.
+* Fix a duplicate blend calculation in `CubismParameterExtensionMethods.BlendToValue()`.
+* Fix an issue where MotionFade did not work properly when multiple layers were set in Animator.
+* Fix an issue where the model layout in the RenderingInterceptor scene was broken.
+* Fix an issue where opacity was not applied to the starting frame.
+* Fix an issue where the model snapped to the last frame of the previous motion when switching away from a looping motion that had already played through at least once.
+* Fix an issue where an invalid `TextureHandle` could remain referenced.
+* Fix an issue where multiple `CubismRenderer` components were attached when using AssetBundles.
+* Fix compile errors on `Unity 6.6` caused by `Object.GetInstanceID()` and `AssetDatabase.GetAssetPath(int)` becoming obsolete errors. by [@koichiyamashita](https://github.com/Live2D/CubismUnityComponents/pull/96)
+* Fix an issue that caused errors when reimporting a model whose prefab instance was placed in the Hierarchy.
+* Fix an issue where switching away from a looping motion whose motion length is zero fell into an infinite loop.
+* Fix an issue where changing `Grouped Sorting Index` during Play Mode drew the model in front of the other models regardless of the value.
+* Fix an issue where the `Assets/Live2D/Cubism/Samples/Raycasting/Raycasting.unity` scene did not work with the `Input System` package.
+* Fix an issue where shader compilation failed on certain platforms due to texture variables being declared inside the `UnityPerMaterial` constant buffer.
+* Fix an issue where `CubismRenderingInterceptController` allocated memory for every draw object on every frame, increasing GC pressure in scenes using rendering interceptors.
+* Fix an issue where `CubismRenderingInterceptController` kept referencing destroyed cameras, growing its internal camera list without bound.
+
+### Removed
+
+* Remove the unnecessary function call `ApplyVertexColors()` in `CubismRenderer.DrawDrawable()`.
+* Remove the `Assets/Live2D/Cubism/Samples/ModelSorting` sample.
+  * Because its role overlapped with the `Assets/Live2D/Cubism/Samples/MultipleModels` sample.
+
+
 ## [5-r.5] - 2026-04-02
 
 ### Added
@@ -586,6 +672,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.6]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5...5-r.6
 [5-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.3...5-r.5
 [5-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.2...5-r.5-beta.3
 [5-r.5-beta.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.1...5-r.5-beta.2

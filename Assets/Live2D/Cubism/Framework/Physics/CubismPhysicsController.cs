@@ -9,6 +9,7 @@
 using System;
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Rendering;
+using Live2D.Cubism.Framework.Utils;
 using UnityEngine;
 
 
@@ -56,6 +57,24 @@ namespace Live2D.Cubism.Framework.Physics
             get { return false; }
         }
 
+        /// <summary>
+        /// Refreshes the parameter.
+        /// </summary>
+        public void Refresh()
+        {
+            var model = this.FindCubismModel();
+
+
+            // Fail silently...
+            if (model == null)
+            {
+                return;
+            }
+
+
+            Parameters = model.Parameters;
+        }
+
         public void OnLateUpdate()
         {
             if (!enabled)
@@ -63,10 +82,10 @@ namespace Live2D.Cubism.Framework.Physics
                 return;
             }
 
-            var deltaTime = Time.deltaTime;
+            var deltaTime = CubismTime.DeltaTime;
 
             // Use fixed delta time if required.
-            if (CubismPhysics.UseFixedDeltaTime)
+            if (CubismTime.FixFrameRate <= 0 && CubismPhysics.UseFixedDeltaTime)
             {
                 deltaTime = Time.fixedDeltaTime;
             }
@@ -82,10 +101,6 @@ namespace Live2D.Cubism.Framework.Physics
         public void Stabilization()
         {
             Rig.Stabilization();
-
-            var renderController = gameObject.GetComponent<CubismRenderController>();
-
-            renderController.OnLateUpdate();
         }
 
         /// <summary>
@@ -158,13 +173,18 @@ namespace Live2D.Cubism.Framework.Physics
             Rig.Controller = this;
 
 
+            // Skip if SubRigs is not initialized
+            if (Rig.SubRigs == null)
+            {
+                return;
+            }
             for (var i = 0; i < Rig.SubRigs.Length; ++i)
             {
                 Rig.SubRigs[i].Rig = Rig;
             }
 
 
-            Parameters = this.FindCubismModel().Parameters;
+            Refresh();
 
             Rig.Initialize();
         }

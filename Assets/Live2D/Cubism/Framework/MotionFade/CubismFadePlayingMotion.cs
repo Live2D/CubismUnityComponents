@@ -47,6 +47,10 @@ namespace Live2D.Cubism.Framework.MotionFade
         /// <summary>
         /// Is animation loop.
         /// </summary>
+        /// <remarks>
+        /// Set to false when the motion starts fading out,
+        /// so that it is clamped at the end of the current loop instead of being rewound to the first frame.
+        /// </remarks>
         [SerializeField]
         public bool IsLooping;
 

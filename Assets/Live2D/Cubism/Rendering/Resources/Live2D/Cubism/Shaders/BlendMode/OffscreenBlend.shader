@@ -77,9 +77,14 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 CUBISM_VERTEX_OUTPUT
             };
 
-            CBUFFER_START(UnityPerMaterial)
+            CUBISM_MATERIAL_TEXTURES_BEGIN
             sampler2D _MainTex; // src (current offscreen)
             sampler2D _RenderTexture; // dest (previous offscreen)
+
+            // Include Cubism specific shader textures.
+            CUBISM_SHADER_TEXTURES
+
+            CUBISM_MATERIAL_VARIABLES_BEGIN
             float4 _MainTex_ST;
             float4 _RenderTexture_ST;
             half4 cubism_MultiplyColor;
@@ -90,8 +95,8 @@ Shader "Unlit/BlendMode/OffscreenBlend"
             int cubism_InvertOn;
             #endif
 
-            // Include Cubism specific shader variables.
-            CUBISM_SHADER_VARIABLES
+            // Include Cubism specific shader uniforms.
+            CUBISM_SHADER_UNIFORMS
             CBUFFER_END
 
             Varyings vert (Attributes IN)
@@ -157,7 +162,8 @@ Shader "Unlit/BlendMode/OffscreenBlend"
                 // Mask
 #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
                 float clippingMask = 1.0;
-                clippingMask = tex2D(cubism_MaskTexture , IN.texcoord);
+                // The mask buffer uses the subtractive convention (covered -> 0), so invert on sample.
+                clippingMask = 1.0 - tex2D(cubism_MaskTexture , IN.texcoord).r;
                 clippingMask = abs(cubism_InvertOn - clippingMask);
                 As *= clippingMask;
 #endif

@@ -27,9 +27,18 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>Deserialized cdi3.json on success; <see langword="null"/> otherwise.</returns>
         public static CubismUserData3Json LoadFrom(string userData3Json)
         {
-            return (string.IsNullOrEmpty(userData3Json))
-                ? null
-                : JsonUtility.FromJson<CubismUserData3Json>(userData3Json);
+            // Validate Json format
+            CubismUserData3Json instance = null;
+            try
+            {
+                instance = JsonUtility.FromJson<CubismUserData3Json>(userData3Json);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogError("CubismUserData3Json : Following error occurred while parsing json ");
+                Debug.LogError(e);
+            }
+            return instance;
         }
 
         /// <summary>
@@ -53,7 +62,10 @@ namespace Live2D.Cubism.Framework.Json
         {
             var userDataList = new List<CubismUserDataBody>();
 
-
+            if (UserData == null)
+            {
+                return userDataList.ToArray();
+            }
             for (var i = 0; i < UserData.Length; ++i)
             {
                 var body = new CubismUserDataBody

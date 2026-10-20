@@ -19,6 +19,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
     /// Base class for rendering interceptors.
     /// Place custom rendering logic by inheriting from this class.
     /// </summary>
+    [ExecuteInEditMode]
     public class CubismRenderingInterceptController : MonoBehaviour, ICubismUpdatable, ICubismRenderingInterceptor
     {
         /// <summary>
@@ -105,6 +106,28 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         private int _renderPassCounter = 0;
 
         /// <summary>
+        /// Group sorting order for rendering.
+        /// </summary>
+        int ICubismRenderingInterceptor.RenderingGroupSortingOrder
+        {
+            get
+            {
+                return GroupSortingOrder;
+            }
+        }
+
+        /// <summary>
+        /// Sorting order for rendering.
+        /// </summary>
+        int ICubismRenderingInterceptor.RenderingSortingOrder
+        {
+            get
+            {
+                return SortingOrder;
+            }
+        }
+
+        /// <summary>
         /// Execution order of the interceptor.
         /// </summary>
         public virtual int ExecutionOrder
@@ -147,13 +170,11 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
                 _renderer = GetComponent<Renderer>();
 
                 _renderer.enabled = false;
-                _material = _renderer.material;
 
 #if UNITY_EDITOR
-                if (!Application.isPlaying)
-                {
-                    _material = _renderer.sharedMaterial;
-                }
+                _material = _renderer.sharedMaterial;
+#else
+                _material = _renderer.material;
 #endif
             }
 
@@ -188,6 +209,8 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         private void OnBeginContextRendering(ScriptableRenderContext context, List<Camera> cameras)
         {
             _renderPassCounter++;
+
+            ReleaseDestroyedCameraDrawStatus();
         }
 
         /// <summary>
@@ -266,17 +289,16 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// <param name="args"> Event arguments. </param>
         private void TryDraw(CubismRenderedEventArgs args)
         {
-            var currentCamera = args.PassData.CameraData.camera;
+            var currentCamera = args.PassData.CameraData.Camera;
 
             // Find or create camera draw status.
-            var statusIndex = Array.FindIndex(_cameraDrawStatus, status => status.Camera == currentCamera);
+            var statusIndex = FindCameraDrawStatusIndex(currentCamera);
 
             // Create a new entry if not found.
             if (statusIndex < 0)
             {
-                // Create a new camera draw status entry.
-                Array.Resize(ref _cameraDrawStatus, _cameraDrawStatus.Length + 1);
-                statusIndex = _cameraDrawStatus.Length - 1;
+                // Reserve a camera draw status slot.
+                statusIndex = AcquireCameraDrawStatusIndex();
 
                 // Initialize the new entry.
                 _cameraDrawStatus[statusIndex] = new CameraDrawStatus
@@ -292,54 +314,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
                 return;
             }
 
-            var doDraw = true;
-            switch (Mode)
-            {
-                case InterceptingMode.SortingOrder:
-                    // Decide whether to draw based on sorting order comparisons.
-                    if (args.GroupSortingOrder != GroupSortingOrder || args.SortingOrder < SortingOrder)
-                    {
-                        doDraw = false;
-                    }
-                    break;
-                case InterceptingMode.ZDepth:
-                    // Calculate the distance from the camera to the renderer.
-                    var directionToRenderer = transform.position - args.CameraPos;
-                    var projection = Vector3.Project(directionToRenderer, args.CameraForward);
-                    var distance = projection.magnitude;
-
-                    // Determine whether to draw based on distance comparisons.
-                    var canDraw = (args.Distance < distance || args.NextDistance > distance) &&
-                                !(distance > args.Distance && distance > args.NextDistance &&
-                                  distance > args.PreviousDistance);
-
-                    // Decide whether to draw.
-                    if (args.PreviousDistance != null
-                        && args.NextDistance != null
-                        && canDraw)
-                    {
-                        doDraw = false;
-                        break;
-                    }
-
-                    if (distance < args.Distance)
-                    {
-                        doDraw = false;
-                    }
-                    break;
-                case InterceptingMode.Drawable:
-                    if (!_targetArtMesh || args.Drawable != _targetArtMesh)
-                    {
-                        doDraw = false;
-                    }
-
-                    break;
-                default:
-                    // Skip drawing for unknown modes.
-                    break;
-            }
-
-            if (!doDraw)
+            if (!ShouldDrawForMode(args))
             {
                 return;
             }
@@ -376,6 +351,172 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         }
 
         /// <summary>
+        /// Looks up the <see cref="CameraDrawStatus"/> entry for the given camera.
+        /// </summary>
+        /// <remarks>
+        /// Deliberately a plain loop instead of <see cref="Array.FindIndex{T}(T[], Predicate{T})"/>: the lookup runs
+        /// once per drawable per interceptor from the render pass, and a predicate capturing the camera would
+        /// allocate a closure and a delegate on every call.
+        /// </remarks>
+        /// <param name="camera"> The camera to look up. </param>
+        /// <returns> The index of the matching entry, or -1 when the camera is not registered yet.</returns>
+        private int FindCameraDrawStatusIndex(Camera camera)
+        {
+            for (var index = 0; index < _cameraDrawStatus.Length; index++)
+            {
+                if (_cameraDrawStatus[index].Camera != camera)
+                {
+                    continue;
+                }
+
+                return index;
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// Reserves a <see cref="CameraDrawStatus"/> slot for a camera that is not registered yet.
+        /// </summary>
+        /// <remarks>
+        /// Slots left free by <see cref="ReleaseDestroyedCameraDrawStatus"/> are reused before the array grows,
+        /// so the array settles at the number of cameras alive at the same time instead of counting every camera
+        /// that ever rendered this interceptor.
+        /// </remarks>
+        /// <returns>The index of the reserved slot.</returns>
+        private int AcquireCameraDrawStatusIndex()
+        {
+            for (var index = 0; index < _cameraDrawStatus.Length; index++)
+            {
+                if (_cameraDrawStatus[index].Camera)
+                {
+                    continue;
+                }
+
+                return index;
+            }
+
+            Array.Resize(ref _cameraDrawStatus, _cameraDrawStatus.Length + 1);
+
+            return _cameraDrawStatus.Length - 1;
+        }
+
+        /// <summary>
+        /// Frees the <see cref="CameraDrawStatus"/> entries whose camera was destroyed.
+        /// </summary>
+        /// <remarks>
+        /// The surviving entries are packed to the front and the array is shrunk to match, so the references to
+        /// the destroyed cameras are dropped and <see cref="FindCameraDrawStatusIndex"/> only ever scans cameras
+        /// that are still rendering. Nothing is allocated while every entry is alive, which is the steady state.
+        /// This runs once per context rendering rather than from the lookup itself, which is called once per draw
+        /// object per interceptor and is kept free of the extra alive check.
+        /// </remarks>
+        private void ReleaseDestroyedCameraDrawStatus()
+        {
+            var aliveCount = 0;
+            for (var index = 0; index < _cameraDrawStatus.Length; index++)
+            {
+                if (!_cameraDrawStatus[index].Camera)
+                {
+                    continue;
+                }
+
+                _cameraDrawStatus[aliveCount] = _cameraDrawStatus[index];
+                aliveCount++;
+            }
+
+            if (aliveCount == _cameraDrawStatus.Length)
+            {
+                return;
+            }
+
+            Array.Resize(ref _cameraDrawStatus, aliveCount);
+        }
+
+        /// <summary>
+        /// Pure predicate equivalent of the mode/timing checks inside <see cref="TryDraw"/>.
+        /// Determines whether the configured <see cref="Mode"/> wants this drawable to trigger an injection.
+        /// </summary>
+        /// <remarks>
+        /// Side-effect free. Mirrors the doDraw decision in the original switch — keep these in sync
+        /// when adding new modes.
+        /// </remarks>
+        /// <param name="args"> Event arguments. </param>
+        /// <returns>True when the mode would let <see cref="TryDraw"/> proceed to inject draws.</returns>
+        private bool ShouldDrawForMode(CubismRenderedEventArgs args)
+        {
+            switch (Mode)
+            {
+                case InterceptingMode.SortingOrder:
+                    return args.GroupSortingOrder == GroupSortingOrder
+                        && args.SortingOrder >= SortingOrder;
+
+                case InterceptingMode.ZDepth:
+                {
+                    // Calculate the distance from the camera to the renderer.
+                    var directionToRenderer = transform.position - args.CameraPos;
+                    var projection = Vector3.Project(directionToRenderer, args.CameraForward);
+                    var distance = projection.magnitude;
+
+                    // Determine whether to draw based on distance comparisons.
+                    var canDraw = (args.Distance < distance || args.NextDistance > distance) &&
+                                !(distance > args.Distance && distance > args.NextDistance &&
+                                  distance > args.PreviousDistance);
+
+                    if (args.PreviousDistance != null
+                        && args.NextDistance != null
+                        && canDraw)
+                    {
+                        return false;
+                    }
+
+                    return distance >= args.Distance;
+                }
+
+                case InterceptingMode.Drawable:
+                    return _targetArtMesh && args.Drawable == _targetArtMesh;
+
+                default:
+                    // Preserve original TryDraw behaviour: unknown modes do not short-circuit doDraw.
+                    return true;
+            }
+        }
+
+        /// <summary>
+        /// Predicts whether this interceptor would inject draw commands for the given event.
+        /// </summary>
+        /// <remarks>
+        /// Used by the URP render pass to flush the drawable batcher around drawables that trigger
+        /// an injection so injected DrawRenderer calls remain correctly ordered against batched
+        /// drawables. Side-effect free: must not mutate <see cref="_cameraDrawStatus"/>.
+        /// </remarks>
+        /// <param name="args"> Event arguments. </param>
+        /// <returns>True when <see cref="OnPreRendering"/>/<see cref="OnPostRendering"/> would call <see cref="TryDraw"/> and reach the injection step.</returns>
+        bool ICubismRenderingInterceptor.WillInjectDraws(CubismRenderedEventArgs args)
+        {
+            // Only the configured timing actually invokes TryDraw — the other timing returns early.
+            switch (InvokeTimingSetting)
+            {
+                case InvokeTiming.PreRendering:
+                case InvokeTiming.PostRendering:
+                    break;
+                default:
+                    return false;
+            }
+
+            // If we have already drawn for this pass on this camera, OnPre/OnPost will early-return.
+            var currentCamera = args.PassData.CameraData.Camera;
+            var statusIndex = FindCameraDrawStatusIndex(currentCamera);
+            if (statusIndex >= 0
+                && _cameraDrawStatus[statusIndex].LastRenderedPassCount == _renderPassCounter)
+            {
+                return false;
+            }
+
+            return ShouldDrawForMode(args);
+        }
+
+        /// <summary>
         /// Checks whether to skip rendering for the given renderer.
         /// </summary>
         /// <param name="targetRenderer"> The target renderer. </param>
@@ -389,10 +530,10 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             switch (targetRenderer.DrawObjectType)
             {
                 case CubismModelTypes.DrawObjectType.Drawable:
-                    targetRenderer.SkipRendering |= targetRenderer.Opacity <= 0.0f;
+                    targetRenderer.SkipRendering |= targetRenderer.DisplayedOpacity <= 0.0f;
                     break;
                 case CubismModelTypes.DrawObjectType.Offscreen:
-                    targetRenderer.SkipRendering |= targetRenderer.Offscreen.Opacity <= 0.0f;
+                    targetRenderer.SkipRendering |= targetRenderer.DisplayedOffscreenOpacity <= 0.0f;
 
                     if (!targetRenderer.SkipRendering)
                     {
@@ -400,62 +541,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
                     }
 
                     // Skip rendering for all child drawables and offscreens of the offscreen part.
-                    var parts = targetRenderer.RenderController.Model.Parts;
-                    CubismPart part = null;
-                    for (var partIndex = 0; partIndex < parts.Length; partIndex++)
-                    {
-                        if (parts[partIndex].UnmanagedIndex != targetRenderer.Offscreen.OwnerIndex)
-                        {
-                            continue;
-                        }
-
-                        part = parts[partIndex];
-                        break;
-                    }
-
-                    if (!part)
-                    {
-                        break;
-                    }
-
-                    // Skip rendering for all child drawables and offscreens of the offscreen part.
-                    for (var drawablesIndex = 0; drawablesIndex < part.AllChildDrawables?.Length; drawablesIndex++)
-                    {
-                        var childDrawable = part.AllChildDrawables[drawablesIndex];
-
-                        for (var rendererIndex = 0; rendererIndex < targetRenderer.RenderController.Renderers.Length; rendererIndex++)
-                        {
-                            var checkedRenderer = targetRenderer.RenderController.Renderers[rendererIndex];
-
-                            if (checkedRenderer.DrawObjectType != CubismModelTypes.DrawObjectType.Drawable
-                                || checkedRenderer.Drawable.UnmanagedIndex != childDrawable.UnmanagedIndex)
-                            {
-                                continue;
-                            }
-
-                            checkedRenderer.SkipRendering = true;
-                            break;
-                        }
-                    }
-
-                    for (var offscreensIndex = 0; offscreensIndex < part.AllChildOffscreens?.Length; offscreensIndex++)
-                    {
-                        var childOffscreen = part.AllChildOffscreens[offscreensIndex];
-
-                        for (var j = 0; j < targetRenderer.RenderController.Renderers.Length; j++)
-                        {
-                            var checkedRenderer = targetRenderer.RenderController.Renderers[j];
-
-                            if (checkedRenderer.DrawObjectType != CubismModelTypes.DrawObjectType.Offscreen
-                                || checkedRenderer.Offscreen.UnmanagedIndex != childOffscreen.UnmanagedIndex)
-                            {
-                                continue;
-                            }
-
-                            checkedRenderer.SkipRendering = true;
-                            break;
-                        }
-                    }
+                    targetRenderer.SkipDescendantRenderers();
                     break;
                 default:
                     targetRenderer.SkipRendering = true;

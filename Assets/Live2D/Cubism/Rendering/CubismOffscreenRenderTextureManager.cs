@@ -125,6 +125,21 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Clear the contents of a freshly created render texture.
+        /// The contents of a newly allocated <see cref="RenderTexture"/> are undefined, so it is cleared
+        /// once here. Regular use goes through <c>SetOffscreen()</c>, which clears the texture immediately
+        /// before drawing, so no further per-frame clearing is required.
+        /// </summary>
+        /// <param name="renderTexture">The render texture to clear.</param>
+        private static void ClearOnCreate(RenderTexture renderTexture)
+        {
+            var previousActive = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+            GL.Clear(false, true, Color.clear);
+            RenderTexture.active = previousActive;
+        }
+
+        /// <summary>
         /// Create a new render texture for the offscreen render.
         /// </summary>
         /// <param name="name">Name of the render texture.</param>
@@ -140,6 +155,7 @@ namespace Live2D.Cubism.Rendering
             };
 
             renderTexture.Create();
+            ClearOnCreate(renderTexture);
             return renderTexture;
         }
 
@@ -222,8 +238,16 @@ namespace Live2D.Cubism.Rendering
             }
         }
 
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
         /// <summary>
-        /// Clear all offscreen render textures.
+        /// Clear every pooled offscreen render texture, one full-screen clear each.
+        ///
+        /// This is the pre-optimization behavior and is redundant in normal use: every texture handed
+        /// out by <see cref="GetOffscreenRenderTexture"/> is cleared immediately before it is drawn to,
+        /// and a freshly allocated one is cleared once on creation. It is kept only so that
+        /// <see cref="URP.CubismRenderPassFeature.EnableOffscreenPreClear"/> can restore the old cost
+        /// for A/B measurement, so it is compiled into the editor and development builds only.
+        /// Do not call it from the normal render path.
         /// </summary>
         /// <param name="commandBuffer">Command buffer.</param>
         public void ClearRenderTextures(CommandBuffer commandBuffer)
@@ -239,6 +263,7 @@ namespace Live2D.Cubism.Rendering
                 commandBuffer.ClearRenderTarget(true, true, Color.clear);
             }
         }
+#endif
 
         /// <summary>
         /// Get an offscreen render texture.
@@ -280,6 +305,7 @@ namespace Live2D.Cubism.Rendering
                     _offscreenRenderTextureContainers[i].RenderTexture.wrapMode = TextureWrapMode.Repeat;
                     _offscreenRenderTextureContainers[i].RenderTexture.filterMode = FilterMode.Point;
                     _offscreenRenderTextureContainers[i].RenderTexture.Create();
+                    ClearOnCreate(_offscreenRenderTextureContainers[i].RenderTexture);
                 }
                 _offscreenRenderTextureContainers[i].InUse = true;
 

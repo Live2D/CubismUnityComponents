@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f401bb1c5c52514eba33c0c2ffdc8ff, type: 3}
+  m_Name: Mao_FadeTime.expressionList
+  m_EditorClassIdentifier: 
+  CubismExpressionObjects:
+  - {fileID: 11400000, guid: 35e83acd89d79d44e9ceadcd594d0133, type: 2}
+  - {fileID: 11400000, guid: b985eccff8912f648929b6ae4a7dbd4a, type: 2}
+  - {fileID: 11400000, guid: 15294bb4c9068924f8010e259699cfb0, type: 2}
+  - {fileID: 11400000, guid: c8e8cfceed45bbe47bd416f358a1f1a9, type: 2}
+  - {fileID: 11400000, guid: 35e0f92b48227734d955f60a96543f8e, type: 2}
+  - {fileID: 11400000, guid: 53b6319a52c2f904a85a4c648fa6ff72, type: 2}
+  - {fileID: 11400000, guid: bb4cf5b3c7ca16a4bb3096284802b9ff, type: 2}
+  - {fileID: 11400000, guid: 03031e70c8b59fb4fa542076ff37e0fe, type: 2}

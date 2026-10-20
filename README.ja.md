@@ -62,17 +62,24 @@ Unity Editor拡張機能は、`./Assets/Live2D/Cubism/Editor`にあります。
 
 | Unity | バージョン |
 | --- | --- |
-| LTS | 6000.3.11f1 |
-| LTS | 6000.0.71f1 |
+| LTS | 6000.3.25f1 |
+| LTS | 6000.0.84f1 |
 
 | ライブラリ / ツール | バージョン |
 | --- | --- |
 | Android SDK / NDK | *2 |
-| Visual Studio 2022 | 17.14.29 |
+| Visual Studio 2022 | 17.14.41 |
 | Windows SDK | 10.0.26100.7705 |
-| Xcode | 26.3 |
+| Xcode | 27.0 |
 
 *2 Unityに組み込まれたライブラリまたは推奨ライブラリを使用してください。
+
+| HarmonyOS NEXT 対応ツール | バージョン |
+| --- | --- |
+| Tuanjie | 1.10.4 |
+| DevEco Studio *3 | 6.0.1.251 |
+
+*3 中国国外でのHarmonyOS NEXT向けビルドはDevEcoを通じてビルドする必要があります。
 
 ### C#コンパイラ
 
@@ -88,13 +95,14 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 
 | プラットフォーム | バージョン |
 | --- | --- |
-| Android | 16 |
-| iOS | 26.4 |
-| iPadOS | 26.4 |
+| Android | 17 |
+| iOS | 27.0 |
+| iPadOS | 27.0 |
 | Ubuntu | 24.04.3 |
-| macOS | 26.4 |
+| macOS | 27.0 |
 | Windows 11 | 25H2 (*4) |
-| Google Chrome | 146.0.7680.165 |
+| Google Chrome | 154.0.8037.93 |
+| HarmonyOS NEXT | 6.1.0.146 |
 
 *4 UWP向けビルドは動作確認をしておりません。
 

@@ -33,6 +33,7 @@ namespace Live2D.Cubism.Editor.Inspectors
         private PartProxy[] _proxies;
 
         private VisualElement _visualElement;
+        private CubismPartsInspector _subscribedTarget;
 
         private void RecursiveCreateInspectorGUI(PartProxy item, VisualElement parent)
         {
@@ -223,14 +224,21 @@ namespace Live2D.Cubism.Editor.Inspectors
 
         private void OnEnable()
         {
-            var target = (CubismPartsInspector)this.target;
-            target.OnChangedValues += UpdateValues;
+            _subscribedTarget = target as CubismPartsInspector;
+
+            if (!ReferenceEquals(_subscribedTarget, null))
+            {
+                _subscribedTarget.OnChangedValues += UpdateValues;
+            }
         }
 
         private void OnDisable()
         {
-            var target = (CubismPartsInspector)this.target;
-            target.OnChangedValues -= UpdateValues;
+            if (!ReferenceEquals(_subscribedTarget, null))
+            {
+                _subscribedTarget.OnChangedValues -= UpdateValues;
+                _subscribedTarget = null;
+            }
         }
     }
 }

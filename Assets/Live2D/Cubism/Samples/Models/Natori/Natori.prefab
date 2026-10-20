@@ -155,6 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -238,7 +239,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 171912890348377802}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -289,6 +290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -471,6 +473,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -605,6 +608,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -819,6 +823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -950,7 +955,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 417260859081819001}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1001,6 +1006,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -1183,6 +1189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -1317,6 +1324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -1787,6 +1795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -1969,6 +1978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -2487,6 +2497,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -2669,6 +2680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -2803,6 +2815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -2985,6 +2998,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -3167,6 +3181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -3301,6 +3316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -3517,6 +3533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -3745,6 +3762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -3879,6 +3897,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -4061,6 +4080,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -4195,6 +4215,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -4614,6 +4635,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -4796,6 +4818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5018,6 +5041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5210,7 +5234,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1845269678378013324}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -5261,6 +5285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5344,7 +5369,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1854459902413080484}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -5395,6 +5420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5529,6 +5555,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5761,6 +5788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -5895,6 +5923,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6146,7 +6175,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2077811667257746297}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -6197,6 +6226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6379,6 +6409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6513,6 +6544,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6648,6 +6680,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6731,7 +6764,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2160288404128197609}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -6782,6 +6815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -6916,6 +6950,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -7098,6 +7133,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -7232,6 +7268,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -7414,6 +7451,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -7548,6 +7586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -7791,6 +7830,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -8097,6 +8137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -8231,6 +8272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -8365,6 +8407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -8752,6 +8795,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -8934,6 +8978,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9017,7 +9062,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2923148380552822650}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -9068,6 +9113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9278,6 +9324,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9412,6 +9459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9546,6 +9594,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9681,6 +9730,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -9815,6 +9865,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10039,6 +10090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10123,7 +10175,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3260664044370611661}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -10174,6 +10226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10257,7 +10310,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3298086138703339096}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -10308,6 +10361,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10487,7 +10541,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3351915150580115242}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -10538,6 +10592,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10672,6 +10727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -10963,6 +11019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -11145,6 +11202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -11279,6 +11337,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -11413,6 +11472,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -11643,6 +11703,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -11777,6 +11838,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12085,6 +12147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12303,6 +12366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12463,6 +12527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12597,6 +12662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12825,6 +12891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -12908,7 +12975,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4093687571836583261}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -12959,6 +13026,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13229,6 +13297,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13363,6 +13432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13497,6 +13567,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13631,6 +13702,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13714,7 +13786,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4324607318470358565}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -13765,6 +13837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -13947,6 +14020,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14081,6 +14155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14215,6 +14290,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14397,6 +14473,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14579,6 +14656,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14713,6 +14791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14847,6 +14926,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -14981,6 +15061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15115,6 +15196,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15249,6 +15331,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15395,7 +15478,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4641931772658443726}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -15446,6 +15529,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15580,6 +15664,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15796,6 +15881,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -15930,6 +16016,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16064,6 +16151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16246,6 +16334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16380,6 +16469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16610,6 +16700,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16744,6 +16835,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -16970,6 +17062,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17104,6 +17197,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17365,6 +17459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17547,6 +17642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17681,6 +17777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17863,6 +17960,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -17947,7 +18045,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5054653810686867338}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -17998,6 +18096,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18132,6 +18231,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18314,6 +18414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18448,6 +18549,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18582,6 +18684,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18716,6 +18819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18850,6 +18954,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -18984,6 +19089,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -19214,6 +19320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -19396,6 +19503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -19674,6 +19782,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -19898,6 +20007,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20033,6 +20143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20167,6 +20278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20349,6 +20461,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20432,7 +20545,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6025198563949050458}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -20483,6 +20596,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20713,6 +20827,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -20847,6 +20962,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -21029,6 +21145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -21289,6 +21406,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -21423,6 +21541,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -21557,6 +21676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -21975,6 +22095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -22109,6 +22230,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -22192,7 +22314,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6457083229186240672}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -22243,6 +22365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -22547,6 +22670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -22681,6 +22805,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -22815,6 +22940,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -23163,6 +23289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -23297,6 +23424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -23525,6 +23653,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -23659,6 +23788,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -23793,6 +23923,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24071,6 +24202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24205,6 +24337,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24387,6 +24520,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24651,6 +24785,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24785,6 +24920,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -24919,6 +25055,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25053,6 +25190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25187,6 +25325,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25369,6 +25508,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25503,6 +25643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25685,6 +25826,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -25867,6 +26009,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26049,6 +26192,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26183,6 +26327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26317,6 +26462,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26451,6 +26597,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26633,6 +26780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26716,7 +26864,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7617216520577747913}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -26767,6 +26915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -26901,6 +27050,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27035,6 +27185,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27217,6 +27368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27351,6 +27503,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27534,6 +27687,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27668,6 +27822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27850,6 +28005,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -27984,6 +28140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -28118,6 +28275,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -28253,6 +28411,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -28483,6 +28642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -28617,6 +28777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -28659,6 +28820,7 @@ GameObject:
   - component: {fileID: 8411269862387172439}
   - component: {fileID: 8173558748424056163}
   - component: {fileID: 8406499791139879483}
+  - component: {fileID: 8726146750043265589}
   - component: {fileID: 61834972493862102}
   - component: {fileID: 8544852838284062675}
   - component: {fileID: 2205152158430865109}
@@ -28934,6 +29096,7 @@ MonoBehaviour:
   - {fileID: 5660530988639427051}
   - {fileID: 5065182654466798706}
   _hasMask: 1
+  EnableMaskCache: 1
   _groupedSortingIndex: 0
 --- !u!114 &8173558748424056163
 MonoBehaviour:
@@ -28963,6 +29126,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BlendMode: 2
   MouthOpening: 1
+--- !u!114 &8726146750043265589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8105203131956509978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee290918f9c730a4687fbae7269f82ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useHighPrecisionMask: 0
+  _size: 1024
+  _renderTextureCount: 1
 --- !u!114 &61834972493862102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29721,6 +29899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -29937,6 +30116,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -30215,6 +30395,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -30351,6 +30532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -30511,6 +30693,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -30693,6 +30876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -30875,6 +31059,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31009,6 +31194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31191,6 +31377,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31373,6 +31560,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31507,6 +31695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31641,6 +31830,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -31913,6 +32103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -32095,6 +32286,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -32325,6 +32517,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0

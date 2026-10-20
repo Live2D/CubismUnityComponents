@@ -154,7 +154,7 @@ namespace Live2D.Cubism.Framework.Physics
         /// <param name="isInverted">True if input is inverted; otherwise.</param>
         /// <returns></returns>
         public static float Normalize(CubismParameter parameter,
-            ref float parameterValue,
+            float parameterValue,
             float normalizedMinimum,
             float normalizedMaximum,
             float normalizedDefault,
