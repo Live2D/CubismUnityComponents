@@ -10,6 +10,7 @@ using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework.Json;
 using System;
 using System.Collections.Generic;
+using Live2D.Cubism.Editor.OriginalWorkflow;
 using UnityEditor;
 using UnityEngine;
 
@@ -230,25 +231,27 @@ namespace Live2D.Cubism.Editor.Importers
                 return;
             }
 
+            var textureImportSettings = CubismTextureImportSettings.TextureImportSettings;
+
             // Return early if texture already seems to be set up.
-            if (!textureImporter.mipmapEnabled
+            if (textureImporter.mipmapEnabled == textureImportSettings.ShouldImportWithMipmaps
                 && textureImporter.alphaIsTransparency
                 && textureImporter.textureType == TextureImporterType.Default
                 && textureImporter.textureCompression == TextureImporterCompression.Uncompressed
                 && textureImporter.wrapMode == TextureWrapMode.Repeat
-                && textureImporter.filterMode == FilterMode.Bilinear)
+                && textureImporter.filterMode == textureImportSettings.TextureAtlasFilterMode)
             {
                 return;
             }
 
 
             // Set up texture importing.
-            textureImporter.mipmapEnabled = false;
+            textureImporter.mipmapEnabled = textureImportSettings.ShouldImportWithMipmaps;
             textureImporter.alphaIsTransparency = true;
             textureImporter.textureType = TextureImporterType.Default;
             textureImporter.textureCompression = TextureImporterCompression.Uncompressed;
             textureImporter.wrapMode = TextureWrapMode.Repeat;
-            textureImporter.filterMode = FilterMode.Bilinear;
+            textureImporter.filterMode = textureImportSettings.TextureAtlasFilterMode;
 
             EditorUtility.SetDirty(texture);
             textureImporter.SaveAndReimport();

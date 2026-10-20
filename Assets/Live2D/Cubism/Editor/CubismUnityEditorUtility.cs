@@ -32,12 +32,11 @@ namespace Live2D.Cubism.Editor
 
         /// <summary>
         /// Get the id that links an animation clip to its entry in <c>CubismFadeMotionList.MotionInstanceIds</c>.
+        /// Unity 6.6 makes <see cref="Object.GetInstanceID()"/> an obsolete error, so the id is derived from <see cref="EntityId"/> instead.
+        /// Unity itself implements <see cref="Object.GetInstanceID()"/> as the lower 32 bits of the raw <see cref="EntityId"/> value returned by <see cref="EntityId.ToULong()"/>,
+        /// so truncating it here keeps the id identical to the one already stored in assets.
+        /// The implicit conversion from <see cref="EntityId"/> to <c>int</c> throws, and cannot be used instead.
         /// </summary>
-        /// <remarks>
-        /// Unity 6.6 makes <c>Object.GetInstanceID()</c> an obsolete error and offers no public way to get an int instance id from an <c>EntityId</c>.
-        /// The lower 32 bits of <c>EntityId.ToULong()</c> hold the entity index and equal the value <c>GetInstanceID()</c> used to return,
-        /// so ids stay unique among live objects and stay compatible with ids already stored in assets.
-        /// </remarks>
         /// <param name="animationClip">Target animation clip.</param>
         /// <returns>Id to store in the animation event and the fade motion list.</returns>
         internal static int GetMotionInstanceId(AnimationClip animationClip)

@@ -414,6 +414,16 @@ namespace Live2D.Cubism.Core
             UnmanagedDrawables = unmanagedModel.Drawables;
         }
 
+#if UNITY_EDITOR
+        /// <summary>
+        /// Checks whether this drawable is bound to the specified unmanaged model.
+        /// </summary>
+        internal bool IsBoundToUnmanagedModel(CubismUnmanagedModel unmanagedModel)
+        {
+            return UnmanagedDrawables == unmanagedModel.Drawables;
+        }
+#endif
+
         /// <summary>
         /// Restores instance to initial state.
         /// </summary>

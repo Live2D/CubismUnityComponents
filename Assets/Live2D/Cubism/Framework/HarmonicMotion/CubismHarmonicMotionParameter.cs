@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core;
 using UnityEngine;
+using Live2D.Cubism.Framework.Utils;
 
 
 namespace Live2D.Cubism.Framework.HarmonicMotion
@@ -62,7 +63,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// </summary>
         private bool IsInitialized
         {
-            get { return Mathf.Abs(ValueRange) >= Mathf.Epsilon; }
+            get { return Mathf.Abs(ValueRange) >= CubismMath.Epsilon; }
         }
 
 
@@ -110,7 +111,7 @@ namespace Live2D.Cubism.Framework.HarmonicMotion
         /// <param name="channelTimescales"></param>
         internal void Play(float[] channelTimescales)
         {
-            T += (Time.deltaTime * channelTimescales[Channel]);
+            T += (CubismTime.DeltaTime * channelTimescales[Channel]);
 
 
             // Make sure time stays within duration.

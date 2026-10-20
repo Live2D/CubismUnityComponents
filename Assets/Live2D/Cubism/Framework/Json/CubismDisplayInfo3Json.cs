@@ -29,7 +29,18 @@ namespace Live2D.Cubism.Framework.Json
                 return null;
             }
 
-            var ret = JsonUtility.FromJson<CubismDisplayInfo3Json>(cdi3Json);
+            // Validate Json format
+            CubismDisplayInfo3Json ret = null;
+            try
+            {
+                ret = JsonUtility.FromJson<CubismDisplayInfo3Json>(cdi3Json);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogError("CubismDisplayInfo3Json : Following error occurred while parsing json ");
+                Debug.LogError(e);
+                return ret;
+            }
 
             // Parse CombinedParameters.
             // Unity is unable to parse the double array.

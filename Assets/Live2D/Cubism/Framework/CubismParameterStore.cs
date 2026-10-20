@@ -63,15 +63,11 @@ namespace Live2D.Cubism.Framework
 
         public void Refresh()
         {
-            if (DestinationParameters == null)
-            {
-                DestinationParameters = this.FindCubismModel().Parameters;
-            }
-
-            if (DestinationParts == null)
-            {
-                DestinationParts = this.FindCubismModel().Parts;
-            }
+            var model = this.FindCubismModel();
+            DestinationParameters = model != null ? model.Parameters : null;
+            DestinationParts = model != null ? model.Parts : null;
+            _parameterValues = null;
+            _partOpacities = null;
 
             // Get cubism update controller.
             HasUpdateController = (GetComponent<CubismUpdateController>() != null);
@@ -118,6 +114,11 @@ namespace Live2D.Cubism.Framework
             {
                 for(var i = 0; i < _parameterValues.Length; ++i)
                 {
+                    if (!DestinationParameters[i])
+                    {
+                        continue;
+                    }
+
                     _parameterValues[i] = DestinationParameters[i].Value;
                 }
             }
@@ -132,6 +133,11 @@ namespace Live2D.Cubism.Framework
             {
                 for(var i = 0; i < _partOpacities.Length; ++i)
                 {
+                    if (!DestinationParts[i])
+                    {
+                        continue;
+                    }
+
                     _partOpacities[i] = DestinationParts[i].Opacity;
                 }
             }
@@ -153,6 +159,11 @@ namespace Live2D.Cubism.Framework
             {
                 for(var i = 0; i < _parameterValues.Length; ++i)
                 {
+                    if (!DestinationParameters[i])
+                    {
+                        continue;
+                    }
+
                     DestinationParameters[i].OverrideValue(_parameterValues[i]);
                 }
             }
@@ -162,6 +173,11 @@ namespace Live2D.Cubism.Framework
             {
                 for(var i = 0; i < _partOpacities.Length; ++i)
                 {
+                    if (!DestinationParts[i])
+                    {
+                        continue;
+                    }
+
                     DestinationParts[i].Opacity = _partOpacities[i];
                 }
             }

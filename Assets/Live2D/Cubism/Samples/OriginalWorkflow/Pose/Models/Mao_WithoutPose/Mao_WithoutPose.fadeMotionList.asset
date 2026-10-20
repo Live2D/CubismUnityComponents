@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 403ae2dd693bb1d4b924f6b8d206b053, type: 3}
+  m_Name: Mao_WithoutPose.fadeMotionList
+  m_EditorClassIdentifier: 
+  MotionInstanceIds: d8d2faffb0d2faff88d2faff00d3faff50d3faff28d3faff38d2faff60d2faff
+  CubismFadeMotionObjects:
+  - {fileID: 11400000, guid: 2dc205e67cf4b35488f378cf222b25e9, type: 2}
+  - {fileID: 11400000, guid: ca6bfa66472997841b002a33b9402745, type: 2}
+  - {fileID: 11400000, guid: ccf14bf2dd283c34d8374c545b7900b9, type: 2}
+  - {fileID: 11400000, guid: 6eb7884357bb9da4b945855d455b0a39, type: 2}
+  - {fileID: 11400000, guid: cde880695eefe0748b53c402203eba73, type: 2}
+  - {fileID: 11400000, guid: 3e2e410c18ea80d4aa41e62b506807ee, type: 2}
+  - {fileID: 11400000, guid: 968679637f66b6e4d8c8cbb6aa8026e8, type: 2}
+  - {fileID: 11400000, guid: ac0fe422ae57ec544be20695a5a70a4a, type: 2}

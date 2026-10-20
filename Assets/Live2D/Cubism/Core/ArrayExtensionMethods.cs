@@ -79,7 +79,14 @@ namespace Live2D.Cubism.Core
             // Push.
             for (var i = 0; i < self.Length; ++i)
             {
-                values[self[i].UnmanagedIndex] = self[i].Value;
+                var unmanagedIndex = self[i].UnmanagedIndex;
+
+                if (unmanagedIndex >= values.Length || unmanagedIndex < 0)
+                {
+                    continue;
+                }
+
+                values[unmanagedIndex] = self[i].Value;
             }
         }
 
@@ -98,7 +105,14 @@ namespace Live2D.Cubism.Core
             // Pull.
             for (var i = 0; i < self.Length; ++i)
             {
-                self[i].OverrideValue(values[self[i].UnmanagedIndex]);
+                var unmanagedIndex = self[i].UnmanagedIndex;
+
+                if (unmanagedIndex >= values.Length || unmanagedIndex < 0)
+                {
+                    continue;
+                }
+
+                self[i].OverrideValue(values[unmanagedIndex]);
             }
         }
 
@@ -164,7 +178,14 @@ namespace Live2D.Cubism.Core
             // Push.
             for (var i = 0; i < self.Length; ++i)
             {
-                opacities[self[i].UnmanagedIndex] = self[i].Opacity;
+                var unmanagedIndex = self[i].UnmanagedIndex;
+
+                if (unmanagedIndex >= opacities.Length || unmanagedIndex < 0)
+                {
+                    continue;
+                }
+
+                opacities[unmanagedIndex] = self[i].Opacity;
             }
         }
 

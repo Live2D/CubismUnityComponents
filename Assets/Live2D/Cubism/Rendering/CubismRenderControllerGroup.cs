@@ -273,6 +273,30 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Whether the given render controller is managed by this group.
+        /// A model drawn through a rendering interceptor, or one whose component is disabled, is not.
+        /// </summary>
+        /// <param name="controller">Checked controller.</param>
+        /// <returns>True if the controller is managed.</returns>
+        internal bool ContainsRenderController(CubismRenderController controller)
+        {
+            if (!controller)
+            {
+                return false;
+            }
+
+            for (var index = 0; index < RenderControllers.Length; index++)
+            {
+                if (RenderControllers[index] == controller)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Adds a render controller to be managed.
         /// </summary>
         /// <param name="controller">Added controller.</param>
@@ -284,14 +308,10 @@ namespace Live2D.Cubism.Rendering
             }
 
             // Avoid duplicate registrations.
-            for (var index = 0; index < RenderControllers.Length; index++)
+            if (ContainsRenderController(controller))
             {
-                var existingController = RenderControllers[index];
-                if (existingController == controller)
-                {
-                    Debug.LogWarning($"CubismRenderController '{controller.name}' is already registered.");
-                    return;
-                }
+                Debug.LogWarning($"CubismRenderController '{controller.name}' is already registered.");
+                return;
             }
 
             // Add the controller.

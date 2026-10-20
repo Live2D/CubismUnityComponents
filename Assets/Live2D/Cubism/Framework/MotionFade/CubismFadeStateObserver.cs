@@ -172,7 +172,8 @@ namespace Live2D.Cubism.Framework.MotionFade
                     motion.EndTime = newEndTime;
                 }
 
-                while (motion.IsLooping)
+                // A length of zero would never reach the current time, so it is left alone.
+                while (motion.IsLooping && motion.Motion.MotionLength > 0.0f)
                 {
                     if ((motion.StartTime + motion.Motion.MotionLength) >= time)
                     {
@@ -182,6 +183,8 @@ namespace Live2D.Cubism.Framework.MotionFade
                     motion.StartTime += motion.Motion.MotionLength;
                 }
 
+                // Stop looping while fading out, so that it is not rewound to the first frame.
+                motion.IsLooping = false;
 
                 _playingMotions[_playingMotions.Count - 1] = motion;
             }

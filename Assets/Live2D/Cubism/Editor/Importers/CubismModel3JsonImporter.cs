@@ -13,6 +13,7 @@ using Live2D.Cubism.Framework.Json;
 using Live2D.Cubism.Framework.MotionFade;
 using Live2D.Cubism.Framework.MouthMovement;
 using Live2D.Cubism.Framework.Pose;
+using Live2D.Cubism.Framework.Physics;
 using Live2D.Cubism.Rendering;
 using System;
 using System.IO;
@@ -30,6 +31,10 @@ namespace Live2D.Cubism.Editor.Importers
     [Serializable]
     public sealed class CubismModel3JsonImporter : CubismImporterBase
     {
+#if UNITY_2018_3_OR_NEWER
+        private static bool IsRefreshingPrefabInstance;
+#endif
+
         /// <summary>
         /// <see cref="Model3Json"/> backing field.
         /// </summary>
@@ -152,7 +157,114 @@ namespace Live2D.Cubism.Editor.Importers
         private static void RegisterImporter()
         {
             CubismImporter.RegisterImporter<CubismModel3JsonImporter>(".model3.json");
+
+#if UNITY_2018_3_OR_NEWER
+            PrefabUtility.prefabInstanceUpdated -= OnPrefabInstanceUpdated;
+            PrefabUtility.prefabInstanceUpdated += OnPrefabInstanceUpdated;
+#endif
         }
+
+#if UNITY_2018_3_OR_NEWER
+        /// <summary>
+        /// Rebuilds Cubism caches after Unity applies a prefab update to a scene instance.
+        /// </summary>
+        private static void OnPrefabInstanceUpdated(GameObject instanceRoot)
+        {
+            if (IsRefreshingPrefabInstance || instanceRoot == null || EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                return;
+            }
+
+
+            IsRefreshingPrefabInstance = true;
+
+            try
+            {
+                var models = instanceRoot.GetComponentsInChildren<CubismModel>(true);
+                var wasModelRefreshed = false;
+
+                for (var i = 0; i < models.Length; ++i)
+                {
+                    var model = models[i];
+
+                    if (model == null || model.Moc == null || PrefabUtility.GetNearestPrefabInstanceRoot(model.gameObject) != instanceRoot)
+                    {
+                        continue;
+                    }
+
+
+                    CubismModel.ResetNonSerializedFields(model);
+                    wasModelRefreshed = true;
+
+                    var physicsController = model.GetComponent<CubismPhysicsController>();
+                    if (physicsController != null)
+                    {
+                        physicsController.Refresh();
+                    }
+
+                    var renderController = model.GetComponent<CubismRenderController>();
+                    if (renderController != null)
+                    {
+                        renderController.TryInitialize();
+                    }
+
+                    var parametersInspector = model.GetComponent<CubismParametersInspector>();
+                    if (parametersInspector != null)
+                    {
+                        parametersInspector.Refresh();
+                    }
+
+                    var partsInspector = model.GetComponent<CubismPartsInspector>();
+                    if (partsInspector != null)
+                    {
+                        partsInspector.Refresh();
+                    }
+
+                    model.ForceUpdateNow();
+                }
+
+                if (wasModelRefreshed)
+                {
+                    ScheduleInspectorRebuild();
+                }
+            }
+            finally
+            {
+                IsRefreshingPrefabInstance = false;
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds the Inspector after Unity finishes applying prefab changes.
+        /// </summary>
+        private static void ScheduleInspectorRebuild()
+        {
+            EditorApplication.delayCall -= DelayInspectorRebuild;
+            EditorApplication.delayCall -= RebuildInspector;
+            EditorApplication.delayCall += DelayInspectorRebuild;
+        }
+
+        private static void DelayInspectorRebuild()
+        {
+            EditorApplication.delayCall -= RebuildInspector;
+            EditorApplication.delayCall += RebuildInspector;
+        }
+
+        private static void RebuildInspector()
+        {
+            if (EditorApplication.isUpdating || EditorApplication.isCompiling)
+            {
+                ScheduleInspectorRebuild();
+                return;
+            }
+
+            // Rebuild unconditionally. A reimport can destroy the currently selected object (for example a
+            // removed Drawable), and bailing out when the selection contains a destroyed entry would skip the
+            // rebuild exactly when it is needed, leaving a broken Inspector. ForceRebuild tolerates an empty or
+            // partially destroyed selection.
+            ActiveEditorTracker.sharedTracker.ForceRebuild();
+        }
+#endif
 
         #endregion
 
@@ -164,6 +276,9 @@ namespace Live2D.Cubism.Editor.Importers
         public override void Import()
         {
             var isImporterDirty = false;
+#if UNITY_2018_3_OR_NEWER
+            var shouldRebuildInspector = false;
+#endif
 
 
             // Instantiate model source and model.
@@ -277,6 +392,21 @@ namespace Live2D.Cubism.Editor.Importers
                 // Keep layer value.
                 model.gameObject.layer = ModelPrefab.layer;
 
+                // Keep animator controller reference.
+                var previousAnimator = ModelPrefab.GetComponent<Animator>();
+                var animatorController = previousAnimator != null
+                    ? previousAnimator.runtimeAnimatorController
+                    : null;
+
+                // Pass animator controller reference before saving, because assigning it to the
+                // saved prefab asset afterwards is not written back to disk.
+                var animator = model.gameObject.GetComponent<Animator>();
+
+                if (animator != null && animatorController != null)
+                {
+                    animator.runtimeAnimatorController = animatorController;
+                }
+
                 // Replace prefab.
 #if UNITY_2018_3_OR_NEWER
                 ModelPrefab = PrefabUtility.SaveAsPrefabAsset(model.gameObject, $"{assetPath}.prefab");
@@ -287,6 +417,9 @@ namespace Live2D.Cubism.Editor.Importers
                 {
                     CubismModel.ResetNonSerializedFields(savedModel);
                 }
+
+                // prefabInstanceUpdated does not cover the prefab asset Inspector.
+                shouldRebuildInspector = true;
 #else
                 ModelPrefab = PrefabUtility.ReplacePrefab(model.gameObject, ModelPrefab, ReplacePrefabOptions.ConnectToPrefab);
 #endif
@@ -308,6 +441,13 @@ namespace Live2D.Cubism.Editor.Importers
             {
                 AssetDatabase.SaveAssets();
             }
+
+#if UNITY_2018_3_OR_NEWER
+            if (shouldRebuildInspector)
+            {
+                ScheduleInspectorRebuild();
+            }
+#endif
         }
 
         #endregion
@@ -324,7 +464,7 @@ namespace Live2D.Cubism.Editor.Importers
             foreach (var sourceComponent in source.GetComponents(typeof(Component)))
             {
                 // Skip non-movable components.
-                if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
+                if (!sourceComponent || !sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                 {
                     continue;
                 }
@@ -377,7 +517,7 @@ namespace Live2D.Cubism.Editor.Importers
                 foreach (var sourceComponent in sourceT.GetComponents(typeof(Component)))
                 {
                     // Skip non-movable components.
-                    if (!sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
+                    if (!sourceComponent || !sourceComponent.MoveOnCubismReimport(copyComponentsOnly))
                     {
                         continue;
                     }

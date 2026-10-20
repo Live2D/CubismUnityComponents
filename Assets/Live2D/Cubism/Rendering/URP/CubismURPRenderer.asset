@@ -67,3 +67,5 @@ MonoBehaviour:
   m_Name: CubismRenderPassFeature
   m_EditorClassIdentifier: 
   m_Active: 1
+  EnableBatching: 1
+  EnableDirectRendering: 1

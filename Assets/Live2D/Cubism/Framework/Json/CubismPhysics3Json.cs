@@ -23,9 +23,18 @@ namespace Live2D.Cubism.Framework.Json
         /// <returns>Deserialized physics3.json on success; <see langword="null"/> otherwise.</returns>
         public static CubismPhysics3Json LoadFrom(string physics3Json)
         {
-            return (string.IsNullOrEmpty(physics3Json))
-                ? null
-                : JsonUtility.FromJson<CubismPhysics3Json>(physics3Json);
+            // Validate Json format
+            CubismPhysics3Json instance = null;
+            try
+            {
+                instance = JsonUtility.FromJson<CubismPhysics3Json>(physics3Json);
+            }
+            catch (ArgumentException e)
+            {
+                Debug.LogError("CubismPhysics3Json : Following error occurred while parsing json ");
+                Debug.LogError(e);
+            }
+            return instance;
         }
 
         /// <summary>
@@ -53,18 +62,34 @@ namespace Live2D.Cubism.Framework.Json
 
             instance.Fps = Meta.Fps;
 
+            // Validate PhysicsSetting formtat
+            if (PhysicsSettings == null || Meta.PhysicsSettingCount != PhysicsSettings.Length)
+            {
+                Debug.LogWarning("CubismPhysics3Json : Invalid data format");
+                Debug.LogWarning("PhysicsSettingCount : " + Meta.PhysicsSettingCount + " PhysicsSettings : " + (PhysicsSettings != null ? PhysicsSettings.Length : "null"));
+                instance.SubRigs = Array.Empty<CubismPhysicsSubRig>();
+                return instance;
+            }
             instance.SubRigs = new CubismPhysicsSubRig[Meta.PhysicsSettingCount];
 
+            // Validate PhysicsDictionary format
             var idNameTable = Meta.PhysicsDictionary;
+            var hasIdNameTable = idNameTable != null && idNameTable.Length == Meta.PhysicsSettingCount;
+
+            if (!hasIdNameTable)
+            {
+                Debug.LogWarning("CubismPhysics3Json : Invalid data format");
+                Debug.LogWarning("PhysicsSettingCount : " + Meta.PhysicsSettingCount + " PhysicsDictionary : " + (idNameTable != null ? idNameTable.Length : "null"));
+            }
 
             for (var i = 0; i < instance.SubRigs.Length; ++i)
             {
                 instance.SubRigs[i] = new CubismPhysicsSubRig
                 {
-                    Name          = idNameTable[i].Name,
-                    Input         = ReadInput(PhysicsSettings[i].Input),
-                    Output        = ReadOutput(PhysicsSettings[i].Output),
-                    Particles     = ReadParticles(PhysicsSettings[i].Vertices),
+                    Name          = hasIdNameTable ? idNameTable[i].Name : string.Empty,
+                    Input         = PhysicsSettings[i].Input != null ? ReadInput(PhysicsSettings[i].Input) : Array.Empty<CubismPhysicsInput>(),
+                    Output        = PhysicsSettings[i].Output != null ? ReadOutput(PhysicsSettings[i].Output) : Array.Empty<CubismPhysicsOutput>(),
+                    Particles     = PhysicsSettings[i].Vertices != null ? ReadParticles(PhysicsSettings[i].Vertices) : Array.Empty<CubismPhysicsParticle>(),
                     Normalization = ReadNormalization(PhysicsSettings[i].Normalization)
                 };
             }

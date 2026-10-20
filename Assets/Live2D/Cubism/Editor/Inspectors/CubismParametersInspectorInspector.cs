@@ -39,6 +39,7 @@ namespace Live2D.Cubism.Editor.Inspectors
         private VisualElement _visualElement;
         private Button _button;
         private Element[] _elements;
+        private CubismParametersInspector _subscribedTarget;
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -107,14 +108,21 @@ namespace Live2D.Cubism.Editor.Inspectors
 
         private void OnEnable()
         {
-            var target = (CubismParametersInspector)this.target;
-            target.OnChangedValues += UpdateValues;
+            _subscribedTarget = target as CubismParametersInspector;
+
+            if (!ReferenceEquals(_subscribedTarget, null))
+            {
+                _subscribedTarget.OnChangedValues += UpdateValues;
+            }
         }
 
         private void OnDisable()
         {
-            var target = (CubismParametersInspector)this.target;
-            target.OnChangedValues -= UpdateValues;
+            if (!ReferenceEquals(_subscribedTarget, null))
+            {
+                _subscribedTarget.OnChangedValues -= UpdateValues;
+                _subscribedTarget = null;
+            }
         }
 
         private void UpdateValues(CubismInspectorAbstract sender)

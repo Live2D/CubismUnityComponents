@@ -30,7 +30,7 @@ Shader "Live2D Cubism/Mask"
         ZWrite   Off
         Lighting Off
         Cull     [_Cull]
-        Blend    One One
+        Blend    Zero OneMinusSrcColor, Zero OneMinusSrcAlpha
 
 
         Pass
@@ -57,9 +57,10 @@ Shader "Live2D Cubism/Mask"
 
             struct v2f
             {
-                float4 vertex   : SV_POSITION;
-                fixed4 color    : COLOR;
-                float2 texcoord : TEXCOORD0;
+                float4 vertex       : SV_POSITION;
+                fixed4 color        : COLOR;
+                float2 texcoord     : TEXCOORD0;
+                float2 cubism_MaskUv : TEXCOORD1;
             };
 
 
@@ -71,6 +72,7 @@ Shader "Live2D Cubism/Mask"
                 v2f OUT;
 
 
+                // Maps the mask vertex by MatrixForMask (sets OUT.vertex and OUT.cubism_MaskUv).
                 CUBISM_TO_MASK_CLIP_POS(IN, OUT);
 
 
@@ -87,7 +89,8 @@ Shader "Live2D Cubism/Mask"
 
             fixed4 frag(v2f IN) : SV_Target
             {
-                return CUBISM_MASK_CHANNEL * tex2D(_MainTex, IN.texcoord).a;
+                // Write the mask coverage into the assigned channel, restricted to the layout tile.
+                return CUBISM_MASK_CHANNEL(IN) * tex2D(_MainTex, IN.texcoord).a;
 
             }
 

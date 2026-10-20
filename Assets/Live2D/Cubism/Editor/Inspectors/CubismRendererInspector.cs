@@ -20,6 +20,8 @@ namespace Live2D.Cubism.Editor.Inspectors
     [CustomEditor(typeof(CubismRenderer)), CanEditMultipleObjects]
     internal sealed class CubismRendererInspector : UnityEditor.Editor
     {
+        private static bool IsInitializingRenderers;
+
         #region Editor
 
         /// <summary>
@@ -40,9 +42,18 @@ namespace Live2D.Cubism.Editor.Inspectors
             {
                 var model = renderer.FindCubismModel(true);
                 var ctrl = model.GetComponent<CubismRenderController>();
-                if (!ctrl.IsInitialized)
+                if (!ctrl.IsInitialized && !IsInitializingRenderers && !EditorApplication.isPlayingOrWillChangePlaymode)
                 {
-                    ctrl.TryInitialize();
+                    IsInitializingRenderers = true;
+
+                    try
+                    {
+                        ctrl.TryInitialize();
+                    }
+                    finally
+                    {
+                        IsInitializingRenderers = false;
+                    }
                 }
             }
 

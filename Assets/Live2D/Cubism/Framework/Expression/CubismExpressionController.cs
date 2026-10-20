@@ -8,6 +8,7 @@
 
 using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework.MotionFade;
+using Live2D.Cubism.Framework.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -117,6 +118,10 @@ namespace Live2D.Cubism.Framework.Expression
                 return;
             }
 
+            // Rewind the elapsed time by one frame so that it becomes 0.0f after UpdateFadeWeight() advances it later in this frame.
+            // This makes the fade weight of the expression 0.0f on the frame it starts.
+            palyingExpression.ExpressionUserTime = -CubismTime.DeltaTime;
+
             // Add to PlayingExList.
             _playingExpressions.Add(palyingExpression);
         }
@@ -210,7 +215,10 @@ namespace Live2D.Cubism.Framework.Expression
             // Remove expression from playing expressions
             for (var expressionIndex = _playingExpressions.Count - 1; expressionIndex >= 0; --expressionIndex)
             {
-                if (_playingExpressions[expressionIndex].FadeWeight > 0.0f)
+                // Expressions that have not started fading out are kept even if their weight is 0.0f,
+                // because the weight of an expression is 0.0f on the frame it starts.
+                if (_playingExpressions[expressionIndex].ExpressionEndTime == 0.0f
+                    || _playingExpressions[expressionIndex].FadeWeight > 0.0f)
                 {
                     continue;
                 }
@@ -311,14 +319,14 @@ namespace Live2D.Cubism.Framework.Expression
         private void UpdateFadeWeight(CubismPlayingExpression playingExpression)
         {
             // Update expression user time.
-            playingExpression.ExpressionUserTime += Time.deltaTime;
+            playingExpression.ExpressionUserTime += CubismTime.DeltaTime;
 
             // Update weight
-            playingExpression.FadeInWeight = (Mathf.Abs(playingExpression.FadeInTime) < float.Epsilon)
+            playingExpression.FadeInWeight = (Mathf.Abs(playingExpression.FadeInTime) < CubismMath.Epsilon)
                 ? 1.0f
                 : CubismFadeMath.GetEasingSine(playingExpression.ExpressionUserTime / playingExpression.FadeInTime);
 
-            playingExpression.FadeOutWeight = ((Mathf.Abs(playingExpression.ExpressionEndTime) < float.Epsilon) || (playingExpression.ExpressionEndTime < 0.0f))
+            playingExpression.FadeOutWeight = ((Mathf.Abs(playingExpression.ExpressionEndTime) < CubismMath.Epsilon) || (playingExpression.ExpressionEndTime < 0.0f))
                 ? 1.0f
                 : CubismFadeMath.GetEasingSine(
                     (playingExpression.ExpressionEndTime - playingExpression.ExpressionUserTime) / playingExpression.FadeOutTime);

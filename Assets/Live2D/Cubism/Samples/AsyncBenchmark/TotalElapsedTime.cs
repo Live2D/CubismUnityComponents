@@ -9,6 +9,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Live2D.Cubism.Framework.Utils;
 
 namespace Live2D.Cubism.Samples.AsyncBenchmark
 {

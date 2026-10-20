@@ -84,10 +84,15 @@ Shader "Unlit/BlendMode/BlendImage"
                 CUBISM_VERTEX_OUTPUT
             };
 
-            CBUFFER_START(UnityPerMaterial)
+            CUBISM_MATERIAL_TEXTURES_BEGIN
             sampler2D _MainTex;
-            float4 _MainTex_ST;
             sampler2D _RenderTexture;
+
+            // Include Cubism specific shader textures.
+            CUBISM_SHADER_TEXTURES
+
+            CUBISM_MATERIAL_VARIABLES_BEGIN
+            float4 _MainTex_ST;
             float4 _RenderTexture_ST;
             half4 cubism_MultiplyColor;
             half4 cubism_ScreenColor;
@@ -99,8 +104,8 @@ Shader "Unlit/BlendMode/BlendImage"
             int cubism_InvertOn;
             #endif
 
-            // Include Cubism specific shader variables.
-            CUBISM_SHADER_VARIABLES
+            // Include Cubism specific shader uniforms.
+            CUBISM_SHADER_UNIFORMS
 
             CBUFFER_END
 
@@ -185,9 +190,8 @@ Shader "Unlit/BlendMode/BlendImage"
                 // Mask
 #if defined(CUBISM_MASK_ON) || defined(CUBISM_INVERT_ON)
                 float clippingMask = 1.0;
-                half4 cubism_maskChannel = CubismGetClippedMaskChannel(IN.cubism_MaskCoordinates, cubism_MaskTile);
-                float  cubism_maskAlpha = CubismSampleMaskTexture(cubism_MaskTexture, cubism_maskChannel, IN.cubism_MaskCoordinates);
-                clippingMask = abs(cubism_InvertOn - cubism_maskAlpha);
+                float cubism_maskVal = CubismSampleMask(cubism_MaskTexture, IN.cubism_MaskUv, cubism_ChannelFlag);
+                clippingMask = abs(cubism_InvertOn - cubism_maskVal);
                 As *= clippingMask;
 #endif
 

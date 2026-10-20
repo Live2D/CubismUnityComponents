@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7830949463401400383}
   - component: {fileID: 7929394795424458536}
   - component: {fileID: 417204498402379697}
+  - component: {fileID: 7172387980074779291}
   - component: {fileID: 6718890355120674246}
   - component: {fileID: 5868322483300476964}
   - component: {fileID: 6618156905004482107}
@@ -114,7 +115,23 @@ MonoBehaviour:
   - {fileID: 3165076068875315121}
   - {fileID: 6185745851915322232}
   _hasMask: 1
+  EnableMaskCache: 1
   _groupedSortingIndex: 0
+--- !u!114 &7172387980074779291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 154881630295515972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee290918f9c730a4687fbae7269f82ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useHighPrecisionMask: 0
+  _size: 1024
+  _renderTextureCount: 1
 --- !u!114 &6718890355120674246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -391,6 +408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -589,6 +607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0
@@ -771,6 +790,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _localSortingOrder: 0
+  _parentLocalSortingOrder: 0
   _color: {r: 1, g: 1, b: 1, a: 1}
   isOverriddenDrawObjectMultiplyColors: 0
   _isOverriddenDrawObjectScreenColors: 0

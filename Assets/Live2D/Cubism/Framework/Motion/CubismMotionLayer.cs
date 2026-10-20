@@ -284,7 +284,8 @@ namespace Live2D.Cubism.Framework.Motion
                 }
 
 
-                while (motion.IsLooping)
+                // A length of zero would never reach the current time, so it is left alone.
+                while (motion.IsLooping && motion.Motion.MotionLength > 0.0f)
                 {
                     if ((motion.StartTime + motion.Motion.MotionLength) >= time)
                     {

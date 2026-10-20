@@ -53,6 +53,21 @@ namespace Live2D.Cubism.Rendering
         public const string MaskTransform = "cubism_MaskTransform";
 
         /// <summary>
+        /// Mask UV transform shader variable name.
+        /// </summary>
+        public const string MaskUvTransform = "cubism_MaskUvTransform";
+
+        /// <summary>
+        /// Mask channel flag shader variable name.
+        /// </summary>
+        public const string ChannelFlag = "cubism_ChannelFlag";
+
+        /// <summary>
+        /// Mask region shader variable name.
+        /// </summary>
+        public const string MaskRegion = "cubism_MaskRegion";
+
+        /// <summary>
         /// Offset scale shader variable name.
         /// </summary>
         public const string OffsetScale = "_OffsetScale";
