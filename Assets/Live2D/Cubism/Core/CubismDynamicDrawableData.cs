@@ -51,7 +51,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Dirty flags.
         /// </summary>
-        internal byte Flags { private get; set; }
+        internal byte Flags { get; set; }
 
 
         /// <summary>

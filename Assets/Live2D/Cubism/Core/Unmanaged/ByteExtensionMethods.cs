@@ -125,5 +125,15 @@ namespace Live2D.Cubism.Core.Unmanaged
             return (self & (1 << 6)) == (1 << 6);
         }
 
+        /// <summary>
+        /// Mask DidChageFlag. without IsVisivble flag.
+        /// </summary>
+        /// <param name="self"></param>
+        /// <returns></returns>
+        public static byte MaskDidChangeFlag(this byte self)
+        {
+            return (byte)(self & ~(1 << 0));
+        }
+
     }
 }
