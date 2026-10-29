@@ -11,6 +11,7 @@ using Live2D.Cubism.Framework.Utils;
 using Live2D.Cubism.Rendering.Masking;
 using Live2D.Cubism.Rendering.URP;
 using Live2D.Cubism.Rendering.Util;
+using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_6000_0_OR_NEWER
@@ -237,6 +238,15 @@ namespace Live2D.Cubism.Rendering
         internal float DistanceToCamera;
 
         /// <summary>
+        /// <see cref="MeshRenderer.sortingOrder"/> captured once per sort.
+        /// </summary>
+        /// <remarks>
+        /// It is cached once per renderer at the start of the sort
+        /// <see cref="CubismRenderPassFeature.SortBySortingOrder"/> and the comparator reads this field.
+        /// </remarks>
+        internal int CachedSortingOrder;
+
+        /// <summary>
         /// Calculates the distance by projecting the vector from camera to renderer onto the camera's forward direction.
         /// </summary>
         /// <param name="cameraPosition">Position of the camera.</param>
@@ -362,29 +372,53 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Reads this draw object's local transform (position, scale and rotation) directly from the transform.
+        /// </summary>
+        /// <remarks>
+        /// Read fresh every frame so runtime changes to this draw object's scale or rotation — including ones
+        /// made by user code — are reflected. Shared by the transform-writing paths so the transform component
+        /// is dereferenced once per draw object.
+        /// </remarks>
+        /// <param name="localPosition">The transform's local position.</param>
+        /// <param name="localScale">The transform's local scale.</param>
+        /// <param name="localRotation">The transform's local rotation.</param>
+        private void GetLocalTransform(out Vector3 localPosition, out Vector3 localScale, out Quaternion localRotation)
+        {
+            var localTransform = transform;
+            localPosition = localTransform.localPosition;
+            localScale = localTransform.localScale;
+            localRotation = localTransform.localRotation;
+        }
+
+        /// <summary>
         /// Writes transform properties (offset-scale, rotation and z offset) to the given property block without committing it.
         /// </summary>
         /// <param name="property">Property block to write to.</param>
         private void WriteTransform(MaterialPropertyBlock property)
         {
+            // Combine the once-per-pass root snapshot with this drawable's own local transform, so the
+            // model root's hierarchy walk (lossyScale) is not repeated for every drawable.
+            var root = RenderController.RootTransform;
+            GetLocalTransform(out var localPosition, out var localScale, out var localRotation);
+
             // Set offset and scale from transform.
             var offsetScale = _offsetScale;
 
-            offsetScale.Set(RenderController.transform.position.x + transform.localPosition.x, RenderController.transform.position.y + transform.localPosition.y,
-                RenderController.transform.lossyScale.x * transform.localScale.x, RenderController.transform.lossyScale.y * transform.localScale.y);
+            offsetScale.Set(root.Position.x + localPosition.x, root.Position.y + localPosition.y,
+                root.LossyScale.x * localScale.x, root.LossyScale.y * localScale.y);
             _offsetScale = offsetScale;
             // Write property.
             property.SetVector(CubismShaderVariables.OffsetScale, _offsetScale);
 
             // Set rotation from transform.
-            var combinedRotation = RenderController.transform.rotation * transform.localRotation;
+            var combinedRotation = root.Rotation * localRotation;
             _quaternion.Set(combinedRotation.x, combinedRotation.y, combinedRotation.z, combinedRotation.w);
 
             // Write property.
             property.SetVector(CubismShaderVariables.RotationQuaternion, _quaternion);
 
             // Set z offset from transform.
-            _zOffset = RenderController.transform.position.z + transform.localPosition.z;
+            _zOffset = root.Position.z + localPosition.z;
             // Write property.
             property.SetFloat(CubismShaderVariables.ZOffset, _zOffset);
         }
@@ -419,20 +453,16 @@ namespace Live2D.Cubism.Rendering
             // Set current frame buffer to offscreen frame buffer.
             buffer.SetRenderTarget(OffscreenFrameBuffer);
 
-            // Clear the offscreen frame buffer. Only the region that receives content needs clearing:
-            // outside it the texture keeps an older frame's content, which is never read because the
-            // composite is limited to the same region. The two decisions share one predicate for that
-            // reason. Scissor is bottom-left origin pixel space, matching the region's.
-            if (TryGetOffscreenScissorRect(out var clearRect))
-            {
-                buffer.EnableScissorRect(new Rect(clearRect.x, clearRect.y, clearRect.width, clearRect.height));
-                buffer.ClearRenderTarget(false, true, Color.clear);
-                buffer.DisableScissorRect();
-            }
-            else
-            {
-                buffer.ClearRenderTarget(false, true, Color.clear);
-            }
+            // Clear the whole offscreen frame buffer, not just the region that receives content.
+            // A scissor rectangle does not make the clear any cheaper: measured on Metal, a clear
+            // issued inside the pass costs a full surface of fragment work whether or not one is set.
+            // Clearing everything is therefore free of extra cost here, and it leaves no older frame's
+            // content anywhere, which is what lets the composite be limited to its own region without
+            // the two having to agree on a rectangle.
+            //
+            // The clear itself is not cheap - it is the single largest remaining GPU cost of this path -
+            // but the way to cut it is a smaller render target, not a smaller clear.
+            buffer.ClearRenderTarget(false, true, Color.clear);
 
             // Set up for drawing to offscreen.
             RenderController.CurrentFrameBuffer = OffscreenFrameBuffer;
@@ -478,7 +508,7 @@ namespace Live2D.Cubism.Rendering
 
             var isOffscreenDrawObject = DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen;
 
-            // Drawable mask path. The mask/draw matrices and channel come from the context; a missing
+            // Drawable mask path. The mask/draw matrices and channel come from the context. A missing
             // context means the mask cannot be placed. Offscreen masks are placed in screen space and need
             // no context.
             var clipContext = ClippingContext;
@@ -569,7 +599,7 @@ namespace Live2D.Cubism.Rendering
 
         /// <summary>
         /// Renders this drawable's masks (full region) into the dedicated high-precision mask texture.
-        /// Used by the per-draw-object high-precision path; does not touch the atlas.
+        /// Used by the per-draw-object high-precision path. Does not touch the atlas.
         /// </summary>
         /// <param name="buffer">Command buffer to record draw commands.</param>
         /// <param name="maskTexture">High-precision mask render texture.</param>
@@ -787,7 +817,7 @@ namespace Live2D.Cubism.Rendering
                         // Only adopt this ancestor when it actually owns a buffer. An ancestor offscreen
                         // always runs SetOffscreen() before its descendants, and one that is skipped
                         // propagates SkipRendering to every descendant, so in normal flow the buffer is
-                        // there; this guards the case where that invariant breaks. Read the owned buffer
+                        // there. This guards the case where that invariant breaks. Read the owned buffer
                         // rather than OffscreenFrameBuffer, whose getter would acquire a blank texture
                         // from the pool and make the test pass by allocating what it asked about.
                         var parentOffscreenFrameBuffer = element.OwnedOffscreenFrameBuffer;
@@ -857,7 +887,9 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            if (previousOffscreen == offscreenRenderer?.OffscreenFrameBuffer)
+            // Read the owned buffer here too: asking whether the destination already is this renderer's
+            // buffer must not acquire one from the pool to answer with.
+            if (previousOffscreen == offscreenRenderer?.OwnedOffscreenFrameBuffer)
             {
                 return;
             }
@@ -904,8 +936,11 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            // Set property block.
-            var property = FetchPropertyBlock();
+            // Reuse the persistent property block directly instead of reading it back with GetPropertyBlock.
+            // Every property the block holds was written through this same instance (mask properties from
+            // DrawMasks just above, cubism_ModelOpacity from OnModelOpacityDidChange, and the draw properties
+            // overwritten below), so the read-back only re-read our own values and can be skipped.
+            var property = PropertyBlock;
 
             // Write properties to the property block.
             WriteMainTexture(property);
@@ -914,7 +949,7 @@ namespace Live2D.Cubism.Rendering
             WriteDisplayedMultiplyColor(property);
             WriteTransform(property);
 
-            // Set the property block to the mesh renderer.
+            // Set the property block to the mesh renderer (single commit for the mask + draw properties).
             CommitPropertyBlock();
 
 
@@ -937,7 +972,7 @@ namespace Live2D.Cubism.Rendering
                 {
                     // A direct group renders straight to the camera color target and never blits the common RT
                     // back, so diverting this draw to the common RT would drop it (or break sort order). Keep
-                    // direct groups on the camera target; only common-RT groups fall back to the common RT.
+                    // direct groups on the camera target. Only common-RT groups fall back to the common RT.
                     RenderController.CurrentFrameBuffer = passData.CurrentGroupRendersDirect
                         ? (RenderTexture)passData.CameraTextureHandle
                         : passData.CommonRenderingTexture;
@@ -966,43 +1001,27 @@ namespace Live2D.Cubism.Rendering
             // The blend shader samples the backdrop from the temporary texture, so the drawable cannot be
             // drawn without it. Skip the draw for this frame rather than blitting into an unknown target.
             var temporaryTexture = (RenderTexture)passData.CommonTemporaryTextureHandle;
+
             if (!frameBuffer
                 || !temporaryTexture)
             {
                 return;
             }
 
-            if (RenderController.EnableScissorBlit)
-            {
-                // Copy only the region this drawable covers from the current frame buffer into the
-                // temporary texture. The blend shader samples the backdrop only where the mesh draws,
-                // so blitting the whole buffer is wasteful. A hardware scissor rectangle limits the
-                // blit's fragments to that region; pixels outside keep stale data but are never sampled.
-                //
-                // Unlike CopyTexture (vkCmdCopyImage), Blit stays on the graphics pipeline: the source is
-                // sampled as a texture and the copy is a scissored full-screen draw. This avoids the
-                // transfer-path image-layout transitions (COLOR_ATTACHMENT <-> TRANSFER_SRC/DST) and the
-                // color-buffer decompress that CopyTexture forces per drawable, which serialize the GPU.
-                var copyRect = GetDrawableScreenRect(passData, frameBuffer.width, frameBuffer.height);
+            // Copy only the region this drawable covers from the current frame buffer into the temporary
+            // texture. The blend shader samples the backdrop only where the mesh draws, so copying the whole
+            // buffer is wasteful. Pixels outside the region keep stale data but are never sampled.
+            //
+            // The copy goes through CopyRegionToTarget rather than CommandBuffer.Blit, because Blit binds the
+            // destination itself and that render target change drops the scissor rectangle - the copy would
+            // cover the whole destination no matter how small the region is. Scissor is bottom-left origin
+            // pixel space, matching GetDrawableScreenRect's output.
+            var copyRect = RenderController.EnableScissorBlit
+                ? GetDrawableScreenRect(passData, frameBuffer.width, frameBuffer.height)
+                : default;
 
-                if (copyRect.width > 0 && copyRect.height > 0)
-                {
-                    // Scissor is bottom-left origin pixel space, matching GetDrawableScreenRect's output.
-                    buffer.EnableScissorRect(new Rect(copyRect.x, copyRect.y, copyRect.width, copyRect.height));
-                    buffer.Blit(frameBuffer, temporaryTexture);
-                    buffer.DisableScissorRect();
-                }
-                else
-                {
-                    // Blit the whole frame buffer to the temporary texture if region is invalid.
-                    buffer.Blit(frameBuffer, temporaryTexture);
-                }
-            }
-            else
-            {
-                // Blit the whole frame buffer to the temporary texture (legacy behavior).
-                buffer.Blit(frameBuffer, temporaryTexture);
-            }
+            CubismRenderPassFeature.CubismRenderPass.CopyRegionToTarget(
+                buffer, frameBuffer, temporaryTexture, copyRect, RenderController.EnableScissorBlit);
 
             // Set temporary render target.
             buffer.SetRenderTarget(RenderController.CurrentFrameBuffer, passData.CameraDepthTextureHandle);
@@ -1148,15 +1167,17 @@ namespace Live2D.Cubism.Rendering
         private void ComputeTransformValues(out Vector2 offset, out Vector2 scale, out Quaternion rotation, out float zOffset)
         {
             var controllerTransform = RenderController.transform;
+            var controllerPosition = controllerTransform.position;
+            GetLocalTransform(out var localPosition, out var localScale, out var localRotation);
 
             offset = new Vector2(
-                controllerTransform.position.x + transform.localPosition.x,
-                controllerTransform.position.y + transform.localPosition.y);
+                controllerPosition.x + localPosition.x,
+                controllerPosition.y + localPosition.y);
             scale = new Vector2(
-                controllerTransform.lossyScale.x * transform.localScale.x,
-                controllerTransform.lossyScale.y * transform.localScale.y);
-            rotation = controllerTransform.rotation * transform.localRotation;
-            zOffset = controllerTransform.position.z + transform.localPosition.z;
+                controllerTransform.lossyScale.x * localScale.x,
+                controllerTransform.lossyScale.y * localScale.y);
+            rotation = controllerTransform.rotation * localRotation;
+            zOffset = controllerPosition.z + localPosition.z;
         }
 
         /// <summary>
@@ -1222,16 +1243,15 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Returns whether this offscreen's clear and composite can be limited to
-        /// <see cref="OffscreenScreenRect"/>, and gives that region.
+        /// Returns whether this offscreen's composite can be limited to <see cref="OffscreenScreenRect"/>,
+        /// and gives that region.
         /// </summary>
         /// <param name="rect">The region to limit to. Only valid when this returns true.</param>
         /// <returns>True when the caller should scissor to <paramref name="rect"/>.</returns>
         /// <remarks>
-        /// One predicate for both the clear in <see cref="SetOffscreen"/> and the composite in
-        /// <see cref="DrawOffscreenMesh"/>, because the two must always agree: a clear limited to a
-        /// region leaves an older frame's content outside it, which is harmless only as long as the
-        /// composite never samples there.
+        /// Only the composites ask this. The clears that precede them always cover the whole buffer, so
+        /// a composite limited to a region leaves the cleared result everywhere else rather than an
+        /// older frame's content, and the two no longer have to agree on a region.
         ///
         /// The custom blend path gets the whole model's region instead of this offscreen's own, because
         /// it writes with <c>Blend One Zero</c> and therefore replaces rather than blends into its
@@ -1498,19 +1518,23 @@ namespace Live2D.Cubism.Rendering
             {
                 buffer.SetRenderTarget(nextOffscreen, passData.CameraDepthTextureHandle);
 
-                // This texture takes over as the owner's buffer, so it has to be valid everywhere that
-                // buffer is read - the same region the composite below covers, which is why both use one rectangle.
+                // Clear the render target. Mandatory: a pooled texture holds an older frame's content,
+                // and every pixel the composite quad fails to cover (it is depth tested against the
+                // scene) would otherwise show up as that stale content in the parent.
+                // Kept unscissored because this texture takes over as the owner's buffer and so has to
+                // be valid everywhere that buffer is read. Scissoring it would not pay for itself in
+                // any case - a clear issued inside the pass costs a full surface either way.
+                buffer.ClearRenderTarget(false, true, Color.clear);
+
+                // The composite is worth limiting even though the clear is not: it is ordinary fragment
+                // work, which a scissor rectangle does reduce, and outside its region the clear above
+                // already left the correct result.
                 var pingPongScissored = TryGetOffscreenScissorRect(out var pingPongRect);
 
                 if (pingPongScissored)
                 {
                     buffer.EnableScissorRect(new Rect(pingPongRect.x, pingPongRect.y, pingPongRect.width, pingPongRect.height));
                 }
-
-                // Clear the render target. Mandatory: a pooled texture holds an older frame's content,
-                // and every pixel the composite quad fails to cover (it is depth tested against the
-                // scene) would otherwise show up as that stale content in the parent.
-                buffer.ClearRenderTarget(false, true, Color.clear);
 
                 // Draw the mesh with the material.
                 buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
@@ -1541,21 +1565,22 @@ namespace Live2D.Cubism.Rendering
             // Set temporary render target.
             buffer.SetRenderTarget(temporaryTexture, passData.CameraDepthTextureHandle);
 
-            // Every step here works on the same region: the temporary texture is only read back by the
-            // copy below, so clearing and compositing outside the region would be written back over
-            // pixels of the destination that the composite leaves untouched anyway.
-            //
-            // That copy has to be limited to the region too, and it is the one step a scissor rectangle
-            // cannot limit: CommandBuffer.Blit binds the destination itself, and a render-target change
-            // drops the scissor, so the blit would write the temporary texture's pixels from outside the
-            // region - an older frame's content - over pixels the destination still needs (an ancestor
+            // Clear the render target, unscissored: a clear issued inside the pass costs a full surface
+            // of fragment work whether or not a scissor rectangle is set, so limiting it buys nothing
+            // and a full clear is the simpler thing to reason about.
+            buffer.ClearRenderTarget(false, true, Color.clear);
+
+            // The composite and the copy back are limited together. The copy is the one step a scissor
+            // rectangle cannot limit: CommandBuffer.Blit binds the destination itself, and a
+            // render-target change drops the scissor, so the blit would write the temporary texture's
+            // pixels from outside the region over pixels the destination still needs (an ancestor
             // offscreen's own region, or the models already composited into the common rendering
             // texture). CopyTexture takes the region explicitly instead, so it cannot silently widen.
             // It is a transfer-path copy, which is why the per-drawable backdrop copy above avoids it,
             // but here it runs once per composite and replaces a whole-buffer blit.
             //
-            // Both halves are therefore decided together: without a usable region copy, everything falls
-            // back to whole-buffer work rather than leaving a limited composite with an unlimited copy.
+            // Without a usable region copy both fall back to whole-buffer work, rather than leaving a
+            // limited composite with an unlimited copy.
             var scissored = TryGetOffscreenScissorRect(out var tempRect)
                             && CanCopyRegion(temporaryTexture, previousOffscreen);
 
@@ -1563,9 +1588,6 @@ namespace Live2D.Cubism.Rendering
             {
                 buffer.EnableScissorRect(new Rect(tempRect.x, tempRect.y, tempRect.width, tempRect.height));
             }
-
-            // Clear the render target.
-            buffer.ClearRenderTarget(false, true, Color.clear);
 
             // Draw the mesh with the material.
             buffer.DrawMesh(Mesh, Matrix4x4.identity, DrawMaterial ?? Material, 0, 0, PropertyBlock);
@@ -1643,7 +1665,9 @@ namespace Live2D.Cubism.Rendering
         /// <param name="maskTexture">Mask render texture to sample.</param>
         private void ApplyMask(RenderTexture maskTexture)
         {
-            var property = FetchPropertyBlock();
+            // Write the mask properties straight into the persistent property block without a GetPropertyBlock
+            // read-back (nothing external writes this block, so the read-back only re-read our own values).
+            var property = PropertyBlock;
 
             // Write property.
             property.SetTexture(CubismShaderVariables.MaskTexture, maskTexture);
@@ -1654,6 +1678,10 @@ namespace Live2D.Cubism.Rendering
                 PropertyBlock.SetVector(CubismShaderVariables.ChannelFlag, GetMaskChannelFlag(ClippingContext));
             }
 
+            // Commit the mask properties to the MeshRenderer. DrawMasks is called both from DrawDrawable (which
+            // follows with its own CommitPropertyBlock — this commit is then redundant but harmless) and from
+            // DrawOffscreenMesh, whose next step (ApplyPropertyForOffscreen) fetches the block back with
+            // GetPropertyBlock: without this commit that fetch would drop the mask properties written above.
             CommitPropertyBlock();
         }
 
@@ -1708,6 +1736,10 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void InitializeDrawObject()
         {
+            // The draw object kind / drawable may have changed, and the mesh may be recreated with a different
+            // topology right after this. Recompute batch eligibility, mesh counts and layout on next use.
+            InvalidateBatchableCache();
+
             switch (DrawObjectType)
             {
                 case CubismModelTypes.DrawObjectType.Drawable:
@@ -1742,7 +1774,147 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Exposes this renderer's <see cref="MaterialPropertyBlock"/> to the batcher.
         /// </summary>
-        internal MaterialPropertyBlock BatchPropertyBlock => PropertyBlock;
+        internal MaterialPropertyBlock BatchPropertyBlock
+        {
+            get
+            {
+                return PropertyBlock;
+            }
+        }
+
+        /// <summary>
+        /// Whether <see cref="_batchMeshLayout"/> holds a computed value.
+        /// </summary>
+        [NonSerialized]
+        private bool _hasBatchMeshLayout;
+
+        /// <summary>
+        /// Cached vertex layout for the batch combine job, validated per frame against the live stride.
+        /// </summary>
+        [NonSerialized]
+        private BatchMeshLayout _batchMeshLayout;
+
+        /// <summary>
+        /// Returns the interleaved vertex/index layout of <paramref name="mesh"/> for the combine job,
+        /// caching the attribute offsets to avoid re-querying the Mesh API for every batched drawable each frame.
+        /// </summary>
+        /// <remarks>
+        /// The layout must describe the exact mesh the combine job reads, so it is computed from
+        /// <paramref name="mesh"/> (this renderer's current front buffer) rather than from a fixed buffer:
+        /// the two double-buffered meshes can hold different vertex layouts transiently (right after
+        /// creation or a domain reload, before both have received a vertex upload), and applying one
+        /// buffer's stride/offsets to the other scrambles the read.
+        ///
+        /// The cache is validated every frame against the live vertex stride. Stride is unique to the
+        /// attribute set for these meshes, so an unchanged stride means the offsets are unchanged too and
+        /// the cached layout can be reused for either double-buffer. A changed stride forces a recompute.
+        /// The index format is always read fresh because it is tied to the exact buffer captured for combining.
+        /// </remarks>
+        /// <param name="mesh">The mesh being combined (the renderer's current front buffer).</param>
+        /// <returns>The mesh's vertex/index buffer layout.</returns>
+        internal BatchMeshLayout GetBatchMeshLayout(Mesh mesh)
+        {
+            var stride = mesh.GetVertexBufferStride(0);
+            var index16 = mesh.indexFormat == IndexFormat.UInt16;
+
+            if (_hasBatchMeshLayout && _batchMeshLayout.Stride == stride)
+            {
+                _batchMeshLayout.Index16 = index16;
+                return _batchMeshLayout;
+            }
+
+            // Cubism drawable meshes use a single interleaved vertex stream (position + color + uv), so all
+            // attribute offsets share stream 0's stride.
+            var layout = new BatchMeshLayout
+            {
+                Stride = stride,
+                PositionOffset = mesh.GetVertexAttributeOffset(VertexAttribute.Position),
+                HasUv = mesh.HasVertexAttribute(VertexAttribute.TexCoord0),
+                HasColor = mesh.HasVertexAttribute(VertexAttribute.Color),
+                Index16 = index16,
+            };
+
+            if (layout.HasUv)
+            {
+                // TexCoord0 is the only UV channel used by CubismRenderer.
+                layout.UvOffset = mesh.GetVertexAttributeOffset(VertexAttribute.TexCoord0);
+            }
+
+            if (layout.HasColor)
+            {
+                // Color is the only color channel used by CubismRenderer.
+                layout.ColorOffset = mesh.GetVertexAttributeOffset(VertexAttribute.Color);
+            }
+
+            _batchMeshLayout = layout;
+            _hasBatchMeshLayout = true;
+
+            return _batchMeshLayout;
+        }
+
+        /// <summary>
+        /// Whether <see cref="_batchMeshVertexCount"/> / <see cref="_batchMeshIndexCount"/> hold a computed value.
+        /// </summary>
+        [NonSerialized]
+        private bool _hasBatchMeshCounts;
+
+        /// <summary>
+        /// Cached vertex count of the batched mesh.
+        /// </summary>
+        [NonSerialized]
+        private int _batchMeshVertexCount;
+
+        /// <summary>
+        /// Cached triangle index count (submesh 0) of the batched mesh.
+        /// </summary>
+        [NonSerialized]
+        private int _batchMeshIndexCount;
+
+        /// <summary>
+        /// Returns the vertex and index counts of <paramref name="mesh"/> for the combine job, caching them
+        /// after the first successful read so the Mesh API is not queried for every batched drawable each frame.
+        /// </summary>
+        /// <remarks>
+        /// Live2D drawable meshes have fixed topology at runtime (only vertex positions and colors animate,
+        /// never the vertex/index counts), and the two double-buffered meshes are built from the same drawable,
+        /// so the counts stay constant until the renderer is re-initialized and are identical for either buffer.
+        /// Re-initialization can recreate the meshes with a different topology (for example when the model's moc
+        /// is replaced), so <see cref="InvalidateBatchableCache"/> drops this cache there. A count of zero (a mesh
+        /// whose vertices have not been uploaded yet) is never cached, so the cache only ever holds the true
+        /// topology counts. The `_has` flag defaults to false, so a domain reload recomputes lazily.
+        /// </remarks>
+        /// <param name="mesh">The mesh being combined (the renderer's current front buffer).</param>
+        /// <param name="vertexCount">The mesh's vertex count.</param>
+        /// <param name="indexCount">The mesh's triangle index count (submesh 0).</param>
+        /// <returns>True when both counts are non-zero and the mesh can be combined.</returns>
+        internal bool TryGetBatchMeshCounts(Mesh mesh, out int vertexCount, out int indexCount)
+        {
+            if (_hasBatchMeshCounts)
+            {
+                vertexCount = _batchMeshVertexCount;
+                indexCount = _batchMeshIndexCount;
+                return true;
+            }
+
+            vertexCount = mesh.vertexCount;
+            if (vertexCount == 0)
+            {
+                indexCount = 0;
+                return false;
+            }
+
+            indexCount = (int)mesh.GetIndexCount(0);
+            if (indexCount == 0)
+            {
+                return false;
+            }
+
+            _batchMeshVertexCount = vertexCount;
+            _batchMeshIndexCount = indexCount;
+            _hasBatchMeshCounts = true;
+
+            return true;
+        }
 
         /// <summary>
         /// Returns true when this renderer is eligible for batching.
@@ -1757,31 +1929,77 @@ namespace Live2D.Cubism.Rendering
         /// <returns>True if the renderer can be merged into a batched DrawMesh.</returns>
         internal bool IsBatchable()
         {
-            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
-            {
-                return false;
-            }
             if (!RenderController)
             {
                 return false;
             }
-            if (!Drawable || Drawable.IsMasked)
+            // Model-lifetime-constant part (draw object kind + mask state), cached to avoid the per-frame
+            // unmanaged mask-count read and drawable alive check.
+            if (!GetIsDrawableBatchable())
             {
                 return false;
             }
             // Only the direct-draw branch of DrawDrawable is batchable — the Blit branch is not.
+            // Blend mode is a cheap enum comparison and can be changed at runtime, so it stays uncached.
             if (!IsDirectDrawBlendMode)
             {
                 return false;
             }
             // Drawables that would trigger an offscreen pop inside DrawDrawable cannot be batched.
             // Pop has side effects on CurrentFrameBuffer and CurrentOffscreenUnmanagedIndex that
-            // the per-drawable code path performs while drawing.
+            // the per-drawable code path performs while drawing. This depends on the current offscreen
+            // draw state, so it is evaluated every frame.
             if (WouldPopOffscreenStack())
             {
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// <see cref="GetIsDrawableBatchable"/>'s cached value.
+        /// </summary>
+        [NonSerialized]
+        private bool _isDrawableBatchable;
+
+        /// <summary>
+        /// Whether <see cref="_isDrawableBatchable"/> has been computed for the current draw object.
+        /// </summary>
+        [NonSerialized]
+        private bool _hasDrawableBatchable;
+
+        /// <summary>
+        /// Returns the model-lifetime-constant portion of batch eligibility: this is a drawable (not an
+        /// offscreen) whose mesh is not masked. Cached because it depends only on the draw object kind and
+        /// the Core mask count, which do not change while the model is alive.
+        /// </summary>
+        /// <returns>True when the draw object is an unmasked drawable.</returns>
+        private bool GetIsDrawableBatchable()
+        {
+            if (_hasDrawableBatchable)
+            {
+                return _isDrawableBatchable;
+            }
+
+            _isDrawableBatchable = DrawObjectType == CubismModelTypes.DrawObjectType.Drawable
+                                   && Drawable
+                                   && !Drawable.IsMasked;
+            _hasDrawableBatchable = true;
+
+            return _isDrawableBatchable;
+        }
+
+        /// <summary>
+        /// Drops the cached batch eligibility (<see cref="GetIsDrawableBatchable"/>), mesh counts
+        /// (<see cref="TryGetBatchMeshCounts"/>) and mesh layout (<see cref="GetBatchMeshLayout"/>) so they are
+        /// recomputed. Call whenever the draw object, its mask state or its mesh may have changed (for example on
+        /// re-initialization, which can recreate the mesh with a different topology).
+        /// </summary>
+        internal void InvalidateBatchableCache()
+        {
+            _hasDrawableBatchable = false;
+            _hasBatchMeshCounts = false;
+            _hasBatchMeshLayout = false;
         }
 
         /// <summary>
@@ -1792,7 +2010,7 @@ namespace Live2D.Cubism.Rendering
         /// <remarks>
         /// Mirrors the descendant test inside <see cref="SubmitDrawToParentOffscreen"/>: walk the
         /// drawable's parent-part chain looking for the current offscreen owner part. If found we
-        /// are a descendant and no pop happens; otherwise the per-drawable path will pop the stack
+        /// are a descendant and no pop happens. Otherwise the per-drawable path will pop the stack
         /// and we must not batch.
         /// </remarks>
         private bool WouldPopOffscreenStack()
@@ -1889,81 +2107,27 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Bakes this drawable's transform into its vertex positions and copies vertex/UV/color/index
-        /// data into the SortingGroup-scoped batch pool. Index values are rewritten with the current
-        /// vertex cursor offset so the resulting indices remain valid in the combined mesh.
+        /// Composes this drawable's world transform — the transform the shader would otherwise apply
+        /// per-drawable — so <see cref="CubismBatchCombineJob"/> can bake it into the vertices on a worker
+        /// thread. Transform component reads must stay on the main thread, so they are gathered here.
         /// </summary>
-        /// <param name="pool">Pool whose batch buffers receive the data.</param>
-        /// <param name="vertexCursor">Current write position in the vertex buffers. Advanced by this call.</param>
-        /// <param name="indexCursor">Current write position in the index buffer. Advanced by this call.</param>
-        internal void WriteBakedVerticesToBatch(CubismBatchPool pool, ref int vertexCursor, ref int indexCursor)
+        /// <returns>The baked transform for this drawable.</returns>
+        internal BatchTransform GetBatchTransform()
         {
-            var mesh = Mesh;
-            if (mesh == null)
+            // Combine the once-per-pass root snapshot with this drawable's own local transform, so the
+            // model root's hierarchy walk (lossyScale) is not repeated for every batched drawable.
+            var root = RenderController.RootTransform;
+            GetLocalTransform(out var localPosition, out var localScale, out var localRotation);
+
+            return new BatchTransform
             {
-                return;
-            }
-
-            // Use the List<T> overloads to avoid the per-call array allocation incurred by
-            // Mesh.vertices / Mesh.uv / Mesh.colors / Mesh.triangles. The pool's scratch lists
-            // are reused across drawables and frames.
-            var srcVertices = pool.ScratchVertices;
-            var srcUVs = pool.ScratchUVs;
-            var srcColors = pool.ScratchColors;
-            var srcIndices = pool.ScratchIndices;
-
-            mesh.GetVertices(srcVertices);
-            mesh.GetUVs(0, srcUVs);
-            // Mesh.colors already holds this frame's Color * Opacity: SwapMeshes commits it during the
-            // model-data update, before this render pass runs. DrawDrawable's ApplyVertexColors() call
-            // does not affect these values, so skipping it on the batch path is safe.
-            mesh.GetColors(srcColors);
-            mesh.GetTriangles(srcIndices, 0);
-
-            var vertexCount = srcVertices.Count;
-            var uvCount = srcUVs.Count;
-            var colorCount = srcColors.Count;
-            var indexCount = srcIndices.Count;
-
-            var baseVertex = vertexCursor;
-
-            // Compose transform values the shader would normally apply per-drawable.
-            var offsetScaleX = RenderController.transform.position.x + transform.localPosition.x;
-            var offsetScaleY = RenderController.transform.position.y + transform.localPosition.y;
-            var scaleX = RenderController.transform.lossyScale.x * transform.localScale.x;
-            var scaleY = RenderController.transform.lossyScale.y * transform.localScale.y;
-            var rotation = RenderController.transform.rotation * transform.localRotation;
-            var zOffset = RenderController.transform.position.z + transform.localPosition.z;
-
-            var destVertices = pool.VertexPositions;
-            var destUVs = pool.VertexUVs;
-            var destColors = pool.VertexColors;
-            var destIndices = pool.Indices;
-
-            // Copy + bake vertices. Shader order: scale(xy) -> rotate(xyz) -> translate(xy,z).
-            for (var i = 0; i < vertexCount; i++)
-            {
-                var v = srcVertices[i];
-                v.x *= scaleX;
-                v.y *= scaleY;
-                v = rotation * v;
-                v.x += offsetScaleX;
-                v.y += offsetScaleY;
-                v.z += zOffset;
-                destVertices[baseVertex + i] = v;
-
-                destUVs[baseVertex + i] = (i < uvCount) ? srcUVs[i] : Vector2.zero;
-                destColors[baseVertex + i] = (i < colorCount) ? srcColors[i] : Color.white;
-            }
-
-            // Copy indices with vertex offset applied.
-            for (var i = 0; i < indexCount; i++)
-            {
-                destIndices[indexCursor + i] = srcIndices[i] + baseVertex;
-            }
-
-            vertexCursor += vertexCount;
-            indexCursor += indexCount;
+                ScaleX = root.LossyScale.x * localScale.x,
+                ScaleY = root.LossyScale.y * localScale.y,
+                Rotation = root.Rotation * localRotation,
+                OffsetX = root.Position.x + localPosition.x,
+                OffsetY = root.Position.y + localPosition.y,
+                OffsetZ = root.Position.z + localPosition.z,
+            };
         }
 
         #endregion

@@ -228,12 +228,12 @@ namespace Live2D.Cubism.Rendering.Masking
         private readonly List<CubismClippingContext> _clippingContextListForMask = new List<CubismClippingContext>();
 
         /// <summary>
-        /// Clipping contexts for each drawable (one entry per drawable; may be null if the drawable does not use a mask).
+        /// Clipping contexts for each drawable (one entry per drawable, may be null if the drawable does not use a mask).
         /// </summary>
         private CubismClippingContext[] _clippingContextListForDraw;
 
         /// <summary>
-        /// Clipping contexts for each offscreen (one entry per offscreen; may be null if the offscreen does not use a mask).
+        /// Clipping contexts for each offscreen (one entry per offscreen, may be null if the offscreen does not use a mask).
         /// </summary>
         private CubismClippingContext[] _clippingContextListForOffscreen;
 
@@ -646,7 +646,7 @@ namespace Live2D.Cubism.Rendering.Masking
                 _tmpBoundsOnModel.Expand(allClippedDrawRect.Width * MarginForHighPrecision, allClippedDrawRect.Height * MarginForHighPrecision);
 
                 // Guard against degenerate (near-zero) bounds, which would make the scale diverge to Inf/NaN.
-                // The clip group's drawables are collapsed this frame, so skip its mask; the drawables sample
+                // The clip group's drawables are collapsed this frame, so skip its mask. The drawables sample
                 // the unwritten (white) tile and are simply clipped out instead of overflowing.
                 if (_tmpBoundsOnModel.Width < CubismMath.MinClippedDrawSize || _tmpBoundsOnModel.Height < CubismMath.MinClippedDrawSize)
                 {
@@ -685,21 +685,33 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <param name="scaleY">The scale factor in the Y direction.</param>
         private void CreateMatrixForMask(RectFloat layoutBoundsOnTex01, float scaleX, float scaleY)
         {
-            var matrix = Matrix4x4.identity;
-            matrix *= Matrix4x4.Translate(new Vector3(-1.0f, -1.0f, 0.0f));
-            matrix *= Matrix4x4.Scale(new Vector3(2.0f, 2.0f, 1.0f));
-            matrix *= Matrix4x4.Translate(new Vector3(layoutBoundsOnTex01.X, layoutBoundsOnTex01.Y, 0.0f));
-            matrix *= Matrix4x4.Scale(new Vector3(scaleX, scaleY, 1.0f));
-            matrix *= Matrix4x4.Translate(new Vector3(-_tmpBoundsOnModel.X, -_tmpBoundsOnModel.Y, 0.0f));
-            _tmpMatrixForMask = matrix;
+            var boundsX = _tmpBoundsOnModel.X;
+            var boundsY = _tmpBoundsOnModel.Y;
+            var layoutX = layoutBoundsOnTex01.X;
+            var layoutY = layoutBoundsOnTex01.Y;
+
+            // The transform is a pure scale + translation chain (no rotation), so the composed matrix is
+            // affine with only the diagonal and translation column non-zero. Compute those components
+            // directly instead of multiplying several Matrix4x4.Translate/Scale temporaries per clip each frame.
+            //
+            // Mask: T(-1,-1) * S(2,2) * T(layout) * S(scale) * T(-bounds)
+            var matrixForMask = Matrix4x4.identity;
+            matrixForMask.m00 = 2.0f * scaleX;
+            matrixForMask.m11 = 2.0f * scaleY;
+            matrixForMask.m03 = (2.0f * (layoutX - (scaleX * boundsX))) - 1.0f;
+            matrixForMask.m13 = (2.0f * (layoutY - (scaleY * boundsY))) - 1.0f;
+            _tmpMatrixForMask = matrixForMask;
 
             // The render-texture Y orientation is handled by _ProjectionParams.x in the mask shader, so the
             // draw (sample) matrix uses the Unity model-space convention directly.
-            matrix = Matrix4x4.identity;
-            matrix *= Matrix4x4.Translate(new Vector3(layoutBoundsOnTex01.X, layoutBoundsOnTex01.Y, 0.0f));
-            matrix *= Matrix4x4.Scale(new Vector3(scaleX, scaleY, 1.0f));
-            matrix *= Matrix4x4.Translate(new Vector3(-_tmpBoundsOnModel.X, -_tmpBoundsOnModel.Y, 0.0f));
-            _tmpMatrixForDraw = matrix;
+            //
+            // Draw: T(layout) * S(scale) * T(-bounds)
+            var matrixForDraw = Matrix4x4.identity;
+            matrixForDraw.m00 = scaleX;
+            matrixForDraw.m11 = scaleY;
+            matrixForDraw.m03 = layoutX - (scaleX * boundsX);
+            matrixForDraw.m13 = layoutY - (scaleY * boundsY);
+            _tmpMatrixForDraw = matrixForDraw;
         }
 
         /// <summary>
@@ -970,7 +982,7 @@ namespace Live2D.Cubism.Rendering.Masking
         /// <remarks>
         /// Used by the high-precision path, where no layout partitioning occurs. Basing the rect on the mask
         /// drawables keeps the mask resolution tied to the mask shape and suppresses flicker at the mask edges.
-        /// Only the rect is updated; deciding <see cref="CubismClippingContext.IsUsing"/> is the caller's responsibility.
+        /// Only the rect is updated. Deciding <see cref="CubismClippingContext.IsUsing"/> is the caller's responsibility.
         /// </remarks>
         /// <param name="clippingContext">The clipping context whose mask drawables are measured.</param>
         private void CalcMaskDrawableTotalBounds(CubismClippingContext clippingContext)
@@ -1104,8 +1116,8 @@ namespace Live2D.Cubism.Rendering.Masking
                 return false;
             }
 
-            // Mesh.bounds is the tight AABB of the drawn vertices (RecalculateBounds is called whenever the
-            // vertices change), so its XY extent equals the per-vertex min/max in model space.
+            // Mesh.bounds holds the tight XY AABB set from the Burst-baked vertex positions
+            // (see CubismVertexPositionBaker), so its XY extent equals the per-vertex min/max in model space.
             var bounds = mesh.bounds;
             minX = bounds.min.x;
             minY = bounds.min.y;
@@ -1215,7 +1227,7 @@ namespace Live2D.Cubism.Rendering.Masking
         }
 
         /// <summary>
-        /// List used when drawing to the screen (one entry per drawable; may be null).
+        /// List used when drawing to the screen (one entry per drawable, may be null).
         /// </summary>
         public IReadOnlyList<CubismClippingContext> GetClippingContextListForDraw()
         {
@@ -1223,7 +1235,7 @@ namespace Live2D.Cubism.Rendering.Masking
         }
 
         /// <summary>
-        /// List used when drawing offscreen (one entry per offscreen; may be null).
+        /// List used when drawing offscreen (one entry per offscreen, may be null).
         /// </summary>
         public IReadOnlyList<CubismClippingContext> GetClippingContextListForOffscreen()
         {

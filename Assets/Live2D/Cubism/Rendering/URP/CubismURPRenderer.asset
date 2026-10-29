@@ -69,3 +69,4 @@ MonoBehaviour:
   m_Active: 1
   EnableBatching: 1
   EnableDirectRendering: 1
+  EnableOffscreenPreClear: 0

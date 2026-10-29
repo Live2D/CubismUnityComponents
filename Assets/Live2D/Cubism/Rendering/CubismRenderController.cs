@@ -526,16 +526,26 @@ namespace Live2D.Cubism.Rendering
         private Color[] _newScreenColors;
 
         /// <summary>
-        /// Maps drawable unmanaged index to index in <see cref="DrawableRenderers"/>; -1 if none.
+        /// Maps drawable unmanaged index to index in <see cref="DrawableRenderers"/>. -1 if none.
         /// </summary>
         private int[] _rendererIndicesByDrawableIndices;
 
         /// <summary>
         /// When true, <see cref="_rendererIndicesByDrawableIndices"/> is rebuilt on the next
-        /// <see cref="OnDynamicDrawableData"/>. Set whenever <see cref="DrawableRenderers"/> changes;
-        /// the mapping is otherwise constant while the drawable composition is unchanged.
+        /// <see cref="OnDynamicDrawableData"/>. Set whenever <see cref="DrawableRenderers"/> changes.
+        /// The mapping is otherwise constant while the drawable composition is unchanged.
         /// </summary>
         private bool _rendererIndicesDirty = true;
+
+        /// <summary>
+        /// Bakes drawable vertex positions from the Core buffers into meshes using Burst.
+        /// </summary>
+        private CubismVertexPositionBaker _vertexBaker;
+
+        /// <summary>
+        /// Scratch list of drawable indices with dirty vertex positions, reused across frames.
+        /// </summary>
+        private int[] _dirtyVertexDrawables;
 
 
         /// <summary>
@@ -1016,6 +1026,13 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void OnDisable()
         {
+            // Release native bake buffers unconditionally (also frees them across domain reloads).
+            if (_vertexBaker != null)
+            {
+                _vertexBaker.Dispose();
+                _vertexBaker = null;
+            }
+
             // Fail silently.
             if (!Model)
             {
@@ -1175,6 +1192,36 @@ namespace Live2D.Cubism.Rendering
                 _rendererIndicesDirty = false;
             }
 
+            // Bake dirty vertex positions directly from the Core buffers into the shared native buffer.
+            // This runs a Burst job across all dirty drawables and completes before the mesh upload below.
+            _vertexBaker ??= new CubismVertexPositionBaker();
+
+            var didBakeVertices = false;
+
+            if (_vertexBaker.EnsureInitialized(sender.UnmanagedModel))
+            {
+                if ((_dirtyVertexDrawables?.Length ?? 0) < data.Length)
+                {
+                    _dirtyVertexDrawables = new int[data.Length];
+                }
+
+                var dirtyVertexCount = 0;
+
+                for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
+                {
+                    if (data[dataIndex].AreVertexPositionsDirty && _rendererIndicesByDrawableIndices[dataIndex] >= 0)
+                    {
+                        _dirtyVertexDrawables[dirtyVertexCount++] = dataIndex;
+                    }
+                }
+
+                if (dirtyVertexCount > 0)
+                {
+                    _vertexBaker.Bake(_dirtyVertexDrawables, dirtyVertexCount);
+                    didBakeVertices = true;
+                }
+            }
+
             // Handle render data changes.
             for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
             {
@@ -1244,9 +1291,13 @@ namespace Live2D.Cubism.Rendering
 
 
                 // Update vertex positions.
-                if (data[dataIndex].AreVertexPositionsDirty)
+                if (data[dataIndex].AreVertexPositionsDirty && didBakeVertices)
                 {
-                    renderer.OnDrawableVertexPositionsDidChange(data[dataIndex].VertexPositions);
+                    renderer.OnDrawableVertexPositionsDidChange(
+                        _vertexBaker.Baked,
+                        _vertexBaker.GetOffset(dataIndex),
+                        _vertexBaker.GetCount(dataIndex),
+                        _vertexBaker.GetBounds(dataIndex));
 
 
                     swapMeshes = true;
@@ -1298,42 +1349,51 @@ namespace Live2D.Cubism.Rendering
                 }
             }
 
-            for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
+            // Gather colors only when a blend-color handler is registered and something changed. The gathered
+            // arrays are consumed solely by the handler calls below (same condition), so in the common case
+            // (no handler, or nothing changed) both drawable scans and their non-trivial getters are skipped.
+            if (MultiplyColorHandler && isMultiplyColorUpdated)
             {
-                var rendererIndex = _rendererIndicesByDrawableIndices[dataIndex];
-
-                // Skip if no renderer found.
-                if (rendererIndex < 0)
+                for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
                 {
-                    continue;
-                }
+                    var rendererIndex = _rendererIndicesByDrawableIndices[dataIndex];
 
-                newMultiplyColors[rendererIndex] = renderers[rendererIndex].MultiplyColor;
+                    // Skip if no renderer found.
+                    if (rendererIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    newMultiplyColors[rendererIndex] = renderers[rendererIndex].MultiplyColor;
+                }
             }
 
-            for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
+            if (ScreenColorHandler && isScreenColorUpdated)
             {
-                var rendererIndex = _rendererIndicesByDrawableIndices[dataIndex];
-
-                // Skip if no renderer found.
-                if (rendererIndex < 0)
+                for (var dataIndex = 0; dataIndex < data.Length; ++dataIndex)
                 {
-                    continue;
-                }
+                    var rendererIndex = _rendererIndicesByDrawableIndices[dataIndex];
 
-                newScreenColors[rendererIndex] = renderers[rendererIndex].ScreenColor;
+                    // Skip if no renderer found.
+                    if (rendererIndex < 0)
+                    {
+                        continue;
+                    }
+
+                    newScreenColors[rendererIndex] = renderers[rendererIndex].ScreenColor;
+                }
             }
 
             // Pass blend color changes to handler (if available).
             var multiplyColorHandlerInterface = MultiplyColorHandlerInterface;
             var screenColorHandlerInterface = ScreenColorHandlerInterface;
 
-            if (MultiplyColorHandler != null && isMultiplyColorUpdated)
+            if (MultiplyColorHandler && isMultiplyColorUpdated)
             {
                 multiplyColorHandlerInterface.OnBlendColorDidChange(this, newMultiplyColors);
             }
 
-            if (ScreenColorHandler != null && isScreenColorUpdated)
+            if (ScreenColorHandler && isScreenColorUpdated)
             {
                 screenColorHandlerInterface.OnBlendColorDidChange(this, newScreenColors);
             }

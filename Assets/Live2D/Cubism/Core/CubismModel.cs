@@ -9,6 +9,7 @@
 using Live2D.Cubism.Core.Unmanaged;
 using Live2D.Cubism.Framework;
 using System;
+using Unity.Jobs;
 using UnityEngine;
 
 
@@ -93,7 +94,7 @@ namespace Live2D.Cubism.Core
         /// Resets non-serialized fields of a <see cref="CubismModel"/>.
         /// </summary>
         /// <remarks>
-        /// Call after <c>PrefabUtility.SaveAsPrefabAsset</c> to clear stale
+        /// Call after <see cref="UnityEditor.PrefabUtility.SaveAsPrefabAsset"/> to clear stale
         /// component references that may have been cached by <see cref="OnValidate"/>
         /// during the prefab replacement.
         /// </remarks>
@@ -113,6 +114,9 @@ namespace Live2D.Cubism.Core
             model._drawables = null;
             model._offscreens = null;
             model._canvasInformation = null;
+            model._allDrawObjectsRenderOrder = null;
+            model._pendingFetchResults = false;
+            model._pendingParameterRestore = false;
         }
 
         /// <summary>
@@ -136,6 +140,14 @@ namespace Live2D.Cubism.Core
         /// </summary>
         private CubismTaskableModel TaskableModel { get; set; }
 
+
+        /// <summary>
+        /// Unmanaged model backing this instance. Used by the renderer to read Core vertex buffers directly.
+        /// </summary>
+        internal CubismUnmanagedModel UnmanagedModel
+        {
+            get { return TaskableModel?.UnmanagedModel; }
+        }
         /// <summary>
         /// <see cref="NativeModelRevision"/> backing field.
         /// </summary>
@@ -352,13 +364,32 @@ namespace Live2D.Cubism.Core
         }
 
         /// <summary>
+        /// <see cref="AllDrawObjectsRenderOrder"/> backing snapshot.
+        /// </summary>
+        [NonSerialized]
+        private int[] _allDrawObjectsRenderOrder;
+
+        /// <summary>
         /// All draw objects render order.
         /// </summary>
-        public CubismUnmanagedIntArrayView AllDrawObjectsRenderOrder
+        /// <remarks>
+        /// A managed snapshot taken when the update completes, so it is safe to read on the main thread while the
+        /// next update runs on a worker thread across the frame boundary. The values belong to the same completed
+        /// generation as the rest of the frame's consumed results.
+        /// </remarks>
+        public int[] AllDrawObjectsRenderOrder
         {
             get
             {
-                return TaskableModel.UnmanagedModel.AllDrawObjectRenderOrders;
+                // Lazily capture for early readers (such as renderer setup) that run before the first update
+                // has been consumed. Completing first keeps the native read off any in-flight worker.
+                if (_allDrawObjectsRenderOrder == null)
+                {
+                    EnsureUpdateCompleted();
+                    CaptureRenderOrders();
+                }
+
+                return _allDrawObjectsRenderOrder;
             }
         }
 
@@ -410,10 +441,18 @@ namespace Live2D.Cubism.Core
 
 #if UNITY_2018_1_OR_NEWER
         /// <summary>
-        /// Model update functions for player loop.
+        /// Per-model "schedule the native update" functions, invoked as the first player-loop phase.
         /// </summary>
         [NonSerialized]
         private static Action _modelUpdateFunctions;
+
+        /// <summary>
+        /// Per-model "complete the native update and consume results" functions, invoked as the second
+        /// player-loop phase (same frame) so every model's update is scheduled before any is completed and
+        /// they overlap across worker threads.
+        /// </summary>
+        [NonSerialized]
+        private static Action _modelCompleteFunctions;
 
         private bool WasAttachedModelUpdateFunction { get; set; }
 #endif
@@ -428,6 +467,20 @@ namespace Live2D.Cubism.Core
         /// Frame number last update was done.
         /// </summary>
         private int LastTick { get; set; }
+
+        /// <summary>
+        /// True when an update job was completed early by a live Core read (see <see cref="EnsureUpdateCompleted"/>)
+        /// but its results have not been consumed by <see cref="FetchResults"/> yet.
+        /// </summary>
+        [NonSerialized]
+        private bool _pendingFetchResults;
+
+        /// <summary>
+        /// True when <see cref="ForceUpdateNow"/> updated the model and the next complete phase must still sync
+        /// the parameters back and restore them, because no update job was scheduled to do it.
+        /// </summary>
+        [NonSerialized]
+        private bool _pendingParameterRestore;
 
         /// <summary>
         /// Revives instance.
@@ -458,7 +511,6 @@ namespace Live2D.Cubism.Core
         private void Reset(CubismMoc moc)
         {
             Moc = moc;
-            name = moc.name;
             TaskableModel = new CubismTaskableModel(moc);
 
             ++_nativeModelRevision;
@@ -624,25 +676,94 @@ namespace Live2D.Cubism.Core
         /// </summary>
         public void ForceUpdateNow()
         {
-            WasJustEnabled = true;
-            LastTick = -1;
-
-
             Revive();
 
-#if UNITY_2018_1_OR_NEWER
-            OnModelUpdate();
-#else
-            OnRenderObject();
-#endif
+            if (!IsRevived)
+            {
+                return;
+            }
+
+
+            // Finish any in-flight update job first. Writing parameters is skipped while a job is scheduled, so
+            // without this the synchronous update below would run with stale parameters. Complete without reading
+            // so the in-flight update's dynamic flags are kept and its moved drawables are not left stale.
+            TaskableModel.CompleteWithoutRead();
+
+            // Synchronous immediate update and result consumption. Used in the Editor and for on-demand
+            // refreshes where the player-loop two-phase (schedule/complete) flow is not running.
+            // A job already completed by a live Core read (see EnsureUpdateCompleted) has had its dynamic flags
+            // read and reset in Core but not consumed yet, so this update's flags are merged into them instead
+            // of replacing them. Otherwise the drawables that moved only in that update would keep a stale mesh.
+            TaskableModel.TryWriteParametersAndParts(Parameters, Parts);
+            TaskableModel.UpdateNow(_pendingFetchResults);
+
+
+            WasJustEnabled = false;
+
+            // Mark this frame ticked so the player-loop schedule phase does not update the model again.
+            LastTick = Time.frameCount;
+
+
+            FetchResults();
+
+            // LastTick makes this frame's schedule phase skip the model, so the next complete phase has no job
+            // to consume. Parameters changed after this call (e.g. by LateUpdate effects) would then never be
+            // restored and additive effects would accumulate, so request the restore explicitly.
+            _pendingParameterRestore = true;
         }
 
         /// <summary>
-        /// パラメータストアを最新の情報に更新する。
+        /// Completes any in-flight update job so the native buffers are safe to read on the main thread.
+        /// </summary>
+        /// <remarks>
+        /// Called by live Core readers (such as <see cref="CubismDrawable.VertexPositions"/>) before touching the
+        /// native buffers, which the update job writes on a worker thread across the frame boundary. Only the
+        /// worker is stopped here. The main thread does not wait for the results to be consumed (see <see cref="FetchResults"/>).
+        /// </remarks>
+        internal void EnsureUpdateCompleted()
+        {
+            if (!IsRevived || !TaskableModel.IsExecuting)
+            {
+                return;
+            }
+
+            TaskableModel.Complete();
+
+            _pendingFetchResults = true;
+        }
+
+        /// <summary>
+        /// Copies the native render orders into the managed snapshot exposed by <see cref="AllDrawObjectsRenderOrder"/>.
+        /// </summary>
+        /// <remarks>
+        /// Must be called only when no update job is in flight (the native buffer is being read here).
+        /// </remarks>
+        private void CaptureRenderOrders()
+        {
+            if (!IsRevived)
+            {
+                return;
+            }
+
+            var renderOrders = TaskableModel.UnmanagedModel.AllDrawObjectRenderOrders;
+
+            if (_allDrawObjectsRenderOrder == null || _allDrawObjectsRenderOrder.Length != renderOrders.Length)
+            {
+                _allDrawObjectsRenderOrder = new int[renderOrders.Length];
+            }
+
+            for (var i = 0; i < renderOrders.Length; i++)
+            {
+                _allDrawObjectsRenderOrder[i] = renderOrders[i];
+            }
+        }
+
+        /// <summary>
+        /// Updates the <see cref="CubismParameterStore"/> reference and refreshes its data.
         /// </summary>
         public void RefreshParameterStore()
         {
-            // CubismParameterStore を取得する。
+            // Get the CubismParameterStore component attached to this GameObject.
             _parameterStore = GetComponent<CubismParameterStore>();
 
 
@@ -653,38 +774,53 @@ namespace Live2D.Cubism.Core
             }
 
 
-            // 最新の情報に更新する。
+            // Update the CubismParameterStore with the current parameters and parts.
             _parameterStore.Refresh();
         }
 
 
 #if UNITY_2018_1_OR_NEWER
         /// <summary>
-        /// Calls model update functions for player loop.
+        /// Player-loop schedule phase (after <see cref="PreLateUpdate"/>): every model writes its parameters and
+        /// schedules its native update job, then the job batch is kicked so the workers start immediately.
         /// </summary>
+        /// <remarks>
+        /// The job scheduled here is completed at the start of the NEXT frame (see <see cref="OnModelsComplete"/>),
+        /// so it runs across the frame boundary (this frame's remaining work, rendering and idle time) on a
+        /// worker thread. The main thread therefore does not wait for the native update — the cost is hidden
+        /// even for a single model — at the price of one frame of latency (the frame renders the previous frame's result).
+        /// </remarks>
         private static void OnModelsUpdate()
         {
-            if (_modelUpdateFunctions != null)
-            {
-                _modelUpdateFunctions.Invoke();
-            }
+            _modelUpdateFunctions?.Invoke();
+
+            // Kick the batched jobs so the workers begin the native updates now, during this frame's remaining
+            // main-thread work and rendering, instead of only when the next frame completes them.
+            JobHandle.ScheduleBatchedJobs();
+        }
+
+        /// <summary>
+        /// Player-loop complete phase (at frame start, <see cref="PreUpdate"/>): every model completes the update it
+        /// scheduled last frame — which by now has finished on a worker, so this rarely blocks — and consumes
+        /// the results (raising <see cref="OnDynamicDrawableData"/>) before this frame's rendering.
+        /// </summary>
+        /// <remarks>
+        /// Placed at frame start so completion (and the native reads it entails) happens before any main-thread
+        /// code reads the model this frame (e.g. LateUpdate blend-color/pose reads), keeping the worker and the
+        /// main thread from racing on the native model.
+        /// </remarks>
+        private static void OnModelsComplete()
+        {
+            _modelCompleteFunctions?.Invoke();
         }
 
 
         /// <summary>
-        /// Register the model update function into the player loop.
+        /// Register the model update functions into the player loop.
         /// </summary>
         [RuntimeInitializeOnLoadMethod]
         private static void RegisterCallbackFunction()
         {
-            // Prepare the function for using player loop.
-            var myPlayerLoopSystem = new PlayerLoopSystem()
-            {
-                type = typeof(CubismModel),     // Identifier for Profiler Hierarchy view.
-                updateDelegate = OnModelsUpdate    // Register the function.
-            };
-
-
             // Get the default player loop.
             var playerLoopSystem =
 #if UNITY_2019_3_OR_NEWER
@@ -693,38 +829,55 @@ namespace Live2D.Cubism.Core
                 PlayerLoop.GetDefaultPlayerLoop();
 #endif
 
-            var playerLoopIndex = -1;
-            for (var i = 0; i < playerLoopSystem.subSystemList.Length; i++)
-            {
-                if (playerLoopSystem.subSystemList[i].type != typeof(PreLateUpdate))
-                {
-                    continue;
-                }
+            // Complete phase: at frame start ("PreUpdate"), before this frame's LateUpdate reads the model,
+            // finish the update scheduled last frame (already done on a worker) and consume its results.
+            var completed = TryAppendToPlayerLoopPhase(ref playerLoopSystem, typeof(PreUpdate),
+                new PlayerLoopSystem { type = typeof(CubismModel), updateDelegate = OnModelsComplete });
 
-                playerLoopIndex = i;
-                break;
-            }
+            // Schedule phase: after "PreLateUpdate" (once this frame's parameters are applied), write and
+            // schedule the native update. It is completed at the next frame's complete phase above.
+            var scheduled = TryAppendToPlayerLoopPhase(ref playerLoopSystem, typeof(PreLateUpdate),
+                new PlayerLoopSystem { type = typeof(CubismModel), updateDelegate = OnModelsUpdate });
 
-            if (playerLoopIndex < 0)
+            if (!completed || !scheduled)
             {
                 Debug.LogError("CubismModel : Failed to add processing to PlayerLoop.");
                 return;
             }
 
-            // Get the "PreLateUpdate" system.
-            var playerLoopSubSystem = playerLoopSystem.subSystemList[playerLoopIndex];
-            var subSystemList = playerLoopSubSystem.subSystemList;
-
-
-            // Register the model update function after "PreLateUpdate" system.
-            Array.Resize(ref subSystemList, subSystemList.Length + 1);
-            subSystemList[subSystemList.Length - 1] = myPlayerLoopSystem;
-
-
-            // Restore the "PreLateUpdate" sytem.
-            playerLoopSubSystem.subSystemList = subSystemList;
-            playerLoopSystem.subSystemList[playerLoopIndex] = playerLoopSubSystem;
             PlayerLoop.SetPlayerLoop(playerLoopSystem);
+        }
+
+        /// <summary>
+        /// Appends <paramref name="entry"/> to the sub-system list of the player-loop phase of type
+        /// <paramref name="phaseType"/>.
+        /// </summary>
+        /// <param name="root">Player loop to modify in place.</param>
+        /// <param name="phaseType">Top-level phase to append into (e.g. <see cref="PreLateUpdate"/>).</param>
+        /// <param name="entry">Sub-system to append.</param>
+        /// <returns><see langword="true"/> when the phase was found and the entry appended.</returns>
+        private static bool TryAppendToPlayerLoopPhase(ref PlayerLoopSystem root, Type phaseType, PlayerLoopSystem entry)
+        {
+            for (var i = 0; i < root.subSystemList.Length; i++)
+            {
+                if (root.subSystemList[i].type != phaseType)
+                {
+                    continue;
+                }
+
+                var phase = root.subSystemList[i];
+                var subSystemList = phase.subSystemList;
+
+                Array.Resize(ref subSystemList, subSystemList.Length + 1);
+                subSystemList[subSystemList.Length - 1] = entry;
+
+                phase.subSystemList = subSystemList;
+                root.subSystemList[i] = phase;
+
+                return true;
+            }
+
+            return false;
         }
 #endif
 
@@ -738,21 +891,34 @@ namespace Live2D.Cubism.Core
 #if UNITY_2018_1_OR_NEWER
             if (!WasAttachedModelUpdateFunction)
             {
-                _modelUpdateFunctions += OnModelUpdate;
+                // Two player-loop phases: schedule (write + Schedule) then complete (Complete + consume).
+                _modelUpdateFunctions += OnModelSchedule;
+                _modelCompleteFunctions += OnModelComplete;
 
 
                 WasAttachedModelUpdateFunction = true;
             }
-#endif
 
-
-            // Return on first frame enabled.
+            // On 2018+ the update is scheduled (OnModelSchedule) and completed/consumed at the next frame's
+            // start (OnModelComplete) via the player loop, so nothing is read here. The native update thus runs
+            // on a worker across the frame boundary and is hidden from the main thread, at the cost of one
+            // frame of latency.
+#else
+            // Legacy path (no player loop): consume the previous frame's results here.
             if (WasJustEnabled)
             {
                 return;
             }
 
+            FetchResults();
+#endif
+        }
 
+        /// <summary>
+        /// Reads back the completed update results and raises <see cref="OnDynamicDrawableData"/>.
+        /// </summary>
+        private void FetchResults()
+        {
             // Return unless revived.
             if (!IsRevived)
             {
@@ -760,12 +926,37 @@ namespace Live2D.Cubism.Core
             }
 
 
-            // Return if backend is ticking.
+            // Return if the backend has not produced a result yet.
             if (!TaskableModel.DidExecute)
             {
                 return;
             }
 
+
+            // The results are being consumed now, so clear any deferred-consume request.
+            _pendingFetchResults = false;
+
+            // Snapshot the render orders while the native buffers are stable (the update job has completed).
+            CaptureRenderOrders();
+
+            SyncParametersBack();
+
+            // Trigger event.
+            if (OnDynamicDrawableData == null)
+            {
+                return;
+            }
+
+            OnDynamicDrawableData(this, TaskableModel.DynamicDrawableData);
+        }
+
+        /// <summary>
+        /// Reads the parameters back from the native model and restores the values saved by the <see cref="CubismParameterStore"/>.
+        /// </summary>
+        private void SyncParametersBack()
+        {
+            // The restore is being done now, so clear any deferred-restore request.
+            _pendingParameterRestore = false;
 
             // Sync parameters back.
             TaskableModel.TryReadParameters(Parameters);
@@ -782,32 +973,39 @@ namespace Live2D.Cubism.Core
                 _parameterStore.RestoreParameters();
 #endif
             }
-
-            // Trigger event.
-            if (OnDynamicDrawableData == null)
-            {
-                return;
-            }
-
-
-            OnDynamicDrawableData(this, TaskableModel.DynamicDrawableData);
         }
 
 
         /// <summary>
-        /// Called by Unity. Blockingly updates <see langword="this"/> on first frame enabled; otherwise tries async update.
+        /// Called by Unity. Legacy (pre-2018) update entry point.
         /// </summary>
         private void OnRenderObject()
         {
 #if !UNITY_2018_1_OR_NEWER
-            OnModelUpdate();
+            // No player loop available: update synchronously here. Results are consumed next frame in Update().
+            if (!IsRevived)
+            {
+                return;
+            }
+
+            if (LastTick == Time.frameCount && Application.isPlaying)
+            {
+                return;
+            }
+
+            LastTick = Time.frameCount;
+
+            TaskableModel.TryWriteParametersAndParts(Parameters, Parts);
+            TaskableModel.UpdateNow();
+
+            WasJustEnabled = false;
 #endif
         }
 
         /// <summary>
-        /// Update model states.
+        /// Player-loop phase 1: writes parameters/parts and schedules the native update on a worker thread.
         /// </summary>
-        private void OnModelUpdate()
+        private void OnModelSchedule()
         {
             // Return unless revived.
             if (!IsRevived)
@@ -822,42 +1020,61 @@ namespace Live2D.Cubism.Core
                 return;
             }
 
-
             LastTick = Time.frameCount;
 
-
-            // Try to sync parameters and parts (without caring whether task is executing or not).
+            // Sync parameters and parts into the native model.
             TaskableModel.TryWriteParametersAndParts(Parameters, Parts);
 
-
-            // Return if task is executing.
-            if (TaskableModel.IsExecuting)
-            {
-                return;
-            }
-
-
-            // Force blocking update on first frame enabled.
+            // First enabled frame: update synchronously and consume now, so this frame already shows valid
+            // data instead of one frame of default pose before the 1-frame-lagged async pipeline fills in.
             if (WasJustEnabled)
             {
-                // Force sync update.
                 TaskableModel.UpdateNow();
-
-
-                // Unset condition.
                 WasJustEnabled = false;
-
-
-                // Fetch results by calling own 'Update()'.
-                Update();
-
+                FetchResults();
 
                 return;
             }
 
+            // Schedule the native update job (runs on a worker thread, completed next frame in OnModelComplete).
+            TaskableModel.Schedule();
+        }
 
-            // Enqueue update task.
-            TaskableModel.Update();
+        /// <summary>
+        /// Player-loop phase 2: completes the native update and consumes the results in the same frame.
+        /// </summary>
+        private void OnModelComplete()
+        {
+            if (!IsRevived)
+            {
+                return;
+            }
+
+            // Only consume results for a model that was actually scheduled this frame. This skips a model
+            // already updated synchronously this frame (e.g. via ForceUpdateNow, which marks LastTick so the
+            // schedule phase does nothing), avoiding a duplicate OnDynamicDrawableData and mesh swap.
+            // A job completed early by a live Core read still has pending results to consume here.
+            if (!TaskableModel.IsExecuting && !_pendingFetchResults)
+            {
+                // A model updated by ForceUpdateNow still needs its parameters restored once, as the
+                // per-frame consume did before the update was split into the schedule / complete phases.
+                if (_pendingParameterRestore)
+                {
+                    SyncParametersBack();
+                }
+
+                return;
+            }
+
+            // Complete the scheduled update (waits for the worker) and read the results.
+            if (TaskableModel.IsExecuting)
+            {
+                TaskableModel.Complete();
+            }
+
+            WasJustEnabled = false;
+
+            FetchResults();
         }
 
         /// <summary>
@@ -876,10 +1093,24 @@ namespace Live2D.Cubism.Core
 #if UNITY_2018_1_OR_NEWER
             if (WasAttachedModelUpdateFunction)
             {
-                _modelUpdateFunctions -= OnModelUpdate;
+                _modelUpdateFunctions -= OnModelSchedule;
+                _modelCompleteFunctions -= OnModelComplete;
 
 
                 WasAttachedModelUpdateFunction = false;
+            }
+
+            // Finish any in-flight update job before this model stops being ticked, so a later release or
+            // re-enable never races the worker. Complete without reading so the in-flight update's dynamic flags
+            // survive. The next update after re-enable then refreshes every drawable that had moved.
+            if (IsRevived)
+            {
+                TaskableModel.CompleteWithoutRead();
+            }
+
+            if (_pendingFetchResults)
+            {
+                FetchResults();
             }
 #endif
         }

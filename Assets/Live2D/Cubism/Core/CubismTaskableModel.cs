@@ -7,7 +7,9 @@
 
 
 using Live2D.Cubism.Core.Unmanaged;
-using System.Threading;
+using System;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 using UnityEngine;
 
 
@@ -16,7 +18,13 @@ namespace Live2D.Cubism.Core
     /// <summary>
     /// 'Atomic' <see cref="CubismModel"/> update task.
     /// </summary>
-    internal sealed class CubismTaskableModel : ICubismTask
+    /// <remarks>
+    /// The native model update (<see cref="CubismCoreDll.UpdateModel"/>) runs on a Unity C# Job System worker thread via a
+    /// non-Burst <see cref="IJob"/> (a P/Invoke cannot be Burst-compiled, but a non-Burst job may call it).
+    /// Ordering between the main thread and the worker is guaranteed by the <see cref="JobHandle"/> instead of
+    /// a lock: write parameters, <see cref="Schedule"/> the update, then <see cref="Complete"/> before reading.
+    /// </remarks>
+    internal sealed class CubismTaskableModel
     {
         #region Factory Methods
 
@@ -43,56 +51,36 @@ namespace Live2D.Cubism.Core
         public CubismMoc Moc { get; private set; }
 
 
-        private CubismDynamicDrawableData[] _dynamicDrawableData;
-
         /// <summary>
         /// Buffer to write dynamic data to.
         /// </summary>
-        public CubismDynamicDrawableData[] DynamicDrawableData
-        {
-            get
-            {
-                CubismDynamicDrawableData[] dynamicDrawableData = null;
-
-                if (Monitor.TryEnter(Lock))
-                {
-                    dynamicDrawableData = _dynamicDrawableData;
-
-                    Monitor.Exit(Lock);
-                }
-
-
-                return dynamicDrawableData;
-            }
-
-
-            private set
-            {
-                _dynamicDrawableData = value;
-            }
-        }
+        public CubismDynamicDrawableData[] DynamicDrawableData { get; private set; }
 
 
         /// <summary>
-        /// True if task is currently executing.
+        /// Handle to the in-flight native update job. Valid only while <see cref="_isScheduled"/> is true.
+        /// </summary>
+        private JobHandle _updateHandle;
+
+        /// <summary>
+        /// True while an update job has been scheduled but not yet completed.
+        /// </summary>
+        private bool _isScheduled;
+
+        /// <summary>
+        /// True if the model ran to completion at least once.
+        /// </summary>
+        private bool _didExecute;
+
+
+        /// <summary>
+        /// True if an update is scheduled and not yet completed.
         /// </summary>
         public bool IsExecuting
         {
             get
             {
-                var isExecuting = false;
-
-
-                if (Monitor.TryEnter(Lock))
-                {
-                    isExecuting = (State == TaskState.Enqueued || State == TaskState.Executing);
-
-
-                    Monitor.Exit(Lock);
-                }
-
-
-                return isExecuting;
+                return _isScheduled;
             }
         }
 
@@ -103,18 +91,7 @@ namespace Live2D.Cubism.Core
         {
             get
             {
-                var didExecute = false;
-
-
-                if (Monitor.TryEnter(Lock))
-                {
-                    didExecute = (State == TaskState.Executed);
-
-                    Monitor.Exit(Lock);
-                }
-
-
-                return didExecute;
+                return _didExecute;
             }
         }
 
@@ -149,8 +126,6 @@ namespace Live2D.Cubism.Core
                 return;
             }
 
-            Lock = new object();
-            State = TaskState.Idle;
             DynamicDrawableData = CubismDynamicDrawableData.CreateData(UnmanagedModel);
             ShouldReleaseUnmanaged = false;
         }
@@ -164,110 +139,150 @@ namespace Live2D.Cubism.Core
         /// <returns><see langword="true"/> on success; <see langword="false"/> otherwise.</returns>
         public bool TryReadParameters(CubismParameter[] parameters)
         {
-            var didRead = false;
-
-
-            if (Monitor.TryEnter(Lock))
+            // The Core buffers must not be read while the update job is in flight, and there is nothing
+            // to read before the first completion.
+            if (_isScheduled || !_didExecute)
             {
-                try
-                {
-                    if (State == TaskState.Executed)
-                    {
-                        parameters.ReadFrom(UnmanagedModel);
-
-
-                        didRead = true;
-                    }
-                }
-                finally
-                {
-                    Monitor.Exit(Lock);
-                }
+                return false;
             }
 
+            parameters.ReadFrom(UnmanagedModel);
 
-            return didRead;
+            return true;
         }
 
         /// <summary>
-        /// Tries to write parameters to a buffer.
+        /// Tries to write parameters and parts to the native model.
         /// </summary>
         /// <param name="parameters">Buffer to read from.</param>
         /// <param name="parts">Buffer to read from.</param>
         /// <returns><see langword="true"/> on success; <see langword="false"/> otherwise.</returns>
         public bool TryWriteParametersAndParts(CubismParameter[] parameters, CubismPart[] parts)
         {
-            var didWrite = false;
-
-
-            if (Monitor.TryEnter(Lock))
+            // Must not touch the Core input buffers while the update job is reading them.
+            if (_isScheduled)
             {
-                try
-                {
-                    if (State != TaskState.Executing)
-                    {
-                        parameters.WriteTo(UnmanagedModel);
-                        parts.WriteTo(UnmanagedModel);
-
-
-                        didWrite = true;
-                    }
-                }
-                finally
-                {
-                    Monitor.Exit(Lock);
-                }
+                return false;
             }
 
+            parameters.WriteTo(UnmanagedModel);
+            parts.WriteTo(UnmanagedModel);
 
-            return didWrite;
+            return true;
         }
 
 
         /// <summary>
-        /// Dispatches the task for (maybe async) execution.
+        /// Schedules the native model update on a Job System worker thread.
         /// </summary>
-        public void Update()
+        /// <remarks>
+        /// Call after writing parameters/parts. Pair every <see cref="Schedule"/> with a <see cref="Complete"/>
+        /// before reading results. Scheduling while a previous job is still in flight is a no-op.
+        /// </remarks>
+        public void Schedule()
         {
-            // Validate state.
-            lock (Lock)
+            if (_isScheduled || UnmanagedModel == null)
             {
-                if (State == TaskState.Enqueued || State == TaskState.Executing)
-                {
-                    return;
-                }
-
-
-                // Update state.
-                State = TaskState.Enqueued;
+                return;
             }
 
+            _updateHandle = new CubismModelUpdateJob
+            {
+                ModelPtr = UnmanagedModel.Ptr
+            }
+            .Schedule();
 
-            CubismTaskQueue.Enqueue(this);
+            _isScheduled = true;
         }
 
         /// <summary>
-        /// Forces the task to run now to completion.
+        /// Completes the scheduled native update and reads the results into the managed buffers.
         /// </summary>
-        public bool UpdateNow()
+        public void Complete()
         {
-            // Validate state.
-            lock (Lock)
+            if (!_isScheduled)
             {
-                if (State == TaskState.Enqueued || State == TaskState.Executing)
-                {
-                    return false;
-                }
+                return;
+            }
+
+            _updateHandle.Complete();
+            _isScheduled = false;
 
 
-                // Update state.
-                State = TaskState.Enqueued;
+            // Get results.
+            DynamicDrawableData.ReadFrom(UnmanagedModel);
+
+            _didExecute = true;
+
+
+            // Release native if requested while the job was in flight.
+            if (ShouldReleaseUnmanaged)
+            {
+                OnReleaseUnmanaged();
+            }
+        }
+
+        /// <summary>
+        /// Completes the scheduled update job (waits for the worker) without reading the results.
+        /// </summary>
+        /// <remarks>
+        /// Unlike <see cref="Complete"/>, this does not read the native buffers or reset the dynamic flags, so
+        /// the changes the completed update produced remain flagged for a following update to pick up. Use it
+        /// when the results are going to be discarded and replaced by another update (or when simply stopping
+        /// the worker), so no drawable is left with a stale mesh.
+        /// </remarks>
+        public void CompleteWithoutRead()
+        {
+            if (!_isScheduled)
+            {
+                return;
+            }
+
+            _updateHandle.Complete();
+            _isScheduled = false;
+        }
+
+        /// <summary>
+        /// Runs the native update synchronously to completion (no worker thread).
+        /// </summary>
+        /// <remarks>
+        /// Used where the Job System two-phase (schedule/complete) flow is not available, such as the Editor's
+        /// non-play update and <see cref="CubismModel.ForceUpdateNow"/>.
+        /// </remarks>
+        /// <param name="accumulateFlags">
+        /// <see langword="true"/> to merge the dynamic flags into the ones already read instead of replacing them.
+        /// Use it when the previously read results have not been consumed yet.
+        /// </param>
+        /// <returns><see langword="true"/> on success.</returns>
+        public bool UpdateNow(bool accumulateFlags = false)
+        {
+            // Finish any in-flight job first so the synchronous update does not race it.
+            if (_isScheduled)
+            {
+                _updateHandle.Complete();
+                _isScheduled = false;
+            }
+
+            if (UnmanagedModel == null)
+            {
+                return false;
             }
 
 
-            // Run execution directly.
-            Execute();
+            // Update native backend.
+            UnmanagedModel.Update();
 
+
+            // Get results.
+            DynamicDrawableData.ReadFrom(UnmanagedModel, accumulateFlags);
+
+            _didExecute = true;
+
+
+            if (ShouldReleaseUnmanaged)
+            {
+                OnReleaseUnmanaged();
+            }
 
             return true;
         }
@@ -281,13 +296,11 @@ namespace Live2D.Cubism.Core
             ShouldReleaseUnmanaged = true;
 
 
-            // Return if task is ongoing.
-            lock (Lock)
+            // Finish any in-flight job before releasing the native model it references.
+            if (_isScheduled)
             {
-                if (State == TaskState.Enqueued || State == TaskState.Executing)
-                {
-                    return;
-                }
+                _updateHandle.Complete();
+                _isScheduled = false;
             }
 
 
@@ -299,45 +312,15 @@ namespace Live2D.Cubism.Core
 
 
         /// <summary>
-        /// Runs the task.
-        /// </summary>
-        private void Execute()
-        {
-            // Validate state.
-            lock (Lock)
-            {
-                State = TaskState.Executing;
-            }
-
-
-            // Update native backend.
-            UnmanagedModel.Update();
-
-
-            // Get results.
-            DynamicDrawableData.ReadFrom(UnmanagedModel);
-
-
-            // Update state.
-            lock (Lock)
-            {
-                State = TaskState.Executed;
-
-
-                // Release native if requested.
-                if (ShouldReleaseUnmanaged)
-                {
-                    OnReleaseUnmanaged();
-                }
-            }
-        }
-
-
-        /// <summary>
         /// Actually releases native resource(s).
         /// </summary>
         private void OnReleaseUnmanaged()
         {
+            if (UnmanagedModel == null)
+            {
+                return;
+            }
+
             UnmanagedModel.Release();
             Moc.ReleaseUnmanagedMoc();
 
@@ -345,53 +328,42 @@ namespace Live2D.Cubism.Core
             UnmanagedModel = null;
         }
 
-        #region Implementation of ICubismTask
-
-        void ICubismTask.Execute()
-        {
-            Execute();
-        }
-
-        #endregion
-
-        #region Threading
+        #region Job
 
         /// <summary>
-        /// Task states.
+        /// Non-Burst job that runs the native model update on a worker thread.
         /// </summary>
-        private enum TaskState
+        /// <remarks>
+        /// <see cref="CubismCoreDll.UpdateModel"/> is a P/Invoke and cannot be Burst-compiled, so this job is intentionally not
+        /// marked <see cref="Unity.Burst.BurstCompileAttribute"/>.
+        /// It only moves the native call off the main thread. It captures the model pointer rather than any managed reference.
+        /// </remarks>
+        private struct CubismModelUpdateJob : IJob
         {
             /// <summary>
-            /// Idle state.
+            /// Pointer to unmanaged model.
             /// </summary>
-            Idle,
+            /// <remarks>
+            /// NOTE: The model pointer is owned by the managed <see cref="CubismTaskableModel"/> for the model's lifetime and each
+            /// model has its own pointer. Ordering with main-thread reads/writes is enforced by the JobHandle,
+            /// so the Job System's unsafe-pointer restriction is intentionally disabled here.
+            /// </remarks>
+            [NativeDisableUnsafePtrRestriction]
+            public IntPtr ModelPtr;
 
             /// <summary>
-            /// Waiting-for-execution state.
+            /// Executes the job.
             /// </summary>
-            Enqueued,
+            public void Execute()
+            {
+                if (ModelPtr == IntPtr.Zero)
+                {
+                    return;
+                }
 
-            /// <summary>
-            /// Executing state.
-            /// </summary>
-            Executing,
-
-            /// <summary>
-            /// Executed state.
-            /// </summary>
-            Executed
+                CubismCoreDll.UpdateModel(ModelPtr);
+            }
         }
-
-
-        /// <summary>
-        /// Lock.
-        /// </summary>
-        private object Lock { get; set; }
-
-        /// <summary>
-        /// Internal state.
-        /// </summary>
-        private TaskState State { get; set; }
 
         #endregion
     }

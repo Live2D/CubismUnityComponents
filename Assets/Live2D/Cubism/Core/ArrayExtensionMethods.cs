@@ -242,7 +242,16 @@ namespace Live2D.Cubism.Core
         /// </summary>
         /// <param name="self">Buffer to write to.</param>
         /// <param name="unmanagedModel">Unmanaged model to read from.</param>
-        internal static unsafe void ReadFrom(this CubismDynamicDrawableData[] self, CubismUnmanagedModel unmanagedModel)
+        /// <param name="accumulateFlags">
+        /// <see langword="true"/> to merge the dynamic flags into the ones already held instead of replacing them.
+        /// Use it when the previously read results have not been consumed yet, so their changes are not lost.
+        /// </param>
+        /// <remarks>
+        /// NOTE: Vertex positions are baked straight from the Core buffers into the mesh via Burst
+        /// (<see cref="Live2D.Cubism.Rendering.CubismVertexPositionBaker"/>), so the managed copy is intentionally skipped here.
+        /// <see cref="CubismDynamicDrawableData.VertexPositions"/> is therefore no longer allocated or updated, and is always null.
+        /// </remarks>
+        internal static void ReadFrom(this CubismDynamicDrawableData[] self, CubismUnmanagedModel unmanagedModel, bool accumulateFlags = false)
         {
             // Get addresses.
             var drawables = unmanagedModel.Drawables;
@@ -250,7 +259,6 @@ namespace Live2D.Cubism.Core
             var opacities = drawables.Opacities;
             var drawOrders = drawables.DrawOrders;
             var renderOrders = drawables.RenderOrders;
-            var vertexPositions = drawables.VertexPositions;
             var multiplyColors = drawables.MultiplyColors;
             var screenColors = drawables.ScreenColors;
 
@@ -260,37 +268,26 @@ namespace Live2D.Cubism.Core
                 var data = self[i];
 
 
-                data.Flags = flags[i];
+                if (accumulateFlags)
+                {
+                    // Only the did-change bits are merged. The visibility bit is a state, so it is taken from the latest update.
+                    data.Flags = (byte)((data.Flags & ~CubismCoreDll.IsVisible) | flags[i]);
+                }
+                else
+                {
+                    data.Flags = flags[i];
+                }
+
                 data.Opacity = opacities[i];
                 data.DrawOrder = drawOrders[i];
                 data.RenderOrder = renderOrders[i];
 
-
-                // Read vertex positions only if necessary.
-                if (!data.AreVertexPositionsDirty)
+                if (data.IsBlendColorDirty)
                 {
-                    continue;
+                    var rgbaIndex = i * 4;
+                    data.MultiplyColor = new Color(multiplyColors[rgbaIndex], multiplyColors[rgbaIndex + 1], multiplyColors[rgbaIndex + 2], multiplyColors[rgbaIndex + 3]);
+                    data.ScreenColor = new Color(screenColors[rgbaIndex], screenColors[rgbaIndex + 1], screenColors[rgbaIndex + 2], screenColors[rgbaIndex + 3]);
                 }
-
-
-                // Copy vertex positions.
-                fixed (Vector3* dataVertexPositions = data.VertexPositions)
-                {
-                    for (var v = 0; v < data.VertexPositions.Length; ++v)
-                    {
-                        dataVertexPositions[v].x = vertexPositions[i][(v * 2) + 0];
-                        dataVertexPositions[v].y = vertexPositions[i][(v * 2) + 1];
-                    }
-                }
-
-                if (!data.IsBlendColorDirty)
-                {
-                    continue;
-                }
-
-                var rgbaIndex = i * 4;
-                data.MultiplyColor = new Color(multiplyColors[rgbaIndex], multiplyColors[rgbaIndex + 1], multiplyColors[rgbaIndex + 2], multiplyColors[rgbaIndex + 3]);
-                data.ScreenColor = new Color(screenColors[rgbaIndex], screenColors[rgbaIndex + 1], screenColors[rgbaIndex + 2], screenColors[rgbaIndex + 3]);
             }
 
 

@@ -439,7 +439,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 603604032}
-  - component: {fileID: 603604031}
   - component: {fileID: 603604030}
   - component: {fileID: 603604029}
   - component: {fileID: 603604033}
@@ -481,19 +480,6 @@ MonoBehaviour:
     type: 3}
   AnimatorController: {fileID: 9100000, guid: f27586cd44c114b978374b537376c08f, type: 2}
   ModelCountUi: {fileID: 648527810}
---- !u!114 &603604031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 603604028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f22e5acc2345e624b898e84b16306e17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  EnableAsync: 0
 --- !u!4 &603604032
 Transform:
   m_ObjectHideFlags: 0

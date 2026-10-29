@@ -106,6 +106,17 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         private int _renderPassCounter = 0;
 
         /// <summary>
+        /// Injection prediction for the rendering event currently being dispatched.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="CubismRenderingInterceptorsManager"/> asks every interceptor for this prediction
+        /// before it dispatches the event, then hands the answer back when it does. Storing it here lets
+        /// <see cref="TryDraw"/> reuse the decision instead of running <see cref="ShouldDrawForMode"/> a
+        /// second time for the same event.
+        /// </remarks>
+        private bool _willInjectForCurrentEvent;
+
+        /// <summary>
         /// Group sorting order for rendering.
         /// </summary>
         int ICubismRenderingInterceptor.RenderingGroupSortingOrder
@@ -239,8 +250,11 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// Called before rendering for each pass.
         /// </summary>
         /// <param name="args"> Event arguments. </param>
-        void ICubismRenderingInterceptor.OnPreRenderingForPass(CubismRenderedEventArgs args)
+        /// <param name="willInject"> The prediction the manager made for this event. </param>
+        void ICubismRenderingInterceptor.OnPreRenderingForPass(CubismRenderedEventArgs args, bool willInject)
         {
+            _willInjectForCurrentEvent = willInject;
+
             OnPreRendering(args);
         }
 
@@ -263,8 +277,11 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// Called after rendering for each pass.
         /// </summary>
         /// <param name="args"> Event arguments. </param>
-        void ICubismRenderingInterceptor.OnPostRenderingForPass(CubismRenderedEventArgs args)
+        /// <param name="willInject"> The prediction the manager made for this event. </param>
+        void ICubismRenderingInterceptor.OnPostRenderingForPass(CubismRenderedEventArgs args, bool willInject)
         {
+            _willInjectForCurrentEvent = willInject;
+
             OnPostRendering(args);
         }
 
@@ -294,10 +311,9 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             // Find or create camera draw status.
             var statusIndex = FindCameraDrawStatusIndex(currentCamera);
 
-            // Create a new entry if not found.
+            // Create a new entry if not found, reusing one left behind by a camera that is gone.
             if (statusIndex < 0)
             {
-                // Reserve a camera draw status slot.
                 statusIndex = AcquireCameraDrawStatusIndex();
 
                 // Initialize the new entry.
@@ -314,7 +330,10 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
                 return;
             }
 
-            if (!ShouldDrawForMode(args))
+            // The manager already ran ShouldDrawForMode for this event when it asked for the injection
+            // prediction. Past the already-drawn check above, that prediction is exactly the mode
+            // decision, so reuse it instead of evaluating the mode a second time.
+            if (!_willInjectForCurrentEvent)
             {
                 return;
             }
@@ -326,6 +345,12 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             }
             else
             {
+                // Interceptor-driven models opt out of the common controller group (see
+                // CubismRenderController.OnEnable), so the render pass never captured their root transform.
+                // Capture it here, just before drawing, so the per-drawable transform paths read valid values
+                // instead of the default (zero-scale / zero-rotation) snapshot, which would collapse the mesh.
+                _renderController.CaptureRootTransform();
+
                 for (var index = 0; index < _renderController.SortedRenderers.Length; index++)
                 {
                     var targetRenderer = _renderController.SortedRenderers[index];

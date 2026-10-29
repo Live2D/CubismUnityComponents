@@ -144,10 +144,20 @@ namespace Live2D.Cubism.Editor.Inspectors
 
                 foreach (var renderer in controller.Renderers)
                 {
+                    // The model-wide override toggles change what every renderer's blend color resolves to.
+                    // The render path reads the displayed draw state (only advanced when the model is stepped),
+                    // so sync it here to reflect the change immediately in the editor.
+                    if (renderer)
+                    {
+                        renderer.ApplyDisplayedBlendColorsImmediate();
+                    }
+
                     EditorUtility.SetDirty(renderer);
                     // HACK Get mesh renderer directly.
                     EditorUtility.SetDirty(renderer.MeshRenderer);
                 }
+
+                SceneView.RepaintAll();
             }
 
 
@@ -174,8 +184,8 @@ namespace Live2D.Cubism.Editor.Inspectors
         /// Draws the current draw order of every draw object (<see cref="CubismModelTypes.DrawObjectType.Drawable"/>
         /// and <see cref="CubismModelTypes.DrawObjectType.Offscreen"/>) sorted from the one drawn first to the one drawn last.
         /// Matches <see cref="CubismRenderer"/>.<c>ApplySorting</c>: order modes use a single
-        /// <c>RenderOrder + Local + Parent</c> key (negated for <see cref="CubismSortingMode.FrontToBackOrder"/>);
-        /// depth modes use Local+Parent for <see cref="MeshRenderer.sortingOrder"/> and RenderOrder for Z.
+        /// <c>RenderOrder + Local + Parent</c> key (negated for <see cref="CubismSortingMode.FrontToBackOrder"/>).
+        /// Depth modes use Local+Parent for <see cref="MeshRenderer.sortingOrder"/> and RenderOrder for Z.
         /// </summary>
         /// <param name="controller">The inspected render controller.</param>
         private void DrawDrawOrder(CubismRenderController controller)
@@ -233,7 +243,7 @@ namespace Live2D.Cubism.Editor.Inspectors
                 {
                     Name = renderer.name,
                     Type = renderer.DrawObjectType,
-                    // Order modes fold RenderOrder into sortingOrder; depth modes keep it on Z only.
+                    // Order modes fold RenderOrder into sortingOrder. Depth modes keep it on Z only.
                     OrderKey = sortByOrder
                         ? renderOrder + localOrderKey
                         : localOrderKey,
@@ -245,8 +255,8 @@ namespace Live2D.Cubism.Editor.Inspectors
 
             // Sort from first drawn (behind) to last drawn (front).
             // Order: MeshRenderer.sortingOrder uses ±OrderKey (FrontToBackOrder negates).
-            // Depth: sortingOrder uses OrderKey (Local+Parent); RenderOrder is the Z secondary key
-            // (BackToFrontZ: lower RenderOrder behind; FrontToBackZ: higher RenderOrder behind).
+            // Depth: sortingOrder uses OrderKey (Local+Parent). RenderOrder is the Z secondary key
+            // (BackToFrontZ: lower RenderOrder behind, FrontToBackZ: higher RenderOrder behind).
             var frontToBackOrder = controller.SortingMode == CubismSortingMode.FrontToBackOrder;
             var frontToBackZ = controller.SortingMode == CubismSortingMode.FrontToBackZ;
 

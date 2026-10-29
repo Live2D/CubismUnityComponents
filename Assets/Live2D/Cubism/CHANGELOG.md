@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.6.1] - 2026-10-29
+
+### Changed
+
+* Change dynamic batch processing to parallel processing using `Unity.Jobs`.
+* Change parallel processing in `CubismTaskableModel` from `System.Threading` to parallel processing using `Unity.Jobs`.
+* Change the model update to always run on a worker thread, so the rendered result is one frame behind the parameters.
+  * Previously, the model was updated synchronously on the main thread within the same frame unless `CubismBuiltinAsyncTaskHandler` was activated.
+  * The update is scheduled after `PreLateUpdate` and its result is applied at `PreUpdate` of the next frame.
+  * The first frame after the model is enabled and `CubismModel.ForceUpdateNow()` still update the model synchronously.
+* Change vertex information updates from CubismCore to parallel processing using `Unity.Jobs`.
+  * Also changed the method to read values directly from pointers using `NativeArray`.
+  * Mark `CubismDynamicDrawableData.VertexPositions` as obsoleted.
+    * It is no longer allocated or updated, so it always returns `null`. Use `CubismDrawable.VertexPositions` instead.
+* Change the access modifier of `UnmanagedFixedAddress` in the class in `CubismUnmanagedArrayView.cs` to `internal`.
+* Change the return type of `CubismModel.AllDrawObjectsRenderOrder` from `CubismUnmanagedIntArrayView` to a managed snapshot of type `int[]`.
+* Change reads of dynamic draw object data to prevent a data race with the worker-thread model update.
+  * `CubismDrawable.VertexPositions` / `MultiplyColor` / `ScreenColor` and `CubismOffscreen.Opacity` / `MultiplyColor` / `ScreenColor` now complete the in-flight update before reading the native buffers.
+  * `CubismModel.AllDrawObjectsRenderOrder` is captured as a snapshot when the update completes.
+* Change the access modifier of the backing field `CubismDrawable._screenColor` from `public` to `private`.
+* Change the background copy used by blend modes that read their backdrop to cover only the area the drawable occupies.
+* Change the clear of an offscreen render texture to be independent of the area its composite is limited to.
+* Change to reduce the main-thread cost of rendering by omitting redundant native property accesses, vertex color uploads and per-draw object recalculations.
+* Change the high-precision mask texture created on `RenderGraph` to not inherit the MSAA sample count of the camera color target.
+
+### Fixed
+
+* Fix an issue where the common and temporary render textures created without `RenderGraph` did not match the MSAA sample count of the camera depth buffer they are rendered with.
+* Fix an issue where rendering interception allocated a closure and a delegate for every draw object in every frame.
+* Fix an issue where the per-camera state held by `CubismRenderingInterceptController` was never released, so it grew every time a camera was destroyed and recreated.
+  * The cost of the per-draw object lookup grew with it.
+* Fix an issue where a renderer without a `CubismRenderController` was not excluded from rendering.
+* Fix an issue where comparing offscreen frame buffers acquired an unnecessary render texture from the pool.
+* Fix an issue where the name of a model placed in a scene was reverted to the name of its `.moc3` when the scene was played.
+
+### Removed
+
+* Remove the following classes that performed asynchronous processing using `System.Threading`.
+  * `Assets/Live2D/Cubism/Core/ICubismTask.cs`
+  * `Assets/Live2D/Cubism/Core/CubismTaskQueue.cs`
+  * `Assets/Live2D/Cubism/Framework/Tasking/CubismBuiltinAsyncTaskHandler.cs`
+* Remove files no longer used by the sample.
+  * `Assets/Live2D/Cubism/Samples/AsyncBenchmark/AsyncToggler.cs`
+
+
 ## [5-r.6] - 2026-10-20
 
 ### Added
@@ -672,6 +717,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.6.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.6...5-r.6.1
 [5-r.6]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5...5-r.6
 [5-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.3...5-r.5
 [5-r.5-beta.3]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.2...5-r.5-beta.3

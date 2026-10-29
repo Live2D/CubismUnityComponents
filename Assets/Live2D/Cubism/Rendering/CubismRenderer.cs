@@ -10,6 +10,7 @@ using Live2D.Cubism.Core;
 using Live2D.Cubism.Framework.Json;
 using Live2D.Cubism.Rendering.Util;
 using System;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
@@ -661,7 +662,18 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Buffer for vertex colors.
         /// </summary>
-        private Color[] VertexColors { get; set; }
+        private Color32[] VertexColors { get; set; }
+
+        /// <summary>
+        /// Number of mesh buffers that still need the current <see cref="VertexColors"/> uploaded to them.
+        /// </summary>
+        /// <remarks>
+        /// The colors change only on color/opacity change, but <see cref="SwapMeshes"/> runs on any swap
+        /// (most commonly vertex-position changes). To avoid re-uploading unchanged colors every swap, this
+        /// counts down from the number of double-buffered meshes whenever the colors change, so each buffer
+        /// receives the new colors exactly once and then the upload is skipped until the next change.
+        /// </remarks>
+        private int _pendingColorUploads;
 
         /// <summary>
         /// Draw state currently used for rendering.
@@ -713,8 +725,22 @@ namespace Live2D.Cubism.Rendering
             FrontMesh = (FrontMesh == 0) ? 1 : 0;
 
             // Update colors.
-            Meshes[BackMesh].colors = VertexColors;
-
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                // The editor does not step the model every frame, so upload on every swap to reflect
+                // Inspector changes (blend-color override toggles, opacity) immediately. The runtime gating
+                // below relies on the continuous per-frame swaps that edit mode does not guarantee.
+                Meshes[BackMesh].SetColors(VertexColors);
+            }
+            else
+#endif
+            // At runtime, skip the redundant upload while no buffer still needs the latest colors.
+            if (_pendingColorUploads > 0)
+            {
+                Meshes[BackMesh].SetColors(VertexColors);
+                _pendingColorUploads--;
+            }
 
             // Update swap info.
             LastSwap = ThisSwap;
@@ -876,6 +902,38 @@ namespace Live2D.Cubism.Rendering
             return true;
         }
 
+#if UNITY_EDITOR
+        /// <summary>
+        /// Immediately syncs the displayed blend colors to the current <see cref="MultiplyColor"/> and
+        /// <see cref="ScreenColor"/> without waiting for the model to be stepped.
+        /// </summary>
+        /// <remarks>
+        /// The render path reads the displayed draw state, which is otherwise updated only after the model
+        /// runs (and lags by a swap). The editor does not step the model on every Inspector change, so this
+        /// lets Inspector edits of the blend colors or their override flags be reflected right away.
+        /// </remarks>
+        public void ApplyDisplayedBlendColorsImmediate()
+        {
+            if (DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+            {
+                return;
+            }
+
+            var multiplyColor = MultiplyColor;
+            var screenColor = ScreenColor;
+
+            var pending = PendingDrawState;
+            pending.MultiplyColor = multiplyColor;
+            pending.ScreenColor = screenColor;
+            PendingDrawState = pending;
+
+            var displayed = DisplayedDrawState;
+            displayed.MultiplyColor = multiplyColor;
+            displayed.ScreenColor = screenColor;
+            DisplayedDrawState = displayed;
+        }
+#endif
+
         /// <summary>
         /// Updates render order.
         /// </summary>
@@ -892,19 +950,36 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Sets the <see cref="UnityEngine.Mesh.vertices"/>.
+        /// Sets the <see cref="UnityEngine.Mesh.vertices"/> from a Burst-baked native buffer.
         /// </summary>
-        /// <param name="newVertexPositions">Vertex positions to set.</param>
-        internal void OnDrawableVertexPositionsDidChange(Vector3[] newVertexPositions)
+        /// <param name="bakedVertices">Shared native buffer holding baked positions for all drawables.</param>
+        /// <param name="offset">Start index of this drawable's vertices in <paramref name="bakedVertices"/>.</param>
+        /// <param name="count">Vertex count of this drawable.</param>
+        /// <param name="bounds">Precomputed XY bounds of this drawable's vertices.</param>
+        internal void OnDrawableVertexPositionsDidChange(NativeArray<Vector3> bakedVertices, int offset, int count, VertexBounds bounds)
         {
             var mesh = Mesh;
 
 
-            // Apply positions and update bounds.
-            mesh.vertices = newVertexPositions;
+            // Upload positions from the native buffer (no managed-to-native marshal). DontRecalculateBounds
+            // skips the redundant bounds pass, since the baker already computed bounds for us.
+            mesh.SetVertices(bakedVertices, offset, count,
+                MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontNotifyMeshUsers);
 
 
-            mesh.RecalculateBounds();
+            // Set bounds manually. DontRecalculateBounds leaves mesh.bounds stale, and mesh.bounds is
+            // consumed by the mask/pre-mask boundary calculation, LookAt and raycasting.
+            if (count > 0)
+            {
+                var center = new Vector3((bounds.MinX + bounds.MaxX) * 0.5f, (bounds.MinY + bounds.MaxY) * 0.5f, 0f);
+                var size = new Vector3(bounds.MaxX - bounds.MinX, bounds.MaxY - bounds.MinY, 0f);
+                mesh.bounds = new Bounds(center, size);
+            }
+            else
+            {
+                // Match the classic RecalculateBounds behavior for an empty mesh: a zero bounds at the origin.
+                mesh.bounds = new Bounds(Vector3.zero, Vector3.zero);
+            }
 
 
             // Set swap flag.
@@ -1104,20 +1179,24 @@ namespace Live2D.Cubism.Rendering
         /// </remarks>
         public void ApplyVertexColors()
         {
-
-
             var vertexColors = VertexColors;
             var color = Color;
-
-
             color.a *= PendingDrawState.Opacity;
 
+            // Convert to Color32 once.
+            // NOTE: An implicit conversion inside the loop would repeat the float-to-byte conversion for every vertex.
+            var color32 = (Color32)color;
 
             for (var i = 0; i < vertexColors.Length; ++i)
             {
-                vertexColors[i] = color;
+                vertexColors[i] = color32;
             }
 
+            // The colors changed, so every mesh buffer needs the new values uploaded on its next swap.
+            if (Meshes != null)
+            {
+                _pendingColorUploads = Meshes.Length;
+            }
 
             // Set swap flag.
             SetNewVertexColors();
@@ -1505,13 +1584,17 @@ namespace Live2D.Cubism.Rendering
             var mesh = Mesh;
 
 
-            VertexColors = new Color[mesh.vertexCount];
+            VertexColors = new Color32[mesh.vertexCount];
+
+
+            var color = Color;
+            color.a *= PendingDrawState.Opacity;
+            var color32 = (Color32)color;
 
 
             for (var i = 0; i < VertexColors.Length; ++i)
             {
-                VertexColors[i] = Color;
-                VertexColors[i].a *= PendingDrawState.Opacity;
+                VertexColors[i] = color32;
             }
 
 
@@ -1526,13 +1609,17 @@ namespace Live2D.Cubism.Rendering
 
             for (var i = 0; i < Meshes.Length; ++i)
             {
-                if (Meshes[i] == null || Meshes[i].vertexCount != VertexColors.Length)
+                if (!Meshes[i] || Meshes[i].vertexCount != VertexColors.Length)
                 {
                     continue;
                 }
 
-                Meshes[i].colors = VertexColors;
+                // Set Color32 array directly.
+                Meshes[i].SetColors(VertexColors);
             }
+
+            // Both buffers now hold the current colors, so no swap-time upload is pending.
+            _pendingColorUploads = 0;
         }
 
         /// <summary>
