@@ -46,6 +46,8 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             {
                 _interceptors = value;
                 _shouldSortInterceptors = true;
+                _shouldPollSortData = true;
+                _hasWillInjectFlags = false;
                 ResetInterceptorSortData();
             }
         }
@@ -59,6 +61,34 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// Whether <see cref="Interceptors"/> should be sorted before rendering.
         /// </summary>
         private bool _shouldSortInterceptors;
+
+        /// <summary>
+        /// Whether the interceptors' sort keys should be read back from the interceptors again.
+        /// </summary>
+        /// <remarks>
+        /// Sort keys are public fields on the interceptors, so they can change at any time without
+        /// notifying this manager. They are therefore polled rather than pushed. Polling walks every
+        /// interceptor, so it is limited to once per render pass via <see cref="RequestSortDataRefresh"/>
+        /// instead of running on every per-drawable rendering event.
+        /// </remarks>
+        private bool _shouldPollSortData = true;
+
+        /// <summary>
+        /// Per-interceptor injection predictions for the rendering event currently being dispatched.
+        /// </summary>
+        /// <remarks>
+        /// Filled by <see cref="WillAnyInterceptorInject"/> and handed to the interceptors by
+        /// <see cref="OnPreRendering"/> / <see cref="OnPostRendering"/>, so the mode decision is
+        /// evaluated once per event instead of once for the prediction and again inside each
+        /// interceptor's draw logic. Indices match <see cref="Interceptors"/>. The array is reused
+        /// across events so dispatching allocates nothing.
+        /// </remarks>
+        private bool[] _willInjectFlags;
+
+        /// <summary>
+        /// Whether <see cref="_willInjectFlags"/> holds predictions for the event being dispatched.
+        /// </summary>
+        private bool _hasWillInjectFlags;
 
         /// <summary>
         /// Sort data for rendering interceptors.
@@ -78,6 +108,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         {
             _interceptors = Array.Empty<ICubismRenderingInterceptor>();
             _interceptorSortData = Array.Empty<InterceptorSortData>();
+            _willInjectFlags = Array.Empty<bool>();
         }
 
         /// <summary>
@@ -106,6 +137,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 
             ResetInterceptorSortData();
             _shouldSortInterceptors = true;
+            _hasWillInjectFlags = false;
         }
 
         /// <summary>
@@ -140,6 +172,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 
             ResetInterceptorSortData();
             _shouldSortInterceptors = true;
+            _hasWillInjectFlags = false;
         }
 
         /// <summary>
@@ -184,6 +217,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 
             ResetInterceptorSortData();
             _shouldSortInterceptors = true;
+            _hasWillInjectFlags = false;
         }
 
         /// <summary>
@@ -196,7 +230,7 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 
             for (var index = 0; index < Interceptors.Length; index++)
             {
-                Interceptors[index].OnPreRenderingForPass(args);
+                Interceptors[index].OnPreRenderingForPass(args, GetWillInject(index, args));
             }
         }
 
@@ -210,8 +244,47 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
 
             for (var index = 0; index < Interceptors.Length; index++)
             {
-                Interceptors[index].OnPostRenderingForPass(args);
+                Interceptors[index].OnPostRenderingForPass(args, GetWillInject(index, args));
             }
+
+            // Post-rendering is the last dispatch of an event, so the predictions are spent. Dropping
+            // them here keeps a later dispatch that skipped the prediction step from reading them.
+            _hasWillInjectFlags = false;
+        }
+
+        /// <summary>
+        /// Returns the injection prediction for the given interceptor and the event being dispatched.
+        /// </summary>
+        /// <remarks>
+        /// Normally this reads back the prediction <see cref="WillAnyInterceptorInject"/> already made
+        /// for this event. The fallback covers callers that dispatch a rendering event without asking
+        /// for a prediction first.
+        /// </remarks>
+        /// <param name="index"> Index into <see cref="Interceptors"/>. </param>
+        /// <param name="args"> Rendering event arguments. </param>
+        /// <returns>True if the interceptor would inject one or more draw commands for this event.</returns>
+        private bool GetWillInject(int index, CubismRenderedEventArgs args)
+        {
+            if (_hasWillInjectFlags
+                && index < _willInjectFlags.Length)
+            {
+                return _willInjectFlags[index];
+            }
+
+            return Interceptors[index].WillInjectDraws(args);
+        }
+
+        /// <summary>
+        /// Requests that the interceptors' sort keys be polled at the next rendering event.
+        /// </summary>
+        /// <remarks>
+        /// Called once per render pass by <see cref="CubismRenderPassFeature"/>. Polling walks every
+        /// interceptor, so doing it per pass instead of per drawable rendering event keeps the cost
+        /// proportional to the number of interceptors rather than to interceptors times drawables.
+        /// </remarks>
+        internal void RequestSortDataRefresh()
+        {
+            _shouldPollSortData = true;
         }
 
         /// <summary>
@@ -219,7 +292,11 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// </summary>
         private void EnsureInterceptorsSorted()
         {
-            _shouldSortInterceptors |= UpdateInterceptorSortData();
+            if (_shouldPollSortData)
+            {
+                _shouldSortInterceptors |= UpdateInterceptorSortData();
+                _shouldPollSortData = false;
+            }
 
             if (!_shouldSortInterceptors)
             {
@@ -329,21 +406,37 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// </summary>
         /// <remarks>
         /// Used by the URP render pass to decide whether to flush the drawable batcher around the
-        /// per-drawable interceptor events. False allows batching to continue across the drawable;
-        /// true forces a flush so the injected draws land in the correct order.
+        /// per-drawable interceptor events. False allows batching to continue across the drawable.
+        /// True forces a flush so the injected draws land in the correct order.
         /// </remarks>
         /// <param name="args"> Rendering event arguments. </param>
         /// <returns>True if at least one interceptor would inject for this event.</returns>
         internal bool WillAnyInterceptorInject(CubismRenderedEventArgs args)
         {
+            // Sort here rather than when the event is dispatched: the predictions below are stored by
+            // index, so the order must not change between filling them and reading them back.
+            EnsureInterceptorsSorted();
+
+            if (_willInjectFlags.Length != Interceptors.Length)
+            {
+                _willInjectFlags = new bool[Interceptors.Length];
+            }
+
+            // Every prediction is evaluated instead of stopping at the first positive one, because the
+            // dispatch that follows needs the decision for each interceptor. That is still one decision
+            // per interceptor per event in total, since the interceptors no longer evaluate their own.
+            var willAnyInject = false;
             for (var index = 0; index < Interceptors.Length; index++)
             {
-                if (Interceptors[index].WillInjectDraws(args))
-                {
-                    return true;
-                }
+                var willInject = Interceptors[index].WillInjectDraws(args);
+
+                _willInjectFlags[index] = willInject;
+                willAnyInject |= willInject;
             }
-            return false;
+
+            _hasWillInjectFlags = true;
+
+            return willAnyInject;
         }
 
         /// <summary>

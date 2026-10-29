@@ -116,7 +116,7 @@ namespace Live2D.Cubism.Rendering.URP
             /// directly to the camera color target (no per-group blit). Set from <see cref="CubismRenderPassFeature"/>
             /// each frame so inspector edits take effect immediately. Unlike <see cref="EnableBatching"/> (read
             /// directly while drawing), this value selects IsDirectGroup, which is cached per group in
-            /// <see cref="SetUpRendererGroup"/>; <see cref="SortingRendererGroups"/> detects a change to it and
+            /// <see cref="SetUpRendererGroup"/>. <see cref="SortingRendererGroups"/> detects a change to it and
             /// forces that cache to refresh, so a runtime toggle is applied at once rather than at the next sort.
             /// </summary>
             internal bool EnableDirectRendering = false;
@@ -130,7 +130,7 @@ namespace Live2D.Cubism.Rendering.URP
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
             /// <summary>
             /// When true, restores the pre-optimization full-screen clear of every pooled offscreen render
-            /// texture at the start of the draw call. Measurement aid only; see
+            /// texture at the start of the draw call. Measurement aid only. See
             /// <see cref="CubismRenderPassFeature.EnableOffscreenPreClear"/>.
             /// </summary>
             internal bool EnableOffscreenPreClear = false;
@@ -187,7 +187,7 @@ namespace Live2D.Cubism.Rendering.URP
             /// <summary>
             /// EnableDirectRendering value applied during the previous <see cref="SortingRendererGroups"/> call.
             /// IsDirectGroup / CurrentFrameBuffer are only (re)computed in <see cref="SetUpRendererGroup"/>, which
-            /// runs for a group only when its sort order changes; comparing against this lets a runtime toggle
+            /// runs for a group only when its sort order changes. Comparing against this lets a runtime toggle
             /// force that setup to re-run so the change is not deferred until an unrelated sort happens. Nullable
             /// so the first call after a domain reload always re-evaluates.
             /// </summary>
@@ -202,6 +202,19 @@ namespace Live2D.Cubism.Rendering.URP
             /// Material used for blitting render textures.
             /// </summary>
             private static Material _blitRenderTextureMaterial;
+
+            /// <summary>
+            /// Material used by <see cref="CopyRegionToTarget"/>. Separate from
+            /// <see cref="_blitRenderTextureMaterial"/> because the depth comparison comes from a material
+            /// property, which a property block cannot override: a copy has to pass the test unconditionally.
+            /// </summary>
+            private static Material _blitCopyMaterial;
+
+            /// <summary>
+            /// Property block carrying the source texture of <see cref="CopyRegionToTarget"/>.
+            /// Shared, because DrawMesh copies the block as it records the call.
+            /// </summary>
+            private static MaterialPropertyBlock _blitCopyPropertyBlock;
 
             /// <summary>
             /// RTHandle for common rendering operations.
@@ -425,8 +438,7 @@ namespace Live2D.Cubism.Rendering.URP
                 }
                 target.IsDirectGroup = isDirectGroup;
 
-                // Direct groups draw straight to the camera color target; the rest use the common RT
-                // (falling back to the camera target when it is unavailable).
+                // Direct groups draw straight to the camera color target. The rest use the common RT.
                 var groupFrameBuffer = isDirectGroup
                     ? (RenderTexture)data.CameraTextureHandle
                     : data.CommonRenderingTexture;
@@ -484,6 +496,99 @@ namespace Live2D.Cubism.Rendering.URP
             }
 
             /// <summary>
+            /// Creates the full-screen quad and the materials the blit paths draw with, if they do not exist yet.
+            /// </summary>
+            private static void EnsureBlitResources()
+            {
+                if (!_blitRenderTextureMesh)
+                {
+                    _blitRenderTextureMesh = new Mesh
+                    {
+                        vertices = CubismRenderer.OffscreenVertices,
+                        uv = CubismRenderer.OffscreenUVs,
+                        triangles = CubismRenderer.OffscreenTriangle
+                    };
+
+                    _blitRenderTextureMesh.RecalculateBounds();
+                }
+
+                if (!_blitRenderTextureMaterial)
+                {
+                    _blitRenderTextureMaterial = new Material(CubismBuiltinMaterials.UnlitBlit);
+                }
+
+                if (!_blitCopyMaterial)
+                {
+                    _blitCopyMaterial = new Material(CubismBuiltinMaterials.UnlitBlit);
+
+                    // A copy must land whatever the destination's depth holds, so the comparison always passes.
+                    _blitCopyMaterial.SetInt(CubismShaderVariables.ReversedZ, (int)CompareFunction.Always);
+
+                    // Replace the destination rather than compositing onto it. Without this the copy would
+                    // have to clear the destination first, and that clear costs a full screen of fragment
+                    // work however small the copied region is - which is the cost the scissor is there to avoid.
+                    _blitCopyMaterial.SetInt(CubismShaderVariables.SourceColorBlend, (int)BlendMode.One);
+                    _blitCopyMaterial.SetInt(CubismShaderVariables.DestinationColorBlend, (int)BlendMode.Zero);
+                    _blitCopyMaterial.SetInt(CubismShaderVariables.SourceAlphaBlend, (int)BlendMode.One);
+                    _blitCopyMaterial.SetInt(CubismShaderVariables.DestinationAlphaBlend, (int)BlendMode.Zero);
+                }
+
+                _blitCopyPropertyBlock ??= new MaterialPropertyBlock();
+            }
+
+            /// <summary>
+            /// Copies <paramref name="source"/> into <paramref name="destination"/>, optionally limited to
+            /// <paramref name="rect"/>.
+            /// </summary>
+            /// <param name="buffer">Command buffer to record into.</param>
+            /// <param name="source">Texture to copy from.</param>
+            /// <param name="destination">Render texture to copy into.</param>
+            /// <param name="rect">Region to limit the copy to, in bottom-left origin pixels.</param>
+            /// <param name="limitToRect">False copies the whole destination and ignores <paramref name="rect"/>.</param>
+            /// <remarks>
+            /// Replaces <see cref="CommandBuffer.Blit(RenderTargetIdentifier, RenderTargetIdentifier)"/>, which
+            /// cannot be limited to a region: it binds the destination itself, and that render target change
+            /// drops a scissor rectangle set beforehand, so the copy covers the whole destination however small
+            /// the region of interest is. Binding the destination first and setting the scissor afterwards is
+            /// what keeps it, and is the reason this method exists.
+            ///
+            /// The destination is not cleared: the copy material replaces what it writes over, so only the
+            /// region matters. Clearing first would undo the saving, because a clear issued inside the pass
+            /// costs a full screen of fragment work whether or not a scissor rectangle is set.
+            /// </remarks>
+            internal static void CopyRegionToTarget(CommandBuffer buffer, Texture source, RenderTexture destination, RectInt rect, bool limitToRect)
+            {
+                if (buffer == null
+                    || !source
+                    || !destination)
+                {
+                    return;
+                }
+
+                EnsureBlitResources();
+
+                // Bind first. A scissor set before this point would not survive the change of render target.
+                buffer.SetRenderTarget(destination);
+
+                var scissored = limitToRect
+                                && rect.width > 0
+                                && rect.height > 0;
+
+                if (scissored)
+                {
+                    buffer.EnableScissorRect(new Rect(rect.x, rect.y, rect.width, rect.height));
+                }
+
+                _blitCopyPropertyBlock.SetTexture(CubismShaderVariables.MainTexture, source);
+                buffer.DrawMesh(_blitRenderTextureMesh, Matrix4x4.identity, _blitCopyMaterial, 0, 0, _blitCopyPropertyBlock);
+
+                if (scissored)
+                {
+                    buffer.DisableScissorRect();
+                }
+            }
+
+            /// <summary>
             /// Destroys the static blit mesh/material lazily created in ExecutePass. Like the batch
             /// meshes, these are not reclaimed by GC or scene unload, so they must be released explicitly.
             /// </summary>
@@ -516,6 +621,22 @@ namespace Live2D.Cubism.Rendering.URP
 
                     _blitRenderTextureMaterial = null;
                 }
+
+                if (_blitCopyMaterial)
+                {
+                    if (Application.isPlaying)
+                    {
+                        UnityEngine.Object.Destroy(_blitCopyMaterial);
+                    }
+                    else
+                    {
+                        UnityEngine.Object.DestroyImmediate(_blitCopyMaterial);
+                    }
+
+                    _blitCopyMaterial = null;
+                }
+
+                _blitCopyPropertyBlock = null;
             }
 
             /// <summary>
@@ -592,6 +713,9 @@ namespace Live2D.Cubism.Rendering.URP
                     // AlignRendererGroupOrder at the end of this method, which releases only their pools.
                     if (_sortedRendererGroupDataArray == null)
                     {
+                        // Destroy the batch meshes of the groups being dropped before losing their
+                        // references. HideAndDontSave meshes are not reclaimed by GC or scene unload.
+                        DisposeRendererGroupPools();
                         _sortedRendererGroupDataArray = Array.Empty<RendererGroupData>();
                     }
 
@@ -602,7 +726,7 @@ namespace Live2D.Cubism.Rendering.URP
 
                         // This Renderers == null guard also skips not-yet-initialized slots. Entries are
                         // only created via the new-group path below, which sets Renderers/BatchPool/Batcher
-                        // together, so Renderers != null implies BatchPool/Batcher != null; reusing the
+                        // together, so Renderers != null implies BatchPool/Batcher != null. Reusing the
                         // entry without re-initializing them is safe.
                         if (target.Renderers == null
                             || target.SortingIndex != group.SortingGroupIndex)
@@ -636,7 +760,7 @@ namespace Live2D.Cubism.Rendering.URP
                         }
 
                         // Set up and fill the renderer group. 'target' is a struct copy of an
-                        // already-initialized entry; SetUpRendererGroup only fills Renderers and writes it
+                        // already-initialized entry. SetUpRendererGroup only fills Renderers and writes it
                         // back, preserving BatchPool/Batcher, so no re-initialization is needed here.
                         SetUpRendererGroup(targetIndex, target, group, data.CameraData.WorldSpaceCameraPos, data);
 
@@ -651,7 +775,7 @@ namespace Live2D.Cubism.Rendering.URP
                     }
 
                     // Resize the sorted renderer groups array to add a new group. This is the only path
-                    // that appends an entry, and it always initializes BatchPool/Batcher below; together
+                    // that appends an entry, and it always initializes BatchPool/Batcher below. Together
                     // with the reuse path above (which preserves them), every array entry is guaranteed to
                     // have a non-null BatchPool/Batcher.
                     Array.Resize(ref _sortedRendererGroupDataArray, _sortedRendererGroupDataArray.Length + 1);
@@ -744,7 +868,18 @@ namespace Live2D.Cubism.Rendering.URP
             {
                 for (var index = 0; index < renderers.Length; index++)
                 {
-                    renderers[index].CalculateDistanceToCamera(cameraPosition, cameraForward);
+                    var renderer = renderers[index];
+
+                    if (!renderer || !renderer.MeshRenderer)
+                    {
+                        continue;
+                    }
+
+                    renderer.CalculateDistanceToCamera(cameraPosition, cameraForward);
+
+                    // Capture the native sorting order once so the comparator can read it from a field
+                    // instead of calling the getter on every one of its O(n log n) comparisons.
+                    renderer.CachedSortingOrder = renderer.MeshRenderer.sortingOrder;
                 }
 
                 Array.Sort(renderers, CompareBySortingOrder);
@@ -758,15 +893,20 @@ namespace Live2D.Cubism.Rendering.URP
             /// <returns>Negative value if a should be rendered before b, positive if after, zero if equal.</returns>
             private static int CompareBySortingOrder(CubismRenderer a, CubismRenderer b)
             {
-                // Fail-safe check
-                if (!a || !b
+                // Fail-safe check.
+                // NOTE: Use `is null` instead of `==` for the object references to avoid triggering Unity's
+                // native null check, which can be expensive when Array.Sort calls this O(n log n) times. The
+                // comparison body only reads managed members (CachedSortingOrder, SortingMode, DistanceToCamera,
+                // RenderController.DepthOffset), so a managed check is sufficient. The MeshRenderer null checks
+                // keep the native check because they read a native component.
+                if (a is null || b is null
                        || !a.MeshRenderer || !b.MeshRenderer
-                       || !a.RenderController || !b.RenderController)
+                       || a.RenderController is null || b.RenderController is null)
                 {
                     return 0;
                 }
 
-                var result = a.MeshRenderer.sortingOrder - b.MeshRenderer.sortingOrder;
+                var result = a.CachedSortingOrder - b.CachedSortingOrder;
 
                 if (result != 0
                     || !(a.SortingMode.SortByDepth() && b.SortingMode.SortByDepth()))
@@ -810,7 +950,9 @@ namespace Live2D.Cubism.Rendering.URP
                     for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
                     {
                         var renderer = controller.Renderers[rendererIndex];
-                        if (renderer)
+
+                        // NOTE: Use `is not null` instead of `!=` to avoid triggering Unity's native null check, which can be expensive.
+                        if (renderer is not null)
                         {
                             renderer.SkipRendering = false;
                         }
@@ -827,6 +969,12 @@ namespace Live2D.Cubism.Rendering.URP
                         continue;
                     }
 
+                    // The controller's own active/enabled state is identical for every renderer it owns
+                    // (renderer.RenderController == controller here, and controller is non-null), so read
+                    // those native properties once per controller instead of once per renderer.
+                    var controllerInactive = !controller.gameObject.activeSelf
+                                             || !controller.enabled;
+
                     for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
                     {
                         var renderer = controller.Renderers[rendererIndex];
@@ -837,12 +985,23 @@ namespace Live2D.Cubism.Rendering.URP
                             continue;
                         }
 
-                        renderer.SkipRendering |= !renderer.RenderController
-                                     || !renderer.RenderController.gameObject.activeSelf
-                                     || !renderer.RenderController.enabled
+                        // A renderer without a controller cannot be drawn, so exclude it here instead of leaving
+                        // SkipRendering unset and letting it reach the draw loop (which dereferences RenderController).
+                        if (!renderer.RenderController)
+                        {
+                            renderer.SkipRendering = true;
+                            continue;
+                        }
+
+                        // Read the MeshRenderer once: its getter runs TryInitializeMeshRenderer (another
+                        // native null check) on every access, so caching it halves the getter calls per
+                        // renderer compared with dereferencing renderer.MeshRenderer twice below.
+                        var meshRenderer = renderer.MeshRenderer;
+
+                        renderer.SkipRendering |= controllerInactive
                                      || !renderer.gameObject.activeSelf
-                                     || !renderer.MeshRenderer
-                                     || !renderer.MeshRenderer.enabled;
+                                     || !meshRenderer
+                                     || !meshRenderer.enabled;
 
                         switch (renderer.DrawObjectType)
                         {
@@ -898,33 +1057,45 @@ namespace Live2D.Cubism.Rendering.URP
                         targetRenderer.IsLastDrawObjectInModel = false;
                     }
 
+                    // Reset the per-controller "already marked" flags for this group.
                     for (var controllerIndex = 0; controllerIndex < target.RenderControllers.Length; controllerIndex++)
                     {
                         var controller = target.RenderControllers[controllerIndex];
 
+                        // NOTE: Use `is not null` instead of `!=` to avoid triggering Unity's native null check, which can be expensive.
+                        if (controller is not null)
+                        {
+                            controller.DidMarkLastDrawObject = false;
+                        }
+                    }
+
+                    // Single reverse pass over the sorted renderers: the first non-skipped renderer met for a
+                    // controller (i.e. the last in draw order) is its last draw object. This is O(renderers)
+                    // instead of O(controllers * renderers) — the previous per-controller full reverse scan.
+                    for (var rendererIndex = target.Renderers.Length - 1; rendererIndex >= 0; rendererIndex--)
+                    {
+                        var targetRenderer = target.Renderers[rendererIndex];
+
+                        if (!targetRenderer
+                            || targetRenderer.SkipRendering)
+                        {
+                            continue;
+                        }
+
+                        var controller = targetRenderer.RenderController;
+
+                        // Match the previous behavior: skip disabled/inactive controllers, and mark each
+                        // controller only once (its last drawn renderer).
                         if (!controller
+                            || controller.DidMarkLastDrawObject
                             || !controller.enabled
                             || !controller.gameObject.activeSelf)
                         {
                             continue;
                         }
 
-                        var lastIndex = target.Renderers.Length - 1;
-                        while (lastIndex >= 0)
-                        {
-                            var targetRenderer = target.Renderers[lastIndex];
-
-                            // Find the last draw renderer in the sorted array.
-                            if (!targetRenderer.SkipRendering
-                                && targetRenderer.RenderController == controller)
-                            {
-                                // Mark it as the last draw object in the model.
-                                targetRenderer.IsLastDrawObjectInModel = true;
-                                break;
-                            }
-
-                            lastIndex--;
-                        }
+                        targetRenderer.IsLastDrawObjectInModel = true;
+                        controller.DidMarkLastDrawObject = true;
                     }
                 }
             }
@@ -1017,7 +1188,9 @@ namespace Live2D.Cubism.Rendering.URP
                     {
                         var renderer = rendererGroup.Renderers[rendererIndex];
 
-                        if (renderer
+                        // NOTE: Use `is not null` instead of `!=` to avoid triggering Unity's native null check, which can be expensive.
+                        // This loop walks every renderer each frame, and DrawObjectType / ResetOffscreenScreenRect are managed-only.
+                        if (renderer is not null
                             && renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen)
                         {
                             renderer.ResetOffscreenScreenRect();
@@ -1034,6 +1207,34 @@ namespace Live2D.Cubism.Rendering.URP
                     || !target
                     || target.width <= 0
                     || target.height <= 0)
+                {
+                    return;
+                }
+
+                // OffscreenScreenRect / ModelScreenRect are consumed only by the offscreen clear/composite
+                // path (TryGetOffscreenScissorRect). When no controller renders an offscreen, nothing reads
+                // them, so the whole per-drawable projection below is pure waste and can be skipped. The reset
+                // loops above already left every region unset, which is the correct fallback state. The scan
+                // walks the same controllers the projection does (the sorted groups) so it never skips a
+                // projection that would have run.
+                var anyOffscreen = false;
+                for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray.Length && !anyOffscreen; groupIndex++)
+                {
+                    var groupControllers = _sortedRendererGroupDataArray[groupIndex].RenderControllers;
+                    for (var controllerIndex = 0; controllerIndex < groupControllers?.Length; controllerIndex++)
+                    {
+                        var controller = groupControllers[controllerIndex];
+                        if (controller
+                            && controller.OffscreenRenderers != null
+                            && controller.OffscreenRenderers.Length > 0)
+                        {
+                            anyOffscreen = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!anyOffscreen)
                 {
                     return;
                 }
@@ -1065,6 +1266,15 @@ namespace Live2D.Cubism.Rendering.URP
 
                         // Nothing consumes the regions of a model that opted out, so do not project it.
                         if (!controller.EnableOffscreenScissor)
+                        {
+                            continue;
+                        }
+
+                        // A controller with no offscreens never consumes these regions either (only the
+                        // offscreen clear/composite path reads them), so skip its projection in mixed scenes.
+                        var offscreenRenderers = controller.OffscreenRenderers;
+                        if (offscreenRenderers == null
+                            || offscreenRenderers.Length == 0)
                         {
                             continue;
                         }
@@ -1122,7 +1332,7 @@ namespace Live2D.Cubism.Rendering.URP
             /// <param name="data">Pass data containing render controllers and camera data.</param>
             /// <param name="copyPerGroup">
             /// When true, each common-RT group composites independently and blits to the camera in sort
-            /// order; when false, common-RT groups accumulate and ExecutePass issues a single final blit.
+            /// order. When false, common-RT groups accumulate and ExecutePass issues a single final blit.
             /// Decided by ExecutePass: forced true when direct and common-RT groups coexist in accumulate
             /// mode, otherwise <see cref="CubismRenderControllerGroup.IsCopiedToCameraTexture"/>.
             /// </param>
@@ -1188,7 +1398,9 @@ namespace Live2D.Cubism.Rendering.URP
                     for (var controllerIndex = 0; controllerIndex < rendererGroup.RenderControllers?.Length; controllerIndex++)
                     {
                         var controller = rendererGroup.RenderControllers[controllerIndex];
-                        if (controller)
+
+                        // NOTE: Use `is not null` instead of `!=` to avoid triggering Unity's native null check, which can be expensive.
+                        if (controller is not null)
                         {
                             controller.CurrentFrameBuffer = frameBuffer;
                         }
@@ -1212,7 +1424,7 @@ namespace Live2D.Cubism.Rendering.URP
 
                         if (copyPerGroup)
                         {
-                            // Each group composites independently; clear the common RT COLOR only.
+                            // Each group composites independently. Clear the common RT COLOR only.
                             // Do NOT clear depth: the bound depth is the shared camera depth, which holds
                             // the scene's opaque depths that Cubism drawables (ZTest LEqual / ZWrite Off)
                             // test against. Clearing it here would wipe those depths and break occlusion
@@ -1223,11 +1435,14 @@ namespace Live2D.Cubism.Rendering.URP
                         else if (!commonRtCleared)
                         {
                             // Accumulate mode: clear the common RT color once before the first common-RT
-                            // group; subsequent groups accumulate. Depth is preserved (see above).
+                            // group. Subsequent groups accumulate. Depth is preserved (see above).
                             commandBuffer.ClearRenderTarget(false, true, Color.clear);
                             commonRtCleared = true;
                         }
                     }
+
+                    // Camera forward is constant across this group's renderers. Read the native transform once.
+                    var cameraForward = data.CameraData.Camera.transform.forward;
 
 #if UNITY_EDITOR
                     // Calculate distance to camera for each renderer for CubismRenderInterceptorsManager events.
@@ -1241,7 +1456,7 @@ namespace Live2D.Cubism.Rendering.URP
                             continue;
                         }
 
-                        target.CalculateDistanceToCamera(data.CameraData.WorldSpaceCameraPos, data.CameraData.Camera.transform.forward);
+                        target.CalculateDistanceToCamera(data.CameraData.WorldSpaceCameraPos, cameraForward);
                     }
 #endif
 
@@ -1251,6 +1466,14 @@ namespace Live2D.Cubism.Rendering.URP
                     var batchingEnabled = data.EnableBatching;
                     var interceptorsManager = CubismRenderingInterceptorsManager.GetInstance();
                     var hasInterceptors = interceptorsManager.Interceptors.Length > 0;
+
+                    if (hasInterceptors)
+                    {
+                        // The interceptors' sort keys are public fields, so the manager has to poll them.
+                        // Ask for that poll once here rather than letting it run on every per-drawable
+                        // rendering event, which would make it cost interceptors times drawables.
+                        interceptorsManager.RequestSortDataRefresh();
+                    }
 
                     // SortingGroup-scoped batcher: drawables from any controller in this group can be merged.
                     var groupBatcher = rendererGroup.Batcher;
@@ -1274,44 +1497,52 @@ namespace Live2D.Cubism.Rendering.URP
                             continue;
                         }
 
-                        var previousRenderer = rendererIndex > 0
-                            ? rendererGroup.Renderers[rendererIndex - 1]
-                            : null;
-                        var nextRenderer = rendererIndex < rendererGroup.Renderers.Length - 1
-                            ? rendererGroup.Renderers[rendererIndex + 1]
-                            : null;
+                        // The per-drawable event args and the pre/post callbacks are only observable when an
+                        // interceptor is registered. Building the args reads several native properties per
+                        // drawable, so skip it and the callbacks entirely when there are no interceptors.
+                        var willInject = false;
+                        CubismRenderedEventArgs args = default;
 
-                        var args = new CubismRenderedEventArgs()
+                        if (hasInterceptors)
                         {
-                            PassData = data,
-                            CommandBuffer = commandBuffer,
-                            ColorBuffer = renderer.RenderController.CurrentFrameBuffer,
-                            DepthBuffer = data.CameraDepthTextureHandle,
-                            SortingOrder = renderer.MeshRenderer.sortingOrder,
-                            Drawable = renderer.Drawable,
-                            SortingMode = renderer.RenderController.SortingMode,
-                            GroupSortingOrder = rendererGroup.SortingIndex,
-                            Distance = renderer.DistanceToCamera,
-                            NextDistance = nextRenderer != null ? nextRenderer.DistanceToCamera : null,
-                            PreviousDistance = previousRenderer != null ? previousRenderer.DistanceToCamera : null,
-                            CameraPos = data.CameraData.WorldSpaceCameraPos,
-                            CameraForward = data.CameraData.Camera.transform.forward
-                        };
+                            var previousRenderer = rendererIndex > 0
+                                ? rendererGroup.Renderers[rendererIndex - 1]
+                                : null;
+                            var nextRenderer = rendererIndex < rendererGroup.Renderers.Length - 1
+                                ? rendererGroup.Renderers[rendererIndex + 1]
+                                : null;
 
-                        // Predict whether any interceptor will inject draws for this event. When yes,
-                        // flush the batcher around the events so injected commands stay correctly
-                        // ordered relative to batched drawables.
-                        var willInject = hasInterceptors
-                            && interceptorsManager.WillAnyInterceptorInject(args);
+                            args = new CubismRenderedEventArgs()
+                            {
+                                PassData = data,
+                                CommandBuffer = commandBuffer,
+                                ColorBuffer = renderer.RenderController.CurrentFrameBuffer,
+                                DepthBuffer = data.CameraDepthTextureHandle,
+                                SortingOrder = renderer.MeshRenderer.sortingOrder,
+                                Drawable = renderer.Drawable,
+                                SortingMode = renderer.RenderController.SortingMode,
+                                GroupSortingOrder = rendererGroup.SortingIndex,
+                                Distance = renderer.DistanceToCamera,
+                                NextDistance = nextRenderer ? nextRenderer.DistanceToCamera : null,
+                                PreviousDistance = previousRenderer ? previousRenderer.DistanceToCamera : null,
+                                CameraPos = data.CameraData.WorldSpaceCameraPos,
+                                CameraForward = cameraForward
+                            };
 
-                        if (willInject)
-                        {
-                            // Commit pending batched drawables before OnPreRendering injection.
-                            groupBatcher?.Flush(commandBuffer, data);
+                            // Predict whether any interceptor will inject draws for this event. When yes,
+                            // flush the batcher around the events so injected commands stay correctly
+                            // ordered relative to batched drawables.
+                            willInject = interceptorsManager.WillAnyInterceptorInject(args);
+
+                            if (willInject)
+                            {
+                                // Commit pending batched drawables before OnPreRendering injection.
+                                groupBatcher?.Flush(commandBuffer, data);
+                            }
+
+                            // Pre-rendering event.
+                            interceptorsManager.OnPreRendering(args);
                         }
-
-                        // Pre-rendering event.
-                        interceptorsManager.OnPreRendering(args);
 
                         // Draw the object (either appended to the batch or drawn immediately).
                         if (groupBatcher != null)
@@ -1323,14 +1554,17 @@ namespace Live2D.Cubism.Rendering.URP
                             renderer.DrawObject(commandBuffer, data);
                         }
 
-                        if (willInject)
+                        if (hasInterceptors)
                         {
-                            // Commit this drawable before OnPostRendering injection so Post sees it as drawn.
-                            groupBatcher?.Flush(commandBuffer, data);
-                        }
+                            if (willInject)
+                            {
+                                // Commit this drawable before OnPostRendering injection so Post sees it as drawn.
+                                groupBatcher?.Flush(commandBuffer, data);
+                            }
 
-                        // Post-rendering event.
-                        interceptorsManager.OnPostRendering(args);
+                            // Post-rendering event.
+                            interceptorsManager.OnPostRendering(args);
+                        }
 
                         if (renderer.IsLastDrawObjectInModel)
                         {
@@ -1343,7 +1577,7 @@ namespace Live2D.Cubism.Rendering.URP
                     // Flush any drawables left in the batcher at the end of the group.
                     groupBatcher?.Flush(commandBuffer, data);
 
-                    // Direct groups already drew straight to the camera; only common-RT groups blit back.
+                    // Direct groups already drew straight to the camera. Only common-RT groups blit back.
                     // Nothing to blit back when the common RT is unavailable: the group already drew to the
                     // camera target above, so its content is on the camera texture already.
                     // In accumulate mode (copyPerGroup == false) the single final blit is issued by ExecutePass.
@@ -1363,6 +1597,15 @@ namespace Live2D.Cubism.Rendering.URP
 
                         // The next common-RT group re-clears the common texture at its setup, so no clear here.
                     }
+                }
+
+                // Complete every group's combine jobs together and upload the combined meshes. Deferred until
+                // after the whole group loop so each group's combine job overlaps the following groups'
+                // main-thread work instead of blocking per group. The uploads still land before the command
+                // buffer executes.
+                for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray?.Length; groupIndex++)
+                {
+                    _sortedRendererGroupDataArray[groupIndex].Batcher?.FinalizeFrame();
                 }
 
                 // Reset the flag after processing.
@@ -1421,31 +1664,22 @@ namespace Live2D.Cubism.Rendering.URP
 
                     data.RenderControllers[rendererIndex].CurrentFrameBuffer = initialFrameBuffer;
                     data.RenderControllers[rendererIndex].CurrentOffscreenUnmanagedIndex = -1;
+
+                    // Snapshot the model root transform once at the head of draw preparation. The model is
+                    // not stepped again after OnLateUpdate, so the root stays constant for the whole pass.
+                    // Capturing it here lets per-drawable transform baking read cached values instead of
+                    // re-walking the hierarchy (lossyScale in particular) for every drawable.
+                    data.RenderControllers[rendererIndex].CaptureRootTransform();
                 }
 
                 _commandBuffer = commandBuffer;
 
-                if (!_blitRenderTextureMesh)
-                {
-                    _blitRenderTextureMesh = new Mesh
-                    {
-                        vertices = CubismRenderer.OffscreenVertices,
-                        uv = CubismRenderer.OffscreenUVs,
-                        triangles = CubismRenderer.OffscreenTriangle
-                    };
-
-                    _blitRenderTextureMesh.RecalculateBounds();
-                }
-
-                if (!_blitRenderTextureMaterial)
-                {
-                    _blitRenderTextureMaterial = new Material(CubismBuiltinMaterials.UnlitBlit);
-                }
+                EnsureBlitResources();
 
                 // Sort the renderers by their sorting order.
                 SortingRendererGroups(data);
 
-                // Classify groups: direct groups draw straight to the camera target; common-RT groups
+                // Classify groups: direct groups draw straight to the camera target. Common-RT groups
                 // composite through the common RT and need a blit.
                 var anyDirectGroup = false;
                 var anyCommonRtGroup = false;
@@ -1480,7 +1714,20 @@ namespace Live2D.Cubism.Rendering.URP
 
                 // Draw the objects. Per-group render-target setup (camera target for direct groups,
                 // common RT for the rest), per-group blits and depth clears are handled in DrawObjects.
-                DrawObjects(_commandBuffer, data, copyPerGroup);
+                try
+                {
+                    DrawObjects(_commandBuffer, data, copyPerGroup);
+                }
+                finally
+                {
+                    // Release any MeshDataArray acquired for batch combining even if the pass aborted mid-way,
+                    // so a source mesh is never left read-only locked (which would break all later frames).
+                    // A no-op on the normal path, where DrawObjects already finalized every group's batcher.
+                    for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray?.Length; groupIndex++)
+                    {
+                        _sortedRendererGroupDataArray[groupIndex].Batcher?.AbortFrame();
+                    }
+                }
 
                 // Single final blit for the accumulate path (per-group copy off) when the common RT was used.
                 // Skipped when the common RT is unavailable: the groups drew to the camera target instead.
@@ -1552,7 +1799,14 @@ namespace Live2D.Cubism.Rendering.URP
                     descriptor.wrapMode = TextureWrapMode.Repeat;
                     descriptor.filterMode = FilterMode.Point;
 
-                    // Keep the camera-sized descriptor dimensions; the intermediate / high-precision mask textures
+                    // The descriptor is inherited from the camera color target, which carries the pipeline's MSAA
+                    // sample count. The common / temporary textures (and the offscreen textures created from the
+                    // common one) are bound together with the camera depth, so they keep that sample count:
+                    // graphics APIs require the color and depth attachments to match. They are still sampled in
+                    // shaders, so they are bound as resolved (non-MS) textures.
+                    descriptor.bindTextureMS = false;
+
+                    // Keep the camera-sized descriptor dimensions. The intermediate / high-precision mask textures
                     // are allocated from this descriptor, and its size is needed to scale-fit the mask even when no
                     // handle resolves to a RenderTexture (direct-to-backBuffer / all-direct scenes).
                     passData.CameraTextureSize = new Vector2(descriptor.width, descriptor.height);
@@ -1630,8 +1884,12 @@ namespace Live2D.Cubism.Rendering.URP
                     if (needHighPrecisionMask)
                     {
                         // High-precision / offscreen masks are drawn per draw object into a separate full-screen texture
-                        // (rendered in screen space; cannot be packed into the atlas).
+                        // (rendered in screen space, cannot be packed into the atlas).
                         descriptor.name = "HighPrecisionMaskTexture";
+
+                        // The mask is rendered without a depth attachment, so it does not need to match the camera
+                        // depth. Drop the sample count to avoid paying MSAA bandwidth and resolves for it.
+                        descriptor.msaaSamples = MSAASamples.None;
                         var highPrecisionMaskTextureHandle = renderGraph.CreateTexture(descriptor);
                         builder.UseTexture(highPrecisionMaskTextureHandle, AccessFlags.ReadWrite);
                         passData.HighPrecisionMaskTextureHandle = highPrecisionMaskTextureHandle;
@@ -1679,13 +1937,17 @@ namespace Live2D.Cubism.Rendering.URP
             {
                 var descriptor = renderingData.cameraData.cameraTargetDescriptor;
                 descriptor.depthBufferBits = 0;
-                // These are intermediate composite/mask buffers that are sampled in shaders, so MSAA must be disabled.
-                // multisample textures cannot be sampled directly.
-                descriptor.msaaSamples = 1;
+                // The common / temporary textures are bound together with the camera depth, so they keep the
+                // camera's MSAA sample count: graphics APIs require the color and depth attachments to match.
+                // They are still sampled in shaders, so they are bound as resolved (non-MS) textures.
+                descriptor.bindMS = false;
                 RenderingUtils.ReAllocateIfNeeded(ref _commonRenderingTextureHandle, descriptor,
                     FilterMode.Point, TextureWrapMode.Repeat, name: "CommonTexture");
                 RenderingUtils.ReAllocateIfNeeded(ref _commonTemporaryTextureHandle, descriptor,
                     FilterMode.Point, TextureWrapMode.Repeat, name: "TempTexture");
+
+                // The mask is rendered without a depth attachment, so it does not need to match the camera depth.
+                descriptor.msaaSamples = 1;
                 RenderingUtils.ReAllocateIfNeeded(ref _maskTextureHandle, descriptor,
                     FilterMode.Point, TextureWrapMode.Repeat, name: "MaskTexture");
             }

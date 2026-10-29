@@ -63,6 +63,43 @@ namespace Live2D.Cubism.Core
 
 
         /// <summary>
+        /// <see cref="OwningModel"/> backing field.
+        /// </summary>
+        private CubismModel _owningModel;
+
+        /// <summary>
+        /// Owning <see cref="CubismModel"/>, resolved lazily from the parent hierarchy.
+        /// </summary>
+        private CubismModel OwningModel
+        {
+            get
+            {
+                if (!_owningModel)
+                {
+                    _owningModel = transform.FindCubismModel(true);
+                }
+
+                return _owningModel;
+            }
+        }
+
+
+        /// <summary>
+        /// Completes the owning model's in-flight update so the native buffers are safe to read here, preventing
+        /// a data race with the update job that writes them on a worker thread across the frame boundary.
+        /// </summary>
+        private void EnsureCoreReadable()
+        {
+            var model = OwningModel;
+
+            if (model)
+            {
+                model.EnsureUpdateCompleted();
+            }
+        }
+
+
+        /// <summary>
         /// <see cref="UnmanagedIndex"/> backing field.
         /// </summary>
         [SerializeField, HideInInspector]
@@ -121,6 +158,8 @@ namespace Live2D.Cubism.Core
         {
             get
             {
+                EnsureCoreReadable();
+
                 var index = UnmanagedIndex * 4;
 
                 // Pull data.
@@ -136,7 +175,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// <see cref="ScreenColor"/> backing field.
         /// </summary>
-        public Color _screenColor;
+        private Color _screenColor;
 
         /// <summary>
         /// Copy of ScreenColor.
@@ -145,6 +184,8 @@ namespace Live2D.Cubism.Core
         {
             get
             {
+                EnsureCoreReadable();
+
                 var index = UnmanagedIndex * 4;
 
                 // Pull data.
@@ -219,6 +260,8 @@ namespace Live2D.Cubism.Core
         {
             get
             {
+                EnsureCoreReadable();
+
                 // Get addresses.
                 var counts = UnmanagedDrawables.VertexCounts;
                 var positions = UnmanagedDrawables.VertexPositions;

@@ -88,7 +88,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private unsafe int* UnmanagedFixedAddress { get; set; }
+        internal unsafe int* UnmanagedFixedAddress { get; private set; }
 
         #region Ctors
 
@@ -266,7 +266,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private unsafe float* UnmanagedFixedAddress { get; set; }
+        internal unsafe float* UnmanagedFixedAddress { get; private set; }
 
         #region Ctors
 
@@ -444,7 +444,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private unsafe Byte* UnmanagedFixedAddress { get; set; }
+        internal unsafe Byte* UnmanagedFixedAddress { get; private set; }
 
         #region Ctors
 
@@ -622,7 +622,7 @@ namespace Live2D.Cubism.Core.Unmanaged
         /// <summary>
         /// Unmanaged buffer address.
         /// </summary>
-        private unsafe ushort* UnmanagedFixedAddress { get; set; }
+        internal unsafe ushort* UnmanagedFixedAddress { get; private set; }
 
         #region Ctors
 

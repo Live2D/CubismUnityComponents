@@ -96,5 +96,25 @@ namespace Live2D.Cubism.Rendering
         /// Reversed Z shader variable name.
         /// </summary>
         public const string ReversedZ = "_ReversedZ";
+
+        /// <summary>
+        /// Source color blend factor.
+        /// </summary>
+        public const string SourceColorBlend = "_SrcColor";
+
+        /// <summary>
+        /// Destination color blend factor.
+        /// </summary>
+        public const string DestinationColorBlend = "_DstColor";
+
+        /// <summary>
+        /// Source alpha blend factor.
+        /// </summary>
+        public const string SourceAlphaBlend = "_SrcAlpha";
+
+        /// <summary>
+        /// Destination alpha blend factor.
+        /// </summary>
+        public const string DestinationAlphaBlend = "_DstAlpha";
     }
 }

@@ -7,6 +7,7 @@
 
 
 using Live2D.Cubism.Core.Unmanaged;
+using System;
 using UnityEngine;
 
 
@@ -29,19 +30,10 @@ namespace Live2D.Cubism.Core
             var unmanagedDrawables = unmanagedModel.Drawables;
             var buffer = new CubismDynamicDrawableData[unmanagedDrawables.Count];
 
-
-            // Initialize buffers.
-            var vertexCounts = unmanagedDrawables.VertexCounts;
-
-
             for (var i = 0; i < buffer.Length; ++i)
             {
-                buffer[i] = new CubismDynamicDrawableData
-                {
-                    VertexPositions = new Vector3[vertexCounts[i]]
-                };
+                buffer[i] = new CubismDynamicDrawableData();
             }
-
 
             return buffer;
         }
@@ -51,7 +43,7 @@ namespace Live2D.Cubism.Core
         /// <summary>
         /// Dirty flags.
         /// </summary>
-        internal byte Flags { private get; set; }
+        internal byte Flags { get; set; }
 
 
         /// <summary>
@@ -71,7 +63,10 @@ namespace Live2D.Cubism.Core
 
         /// <summary>
         /// Current vertex position.
+        /// NOTE: This property is deprecated. It is no longer allocated or updated, so it always returns null.
+        /// Use <see cref="CubismDrawable.VertexPositions"/> to read the current vertex positions.
         /// </summary>
+        [Obsolete("VertexPositions is no longer allocated or updated, so it always returns null. Use CubismDrawable.VertexPositions instead.")]
         public Vector3[] VertexPositions { get; internal set; }
 
         /// <summary>

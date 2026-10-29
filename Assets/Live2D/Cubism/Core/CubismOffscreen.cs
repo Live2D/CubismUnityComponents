@@ -54,6 +54,43 @@ public class CubismOffscreen : MonoBehaviour
     /// </summary>
     private CubismUnmanagedOffscreens UnmanagedOffscreens { get; set; }
 
+
+    /// <summary>
+    /// <see cref="OwningModel"/> backing field.
+    /// </summary>
+    private CubismModel _owningModel;
+
+    /// <summary>
+    /// Owning <see cref="CubismModel"/>, resolved lazily from the parent hierarchy.
+    /// </summary>
+    private CubismModel OwningModel
+    {
+        get
+        {
+            if (!_owningModel)
+            {
+                _owningModel = transform.FindCubismModel(true);
+            }
+
+            return _owningModel;
+        }
+    }
+
+
+    /// <summary>
+    /// Completes the owning model's in-flight update so the native buffers are safe to read here, preventing
+    /// a data race with the update job that writes them on a worker thread across the frame boundary.
+    /// </summary>
+    private void EnsureCoreReadable()
+    {
+        var model = OwningModel;
+
+        if (model)
+        {
+            model.EnsureUpdateCompleted();
+        }
+    }
+
     /// <summary>
     /// <see cref="UnmanagedIndex"/> backing field.
     /// </summary>
@@ -100,6 +137,8 @@ public class CubismOffscreen : MonoBehaviour
     {
         get
         {
+            EnsureCoreReadable();
+
             return UnmanagedOffscreens.Opacities[UnmanagedIndex];
         }
     }
@@ -127,6 +166,8 @@ public class CubismOffscreen : MonoBehaviour
     {
         get
         {
+            EnsureCoreReadable();
+
             var index = UnmanagedIndex * 4;
 
             // Pull data.
@@ -151,6 +192,8 @@ public class CubismOffscreen : MonoBehaviour
     {
         get
         {
+            EnsureCoreReadable();
+
             var index = UnmanagedIndex * 4;
 
             // Pull data.

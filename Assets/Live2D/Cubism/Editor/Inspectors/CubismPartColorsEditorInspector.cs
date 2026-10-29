@@ -122,11 +122,21 @@ namespace Live2D.Cubism.Editor.Inspectors
 
                     foreach (var renderer in partBlendColorEditor.ChildDrawableRenderers)
                     {
+                        // The render path reads the displayed draw state (only advanced when the model is
+                        // stepped), so sync it here to reflect the part blend-color / override-flag edits
+                        // immediately in the editor.
+                        if (renderer)
+                        {
+                            renderer.ApplyDisplayedBlendColorsImmediate();
+                        }
+
                         EditorUtility.SetDirty(renderer);
                         // HACK Get mesh renderer directly.
                         EditorUtility.SetDirty(renderer.MeshRenderer);
                     }
                 }
+
+                SceneView.RepaintAll();
             }
         }
 

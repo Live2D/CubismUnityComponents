@@ -48,7 +48,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 25
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3866474824592105505
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -183,7 +182,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 42
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3297471785517148473
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -560,7 +558,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2626129513733427450
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -743,7 +740,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 54
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5102902317534162823
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -878,7 +874,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 49
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6512838363060979414
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1081,7 +1076,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 86
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8464883215597579498
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1216,7 +1210,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 82
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3424111503073936287
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1399,7 +1392,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 84
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2243951821086753897
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1534,7 +1526,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 83
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2149793305096430118
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1669,7 +1660,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 48
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7718466669965722573
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1852,7 +1842,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 62
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5888015452514225382
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1987,7 +1976,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 88
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1523715061434166363
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2170,7 +2158,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 3
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1173805830967213625
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2305,7 +2292,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 67
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7239828678392119335
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2440,7 +2426,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 73
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &9083506745884946861
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2575,7 +2560,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 40
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5157579462300218063
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2794,7 +2778,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 66
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6581869232247924215
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3311,7 +3294,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 89
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5588454447943089085
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3555,7 +3537,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 58
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5538297907692584678
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3690,7 +3671,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 7
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3891185578778756787
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4055,7 +4035,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 5
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4474527020843769761
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4190,7 +4169,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 43
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1365397468773193656
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4325,7 +4303,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 65
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6351942877841008084
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4460,7 +4437,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 16
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &9053313792119196742
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4595,7 +4571,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 45
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4074866429331195094
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4812,7 +4787,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 33
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6851899252948734525
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -4947,7 +4921,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 32
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1320561343083821690
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5226,7 +5199,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 60
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7774981441661548549
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5361,7 +5333,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 77
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4439931467075564664
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5544,7 +5515,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 35
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6107843944761417070
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5727,7 +5697,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 36
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &911693421606530308
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6036,7 +6005,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 80
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1459785249939660086
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6171,7 +6139,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 41
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8406811623618103182
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6306,7 +6273,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 19
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2574797754088870723
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6441,7 +6407,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 76
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7744171047253766540
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6644,7 +6609,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 29
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &718766598103043194
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6879,7 +6843,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 10
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8719611969571009308
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7014,7 +6977,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 31
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6953327317241281039
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7197,7 +7159,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 70
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6700786636523623072
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7332,7 +7293,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 78
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5679000783733912089
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7467,7 +7427,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4597561303216142890
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7602,7 +7561,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 14
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7401541204632546828
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7737,7 +7695,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 63
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1221703200074842004
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7968,7 +7925,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 22
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8405454607230752024
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8282,7 +8238,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 55
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5706959633950227193
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8465,7 +8420,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 2
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1243227490784062037
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8600,7 +8554,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 38
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8485117608901059691
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8735,7 +8688,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 6
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2427242810515104945
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8979,7 +8931,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 81
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &921465748739066686
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9114,7 +9065,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 51
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &600187878066830535
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9249,7 +9199,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 17
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3211103862544295826
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9384,7 +9333,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 44
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &9197003659358982454
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9519,7 +9467,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 15
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2352418804563462898
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9654,7 +9601,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 72
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3265476964543680216
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9837,7 +9783,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 46
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &13396767472747238
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9972,7 +9917,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 90
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1024952243528902324
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10283,7 +10227,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 85
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6031291359331824314
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10418,7 +10361,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 27
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &975729656023675436
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10649,7 +10591,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 8
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1945554493080657832
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10784,7 +10725,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 56
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2705648166201100300
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11015,7 +10955,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 12
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4957187587819949551
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11316,7 +11255,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 61
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7466859115350363613
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11451,7 +11389,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 20
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &9064645443122376882
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11586,7 +11523,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 34
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &1515559307920438609
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11793,7 +11729,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 53
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7356776664780118721
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -11928,7 +11863,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 4
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7105319201237689081
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12063,7 +11997,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 26
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7312869174924937943
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12246,7 +12179,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 9
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6890848172728923204
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12429,7 +12361,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 21
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6498352026726342868
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12564,7 +12495,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 74
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3566481937573909551
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12699,7 +12629,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 39
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6255221221447985654
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12834,7 +12763,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 75
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4689362134862066793
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -12969,7 +12897,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 13
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3025444683606304457
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13104,7 +13031,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 87
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &4085114693834407744
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13339,7 +13265,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 24
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5638365676111547746
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13474,7 +13399,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 57
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6793683274511514111
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13657,7 +13581,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 37
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8125865740477191864
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13840,7 +13763,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 18
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3252843153239579963
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14071,7 +13993,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 59
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8478578418102155151
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14206,7 +14127,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 23
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6704319167567907269
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14461,7 +14381,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 47
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5263238098646926216
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14644,7 +14563,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 11
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &726510051308894102
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14827,7 +14745,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 30
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8104732539621540520
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15166,6 +15083,10 @@ MonoBehaviour:
   - {fileID: 3387173383940523803}
   _hasMask: 0
   EnableMaskCache: 1
+  EnableScissorBlit: 1
+  EnableOffscreenPingPong: 1
+  EnableEmptyOffscreenSkip: 1
+  EnableOffscreenScissor: 1
   _groupedSortingIndex: 0
 --- !u!114 &3344362328458793513
 MonoBehaviour:
@@ -15481,7 +15402,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 28
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5949973695540997560
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15616,7 +15536,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 79
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &8598663217884326079
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15847,7 +15766,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 52
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &597765066136874196
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15982,7 +15900,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 50
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7770770235238677275
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16165,7 +16082,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 71
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &3851374854015134811
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16348,7 +16264,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 69
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &5820717881342151438
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16483,7 +16398,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 64
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &205033391259435108
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -16618,7 +16532,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 68
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &7828065863028357954
 MeshRenderer:
   m_ObjectHideFlags: 0

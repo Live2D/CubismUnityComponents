@@ -33,7 +33,7 @@ namespace Live2D.Cubism.Editor.Inspectors
 
 
             // Fail silently.
-            if (renderer == null)
+            if (!renderer)
             {
                 return;
             }
@@ -189,9 +189,21 @@ namespace Live2D.Cubism.Editor.Inspectors
             {
                 foreach (CubismRenderer cubismRenderer in targets)
                 {
+                    if (!cubismRenderer)
+                    {
+                        continue;
+                    }
+
+                    // The render path reads the displayed draw state, which is only advanced when the model is
+                    // stepped. The editor does not step the model on an Inspector change, so sync it here to
+                    // reflect blend-color / override-flag edits immediately.
+                    cubismRenderer.ApplyDisplayedBlendColorsImmediate();
+
                     EditorUtility.SetDirty(cubismRenderer);
                     EditorUtility.SetDirty(cubismRenderer.MeshRenderer);
                 }
+
+                SceneView.RepaintAll();
             }
 
 

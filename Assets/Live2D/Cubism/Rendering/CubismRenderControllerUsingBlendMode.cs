@@ -61,7 +61,7 @@ namespace Live2D.Cubism.Rendering
         /// <summary>
         /// Reuses the high-precision mask texture across consecutive draw objects that share the same mask
         /// set, skipping redundant per-draw redraws. Only affects the high-precision path
-        /// (<see cref="UseHighPrecisionMask"/>); the atlas path renders once per frame in the mask pre-pass
+        /// (<see cref="UseHighPrecisionMask"/>). The atlas path renders once per frame in the mask pre-pass
         /// and needs no cache.
         /// </summary>
         [SerializeField]
@@ -76,7 +76,7 @@ namespace Live2D.Cubism.Rendering
         /// When on, a hardware scissor rectangle restricts the blit's fragments to that region,
         /// reducing transfer cost (notably on TBDR GPUs). Exposed as a fallback to the full-buffer
         /// blit in case the region calculation misbehaves. Like <see cref="EnableMaskCache"/>, this
-        /// is not drawn in the normal inspector; change it from script or the inspector's Debug mode.
+        /// is not drawn in the normal inspector. Change it from script or the inspector's Debug mode.
         /// </remarks>
         [SerializeField]
         public bool EnableScissorBlit = true;
@@ -87,7 +87,7 @@ namespace Live2D.Cubism.Rendering
         /// into the shared temporary texture and blitting that result back over the parent.
         /// </summary>
         /// <remarks>
-        /// Both paths produce the same pixels; ping-ponging just drops one full-screen copy, and the
+        /// Both paths produce the same pixels. Ping-ponging just drops one full-screen copy, and the
         /// render target switch it needs, per composite. That copy is pure overhead on TBDR GPUs
         /// because it forces a tile store followed by a tile load.
         ///
@@ -97,7 +97,7 @@ namespace Live2D.Cubism.Rendering
         /// rendering texture keep using the temporary texture and the blit.
         ///
         /// Exposed as a fallback in case the buffer swap misbehaves. Like
-        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector; change it from
+        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector. Change it from
         /// script or the inspector's Debug mode.
         /// </remarks>
         [SerializeField]
@@ -114,7 +114,7 @@ namespace Live2D.Cubism.Rendering
         /// a property of the current pose, not of the model, so the test runs per frame.
         ///
         /// Exposed as a fallback in case the emptiness test misbehaves. Like
-        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector; change it from
+        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector. Change it from
         /// script or the inspector's Debug mode.
         /// </remarks>
         [SerializeField]
@@ -136,7 +136,7 @@ namespace Live2D.Cubism.Rendering
         /// <see cref="CubismRenderer.OffscreenScreenRect"/>.
         ///
         /// Exposed as a fallback in case the region calculation misbehaves. Like
-        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector; change it from
+        /// <see cref="EnableMaskCache"/>, this is not drawn in the normal inspector. Change it from
         /// script or the inspector's Debug mode.
         /// </remarks>
         [SerializeField]
@@ -217,6 +217,69 @@ namespace Live2D.Cubism.Rendering
         public int CurrentOffscreenUnmanagedIndex { get; set; }
 
         /// <summary>
+        /// Immutable-for-the-frame snapshot of the model root transform, captured once per render pass.
+        /// </summary>
+        /// <remarks>
+        /// The root transform (this controller's transform) is shared by every drawable of the model and
+        /// does not change during a render pass, because the model is not stepped after OnLateUpdate. Reading
+        /// it per drawable would re-walk the hierarchy each time — <see cref="Transform.lossyScale"/> in
+        /// particular — so it is snapshotted once in <see cref="CaptureRootTransform"/> and reused by the
+        /// per-drawable transform baking / writing paths.
+        /// </remarks>
+        internal struct RootTransformSnapshot
+        {
+            /// <summary>
+            /// World-space position of the model root.
+            /// </summary>
+            public Vector3 Position;
+
+            /// <summary>
+            /// World-space rotation of the model root.
+            /// </summary>
+            public Quaternion Rotation;
+
+            /// <summary>
+            /// World-space XY scale (lossy) of the model root.
+            /// </summary>
+            public Vector2 LossyScale;
+        }
+
+        /// <summary>
+        /// <see cref="RootTransform"/>'s backing field.
+        /// </summary>
+        [NonSerialized]
+        private RootTransformSnapshot _rootTransform;
+
+        /// <summary>
+        /// Root transform snapshot captured for the current render pass. Valid only after
+        /// <see cref="CaptureRootTransform"/> has run this pass.
+        /// </summary>
+        internal RootTransformSnapshot RootTransform
+        {
+            get { return _rootTransform; }
+        }
+
+        /// <summary>
+        /// Captures <see cref="RootTransform"/> from this controller's transform.
+        /// </summary>
+        /// <remarks>
+        /// Must run at the head of the render pass, before any per-drawable transform baking reads
+        /// <see cref="RootTransform"/>.
+        /// </remarks>
+        internal void CaptureRootTransform()
+        {
+            var rootTransform = transform;
+            var lossyScale = rootTransform.lossyScale;
+
+            _rootTransform = new RootTransformSnapshot
+            {
+                Position = rootTransform.position,
+                Rotation = rootTransform.rotation,
+                LossyScale = new Vector2(lossyScale.x, lossyScale.y),
+            };
+        }
+
+        /// <summary>
         /// <see cref="CanRenderDirectly"/>'s evaluation guard. True when the property has been evaluated and cached.
         /// </summary>
         [NonSerialized]
@@ -233,7 +296,7 @@ namespace Live2D.Cubism.Rendering
         /// intermediate RenderTexture. True when the model has no offscreen draw objects and every
         /// drawable uses a 5.2-compatible (non background-reading) blend mode
         /// (<see cref="CubismRenderer.IsDirectDrawBlendMode"/>). Masks are allowed (the mask texture is
-        /// still required). Evaluated once after initialization; the blend/offscreen composition is
+        /// still required). Evaluated once after initialization. The blend/offscreen composition is
         /// model-data driven and treated as immutable.
         /// </summary>
         public bool CanRenderDirectly
@@ -309,6 +372,14 @@ namespace Live2D.Cubism.Rendering
         /// Whether the sorting order of the <see cref="CubismRenderer"/>s did change.
         /// </summary>
         internal bool DidChangeSorting;
+
+        /// <summary>
+        /// Transient per-frame flag used by <c>CubismRenderPassFeature.MarkLastDrawObjectInModel</c> to record
+        /// that this controller's last draw object has already been marked in the current group, so the single
+        /// reverse pass marks each controller exactly once.
+        /// </summary>
+        [NonSerialized]
+        internal bool DidMarkLastDrawObject;
 
         [NonSerialized]
         private CubismRenderer[] _sortedRenderers;
@@ -770,7 +841,7 @@ namespace Live2D.Cubism.Rendering
                 return;
             }
 
-            // DrawableRenderers is null for a model whose drawables are unavailable; defer that too.
+            // DrawableRenderers is null for a model whose drawables are unavailable. Defer that too.
             var drawableRenderers = DrawableRenderers;
             if (drawableRenderers == null)
             {
@@ -843,7 +914,7 @@ namespace Live2D.Cubism.Rendering
 
         /// <summary>
         /// Computes clipping-mask matrices for masked drawables and assigns each drawable renderer its
-        /// clipping context for the current frame. Runs at most once per frame; the render pass invokes
+        /// clipping context for the current frame. Runs at most once per frame. The render pass invokes
         /// this before drawing objects.
         /// </summary>
         public void SetupClippingContexts()
@@ -893,7 +964,7 @@ namespace Live2D.Cubism.Rendering
             // Compute mask/draw matrices for the current frame.
             if (MaskTextureController && MaskTextureController.UseHighPrecisionMask)
             {
-                // High-precision: every mask fills the full region (channel R); redrawn per draw object.
+                // High-precision: every mask fills the full region (channel R). Redrawn per draw object.
                 // The mask is drawn into the full-screen buffer, so the fit uses that buffer's resolution.
                 _drawableClippingManager.SetClippingMaskBufferSize(_highPrecisionMaskBufferSize.x, _highPrecisionMaskBufferSize.y);
                 _drawableClippingManager.SetupMatrixForHighPrecision(model, CubismModelTypes.DrawObjectType.Drawable);
@@ -948,7 +1019,7 @@ namespace Live2D.Cubism.Rendering
             SetupClippingContexts();
 
             // High-precision and offscreen masks are redrawn per draw object into the shared full-screen
-            // texture; they do not use the per-controller atlas.
+            // texture. They do not use the per-controller atlas.
             if ((MaskTextureController && MaskTextureController.UseHighPrecisionMask) || _drawableClippingManager == null)
             {
                 return;
@@ -1172,8 +1243,9 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // If there is no previous offscreen, or it is the same as the current offscreen, use the common rendering texture.
+                // Read the owned buffer here too, so the comparison cannot acquire one from the pool.
                 if (!previousOffscreen
-                    || previousOffscreen == offscreenRenderer?.OffscreenFrameBuffer)
+                    || previousOffscreen == offscreenRenderer?.OwnedOffscreenFrameBuffer)
                 {
                     previousOffscreen = commonRenderingTexture;
 

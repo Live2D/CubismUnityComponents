@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -7,74 +7,250 @@
 
 
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
-
-namespace Live2D.Cubism.Rendering
+namespace Live2D.Cubism.Rendering.URP
 {
     /// <summary>
     /// SortingGroup-scoped batching scratch space.
-    /// Holds the dynamic vertex/index buffers that drawables bake into and a per-frame mesh pool used
-    /// for the resulting <see cref="UnityEngine.Rendering.CommandBuffer.DrawMesh(Mesh, Matrix4x4, Material, int, int, MaterialPropertyBlock)"/> calls.
+    /// Holds a pool of per-batch native buffer sets (filled by <see cref="CubismBatchCombineJob"/>) and a
+    /// per-frame mesh pool used for the resulting <see cref="UnityEngine.Rendering.CommandBuffer.DrawMesh(Mesh, Matrix4x4, Material, int, int, MaterialPropertyBlock)"/> calls.
     /// </summary>
     /// <remarks>
-    /// One instance is owned per SortingGroup so that drawables originating from different
-    /// <see cref="CubismRenderController"/>s in the same group can be merged into a single DrawMesh.
+    /// One instance is owned per SortingGroup. Each combined batch bakes into its own <see cref="BatchBuffers"/>
+    /// set so that many batches can have their combine jobs in flight at once and be completed together
+    /// (see <see cref="CubismDrawableBatcher"/>), instead of one blocking Complete per batch.
     /// </remarks>
     internal sealed class CubismBatchPool
     {
         /// <summary>
-        /// Initial capacity (in vertices) for the dynamic vertex buffers and the per-mesh scratch lists.
-        /// Buffers grow geometrically beyond this on demand; the value is a working-set seed, not a hard cap.
+        /// Initial capacity (in vertices) for a batch's vertex buffers.
         /// </summary>
         private const int InitialVertexCapacity = 256;
 
         /// <summary>
-        /// Initial capacity (in indices) for the dynamic index buffer and the per-mesh scratch list.
-        /// Buffers grow geometrically beyond this on demand; the value is a working-set seed, not a hard cap.
+        /// Initial capacity (in indices) for a batch's index buffer.
         /// </summary>
         private const int InitialIndexCapacity = 512;
 
         /// <summary>
-        /// Dynamic vertex buffer used to accumulate batched drawable vertex positions (after transform bake).
+        /// Initial capacity (in drawables) for a batch's per-drawable job-input buffers.
         /// </summary>
-        internal Vector3[] VertexPositions;
+        private const int InitialDrawableCapacity = 64;
 
         /// <summary>
-        /// Dynamic vertex buffer used to accumulate batched drawable UVs.
+        /// Native buffer set for a single combined batch: the combine job's per-drawable inputs and its
+        /// concatenated vertex/index outputs. One set is acquired per batch so completes can be deferred.
         /// </summary>
-        internal Vector2[] VertexUVs;
+        internal sealed class BatchBuffers
+        {
+            /// <summary>
+            /// Concatenated vertex positions for all drawables in the batch (combine job output).
+            /// </summary>
+            internal NativeArray<Vector3> VertexPositions;
+
+            /// <summary>
+            /// Concatenated vertex UVs for all drawables in the batch (combine job output).
+            /// </summary>
+            internal NativeArray<Vector2> VertexUvs;
+
+            /// <summary>
+            /// Concatenated vertex colors for all drawables in the batch (combine job output).
+            /// </summary>
+            internal NativeArray<Color32> VertexColors;
+
+            /// <summary>
+            /// Concatenated indices for all drawables in the batch (combine job output).
+            /// </summary>
+            internal NativeArray<int> Indices;
+
+            /// <summary>
+            /// Per-drawable start index into the combined vertex buffers (combine job input).
+            /// </summary>
+            internal NativeArray<int> VertexOffsets;
+
+            /// <summary>
+            /// Per-drawable start index into the combined index buffer (combine job input).
+            /// </summary>
+            internal NativeArray<int> IndexOffsets;
+
+            /// <summary>
+            /// Per-drawable vertex count (combine job input).
+            /// </summary>
+            internal NativeArray<int> VertexCounts;
+
+            /// <summary>
+            /// Per-drawable index count (combine job input).
+            /// </summary>
+            internal NativeArray<int> IndexCounts;
+
+            /// <summary>
+            /// Per-drawable root transform used to bake vertices into world space (combine job input).
+            /// </summary>
+            internal NativeArray<BatchTransform> Transforms;
+
+            /// <summary>
+            /// Per-drawable source mesh layout describing stride and index format (combine job input).
+            /// </summary>
+            internal NativeArray<BatchMeshLayout> Layouts;
+
+            /// <summary>
+            /// Ensures the combined vertex/index buffers hold at least the requested capacity.
+            /// Reallocation does not preserve contents (buffers are overwritten each use).
+            /// </summary>
+            internal void EnsureCapacity(int vertexCapacity, int indexCapacity)
+            {
+                if (!VertexPositions.IsCreated || VertexPositions.Length < vertexCapacity)
+                {
+                    var newSize = Mathf.Max(vertexCapacity, VertexPositions.IsCreated ? VertexPositions.Length * 2 : InitialVertexCapacity);
+
+                    if (VertexPositions.IsCreated)
+                    {
+                        VertexPositions.Dispose();
+                    }
+
+                    if (VertexUvs.IsCreated)
+                    {
+                        VertexUvs.Dispose();
+                    }
+
+                    if (VertexColors.IsCreated)
+                    {
+                        VertexColors.Dispose();
+                    }
+
+                    VertexPositions = new NativeArray<Vector3>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                    VertexUvs = new NativeArray<Vector2>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                    VertexColors = new NativeArray<Color32>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                }
+
+                if (!Indices.IsCreated || Indices.Length < indexCapacity)
+                {
+                    var newSize = Mathf.Max(indexCapacity, Indices.IsCreated ? Indices.Length * 2 : InitialIndexCapacity);
+
+                    if (Indices.IsCreated)
+                    {
+                        Indices.Dispose();
+                    }
+
+                    Indices = new NativeArray<int>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                }
+            }
+
+            /// <summary>
+            /// Ensures the per-drawable job-input buffers hold at least <paramref name="drawableCapacity"/> entries.
+            /// </summary>
+            internal void EnsureDrawableCapacity(int drawableCapacity)
+            {
+                if (Transforms.IsCreated && Transforms.Length >= drawableCapacity)
+                {
+                    return;
+                }
+
+                var newSize = Mathf.Max(drawableCapacity, Transforms.IsCreated ? Transforms.Length * 2 : InitialDrawableCapacity);
+
+                if (VertexOffsets.IsCreated)
+                {
+                    VertexOffsets.Dispose();
+                }
+
+                if (IndexOffsets.IsCreated)
+                {
+                    IndexOffsets.Dispose();
+                }
+
+                if (VertexCounts.IsCreated)
+                {
+                    VertexCounts.Dispose();
+                }
+
+                if (IndexCounts.IsCreated)
+                {
+                    IndexCounts.Dispose();
+                }
+
+                if (Transforms.IsCreated)
+                {
+                    Transforms.Dispose();
+                }
+
+                if (Layouts.IsCreated)
+                {
+                    Layouts.Dispose();
+                }
+
+                VertexOffsets = new NativeArray<int>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                IndexOffsets = new NativeArray<int>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                VertexCounts = new NativeArray<int>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                IndexCounts = new NativeArray<int>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                Transforms = new NativeArray<BatchTransform>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+                Layouts = new NativeArray<BatchMeshLayout>(newSize, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+            }
+
+            internal void Dispose()
+            {
+                if (VertexPositions.IsCreated)
+                {
+                    VertexPositions.Dispose();
+                }
+
+                if (VertexUvs.IsCreated)
+                {
+                    VertexUvs.Dispose();
+                }
+
+                if (VertexColors.IsCreated)
+                {
+                    VertexColors.Dispose();
+                }
+
+                if (Indices.IsCreated)
+                {
+                    Indices.Dispose();
+                }
+
+                if (VertexOffsets.IsCreated)
+                {
+                    VertexOffsets.Dispose();
+                }
+
+                if (IndexOffsets.IsCreated)
+                {
+                    IndexOffsets.Dispose();
+                }
+
+                if (VertexCounts.IsCreated)
+                {
+                    VertexCounts.Dispose();
+                }
+
+                if (IndexCounts.IsCreated)
+                {
+                    IndexCounts.Dispose();
+                }
+
+                if (Transforms.IsCreated)
+                {
+                    Transforms.Dispose();
+                }
+
+                if (Layouts.IsCreated)
+                {
+                    Layouts.Dispose();
+                }
+            }
+        }
 
         /// <summary>
-        /// Dynamic vertex buffer used to accumulate batched drawable vertex colors.
+        /// Pool of per-batch buffer sets, reused across frames. One is acquired per combined batch.
         /// </summary>
-        internal Color[] VertexColors;
+        private readonly List<BatchBuffers> _bufferSets = new List<BatchBuffers>();
 
         /// <summary>
-        /// Dynamic index buffer used to accumulate batched drawable triangle indices (with vertex offsets applied).
+        /// Current write index into the buffer-set pool. Incremented on every <see cref="AcquireBuffers"/>.
         /// </summary>
-        internal int[] Indices;
-
-        /// <summary>
-        /// Reusable scratch list filled by <see cref="UnityEngine.Mesh.GetVertices(List{Vector3})"/>.
-        /// Avoids the per-call array allocation incurred by <see cref="UnityEngine.Mesh.vertices"/>.
-        /// </summary>
-        internal readonly List<Vector3> ScratchVertices = new List<Vector3>(InitialVertexCapacity);
-
-        /// <summary>
-        /// Reusable scratch list filled by <see cref="UnityEngine.Mesh.GetUVs(int, List{Vector2})"/>.
-        /// </summary>
-        internal readonly List<Vector2> ScratchUVs = new List<Vector2>(InitialVertexCapacity);
-
-        /// <summary>
-        /// Reusable scratch list filled by <see cref="UnityEngine.Mesh.GetColors(List{Color})"/>.
-        /// </summary>
-        internal readonly List<Color> ScratchColors = new List<Color>(InitialVertexCapacity);
-
-        /// <summary>
-        /// Reusable scratch list filled by <see cref="UnityEngine.Mesh.GetTriangles(List{int}, int)"/>.
-        /// </summary>
-        internal readonly List<int> ScratchIndices = new List<int>(InitialIndexCapacity);
+        private int _currentBufferIndex;
 
         /// <summary>
         /// Pool of reusable mesh instances. Meshes are lazily allocated and reused across frames.
@@ -87,39 +263,28 @@ namespace Live2D.Cubism.Rendering
         private int _currentMeshIndex;
 
         /// <summary>
-        /// Ensures the vertex/index buffers have at least the requested capacity.
-        /// Buffers grow geometrically (doubling) to amortize allocations.
+        /// Acquires the next per-batch buffer set. Lazily allocated. Reused across frames after <see cref="Reset"/>.
         /// </summary>
-        /// <remarks>
-        /// These are per-frame throwaway scratch buffers. Each batch overwrites the range it uses
-        /// (cursors start at 0 and SubmitCombinedDraw passes that range to SetVertices/SetTriangles),
-        /// so reallocation intentionally does not preserve old contents, and stale data beyond the
-        /// written range is never read.
-        /// </remarks>
-        /// <param name="vertexCapacity">Required vertex capacity.</param>
-        /// <param name="indexCapacity">Required index capacity.</param>
-        internal void EnsureCapacity(int vertexCapacity, int indexCapacity)
+        internal BatchBuffers AcquireBuffers()
         {
-            if (VertexPositions == null || VertexPositions.Length < vertexCapacity)
+            BatchBuffers buffers;
+
+            if (_bufferSets.Count <= _currentBufferIndex)
             {
-                // All three vertex buffers are reallocated together at the same size to stay
-                // length-aligned: WriteBakedVerticesToBatch writes position/UV/color at the same
-                // index, so a size mismatch would throw IndexOutOfRange.
-                var newSize = Mathf.Max(vertexCapacity, VertexPositions?.Length * 2 ?? InitialVertexCapacity);
-                VertexPositions = new Vector3[newSize];
-                VertexUVs = new Vector2[newSize];
-                VertexColors = new Color[newSize];
+                buffers = new BatchBuffers();
+                _bufferSets.Add(buffers);
+            }
+            else
+            {
+                buffers = _bufferSets[_currentBufferIndex];
             }
 
-            if (Indices == null || Indices.Length < indexCapacity)
-            {
-                var newSize = Mathf.Max(indexCapacity, Indices?.Length * 2 ?? InitialIndexCapacity);
-                Indices = new int[newSize];
-            }
+            ++_currentBufferIndex;
+            return buffers;
         }
 
         /// <summary>
-        /// Acquires the next batch mesh. New meshes are lazily allocated; subsequent frames reuse the
+        /// Acquires the next batch mesh. New meshes are lazily allocated. Subsequent frames reuse the
         /// same mesh instances after <see cref="Reset"/> is called.
         /// </summary>
         /// <returns>A mesh ready to be cleared and refilled.</returns>
@@ -147,18 +312,19 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
-        /// Resets per-frame state so the mesh pool can be reused on the next frame.
+        /// Resets per-frame state so the mesh and buffer pools can be reused on the next frame.
         /// Called at the start of every frame before any batch draws are issued.
         /// </summary>
         internal void Reset()
         {
             _currentMeshIndex = 0;
+            _currentBufferIndex = 0;
         }
 
         /// <summary>
-        /// Destroys all pooled meshes and clears the pool. Must be called before this pool is
-        /// discarded: the meshes use <see cref="HideFlags.HideAndDontSave"/>, so they are not
-        /// reclaimed by the garbage collector or by scene unload and would otherwise leak native memory.
+        /// Destroys all pooled meshes and releases the native buffers. Must be called before this pool is
+        /// discarded: the meshes use <see cref="HideFlags.HideAndDontSave"/> and the native arrays use
+        /// <see cref="Allocator.Persistent"/>, so neither is reclaimed automatically and both would leak.
         /// </summary>
         internal void Dispose()
         {
@@ -170,7 +336,7 @@ namespace Live2D.Cubism.Rendering
                 }
 
                 // Use the deferred Destroy while playing so the mesh is freed only after the current
-                // frame's rendering completes; DestroyImmediate is required in edit mode.
+                // frame's rendering completes. DestroyImmediate is required in edit mode.
                 if (Application.isPlaying)
                 {
                     Object.Destroy(_meshes[i]);
@@ -183,6 +349,14 @@ namespace Live2D.Cubism.Rendering
 
             _meshes.Clear();
             _currentMeshIndex = 0;
+
+            for (var i = 0; i < _bufferSets.Count; i++)
+            {
+                _bufferSets[i].Dispose();
+            }
+
+            _bufferSets.Clear();
+            _currentBufferIndex = 0;
         }
     }
 }

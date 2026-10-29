@@ -11,10 +11,17 @@ Shader "Unlit/BlendMode/Blit"
     {
         [PerRendererData] _MainTex ("Texture", 2D) = "white" {}
         [PerRendererData] _ReversedZ("_Reversed_Z", Int) = 0
+
+        // Blend settings. The defaults are the premultiplied composite this shader has always done;
+        // a plain copy sets One / Zero so the destination is replaced instead of composited onto.
+        _SrcColor("Source Color", Int) = 1
+        _DstColor("Destination Color", Int) = 10
+        _SrcAlpha("Source Alpha", Int) = 1
+        _DstAlpha("Destination Alpha", Int) = 10
     }
     SubShader
     {
-        Blend   One OneMinusSrcAlpha, One OneMinusSrcAlpha
+        Blend   [_SrcColor][_DstColor], [_SrcAlpha][_DstAlpha]
 
         Tags {
             "Queue" = "Transparent"

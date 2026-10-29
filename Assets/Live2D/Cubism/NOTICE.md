@@ -20,6 +20,14 @@ Cubism SDK for Unity currently does not support Windows ARM64 builds for Unity 2
 A supported version will be announced in a future release.
 
 
+## [Caution] Regarding macOS X86_64 Support (2026-10-29)
+
+Starting with Cubism 5 SDK for Unity R6_1, macOS X86_64 will be deprecated.
+Support will be discontinued in a future release, and only macOS Apple Silicon (ARM64) will be supported.
+
+The discontinuation date will be announced in a future release.
+
+
 ## [Caution] Regarding .meta file handling in Tuanjie
 
 Due to development version constraints, the Cubism SDK for Unity's `.meta` file format is not compatible with Tuanjie.

@@ -116,6 +116,10 @@ MonoBehaviour:
   - {fileID: 6185745851915322232}
   _hasMask: 1
   EnableMaskCache: 1
+  EnableScissorBlit: 1
+  EnableOffscreenPingPong: 1
+  EnableEmptyOffscreenSkip: 1
+  EnableOffscreenScissor: 1
   _groupedSortingIndex: 0
 --- !u!114 &7172387980074779291
 MonoBehaviour:
@@ -349,7 +353,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 0
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &9073448813080312448
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -548,7 +551,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 2
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &2168625042298388213
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -731,7 +733,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unmanagedIndex: 1
-  _screenColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!23 &6650187817984219938
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -27,13 +27,15 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// Called by CubismRenderingInterceptorsManager before rendering for Drawables and Offscreens.
         /// </summary>
         /// <param name="args"> Rendering event arguments. </param>
-        internal void OnPreRenderingForPass(CubismRenderedEventArgs args);
+        /// <param name="willInject"> The prediction <see cref="WillInjectDraws"/> made for this event. </param>
+        internal void OnPreRenderingForPass(CubismRenderedEventArgs args, bool willInject);
 
         /// <summary>
         /// Called by CubismRenderingInterceptorsManager after rendering for Drawables and Offscreens.
         /// </summary>
         /// <param name="args"> Rendering event arguments. </param>
-        internal void OnPostRenderingForPass(CubismRenderedEventArgs args);
+        /// <param name="willInject"> The prediction <see cref="WillInjectDraws"/> made for this event. </param>
+        internal void OnPostRenderingForPass(CubismRenderedEventArgs args, bool willInject);
 
         /// <summary>
         /// Predicts whether <see cref="OnPreRenderingForPass"/> or <see cref="OnPostRenderingForPass"/>
@@ -44,7 +46,9 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         /// the batcher is flushed around the event so injected draw calls land in the correct order.
         /// Implementations should be a side-effect-free predicate equivalent to the early-return
         /// conditions of their actual draw logic. Returning a conservative true is always safe
-        /// (only costs a wasted flush); returning a false negative will visibly break draw order.
+        /// (only costs a wasted flush). Returning a false negative will visibly break draw order.
+        /// The result is handed back to the interceptor through <see cref="OnPreRenderingForPass"/> and
+        /// <see cref="OnPostRenderingForPass"/>, so the draw logic can reuse it instead of deciding twice.
         /// </remarks>
         /// <param name="args"> Rendering event arguments. </param>
         /// <returns>True if the interceptor would inject one or more draw commands for this event.</returns>
