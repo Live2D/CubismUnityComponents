@@ -424,7 +424,7 @@ namespace Live2D.Cubism.Rendering.URP
                     && (colorBuffer.width != depthRt.width
                         || colorBuffer.height != depthRt.height)))
             {
-                var fallbackBuffer = passData.CurrentGroupRendersDirect
+                var fallbackBuffer = passData.CurrentGroup.CanDirectRendering
                     ? (RenderTexture)passData.CameraTextureHandle
                     : passData.CommonRenderingTexture;
 

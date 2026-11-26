@@ -100,7 +100,7 @@ https://docs.unity3d.com/ja/2018.4/Manual/CSharpCompiler.html
 | Ubuntu | 24.04.3 |
 | macOS | 27.2 (*3) |
 | Windows 11 | 25H2 (*4) |
-| Google Chrome | 156.0.8078.48 |
+| Google Chrome | 157.0.8103.79 |
 | HarmonyOS NEXT | 6.1.0.146 |
 
 *3 We have not verified the operation of builds for X86_64.
