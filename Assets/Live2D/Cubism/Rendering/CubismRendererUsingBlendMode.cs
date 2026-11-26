@@ -973,7 +973,7 @@ namespace Live2D.Cubism.Rendering
                     // A direct group renders straight to the camera color target and never blits the common RT
                     // back, so diverting this draw to the common RT would drop it (or break sort order). Keep
                     // direct groups on the camera target. Only common-RT groups fall back to the common RT.
-                    RenderController.CurrentFrameBuffer = passData.CurrentGroupRendersDirect
+                    RenderController.CurrentFrameBuffer = passData.CurrentGroup.CanDirectRendering
                         ? (RenderTexture)passData.CameraTextureHandle
                         : passData.CommonRenderingTexture;
                 }

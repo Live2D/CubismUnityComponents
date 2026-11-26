@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [5-r.6.2] - 2026-11-26
+
+### Added
+
+* Add the `RenderingInterceptorModels` sample scene.
+  * It places a model at runtime and draws it partway through another model using rendering interception.
+
+### Fixed
+
+* Fix an issue where a model drawn by rendering interception was not rendered correctly when it used masks, blend modes added in Cubism 5.3 or offscreen drawing.
+  * Its clipping-mask atlas was never rendered, and its frame buffer was not reset to the render target of the group it was drawn into.
+  * The render textures it needed were not allocated unless a model in the group needed them as well.
+  * When `CubismRenderPassFeature.EnableDirectRendering` is enabled, direct rendering is turned off only for the group such a model is drawn into while it needs the intermediate `RenderTexture`.
+    * Direct rendering is turned off for every group when the model uses the `ZDepth` mode, whose group is not known before drawing, or when `CubismRenderControllerGroup.IsCopiedToCameraTexture` is disabled.
+* Fix an issue where a part or drawable of a model drawn by rendering interception stayed hidden once it was hidden, even after a motion made it visible again.
+* Fix an issue where render order changes made by animation were not applied to a model drawn by rendering interception.
+* Fix an issue where the drawables of a model drawn by rendering interception were drawn in an undefined order when its `SortingMode` was a depth sorting mode.
+  * The drawables are now sorted by their distance to the camera as well, as they are for a normal model, and follow camera moves.
+* Fix an issue where skipping empty offscreens and limiting offscreen composites to the area they cover were not applied to a model drawn by rendering interception.
+* Fix an issue where a model drawn by rendering interception was still drawn while its `CubismRenderController` was disabled.
+* Fix an issue where a model was drawn twice, through rendering interception and as a normal model, when `CubismRenderingInterceptController` was added to it after the model was enabled.
+  * A model whose `CubismRenderingInterceptController` is disabled is now drawn as a normal model.
+
+
 ## [5-r.6.1] - 2026-10-29
 
 ### Changed
@@ -717,6 +741,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue where Priority value was not reset after playing motion with CubismMotionController.
 
 
+[5-r.6.2]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.6.1...5-r.6.2
 [5-r.6.1]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.6...5-r.6.1
 [5-r.6]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5...5-r.6
 [5-r.5]: https://github.com/Live2D/CubismUnityComponents/compare/5-r.5-beta.3...5-r.5

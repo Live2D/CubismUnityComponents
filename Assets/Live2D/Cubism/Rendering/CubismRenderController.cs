@@ -547,6 +547,12 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private int[] _dirtyVertexDrawables;
 
+        /// <summary>
+        /// True between <see cref="OnEnable"/> reaching the group registration and <see cref="OnDisable"/>,
+        /// that is while this model may be registered at <see cref="CubismRenderControllerGroup"/>.
+        /// </summary>
+        [NonSerialized]
+        private bool _canRegisterAtGroup;
 
         /// <summary>
         /// Model has update controller component.
@@ -806,6 +812,41 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Registers this model at <see cref="CubismRenderControllerGroup"/>, or removes it from there, depending on
+        /// whether a rendering interceptor draws it.
+        /// A model drawn by a rendering interceptor must stay out of the group, otherwise it is drawn twice.
+        /// Called when a rendering interceptor on the same GameObject is enabled or disabled, which can happen
+        /// after this component was enabled (for example when the interceptor is added at runtime).
+        /// </summary>
+        /// <param name="leavingInterceptor">
+        /// Interceptor being disabled or destroyed, which is not counted even when it still reports itself enabled.
+        /// </param>
+        internal void UpdateRenderControllerGroupRegistration(ICubismRenderingInterceptor leavingInterceptor)
+        {
+            var renderControllerGroup = CubismRenderControllerGroup.GetInstance();
+
+            // NOTE: This flag is used in place of isActiveAndEnabled,
+            // as reading isActiveAndEnabled here can cause unintended behavior such as exceptions.
+            var shouldRegister = _canRegisterAtGroup
+                                 && Model
+                                 && !HasEnabledRenderingInterceptor(leavingInterceptor);
+
+            if (shouldRegister == renderControllerGroup.ContainsRenderController(this))
+            {
+                return;
+            }
+
+            if (shouldRegister)
+            {
+                renderControllerGroup.AddRenderController(this);
+            }
+            else
+            {
+                renderControllerGroup.RemoveRenderController(this);
+            }
+        }
+
+        /// <summary>
         /// Called by cubism update controller. Order to invoke OnLateUpdate.
         /// </summary>
         public int ExecutionOrder
@@ -846,6 +887,38 @@ namespace Live2D.Cubism.Rendering
 
             // Face camera.
             DrawablesRootTransform.rotation = (Quaternion.LookRotation(CameraToFace.transform.forward, Vector3.up));
+        }
+
+        /// <summary>
+        /// Whether an enabled rendering interceptor on the same GameObject draws this model.
+        /// A disabled interceptor draws nothing, so the model has to be drawn through the group then.
+        /// </summary>
+        /// <param name="excludedInterceptor">Interceptor not to count, or null to count every interceptor.</param>
+        /// <returns>True when an enabled rendering interceptor other than <paramref name="excludedInterceptor"/> is attached.</returns>
+        private bool HasEnabledRenderingInterceptor(ICubismRenderingInterceptor excludedInterceptor)
+        {
+            var interceptors = GetComponents<ICubismRenderingInterceptor>();
+
+            for (var index = 0; index < interceptors.Length; index++)
+            {
+                var interceptor = interceptors[index];
+
+                if (interceptor == excludedInterceptor)
+                {
+                    continue;
+                }
+
+                // The interceptors are components. One that is not a Behaviour cannot be disabled.
+                if (interceptor is Behaviour behaviour
+                    && !behaviour.enabled)
+                {
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         #region Unity Event Handling
@@ -1011,9 +1084,11 @@ namespace Live2D.Cubism.Rendering
             }
 #endif
 
-            if (GetComponent<ICubismRenderingInterceptor>() != null)
+            _canRegisterAtGroup = true;
+
+            if (HasEnabledRenderingInterceptor(null))
             {
-                // Do not register at common controller when a rendering interceptor is attached.
+                // Do not register at common controller when a rendering interceptor draws this model.
                 return;
             }
 
@@ -1026,6 +1101,8 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         private void OnDisable()
         {
+            _canRegisterAtGroup = false;
+
             // Release native bake buffers unconditionally (also frees them across domain reloads).
             if (_vertexBaker != null)
             {
