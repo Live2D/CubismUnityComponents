@@ -11,6 +11,7 @@ using Live2D.Cubism.Framework.Utils;
 using Live2D.Cubism.Rendering.Masking;
 using Live2D.Cubism.Rendering.URP.RenderingInterceptor;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_6000_0_OR_NEWER
@@ -168,10 +169,15 @@ namespace Live2D.Cubism.Rendering.URP
                 public CubismDrawableBatcher Batcher;
 
                 /// <summary>
-                /// When true, every controller in this group can render directly to the camera target
-                /// (no background-reading blend, no offscreen), so the group skips the common RT and blit.
+                /// When true, every controller in this group can render directly to the camera target.
+                /// This is cached per group in <see cref="SetUpRendererGroup"/> and used to decide whether the group.
                 /// </summary>
-                public bool IsDirectGroup;
+                public bool CanGroupDirectRenderCache;
+
+                /// <summary>
+                /// Whether this group draws directly to the camera target in the current frame.
+                /// </summary>
+                public bool CanGroupDirectRenderCurrentFrame;
             }
 
             /// <summary>
@@ -192,6 +198,13 @@ namespace Live2D.Cubism.Rendering.URP
             /// so the first call after a domain reload always re-evaluates.
             /// </summary>
             private static bool? _previousEnableDirectRendering;
+
+            /// <summary>
+            /// Sorting indices of the groups that composite through the common RT in the current frame because
+            /// a model drawn by a rendering interceptor does. Reused every frame so that collecting them
+            /// allocates nothing.
+            /// </summary>
+            private static readonly List<int> InterceptedGroupSortingIndices = new List<int>();
 
             /// <summary>
             /// Mesh used for blitting render textures.
@@ -237,6 +250,27 @@ namespace Live2D.Cubism.Rendering.URP
                 public Vector3 WorldSpaceCameraPos;
                 /// <summary>Whether this is a scene view camera.</summary>
                 public bool IsSceneViewCamera;
+            }
+
+            /// <summary>
+            /// State of the group <see cref="CubismRenderPass.DrawObjects"/> is currently drawing.
+            /// Both values are decided together per group, and reset together by assigning default.
+            /// </summary>
+            internal struct CubismPassCurrentGroupData
+            {
+                /// <summary>
+                /// True while the group renders straight to the camera color target and is never blitted back
+                /// from the common RT.
+                /// </summary>
+                public bool CanDirectRendering;
+
+                /// <summary>
+                /// Render target of the group: the camera color target for a direct group, otherwise
+                /// <see cref="PassData.CommonRenderingTexture"/>. A model that a rendering interceptor draws
+                /// from inside the group is pointed at it, so it draws into the same target as the models
+                /// registered in the group.
+                /// </summary>
+                public RenderTexture FrameBuffer;
             }
 
             /// <summary>
@@ -339,15 +373,6 @@ namespace Live2D.Cubism.Rendering.URP
                 public bool EnableDirectRendering;
 
                 /// <summary>
-                /// True while <see cref="CubismRenderPass.DrawObjects"/> is drawing a direct group (one that
-                /// renders straight to the camera color target and is never blitted back from the common RT).
-                /// Updated per group so the per-drawable / batch fallback paths can keep direct draws on the
-                /// camera target instead of diverting them to the common RT, which a direct group never
-                /// composites back to the camera.
-                /// </summary>
-                public bool CurrentGroupRendersDirect;
-
-                /// <summary>
                 /// Minimum number of consecutive batchable drawables required to trigger a combined DrawMesh.
                 /// </summary>
                 public int BatchThreshold;
@@ -359,6 +384,11 @@ namespace Live2D.Cubism.Rendering.URP
                 /// </summary>
                 public bool EnableOffscreenPreClear;
 #endif
+
+                /// <summary>
+                /// State of the group <see cref="CubismRenderPass.DrawObjects"/> is currently drawing.
+                /// </summary>
+                internal CubismPassCurrentGroupData CurrentGroup;
 
                 /// <summary>
                 /// <see cref="CommonRenderingTexture"/>'s backing field.
@@ -423,7 +453,7 @@ namespace Live2D.Cubism.Rendering.URP
                         break;
                     }
                 }
-                target.IsDirectGroup = isDirectGroup;
+                target.CanGroupDirectRenderCache = isDirectGroup;
 
                 // Direct groups draw straight to the camera color target; the rest use the common RT
                 // (falling back to the camera target when it is unavailable).
@@ -459,6 +489,154 @@ namespace Live2D.Cubism.Rendering.URP
 
                 // Assign the filled target to the sorted renderer groups array.
                 _sortedRendererGroupDataArray[targetIndex] = target;
+            }
+
+            /// <summary>
+            /// Whether the given model draws through the dedicated full-screen high-precision mask texture,
+            /// which high-precision drawable masks and offscreen masks use instead of the mask atlas.
+            /// </summary>
+            /// <param name="controller">Checked render controller.</param>
+            /// <returns>True when the model needs the high-precision mask texture.</returns>
+            private static bool NeedsHighPrecisionMaskTexture(CubismRenderController controller)
+            {
+                if (!controller || !controller.HasMask)
+                {
+                    return false;
+                }
+
+                if (controller.MaskTextureController
+                    && controller.MaskTextureController.UseHighPrecisionMask)
+                {
+                    return true;
+                }
+
+                var offscreenRenderers = controller.OffscreenRenderers;
+
+                return offscreenRenderers != null && offscreenRenderers.Length > 0;
+            }
+
+            /// <summary>
+            /// Checks what the models drawn by rendering interceptors need from this pass.
+            /// Those models are not registered in <see cref="CubismRenderControllerGroup"/>, so the checks made
+            /// over the grouped controllers when the pass is set up never see them.
+            /// </summary>
+            /// <param name="canRenderDirectly">
+            /// True when every one of them can render directly to the camera target. One that cannot composites
+            /// through the common rendering texture, so the texture is needed even when every group is direct
+            /// (see <see cref="UpdateGroupsRenderDirect"/>).
+            /// </param>
+            /// <param name="needsHighPrecisionMask">True when one of them needs the high-precision mask texture.</param>
+            private static void CheckInterceptedRenderControllers(out bool canRenderDirectly, out bool needsHighPrecisionMask)
+            {
+                canRenderDirectly = true;
+                needsHighPrecisionMask = false;
+
+                var interceptors = CubismRenderingInterceptorsManager.GetInstance().Interceptors;
+                for (var index = 0; index < interceptors?.Length; index++)
+                {
+                    // Skip if the interceptor is not a CubismRenderingInterceptController or is null.
+                    if (interceptors[index] is not CubismRenderingInterceptController interceptController
+                        || !interceptController)
+                    {
+                        continue;
+                    }
+
+                    // A model whose controller is inactive is not drawn at all (see PrecomputeSkipRendering),
+                    // so it needs nothing from this pass.
+                    var controller = interceptController.InterceptedRenderController;
+                    if (!controller
+                        || IsRenderControllerInactive(controller))
+                    {
+                        continue;
+                    }
+
+                    canRenderDirectly &= controller.CanRenderDirectly;
+                    needsHighPrecisionMask |= NeedsHighPrecisionMaskTexture(controller);
+
+                    if (!canRenderDirectly && needsHighPrecisionMask)
+                    {
+                        return;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Decides <see cref="RendererGroupData.CanGroupDirectRenderCurrentFrame"/> of every group for the current frame.
+            /// A model drawn by a rendering interceptor is drawn into the group it interrupts. When it cannot
+            /// render directly, it composites through the common RT, which a direct group never blits back to
+            /// the camera, so that group has to composite through the common RT as well.
+            /// Only those groups are taken off direct rendering, and only for the current frame.
+            /// </summary>
+            /// <param name="data">Pass data containing the direct rendering setting.</param>
+            private static void UpdateGroupsRenderDirect(PassData data)
+            {
+                // Without direct rendering no group is direct, so there is nothing to take off it.
+                var interceptsAllGroups = data.EnableDirectRendering
+                                          && CollectGroupsInterceptedThroughCommonRenderingTexture(InterceptedGroupSortingIndices);
+
+                for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray?.Length; groupIndex++)
+                {
+                    var rendersDirect = _sortedRendererGroupDataArray[groupIndex].CanGroupDirectRenderCache;
+
+                    if (rendersDirect
+                        && (interceptsAllGroups
+                            || InterceptedGroupSortingIndices.Contains(_sortedRendererGroupDataArray[groupIndex].SortingIndex)))
+                    {
+                        rendersDirect = false;
+                    }
+
+                    _sortedRendererGroupDataArray[groupIndex].CanGroupDirectRenderCurrentFrame = rendersDirect;
+                }
+            }
+
+            /// <summary>
+            /// Collects the groups into which a model drawn by a rendering interceptor composites through the
+            /// common RT, because it cannot render directly.
+            /// </summary>
+            /// <param name="groupSortingIndices">Receives the sorting indices of those groups. Cleared first.</param>
+            /// <returns>
+            /// True when every group has to be treated as one of them. That is when the group a model is drawn into
+            /// cannot be told before drawing (<see cref="CubismRenderingInterceptController.InterceptingMode.ZDepth"/>),
+            /// and in the accumulate mode (<see cref="CubismRenderControllerGroup.IsCopiedToCameraTexture"/> is false).
+            /// </returns>
+            private static bool CollectGroupsInterceptedThroughCommonRenderingTexture(List<int> groupSortingIndices)
+            {
+                groupSortingIndices.Clear();
+
+                var isCopiedToCameraTexture = CubismRenderControllerGroup.GetInstance().IsCopiedToCameraTexture;
+                var interceptors = CubismRenderingInterceptorsManager.GetInstance().Interceptors;
+                for (var index = 0; index < interceptors?.Length; index++)
+                {
+                    // Skip if the interceptor is not a CubismRenderingInterceptController or is null.
+                    if (interceptors[index] is not CubismRenderingInterceptController interceptController
+                        || !interceptController)
+                    {
+                        continue;
+                    }
+
+                    // A model that can render directly is drawn into a direct group as it is, and a model whose
+                    // controller is inactive is not drawn at all (see PrecomputeSkipRendering).
+                    var controller = interceptController.InterceptedRenderController;
+                    if (!controller
+                        || IsRenderControllerInactive(controller)
+                        || controller.CanRenderDirectly)
+                    {
+                        continue;
+                    }
+
+                    if (!isCopiedToCameraTexture
+                        || !interceptController.TryGetInterceptedGroupSortingIndex(out var groupSortingIndex))
+                    {
+                        return true;
+                    }
+
+                    if (!groupSortingIndices.Contains(groupSortingIndex))
+                    {
+                        groupSortingIndices.Add(groupSortingIndex);
+                    }
+                }
+
+                return false;
             }
 
             /// <summary>
@@ -736,11 +914,12 @@ namespace Live2D.Cubism.Rendering.URP
             /// <summary>
             /// Sorts the renderers by their sorting order.
             /// Calculates the distance to camera for each renderer and sorts them accordingly.
+            /// Shared with the models drawn by rendering interceptors, so that they follow the same order.
             /// </summary>
             /// <param name="renderers">Array of renderers to sort</param>
             /// <param name="cameraPosition">Position of the camera</param>
             /// <param name="cameraForward">Forward direction of the camera (normalized vector)</param>
-            private static void SortBySortingOrder(CubismRenderer[] renderers, Vector3 cameraPosition, Vector3 cameraForward)
+            internal static void SortBySortingOrder(CubismRenderer[] renderers, Vector3 cameraPosition, Vector3 cameraForward)
             {
                 for (var index = 0; index < renderers.Length; index++)
                 {
@@ -797,75 +976,96 @@ namespace Live2D.Cubism.Rendering.URP
                     return;
                 }
 
-                // Reset skip rendering flag for each renderer.
                 for (var controllerIndex = 0; controllerIndex < data.RenderControllers.Length; controllerIndex++)
                 {
-                    var controller = data.RenderControllers[controllerIndex];
+                    PrecomputeSkipRendering(data.RenderControllers[controllerIndex]);
+                }
+            }
 
-                    if (!controller || controller.Renderers == null)
-                    {
-                        continue;
-                    }
+            /// <summary>
+            /// Computes the <see cref="CubismRenderer.SkipRendering"/> flag of every renderer of one model.
+            /// Shared with the models drawn by rendering interceptors, which are not in the groups the render
+            /// pass iterates.
+            /// The flags of one model are only raised by renderers of the same model, so the models can be
+            /// computed one at a time.
+            /// </summary>
+            /// <param name="controller">Render controller of the model.</param>
+            /// <returns>
+            /// True when the controller itself is inactive or disabled, in which case every renderer of the model
+            /// is skipped.
+            /// </returns>
+            internal static bool PrecomputeSkipRendering(CubismRenderController controller)
+            {
+                if (!controller || controller.Renderers == null)
+                {
+                    return true;
+                }
 
-                    for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
+                // Reset skip rendering flag for each renderer. This is a pass of its own because a hidden
+                // offscreen also raises the flags of the renderers below it, which a reset made renderer by
+                // renderer would clear again.
+                for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
+                {
+                    var renderer = controller.Renderers[rendererIndex];
+                    if (renderer)
                     {
-                        var renderer = controller.Renderers[rendererIndex];
-                        if (renderer)
-                        {
-                            renderer.SkipRendering = false;
-                        }
+                        renderer.SkipRendering = false;
                     }
                 }
+
+                var controllerInactive = IsRenderControllerInactive(controller);
 
                 // Check and set skip rendering flag for each renderer.
-                for (var controllerIndex = 0; controllerIndex < data.RenderControllers.Length; controllerIndex++)
+                for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
                 {
-                    var controller = data.RenderControllers[controllerIndex];
+                    var renderer = controller.Renderers[rendererIndex];
 
-                    if (!controller || controller.Renderers == null)
+                    if (!renderer
+                        || renderer.SkipRendering)
                     {
                         continue;
                     }
 
-                    for (var rendererIndex = 0; rendererIndex < controller.Renderers.Length; rendererIndex++)
+                    renderer.SkipRendering |= !renderer.RenderController
+                                 || controllerInactive
+                                 || !renderer.gameObject.activeSelf
+                                 || !renderer.MeshRenderer
+                                 || !renderer.MeshRenderer.enabled;
+
+                    switch (renderer.DrawObjectType)
                     {
-                        var renderer = controller.Renderers[rendererIndex];
+                        case CubismModelTypes.DrawObjectType.Drawable:
+                            renderer.SkipRendering |= renderer.DisplayedOpacity <= 0.0f;
+                            break;
+                        case CubismModelTypes.DrawObjectType.Offscreen:
+                            renderer.SkipRendering |= renderer.DisplayedOffscreenOpacity <= 0.0f;
 
-                        if (!renderer
-                            || renderer.SkipRendering)
-                        {
-                            continue;
-                        }
-
-                        renderer.SkipRendering |= !renderer.RenderController
-                                     || !renderer.RenderController.gameObject.activeSelf
-                                     || !renderer.RenderController.enabled
-                                     || !renderer.gameObject.activeSelf
-                                     || !renderer.MeshRenderer
-                                     || !renderer.MeshRenderer.enabled;
-
-                        switch (renderer.DrawObjectType)
-                        {
-                            case CubismModelTypes.DrawObjectType.Drawable:
-                                renderer.SkipRendering |= renderer.DisplayedOpacity <= 0.0f;
+                            if (!renderer.SkipRendering)
+                            {
                                 break;
-                            case CubismModelTypes.DrawObjectType.Offscreen:
-                                renderer.SkipRendering |= renderer.DisplayedOffscreenOpacity <= 0.0f;
+                            }
 
-                                if (!renderer.SkipRendering)
-                                {
-                                    break;
-                                }
-
-                                // Skip rendering for all child drawables and offscreens of the offscreen part.
-                                renderer.SkipDescendantRenderers();
-                                break;
-                            default:
-                                renderer.SkipRendering = true;
-                                break;
-                        }
+                            // Skip rendering for all child drawables and offscreens of the offscreen part.
+                            renderer.SkipDescendantRenderers();
+                            break;
+                        default:
+                            renderer.SkipRendering = true;
+                            break;
                     }
                 }
+
+                return controllerInactive;
+            }
+
+            /// <summary>
+            /// Whether the controller itself is inactive or disabled, in which case nothing of its model is drawn.
+            /// </summary>
+            /// <param name="controller">Checked render controller. Must not be null.</param>
+            /// <returns>True when nothing of the model is drawn.</returns>
+            private static bool IsRenderControllerInactive(CubismRenderController controller)
+            {
+                return !controller.gameObject.activeSelf
+                       || !controller.enabled;
             }
 
             /// <summary>
@@ -947,37 +1147,45 @@ namespace Live2D.Cubism.Rendering.URP
             {
                 for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray.Length; groupIndex++)
                 {
-                    var rendererGroup = _sortedRendererGroupDataArray[groupIndex];
+                    SkipEmptyOffscreens(_sortedRendererGroupDataArray[groupIndex].Renderers);
+                }
+            }
 
-                    for (var rendererIndex = 0; rendererIndex < rendererGroup.Renderers.Length; rendererIndex++)
+            /// <summary>
+            /// Skips the offscreens among <paramref name="renderers"/> that hold no content this frame, along
+            /// with everything below them. See <see cref="SkipEmptyOffscreens()"/> for when it has to run.
+            /// </summary>
+            /// <param name="renderers">Checked renderers, in any order.</param>
+            private static void SkipEmptyOffscreens(CubismRenderer[] renderers)
+            {
+                for (var rendererIndex = 0; rendererIndex < renderers?.Length; rendererIndex++)
+                {
+                    var renderer = renderers[rendererIndex];
+
+                    if (!renderer
+                        || renderer.SkipRendering
+                        || renderer.DrawObjectType != CubismModelTypes.DrawObjectType.Offscreen
+                        || !renderer.RenderController
+                        || !renderer.RenderController.EnableEmptyOffscreenSkip)
                     {
-                        var renderer = rendererGroup.Renderers[rendererIndex];
-
-                        if (!renderer
-                            || renderer.SkipRendering
-                            || renderer.DrawObjectType != CubismModelTypes.DrawObjectType.Offscreen
-                            || !renderer.RenderController
-                            || !renderer.RenderController.EnableEmptyOffscreenSkip)
-                        {
-                            continue;
-                        }
-
-                        // Skipping is only unobservable when an empty composite would have left the
-                        // parent's pixels alone.
-                        if (!renderer.IsDirectDrawBlendMode
-                            && renderer.RenderController.Opacity < 1.0f)
-                        {
-                            continue;
-                        }
-
-                        if (renderer.HasVisibleDescendantDrawable())
-                        {
-                            continue;
-                        }
-
-                        renderer.SkipRendering = true;
-                        renderer.SkipDescendantRenderers();
+                        continue;
                     }
+
+                    // Skipping is only unobservable when an empty composite would have left the
+                    // parent's pixels alone.
+                    if (!renderer.IsDirectDrawBlendMode
+                        && renderer.RenderController.Opacity < 1.0f)
+                    {
+                        continue;
+                    }
+
+                    if (renderer.HasVisibleDescendantDrawable())
+                    {
+                        continue;
+                    }
+
+                    renderer.SkipRendering = true;
+                    renderer.SkipDescendantRenderers();
                 }
             }
 
@@ -1047,71 +1255,140 @@ namespace Live2D.Cubism.Rendering.URP
 
                     for (var rendererIndex = 0; rendererIndex < rendererGroup.Renderers.Length; rendererIndex++)
                     {
-                        var renderer = rendererGroup.Renderers[rendererIndex];
-
-                        if (!renderer
-                            || renderer.SkipRendering
-                            || renderer.DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
-                        {
-                            continue;
-                        }
-
-                        var controller = renderer.RenderController;
-
-                        if (!controller)
-                        {
-                            continue;
-                        }
-
-                        // Nothing consumes the regions of a model that opted out, so do not project it.
-                        if (!controller.EnableOffscreenScissor)
-                        {
-                            continue;
-                        }
-
-                        var parts = controller.Model?.Parts;
-                        var drawable = renderer.Drawable;
-
-                        if (parts == null
-                            || !drawable)
-                        {
-                            continue;
-                        }
-
-                        var rect = renderer.ComputeScreenRect(viewProjection, target.width, target.height);
-
-                        if (rect.width <= 0
-                            || rect.height <= 0)
-                        {
-                            continue;
-                        }
-
-                        controller.UnionModelScreenRect(rect);
-
-                        // Add to every offscreen this drawable renders into, walking up the part chain.
-                        // ParentPartIndex and UnmanagedParentIndex are unmanaged part indices, which are
-                        // not positions in Parts, so every step resolves through the controller's lookup.
-                        // The step count is bounded by the part count: a chain cannot visit more parts
-                        // than the model has, and the bound also keeps a malformed chain from looping.
-                        var partUnmanagedIndex = drawable.ParentPartIndex;
-
-                        for (var step = 0; step < parts.Length && partUnmanagedIndex >= 0; step++)
-                        {
-                            var part = controller.FindPart(partUnmanagedIndex);
-
-                            if (!part)
-                            {
-                                break;
-                            }
-
-                            if (part.OffscreenIndex != -1)
-                            {
-                                controller.FindOffscreenRenderer(part.OffscreenIndex)?.UnionOffscreenScreenRect(rect);
-                            }
-
-                            partUnmanagedIndex = part.UnmanagedParentIndex;
-                        }
+                        AccumulateDrawableScreenRect(rendererGroup.Renderers[rendererIndex], viewProjection, target);
                     }
+                }
+            }
+
+            /// <summary>
+            /// Adds the region a drawable covers on screen to its model's region and to every offscreen it
+            /// renders into. Does nothing for a renderer that is not a drawable drawn this frame, or whose
+            /// model consumes no region.
+            /// </summary>
+            /// <param name="renderer">Projected renderer.</param>
+            /// <param name="viewProjection">View-projection from <see cref="CubismMath.GetViewProjection"/>.</param>
+            /// <param name="target">Texture whose pixel space the regions are given in.</param>
+            private static void AccumulateDrawableScreenRect(CubismRenderer renderer, Matrix4x4 viewProjection, RenderTexture target)
+            {
+                if (!renderer
+                    || renderer.SkipRendering
+                    || renderer.DrawObjectType != CubismModelTypes.DrawObjectType.Drawable)
+                {
+                    return;
+                }
+
+                var controller = renderer.RenderController;
+
+                if (!controller)
+                {
+                    return;
+                }
+
+                // Nothing consumes the regions of a model that opted out, so do not project it.
+                if (!controller.EnableOffscreenScissor)
+                {
+                    return;
+                }
+
+                var parts = controller.Model?.Parts;
+                var drawable = renderer.Drawable;
+
+                if (parts == null
+                    || !drawable)
+                {
+                    return;
+                }
+
+                var rect = renderer.ComputeScreenRect(viewProjection, target.width, target.height);
+
+                if (rect.width <= 0
+                    || rect.height <= 0)
+                {
+                    return;
+                }
+
+                controller.UnionModelScreenRect(rect);
+
+                // Add to every offscreen this drawable renders into, walking up the part chain.
+                // ParentPartIndex and UnmanagedParentIndex are unmanaged part indices, which are
+                // not positions in Parts, so every step resolves through the controller's lookup.
+                // The step count is bounded by the part count: a chain cannot visit more parts
+                // than the model has, and the bound also keeps a malformed chain from looping.
+                var partUnmanagedIndex = drawable.ParentPartIndex;
+
+                for (var step = 0; step < parts.Length && partUnmanagedIndex >= 0; step++)
+                {
+                    var part = controller.FindPart(partUnmanagedIndex);
+
+                    if (!part)
+                    {
+                        break;
+                    }
+
+                    if (part.OffscreenIndex != -1)
+                    {
+                        controller.FindOffscreenRenderer(part.OffscreenIndex)?.UnionOffscreenScreenRect(rect);
+                    }
+
+                    partUnmanagedIndex = part.UnmanagedParentIndex;
+                }
+            }
+
+            /// <summary>
+            /// Prepares the offscreen state of a model drawn by a rendering interceptor that
+            /// <see cref="MarkLastDrawObjectInModel"/> prepares for the models registered in a group: skips its
+            /// empty offscreens and computes the regions its offscreen composites are limited to.
+            /// Call after the model's skip flags are final, right before it is drawn.
+            /// </summary>
+            /// <param name="controller">Render controller of the model drawn by the interceptor.</param>
+            /// <param name="data">Pass data containing the camera used for projection.</param>
+            internal static void PrepareInterceptedOffscreens(CubismRenderController controller, PassData data)
+            {
+                var renderers = controller ? controller.Renderers : null;
+                if (renderers == null
+                    || data == null)
+                {
+                    return;
+                }
+
+                SkipEmptyOffscreens(renderers);
+
+                // Drop the previous frame's regions first, so a region that cannot be computed below is left
+                // unset, which makes every consumer fall back to whole-buffer work.
+                for (var rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+                {
+                    var renderer = renderers[rendererIndex];
+
+                    // NOTE: Use `is not null` instead of `!=` to avoid triggering Unity's native null check, which can be expensive.
+                    if (renderer is not null
+                        && renderer.DrawObjectType == CubismModelTypes.DrawObjectType.Offscreen)
+                    {
+                        renderer.ResetOffscreenScreenRect();
+                    }
+                }
+
+                controller.ResetModelScreenRect();
+
+                // Same pixel space as the regions of the grouped models (see UpdateOffscreenScreenRects).
+                var camera = data.CameraData.Camera;
+                var target = data.CommonRenderingTexture;
+
+                if (!camera
+                    || !target
+                    || target.width <= 0
+                    || target.height <= 0
+                    || !controller.EnableOffscreenScissor
+                    || controller.OffscreenRenderers == null
+                    || controller.OffscreenRenderers.Length == 0)
+                {
+                    return;
+                }
+
+                var viewProjection = CubismMath.GetViewProjection(camera);
+
+                for (var rendererIndex = 0; rendererIndex < renderers.Length; rendererIndex++)
+                {
+                    AccumulateDrawableScreenRect(renderers[rendererIndex], viewProjection, target);
                 }
             }
 
@@ -1171,20 +1448,20 @@ namespace Live2D.Cubism.Rendering.URP
                         continue;
                     }
 
-                    var isDirectGroup = rendererGroup.IsDirectGroup;
-
-                    // Expose the group kind to the per-drawable / batch fallback paths (DrawDrawable / Flush)
-                    // so a resolution-check miss in a direct group falls back to the camera target rather than
-                    // the common RT, which a direct group never blits back to the camera.
-                    data.CurrentGroupRendersDirect = isDirectGroup;
+                    var isDirectGroup = rendererGroup.CanGroupDirectRenderCurrentFrame;
 
                     // Re-point every controller in this group at the group's render target each frame.
-                    // Syncing it here keeps CurrentFrameBuffer consistent with the group render target on every frame.
-                    // A common-RT group falls back to the camera color target when the common RT is
-                    // unavailable, so the group still has a valid destination to draw into.
                     var frameBuffer = isDirectGroup
                         ? (RenderTexture)data.CameraTextureHandle
                         : data.CommonRenderingTexture;
+
+                    // Store the current group data in the pass data so that it can be accessed by other parts of the rendering pipeline.
+                    data.CurrentGroup = new CubismPassCurrentGroupData
+                    {
+                        CanDirectRendering = isDirectGroup,
+                        FrameBuffer = frameBuffer
+                    };
+
                     for (var controllerIndex = 0; controllerIndex < rendererGroup.RenderControllers?.Length; controllerIndex++)
                     {
                         var controller = rendererGroup.RenderControllers[controllerIndex];
@@ -1445,13 +1722,17 @@ namespace Live2D.Cubism.Rendering.URP
                 // Sort the renderers by their sorting order.
                 SortingRendererGroups(data);
 
+                // Take the groups that a model drawn by a rendering interceptor composites into through the
+                // common RT off direct rendering for this frame.
+                UpdateGroupsRenderDirect(data);
+
                 // Classify groups: direct groups draw straight to the camera target; common-RT groups
                 // composite through the common RT and need a blit.
                 var anyDirectGroup = false;
                 var anyCommonRtGroup = false;
                 for (var i = 0; i < _sortedRendererGroupDataArray?.Length; i++)
                 {
-                    if (_sortedRendererGroupDataArray[i].IsDirectGroup)
+                    if (_sortedRendererGroupDataArray[i].CanGroupDirectRenderCurrentFrame)
                     {
                         anyDirectGroup = true;
                     }
@@ -1557,9 +1838,14 @@ namespace Live2D.Cubism.Rendering.URP
                     // handle resolves to a RenderTexture (direct-to-backBuffer / all-direct scenes).
                     passData.CameraTextureSize = new Vector2(descriptor.width, descriptor.height);
 
+                    // Models drawn by rendering interceptors are checked separately, as they are not in the group.
+                    CheckInterceptedRenderControllers(out var interceptedCanRenderDirectly, out var interceptedNeedsHighPrecisionMask);
+
                     // The common / temporary full-screen RTs are only used when at least one render controller group
-                    // composites through the common RT (a non-direct group).
-                    var needsCommonRenderingTexture = !EnableDirectRendering;
+                    // composites through the common RT (a non-direct group). A model drawn by an interceptor that
+                    // cannot render directly turns the group it interrupts into one (see UpdateGroupsRenderDirect).
+                    var needsCommonRenderingTexture = !EnableDirectRendering
+                                                      || !interceptedCanRenderDirectly;
                     if (!needsCommonRenderingTexture)
                     {
                         for (var controllerIndex = 0; controllerIndex < renderControllers.Length; controllerIndex++)
@@ -1579,7 +1865,7 @@ namespace Live2D.Cubism.Rendering.URP
                     {
                         for (var groupIndex = 0; groupIndex < _sortedRendererGroupDataArray.Length; groupIndex++)
                         {
-                            if (!_sortedRendererGroupDataArray[groupIndex].IsDirectGroup)
+                            if (!_sortedRendererGroupDataArray[groupIndex].CanGroupDirectRenderCache)
                             {
                                 needsCommonRenderingTexture = true;
                                 break;
@@ -1607,23 +1893,17 @@ namespace Live2D.Cubism.Rendering.URP
                     // (owned by CubismRenderController, bound directly in the mask pre-pass), so nothing to
                     // allocate here. Only the shared full-screen texture for high-precision / offscreen masks
                     // is a render-graph resource, and only when the scene actually uses it.
-                    var needHighPrecisionMask = false;
-                    for (var controllerIndex = 0; controllerIndex < renderControllers.Length; controllerIndex++)
+                    var needHighPrecisionMask = interceptedNeedsHighPrecisionMask;
+                    if (!needHighPrecisionMask)
                     {
-                        var cubismRenderController = renderControllers[controllerIndex];
-                        if (!cubismRenderController || !cubismRenderController.HasMask)
+                        for (var controllerIndex = 0; controllerIndex < renderControllers.Length; controllerIndex++)
                         {
-                            continue;
-                        }
-
-                        // High-precision drawables and offscreen masks use the dedicated full-screen texture.
-                        var offscreenRenderers = cubismRenderController.OffscreenRenderers;
-                        if (cubismRenderController.MaskTextureController
-                            && cubismRenderController.MaskTextureController.UseHighPrecisionMask
-                            || (offscreenRenderers != null && offscreenRenderers.Length > 0))
-                        {
-                            needHighPrecisionMask = true;
-                            break;
+                            // High-precision drawables and offscreen masks use the dedicated full-screen texture.
+                            if (NeedsHighPrecisionMaskTexture(renderControllers[controllerIndex]))
+                            {
+                                needHighPrecisionMask = true;
+                                break;
+                            }
                         }
                     }
 
@@ -1655,6 +1935,7 @@ namespace Live2D.Cubism.Rendering.URP
 
                     passData.EnableBatching = EnableBatching;
                     passData.EnableDirectRendering = EnableDirectRendering;
+                    passData.CurrentGroup = default;
                     passData.BatchThreshold = BatchThreshold;
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
                     passData.EnableOffscreenPreClear = EnableOffscreenPreClear;
@@ -1736,7 +2017,7 @@ namespace Live2D.Cubism.Rendering.URP
 #endif
                 // Reset per-pass transient state so the reused instance matches a freshly allocated one.
                 _passData.ActiveHighPrecisionMaskContext = null;
-                _passData.CurrentGroupRendersDirect = false;
+                _passData.CurrentGroup = default;
 
                 // Precompute the per-renderer skip flags before recording draws.
                 PrecomputeSkipRendering(_passData);

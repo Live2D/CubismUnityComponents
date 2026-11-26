@@ -249,6 +249,10 @@ namespace Live2D.Cubism.Rendering
                 {
                     // Update the group if it still has controllers.
                     _groupDataArray[index] = renderControllerGroupData;
+
+                    // The render pass rebuilds a group only when this is raised or the sorting of one of its
+                    // models changed. Otherwise, it keeps drawing the removed model from its cached group.
+                    DidChangeSortingRenderControllerGroup = true;
                     return;
                 }
 

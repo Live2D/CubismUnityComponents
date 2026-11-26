@@ -159,13 +159,31 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         }
 
         /// <summary>
+        /// Render controller of the model this interceptor draws, or null when it draws a plain renderer.
+        /// </summary>
+        internal CubismRenderController InterceptedRenderController
+        {
+            get
+            {
+                return _renderController;
+            }
+        }
+
+        /// <summary>
         /// Called by Unity when the component is enabled.
         /// </summary>
         public void OnEnable()
         {
             _renderController = GetComponent<CubismRenderController>();
 
-            if (!_renderController)
+            if (_renderController)
+            {
+                // This interceptor draws the model from now on. Take it out of the common controller group,
+                // which it is in when this component is enabled after the render controller, for example
+                // when it is added at runtime. Otherwise, the model is drawn by both.
+                _renderController.UpdateRenderControllerGroupRegistration(null);
+            }
+            else
             {
                 _renderer = GetComponent<Renderer>();
 
@@ -201,6 +219,13 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             CubismRenderingInterceptorsManager.GetInstance().RemoveInterceptors(this);
 
             RenderPipelineManager.beginContextRendering -= OnBeginContextRendering;
+
+            // This interceptor no longer draws the model. Hand it back to the common controller group unless
+            // another interceptor draws it or the model itself is disabled.
+            if (_renderController)
+            {
+                _renderController.UpdateRenderControllerGroupRegistration(this);
+            }
         }
 
         /// <summary>
@@ -233,6 +258,50 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
         public virtual void OnLateUpdate()
         {
 
+        }
+
+        /// <summary>
+        /// Gets the sorting index of the render controller group this interceptor draws into, when it can be told
+        /// before the groups are drawn.
+        /// </summary>
+        /// <param name="groupSortingIndex">Sorting index of the group. Valid only when this returns true.</param>
+        /// <returns>
+        /// True for <see cref="InterceptingMode.SortingOrder"/>, and for <see cref="InterceptingMode.Drawable"/>
+        /// when the target belongs to a model. False for <see cref="InterceptingMode.ZDepth"/>, which can draw
+        /// into any group depending on the camera.
+        /// </returns>
+        internal bool TryGetInterceptedGroupSortingIndex(out int groupSortingIndex)
+        {
+            switch (Mode)
+            {
+                case InterceptingMode.SortingOrder:
+                    groupSortingIndex = GroupSortingOrder;
+                    return true;
+
+                case InterceptingMode.Drawable:
+                {
+                    // The target is drawn in the group of its own model.
+                    var targetRenderer = _targetArtMesh
+                        ? _targetArtMesh.GetComponent<CubismRenderer>()
+                        : null;
+                    var targetRenderController = targetRenderer
+                        ? targetRenderer.RenderController
+                        : null;
+
+                    if (!targetRenderController)
+                    {
+                        groupSortingIndex = 0;
+                        return false;
+                    }
+
+                    groupSortingIndex = targetRenderController.GroupedSortingIndex;
+                    return true;
+                }
+
+                default:
+                    groupSortingIndex = 0;
+                    return false;
+            }
         }
 
         /// <summary>
@@ -326,28 +395,83 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             }
             else
             {
-                for (var index = 0; index < _renderController.SortedRenderers.Length; index++)
+                // Interceptor-driven models opt out of the common controller group (see
+                // CubismRenderController.OnEnable), so the render pass never computed their skip flags either.
+                // Compute them with the same rules, which also hide the model while its controller is disabled.
+                // Nothing else needs preparing then, as every draw object of the model is skipped.
+                var isControllerInactive = CubismRenderPassFeature.CubismRenderPass.PrecomputeSkipRendering(_renderController);
+
+                if (!isControllerInactive)
                 {
-                    var targetRenderer = _renderController.SortedRenderers[index];
-
-                    // Check whether to skip rendering.
-                    CheckSkipRendering(targetRenderer);
-
-                    if (targetRenderer.SkipRendering)
-                    {
-                        continue;
-                    }
-
-                    // Draw the object.
-                    targetRenderer.DrawObject(args.CommandBuffer, args.PassData);
+                    DrawRenderController(args);
                 }
-
-                // Submit offscreen draws.
-                _renderController.SubmitDrawOffscreen(args.CommandBuffer, args.PassData);
             }
 
             // Mark as drawn.
             _cameraDrawStatus[statusIndex].LastRenderedPassCount = _renderPassCounter;
+        }
+
+        /// <summary>
+        /// Draws the model of <see cref="_renderController"/> into the group being drawn.
+        /// Call after the skip flags of the model are computed.
+        /// </summary>
+        /// <param name="args"> Event arguments. </param>
+        private void DrawRenderController(CubismRenderedEventArgs args)
+        {
+            // The model is not in the group, so the render pass never prepared its per-pass state either.
+            // Point the model at the render target of the group it is drawn into and leave any offscreen
+            // stack from the previous pass. Otherwise, its draws read a stale frame buffer.
+            _renderController.CurrentFrameBuffer = args.PassData.CurrentGroup.FrameBuffer;
+            _renderController.CurrentOffscreenUnmanagedIndex = -1;
+
+            // Render the clipping-mask atlas, which the render pass only does for the grouped controllers
+            // before the draw loop. Without it the masked drawables sample an atlas nothing was drawn into.
+            var didRenderMaskAtlas = _renderController.PrepareMaskAtlas(args.CommandBuffer, args.PassData.CameraTextureSize);
+
+            // Rendering the atlas leaves the render target on it. Bind the group's target again, as the render
+            // pass does after rendering the atlases. Otherwise, when nothing of the model is drawn below, the
+            // draws that follow in the same event and do not bind a target themselves land in the atlas.
+            if (didRenderMaskAtlas)
+            {
+                var groupFrameBuffer = args.PassData.CurrentGroup.FrameBuffer;
+
+                if (groupFrameBuffer)
+                {
+                    args.CommandBuffer.SetRenderTarget(groupFrameBuffer, args.PassData.CameraDepthTextureHandle);
+                }
+                else
+                {
+                    // Nothing resolves to a RenderTexture when the camera renders straight to the backBuffer,
+                    // so bind the camera handle itself, which stays a valid render target in that case.
+                    args.CommandBuffer.SetRenderTarget(args.PassData.CameraTextureHandle, args.PassData.CameraDepthTextureHandle);
+                }
+            }
+
+            // Follow render order changes made by animation, and camera moves in a depth sorting mode.
+            // The render pass only sorts the grouped models.
+            _renderController.UpdateSortedRenderers(args.PassData.CameraData.Camera, args.PassData.CameraData.WorldSpaceCameraPos);
+
+            // Finish the offscreen state that depends on the skip flags, as the render pass does for the
+            // grouped models. Skipping empty offscreens and the regions their composites are limited to.
+            CubismRenderPassFeature.CubismRenderPass.PrepareInterceptedOffscreens(_renderController, args.PassData);
+
+            var sortedRenderers = _renderController.SortedRenderers;
+            for (var index = 0; index < sortedRenderers.Length; index++)
+            {
+                var targetRenderer = sortedRenderers[index];
+
+                if (!targetRenderer
+                    || targetRenderer.SkipRendering)
+                {
+                    continue;
+                }
+
+                // Draw the object.
+                targetRenderer.DrawObject(args.CommandBuffer, args.PassData);
+            }
+
+            // Submit offscreen draws.
+            _renderController.SubmitDrawOffscreen(args.CommandBuffer, args.PassData);
         }
 
         /// <summary>
@@ -516,37 +640,5 @@ namespace Live2D.Cubism.Rendering.URP.RenderingInterceptor
             return ShouldDrawForMode(args);
         }
 
-        /// <summary>
-        /// Checks whether to skip rendering for the given renderer.
-        /// </summary>
-        /// <param name="targetRenderer"> The target renderer. </param>
-        private void CheckSkipRendering(CubismRenderer targetRenderer)
-        {
-            targetRenderer.SkipRendering |= !targetRenderer
-                                                    || !targetRenderer.gameObject.activeSelf
-                                                    || !targetRenderer.MeshRenderer
-                                                    || !targetRenderer.MeshRenderer.enabled;
-
-            switch (targetRenderer.DrawObjectType)
-            {
-                case CubismModelTypes.DrawObjectType.Drawable:
-                    targetRenderer.SkipRendering |= targetRenderer.DisplayedOpacity <= 0.0f;
-                    break;
-                case CubismModelTypes.DrawObjectType.Offscreen:
-                    targetRenderer.SkipRendering |= targetRenderer.DisplayedOffscreenOpacity <= 0.0f;
-
-                    if (!targetRenderer.SkipRendering)
-                    {
-                        break;
-                    }
-
-                    // Skip rendering for all child drawables and offscreens of the offscreen part.
-                    targetRenderer.SkipDescendantRenderers();
-                    break;
-                default:
-                    targetRenderer.SkipRendering = true;
-                    break;
-            }
-        }
     }
 }

@@ -12,7 +12,6 @@ using Live2D.Cubism.Framework.Utils;
 using Live2D.Cubism.Rendering.Masking;
 using Live2D.Cubism.Rendering.URP;
 using System;
-using System.Collections.Generic;
 using Live2D.Cubism.Rendering.URP.RenderingInterceptor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -310,6 +309,11 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         internal bool DidChangeSorting;
 
+        /// <summary>
+        /// <see cref="CompareBySortingOrder"/> as a delegate, created once so that sorting allocates nothing.
+        /// </summary>
+        private static readonly Comparison<CubismRenderer> CompareBySortingOrderComparison = CompareBySortingOrder;
+
         [NonSerialized]
         private CubismRenderer[] _sortedRenderers;
 
@@ -331,13 +335,89 @@ namespace Live2D.Cubism.Rendering
         }
 
         /// <summary>
+        /// Sorts <see cref="SortedRenderers"/> again when the render order changed since it was last sorted.
+        /// A model drawn by a rendering interceptor is not in <see cref="CubismRenderControllerGroup"/>, so the
+        /// render pass, which consumes <see cref="DidChangeSorting"/> and <see cref="DidChangeDrawableRenderOrder"/>
+        /// for the grouped models, never sees its changes. Call this before drawing such a model.
+        /// </summary>
+        /// <param name="camera">Camera the model is drawn for.</param>
+        /// <param name="cameraPosition">World space position of <paramref name="camera"/>.</param>
+        internal void UpdateSortedRenderers(Camera camera, Vector3 cameraPosition)
+        {
+            // A depth sorting mode orders the renderers by their distance to the camera as well, so the order
+            // changes with the camera and has to be checked against it, as the render pass does for the
+            // grouped models.
+            var sortByDepth = SortingMode.SortByDepth()
+                              && camera;
+
+            if (sortByDepth)
+            {
+                UpdateDidChangeSortingFromZ(cameraPosition);
+            }
+
+            if (_sortedRenderers != null
+                && !DidChangeSorting
+                && !DidChangeDrawableRenderOrder)
+            {
+                return;
+            }
+
+            if (sortByDepth)
+            {
+                SortRenderersByDepth(cameraPosition, camera.transform.forward);
+            }
+            else
+            {
+                SortRenderers();
+            }
+
+            // Consumed here, as the render pass does for the grouped models. Cleared after sorting, because
+            // updating the offscreen render orders while sorting raises DidChangeSorting again.
+            DidChangeSorting = false;
+            DidChangeDrawableRenderOrder = false;
+        }
+
+        /// <summary>
         /// Sorts the <see cref="Renderers"/> by their draw object render order.
         /// </summary>
         private void SortRenderers()
         {
-            if (Renderers == null)
+            if (!PrepareSortedRenderers())
             {
                 return;
+            }
+
+            Array.Sort(_sortedRenderers, CompareBySortingOrderComparison);
+        }
+
+        /// <summary>
+        /// Sorts the <see cref="Renderers"/> as the render pass sorts the grouped models in a depth sorting mode:
+        /// by their sorting order, and by their distance to the camera when it is the same.
+        /// In a depth sorting mode the drawables of a model share one sorting order and are told apart only by
+        /// their depth, so <see cref="SortRenderers"/> alone leaves their order undefined.
+        /// </summary>
+        /// <param name="cameraPosition">World space position of the camera.</param>
+        /// <param name="cameraForward">Forward direction of the camera (normalized vector).</param>
+        private void SortRenderersByDepth(Vector3 cameraPosition, Vector3 cameraForward)
+        {
+            if (!PrepareSortedRenderers())
+            {
+                return;
+            }
+
+            CubismRenderPassFeature.CubismRenderPass.SortBySortingOrder(_sortedRenderers, cameraPosition, cameraForward);
+        }
+
+        /// <summary>
+        /// Updates the render orders of the offscreens and copies the <see cref="Renderers"/> into
+        /// <see cref="SortedRenderers"/> in their original order, ready to be sorted.
+        /// </summary>
+        /// <returns>True when there are renderers to sort.</returns>
+        private bool PrepareSortedRenderers()
+        {
+            if (Renderers == null)
+            {
+                return false;
             }
 
             for (var i = 0; i < Renderers.Length; i++)
@@ -352,20 +432,18 @@ namespace Live2D.Cubism.Rendering
                         DrawableRenderers.Length + Renderers[i].Offscreen.UnmanagedIndex]);
             }
 
-            var renderers = new List<CubismRenderer>(Renderers);
+            // Reuse the array, as the render order can change every frame while an animation runs.
+            // The renderers are copied in their original order every time, so the result does not depend on
+            // the previous sort.
+            if (_sortedRenderers == null
+                || _sortedRenderers.Length != Renderers.Length)
+            {
+                _sortedRenderers = new CubismRenderer[Renderers.Length];
+            }
 
-            SortBySortingOrder(renderers);
+            Array.Copy(Renderers, _sortedRenderers, Renderers.Length);
 
-            _sortedRenderers = renderers.ToArray();
-        }
-
-        /// <summary>
-        /// Sorts the given renderers by their sorting order.
-        /// </summary>
-        /// <param name="renderers"> Renderers to sort. </param>
-        private void SortBySortingOrder(List<CubismRenderer> renderers)
-        {
-            renderers.Sort(CompareBySortingOrder);
+            return true;
         }
 
         /// <summary>
@@ -374,7 +452,7 @@ namespace Live2D.Cubism.Rendering
         /// <param name="a"> First renderer. </param>
         /// <param name="b"> Second renderer. </param>
         /// <returns></returns>
-        private int CompareBySortingOrder(CubismRenderer a, CubismRenderer b)
+        private static int CompareBySortingOrder(CubismRenderer a, CubismRenderer b)
         {
             return a.MeshRenderer.sortingOrder - b.MeshRenderer.sortingOrder;
         }
@@ -931,11 +1009,15 @@ namespace Live2D.Cubism.Rendering
         /// </summary>
         /// <param name="commandBuffer">Command buffer to record the mask draws into.</param>
         /// <param name="highPrecisionMaskBufferSize">Pixel size of the high-precision mask render texture.</param>
-        internal void PrepareMaskAtlas(CommandBuffer commandBuffer, Vector2 highPrecisionMaskBufferSize)
+        /// <returns>
+        /// True when the atlas was rendered, which leaves the render target of <paramref name="commandBuffer"/>
+        /// on the atlas.
+        /// </returns>
+        internal bool PrepareMaskAtlas(CommandBuffer commandBuffer, Vector2 highPrecisionMaskBufferSize)
         {
             if (!HasMask)
             {
-                return;
+                return false;
             }
 
             // Record the actual high-precision buffer resolution before the clipping contexts are computed.
@@ -951,13 +1033,13 @@ namespace Live2D.Cubism.Rendering
             // texture; they do not use the per-controller atlas.
             if ((MaskTextureController && MaskTextureController.UseHighPrecisionMask) || _drawableClippingManager == null)
             {
-                return;
+                return false;
             }
 
             // Render the atlas at most once per frame.
             if (_maskAtlasFrame == Time.frameCount)
             {
-                return;
+                return false;
             }
             _maskAtlasFrame = Time.frameCount;
 
@@ -965,7 +1047,7 @@ namespace Live2D.Cubism.Rendering
             var atlasBuffers = MaskTextureController ? MaskTextureController.RenderTextures : null;
             if (atlasBuffers == null || atlasBuffers.Length == 0)
             {
-                return;
+                return false;
             }
 
             var clipContexts = _drawableClippingManager.GetClippingContextListForMask();
@@ -1000,6 +1082,8 @@ namespace Live2D.Cubism.Rendering
                     }
                 }
             }
+
+            return true;
         }
 
         /// <summary>
